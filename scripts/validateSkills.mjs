@@ -17,7 +17,7 @@
  *  - 데모 레지스트리(demo/src/demos/index.ts)와 패턴 폴더가 서로 빠짐없이 짝지어짐
  *  - 공유 코어 복사본 동기: 첫 줄에 `@shared-core {파일} origin: {패턴}` 헤더가 있는 assets 파일은 원본과 내용이 같아야 한다
  * 문서·지침
- *  - README.md·README.en.md 배지 숫자(패턴 수, 테스트 수)가 실제와 일치
+ *  - README.md·README.ko.md 배지 숫자(패턴 수, 테스트 수)가 실제와 일치
  *  - AGENTS.md 존재, CLAUDE.md가 @AGENTS.md를 가져옴, .claude/skills/add-skill이 .agents/skills/add-skill을 가리킴,
  *    add-skill은 metadata.internal: true — 저장소 관리용이라 일반 사용자 설치 목록(npx skills)에서 숨긴다
  */
@@ -165,8 +165,8 @@ for (const [, slug] of registry.matchAll(/slug: '([^']+)'/g)) {
 }
 
 // README 배지 — 숫자가 실제와 어긋나면 문서가 거짓말을 한다. 테스트 수는 vitest가 남긴 마지막 결과 없이도 셀 수 있게 it( 호출 수로 센다
-// 영어판(README.en.md)이 있으면 같은 숫자여야 한다 — 두 문서가 다른 숫자를 말하면 하나는 거짓말이다
-const readmes = ['README.md', 'README.en.md'].filter((name) => existsSync(join(root, name))).map((name) => ({ name, text: readFileSync(join(root, name), 'utf8') }))
+// 한국어판(README.ko.md)이 있으면 같은 숫자여야 한다 — 두 문서가 다른 숫자를 말하면 하나는 거짓말이다
+const readmes = ['README.md', 'README.ko.md'].filter((name) => existsSync(join(root, name))).map((name) => ({ name, text: readFileSync(join(root, name), 'utf8') }))
 const expectBadge = ({ label, actual }) => {
   for (const { name, text } of readmes) {
     const shown = Number(text.match(new RegExp(`badge/${label}-(\\d+)%20`))?.[1] ?? NaN)

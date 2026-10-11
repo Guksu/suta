@@ -83,7 +83,7 @@ node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일�
 3. `assets/` — 코어 + React 래퍼 + CSS. 접근성 포함.
 4. `demo/src/demos/{패턴}/` 데모 페이지 + `demo/src/demos/index.ts` 등록(`title`·`description`과 영어 `titleEn`·`descriptionEn` 모두, `category`는 카탈로그 묶음이 된다). 데모 안 문구는 `defineCopy({ ko, en })` 두 벌(규칙 7). 테스트는 `demo/src/tests/`.
 5. `npm run catalog` — 진입 스킬의 패턴 카탈로그를 다시 만든다. 손으로 고치지 않는다.
-6. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.en.md`의 배지 숫자(패턴 수, tests 수)를 갱신한다 — 검사 스크립트가 두 README의 배지를 실제 수와 비교한다.
+6. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.ko.md`의 배지 숫자(패턴 수, tests 수)를 갱신한다 — 검사 스크립트가 두 README의 배지를 실제 수와 비교한다.
 7. 워크로그.
 
 진입 스킬(`skills/suta/SKILL.md`)의 description을 고칠 때는 `evals/trigger.json`도 같이 본다. 일반 UI 요청(should)에는 suta가 걸리고, UI가 아닌 요청(shouldNot)에는 걸리지 않아야 한다. description은 1,024바이트 이하이고 `": "`를 쓰지 않는다(YAML).

@@ -57,7 +57,7 @@ demo/src/demos/{pattern-name}/   # assets/를 import해 렌더링하는 데모 �
 ### 3. 카탈로그·문서
 
 1. `npm run catalog` — 진입 스킬 `skills/suta/SKILL.md`의 패턴 카탈로그 블록을 다시 만든다. 손으로 고치지 않는다(검사 스크립트가 동기 여부를 본다).
-2. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.en.md`의 배지 숫자(패턴 수·tests 수)를 갱신한다.
+2. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.ko.md`의 배지 숫자(패턴 수·tests 수)를 갱신한다.
 
 ### 4. 게이트 검증 — 전부 통과해야 완료
 
