@@ -78,4 +78,3 @@ Median generation time per page increased from 61 to 103 seconds. See the [bench
 - The agent reads more, so it takes longer and costs more. In the e-commerce test, 2.3 minutes and $0.39 became 5 to 7 minutes and $1.35 to $1.55.
 - Static checks alone cannot reliably detect missing styles or unresponsive buttons. The UI still needs to be checked in a browser.
 - Screen generation experiments used only Claude Code's default model.
-
