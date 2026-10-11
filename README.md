@@ -1,136 +1,60 @@
 # suta
 
-Claude Code나 Codex가 UI를 만들 때 참고하는 스킬입니다. 레이아웃·색·모션 기준과 UI 패턴 56종의 코드를 제공합니다.
+Layout, color and motion guidelines, with code for 56 UI patterns, for Claude Code and Codex.
 
-[![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-56%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-633%20passing-555555)
-[![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
+I built suta because AI-generated UI kept repeating the same cards, excessive colors and unnecessary decoration. I wanted to reduce that design AI slop.
 
-[라이브 데모](https://guksu.github.io/suta/) · [설치](#설치) · [상세 안내](docs/guide.md) · [English](README.en.md)
+[한국어](README.ko.md) · [Live demo](https://guksu.github.io/suta/) · [Install](#installation) · [Full guide](docs/guide.en.md)
 
-## 화면 비교
+![The same shopping app request: without suta on top, with suta below](docs/assets/as-is-to-be.jpg)
 
-아래 요청들을 Claude Code에 맡겼습니다. 한쪽은 아무것도 설치하지 않았고, 다른 쪽은 suta만 설치했습니다. 모델과 설정은 같습니다.
+Same request, model and settings in Claude Code. Top: without suta (one run). Bottom: run 3 of 4 with suta 0.8. Results vary; generation took longer with suta. [Method, all results and limitations](docs/comparisons.en.md) · [Photo credits](docs/assets/CREDITS.md)
 
-### 모바일 웹뷰: 이커머스
+## Installation
 
-> 모바일 웹뷰에 사용하는 이커머스 화면들을 구현해줘. 홈 / 상품 리스트 / 상품 상세 / 마이 페이지 / 장바구니 / 설정 / GNB가 있어야 해
-
-![위 줄은 suta 없이(AS-IS), 아래 줄은 suta를 설치하고(TO-BE) 만든 쇼핑 앱 화면. 왼쪽부터 홈, 상품 리스트, 상품 상세, 장바구니, 마이, 설정](docs/assets/as-is-to-be.jpg)
-
-왼쪽부터 홈, 상품 리스트, 상품 상세, 장바구니, 마이, 설정입니다. 390px 폭에서 찍었습니다. 음식 사진의 출처는 [이미지 출처](docs/assets/CREDITS.md)에 있습니다.
-
-suta 없이는 한 번, suta 0.8로는 네 번 실행했습니다. 아래 줄은 네 번 중 세 번째 실행입니다. 표는 그림 속 두 줄을 비교합니다.
-
-| | suta 없이 | suta 설치 |
-|---|---|---|
-| 색 | 주황을 배너·카테고리·배지·별점·버튼에 씀 | 갈색 강조색 하나. 할인율만 빨강 |
-| 아이콘 | 이모지 | 같은 크기·같은 굵기의 선 아이콘 |
-| 상품 카드 | BEST·NEW·인기 배지 | 할인율, 가격, 별점 |
-| 홈 | 검색창 없음 | 상단에 검색창 |
-| 상세 하단 바 | 찜, 수량, 담기, 구매 버튼 4개 | 찜과 구매하기. 옵션과 수량은 구매하기를 누르면 올라오는 시트에서 고름 |
-| 하단 탭 | 장바구니 화면에 탭과 주문 버튼이 함께 고정됨 | 헤더 오른쪽에 장바구니 아이콘. 상세와 장바구니에서는 탭을 숨김 |
-| 접근성 검사(axe, 6개 화면) | 색 대비 위반 111곳 | 위반 0곳 |
-
-네 번의 suta 실행 모두 홈 검색창, 헤더의 장바구니, 구매 시트를 포함했고, 상세·장바구니 화면에서는 하단 탭을 숨겼습니다. 강조색은 세 번이 짙은 초록이었고, axe 접근성 검사에서 발견된 위반은 0\~2곳이었습니다. 생성 시간은 2.3분에서 5\~7분으로 늘었습니다. [실험 방법과 실행별 결과](docs/research/2026-10-08-commerce-webview.md)
-
-### 데스크톱: 증권 플랫폼 웹사이트
-
-> 증권 플랫폼 웹사이트를 구현해줘. 홈(시장 개요) / 종목 상세(차트·호가·주문) / 내 자산 / 관심 종목 / 검색 / 거래 내역 / 설정 / GNB가 있어야 해
-
-![위 줄은 suta 없이(AS-IS), 아래 줄은 suta를 설치하고(TO-BE) 만든 증권 웹사이트. 왼쪽은 홈, 오른쪽은 종목 상세](docs/assets/securities-as-is-to-be.jpg)
-
-왼쪽은 홈, 오른쪽은 종목 상세입니다. 1440px 폭에서 캡처했으며, 종목 이름과 시세는 예시 데이터입니다.
-
-suta 없이는 네 번, suta 0.10으로는 두 번 실행했습니다. 그림은 두 조건의 첫 번째 실행입니다. 표는 화면 7개를 잰 값입니다.
-
-| | suta 없이 (4번) | suta 0.10 (2번) |
-|---|---|---|
-| 접근성 위반(axe, 1440px) | 63~277곳, 대부분 색 대비 | 0곳 |
-| 상승 표시 색 | `#e8383d` 등, 흰 바탕에서 대비 4.1:1 | `#d0262d`, 대비 4.5:1 이상 |
-| 첫 화면 안의 주문 버튼 | 네 번 중 두 번 | 두 번 모두 |
-| 헤더 검색창 | 네 번 모두 | 두 번 모두(`/` 단축키 표시) |
-| 모바일 종목 상세의 하단 고정 판매·구매 | 없음 | 두 번 모두 |
-| 생성 시간·비용 | 3\~4.4분, 0.54\~0.75달러 | 7.4\~14.5분, 1.51\~1.72달러 |
-
-모델 두 개에 설치 여부를 가린 화면 14쌍을 보여 주고 비교를 맡겼습니다. 각 쌍의 순서를 바꿔 두 번씩 평가한 결과, 모델별로 28회 중 23회와 24회 suta를 선택했습니다. 판정 모델 하나는 화면을 만든 모델과 같습니다. 적은 표본에 대한 모델 평가이므로 일반적인 품질 차이로 해석하기는 어렵습니다.
-
-0.10에는 증권 웹사이트 10곳을 조사해 주문 패널과 검색창 배치 기준을 추가했습니다. 이전 버전과의 차이, 실험 방법은 [증권 웹사이트 연구](docs/research/2026-10-09-securities-web.md)에 있습니다.
-
-## 어떻게 동작하나
-
-에이전트는 [스킬 문서](skills/suta/SKILL.md)에서 작업 순서와 레이아웃·색·모션 기준을 읽습니다. 반복되는 카드, 불필요한 장식, 제각각인 간격과 글자 크기를 줄이고, 화면 용도에 맞는 배치를 고르도록 안내합니다.
-
-바텀시트·하단 탭·토스트 등 [패턴 56종](skills/suta/patterns/)에는 설명서와 코드가 있습니다. 필요한 코드를 프로젝트에 복사해 사용하며, 패턴 코드에 별도 런타임 라이브러리는 필요하지 않습니다. 키보드 조작, 스크린 리더, 동작 줄이기 설정도 구현 기준에 포함됩니다.
-
-플러그인으로 설치하면 파일을 편집한 뒤 레이아웃·모션 검사를 실행하고, 바뀐 줄에서 발견한 문제를 에이전트에 전달합니다. 스킬 문서와 패턴 설명서는 한국어로 작성되어 있습니다.
-
-## 설치
-
-Claude Code:
+**Claude Code** — run in the chat:
 
 ```text
 /plugin marketplace add Guksu/suta
 /plugin install suta@suta
 ```
 
-Codex는 설치한 뒤 `/hooks`에서 suta의 편집 후 검사를 승인합니다.
+**Codex** — run in a terminal, then approve suta's post-edit check in `/hooks`:
 
 ```bash
 codex plugin marketplace add Guksu/suta
 codex plugin add suta@suta
 ```
 
-Cursor, Gemini CLI, GitHub Copilot 같은 다른 에이전트에는 스킬만 설치합니다. 편집 후 검사는 돌지 않습니다.
+**Other agents / skill only** — installs the guidelines and patterns without the plugin's post-edit check:
 
 ```bash
 npx skills add Guksu/suta --skill suta
 ```
 
-설치 스크립트, 설치 폴더, 예전 버전에서 옮기는 방법은 [상세 안내의 "설치"](docs/guide.md#설치)에 있습니다.
+[Install options and migration](docs/guide.en.md#installation) · [Updating](docs/guide.en.md#updating) · [skills.sh listing](https://skills.sh/guksu/suta/suta)
 
-## 쓰는 법
+## Try it
 
-설치 후 "로그인 화면 만들어줘"나 "이 버튼 애니메이션 다듬어줘"라고 요청하면, 에이전트가 suta를 참고해 필요한 패턴을 선택합니다.
+After installing, ask your agent:
 
-패턴 56종은 [라이브 데모](https://guksu.github.io/suta/)에서 직접 만져 볼 수 있습니다. 목록은 [상세 안내](docs/guide.md#패턴-56종)에 있습니다.
+> Use suta to build a login screen with email, password, a sign-in button and a password reset link. Keep it simple and make it usable with a keyboard.
 
-## 벤치마크
+The agent reads the guidelines, selects relevant patterns and adapts their code to your project. Plugin installs also report layout and motion issues after edits. The skill and pattern documentation are in Korean; one recorded check used an English request and produced English UI copy and a reply in English.
 
-상세·폼·설정·대시보드·랜딩·장바구니·목록·인터랙션, 8가지 요청을 조건별로 두 번씩 실행했습니다. 아래는 suta 0.6.0과 미설치 조건을 비교한 2차 결과로, 생성된 화면을 브라우저에서 측정했습니다.
+Try the patterns in the [live demo](https://guksu.github.io/suta/). Browser checks are still needed; static checks cannot catch every UI problem.
 
-| 조건별 화면 16개 | suta 없이 | suta 0.6.0 |
-|---|---|---|
-| 접근성 위반 (axe, 합계) | 87 | 13 |
-| 중첩된 상자 (합계) | 41 | 1 |
-| 그라데이션·흐림·큰 그림자 (합계) | 47 | 0 |
-| 24px 미만 터치 영역 (합계) | 27 | 0 |
-| 12px 미만 글자가 있는 화면 | 4 | 0 |
-| 320px에서 가로로 넘친 화면 | 2 | 0 |
-| 주 버튼이 파랑·남색·보라 계열인 화면 | 10 | 0 |
+## Follow development
 
-접근성 검사 결과와 장식 사용량을 함께 기록한 표입니다. 색이나 장식의 수만으로 디자인 품질을 판단할 수는 없습니다.
+I use suta in my own work and will keep fixing issues and updating the guidelines and patterns. If something feels wrong, [open an issue](https://github.com/Guksu/suta/issues) with your request and what happened.
 
-설치 여부를 가린 화면 비교에서는 판정 모델별로 32회 중 11회와 19회 suta를 선택했습니다. 판정 모델 하나는 화면을 만든 모델과 같고, 두 모델 모두 무승부를 선택한 경우는 없었습니다. 선호가 엇갈려 시각적 우열은 확인하지 못했습니다.
+[Releases](https://github.com/Guksu/suta/releases) · [Screen comparisons](docs/comparisons.en.md) · [Benchmark](docs/benchmark.en.md) · [Contributing](docs/guide.en.md#contributing)
 
-화면 생성 시간의 중앙값은 61초에서 103초로 늘었습니다. 측정 방법과 전체 결과는 [벤치마크 문서](docs/benchmark.md)에 있습니다.
+[![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
+![Patterns](https://img.shields.io/badge/suta-56%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-633%20passing-555555)
+[![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
-## 한계
+## License
 
-- 실험별 실행 횟수는 조건당 1\~4회입니다. 같은 요청도 실행마다 결과가 달라집니다.
-- 규칙의 값은 국내 앱 31곳의 화면 1,104장과 레퍼런스 웹사이트 19곳에서 뽑았습니다. 다른 나라 서비스의 관례와는 다를 수 있습니다.
-- 에이전트가 읽는 양이 늘어 시간과 비용이 늘어납니다. 이커머스 실험에서 2.3분·0.39달러가 5\~7분·1.35\~1.55달러가 됐습니다.
-- 정적 검사만으로는 스타일 누락이나 클릭되지 않는 버튼을 확인하기 어렵습니다. 브라우저에서 별도로 확인해야 합니다.
-- 화면 생성 실험에는 Claude Code의 기본 모델 하나만 사용했습니다.
-
-## 더 알아보기
-
-- [상세 안내](docs/guide.md): 설치 방법 전체, 동작 방식, 편집 후 검사, 패턴 56종, 개발과 기여
-- [벤치마크](docs/benchmark.md): 일반 Claude Code와 suta를 비교한 방법, 전체 지표, 판정 이유
-- [에이전트 작업 지침](AGENTS.md): 이 저장소에서 일하는 코딩 에이전트용
-- 연구: [레이아웃 원칙](docs/research/2026-10-06-layout-principles.md) · [화면 유형별 관례](docs/research/2026-10-07-screen-conventions.md) · [색의 수와 AI 채팅](docs/research/2026-10-08-chat-color.md) · [모바일 웹뷰 이커머스](docs/research/2026-10-08-commerce-webview.md) · [증권 웹사이트](docs/research/2026-10-09-securities-web.md)
-
-## 라이선스
-
-코드는 [MIT](LICENSE)입니다(© 2026 Guksu). README 비교 이미지의 사진 라이선스는 [이미지 출처](docs/assets/CREDITS.md)에 있습니다.
+The code is [MIT](LICENSE) (© 2026 Guksu). Licenses for the photos in the comparison image are in [Image credits](docs/assets/CREDITS.md).

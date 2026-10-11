@@ -1,10 +1,10 @@
 # suta: full guide
 
-The short introduction and install steps are in the [README](../README.en.md). This guide covers every install option, how it works, the post-edit check, all 56 patterns, the repository layout, development and contributing.
+The short introduction and install steps are in the [README](../README.md). This guide covers every install option, how it works, the post-edit check, all 56 patterns, the repository layout, development and contributing.
 
 한국어: [guide.md](guide.md)
 
-Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [56 patterns](#56-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
+Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [Updating](#updating) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [56 patterns](#56-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
 
 ## Overview
 
@@ -92,6 +92,23 @@ cp -R suta/skills/suta .agents/skills/
 Paths follow each tool's documentation as of September 2026. If a tool changes, check that tool's documentation.
 
 If you used the old version (fe-skills), remove it first. In Claude Code, run `/plugin marketplace remove fe-skills` and then install with the commands above. If you also installed the design Q&A plugin `fe-system`, run `/plugin uninstall fe-system@fe-skills`. The old install script and skills CLI installed a separate skill folder per pattern (`bottom-sheet/` and so on). Those folders overlap with suta on the same requests, so delete them, along with the design Q&A `design` folder. The install script lists any that remain.
+
+## Updating
+
+Read the [release notes](https://github.com/Guksu/suta/releases) before updating.
+
+For **Claude Code**, run these commands in a terminal, then start a new session:
+
+```bash
+claude plugin marketplace update suta
+claude plugin update suta@suta
+```
+
+For **Codex**, refresh the marketplace with `codex plugin marketplace upgrade suta`, then open suta in the app's plugin settings to check and update the installed version. Refreshing the marketplace alone is not confirmation that the installed plugin changed. Check `/hooks` if the app asks you to approve updated hooks.
+
+For a **skills CLI** install, run `npx skills update suta` from the project where you installed it. This updates suta in the scope you select. If you used our install script instead, rerun the same install command with the same destination.
+
+Command references: [Claude Code](https://code.claude.com/docs/en/discover-plugins#update-plugins-now) · [Codex marketplaces](https://developers.openai.com/plugins/build/plugins) · [skills CLI](https://skills.sh/docs/cli).
 
 ## How it works
 

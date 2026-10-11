@@ -1,10 +1,10 @@
 # suta 상세 안내
 
-짧은 소개와 설치는 [README](../README.md)에 있습니다. 이 문서는 설치 방법 전체, 동작 방식, 편집 후 검사, 패턴 56종, 저장소 구조, 개발과 기여 방법을 담습니다.
+짧은 소개와 설치는 [README](../README.ko.md)에 있습니다. 이 문서는 설치 방법 전체, 동작 방식, 편집 후 검사, 패턴 56종, 저장소 구조, 개발과 기여 방법을 담습니다.
 
 English: [guide.en.md](guide.en.md)
 
-목차: [소개](#소개) · [무엇을 없애나](#무엇을-없애나) · [설치](#설치) · [동작 방식](#동작-방식) · [편집 후 검사](#편집-후-검사) · [패턴 56종](#패턴-56종) · [구성](#구성) · [저장소 구조](#저장소-구조) · [개발](#개발) · [기여하기](#기여하기)
+목차: [소개](#소개) · [무엇을 없애나](#무엇을-없애나) · [설치](#설치) · [업데이트](#업데이트) · [동작 방식](#동작-방식) · [편집 후 검사](#편집-후-검사) · [패턴 56종](#패턴-56종) · [구성](#구성) · [저장소 구조](#저장소-구조) · [개발](#개발) · [기여하기](#기여하기)
 
 ## 소개
 
@@ -92,6 +92,23 @@ cp -R suta/skills/suta .agents/skills/
 경로는 2026년 9월 기준 각 도구의 문서를 따랐습니다. 도구가 바뀌면 그 도구의 문서를 확인하세요.
 
 예전 버전(fe-skills)을 쓰고 있었다면 먼저 지웁니다. Claude Code에서는 `/plugin marketplace remove fe-skills`로 옛 마켓플레이스를 지운 뒤 위 명령으로 설치합니다. 설계 문답 플러그인 `fe-system`도 설치했다면 `/plugin uninstall fe-system@fe-skills`로 지웁니다. 예전 설치 스크립트와 skills CLI는 패턴마다 스킬 폴더(`bottom-sheet/` 등)를 따로 설치했습니다. 이 폴더들은 suta와 같은 요청에 겹쳐 걸리므로 지웁니다. 설계 문답의 `design` 폴더도 지웁니다. 설치 스크립트가 남은 폴더를 알려 줍니다.
+
+## 업데이트
+
+업데이트 전에 [릴리스 노트](https://github.com/Guksu/suta/releases)를 확인하세요.
+
+**Claude Code**는 터미널에서 아래 명령을 실행하고 새 세션을 시작합니다.
+
+```bash
+claude plugin marketplace update suta
+claude plugin update suta@suta
+```
+
+**Codex**는 `codex plugin marketplace upgrade suta`로 마켓플레이스를 갱신한 뒤, 앱의 플러그인 설정에서 suta의 설치 버전을 확인하고 업데이트합니다. 마켓플레이스 갱신만으로 설치된 플러그인까지 바뀌었다고 판단하지 마세요. 변경된 훅의 승인을 요청하면 `/hooks`에서 확인합니다.
+
+**skills CLI**로 설치했다면 설치한 프로젝트에서 `npx skills update suta`를 실행합니다. 범위를 선택하면 해당 범위의 suta를 업데이트합니다. 저장소의 설치 스크립트를 사용했다면 같은 대상 경로로 설치 명령을 다시 실행합니다.
+
+명령 참고: [Claude Code](https://code.claude.com/docs/en/discover-plugins#update-plugins-now) · [Codex 마켓플레이스](https://developers.openai.com/plugins/build/plugins) · [skills CLI](https://skills.sh/docs/cli).
 
 ## 동작 방식
 
