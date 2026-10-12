@@ -23,7 +23,7 @@
   --_duration: var(--toast-duration, 300ms);
   grid-area: 1 / 1; /* 전부 같은 칸에 겹치고, 코어의 translateY로 층을 만든다 */
   justify-self: center;
-  padding: 0.7rem 1.3rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 999px;
   background: var(--toast-bg, rgba(30, 32, 40, 0.95));
   color: var(--toast-color, #fff);

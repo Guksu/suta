@@ -40,7 +40,7 @@
 }
 
 .skeleton-text + .skeleton-text {
-  margin-top: 0.6em;
+  margin-top: 0.5em;
 }
 
 /* 문단의 마지막 줄은 짧게 — 실제 텍스트처럼 보여야 자리 이동이 어색하지 않다 */

@@ -10,7 +10,7 @@ suta — AI 슬롭(AI가 만든 티가 나는 UI)을 없애는 설치형 에이�
 |---|---|---|
 | 진입 스킬 | `skills/suta/SKILL.md` | UI 요청에 걸리는 description + 작업 절차·AI 슬롭 금지선·레이아웃·모션 값 + 패턴 카탈로그(자동 생성 — `npm run catalog`) |
 | 통합 검사·훅 | `skills/suta/scripts/` | `audit.mjs`(레이아웃·모션 검사를 한 번에) + `post-edit-hook.mjs`(편집 후 검사 훅) + 순수 로직(`auditAll.ts`·`hookCore.ts`) |
-| 패턴 56종 | `skills/suta/patterns/{패턴}/` | `PATTERN.md`(설명서) + `assets/`(바닐라 코어 .ts 의존성 0 + React 래퍼 .tsx + CSS) + `references/`(상세) |
+| 패턴 57종 | `skills/suta/patterns/{패턴}/` | `PATTERN.md`(설명서) + `assets/`(바닐라 코어 .ts 의존성 0 + React 래퍼 .tsx + CSS) + `references/`(상세) |
 
 패턴 문서는 `SKILL.md`가 아니라 `PATTERN.md`다. 하위 폴더에 SKILL.md가 있으면 도구가 패턴마다 별도 스킬로 등록한다. 그러면 스킬 목록 길이 예산을 넘기고 진입 스킬과 경쟁한다(검사 스크립트가 막는다).
 

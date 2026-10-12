@@ -1,8 +1,8 @@
 # suta
 
-Layout, color and motion guidelines, with code for 56 UI patterns, for Claude Code and Codex.
+A UI skill for Claude Code and Codex, with layout, color and motion guidelines and code for 57 patterns.
 
-I built suta because AI-generated UI kept repeating the same cards, excessive colors and unnecessary decoration. I wanted to reduce that design AI slop.
+I built suta to reduce the repetitive cards, excessive colors and unnecessary decoration I kept seeing in AI-generated UI.
 
 [한국어](README.ko.md) · [Live demo](https://guksu.github.io/suta/) · [Install](#installation) · [Full guide](docs/guide.en.md)
 
@@ -40,7 +40,7 @@ After installing, ask your agent:
 
 > Use suta to build a login screen with email, password, a sign-in button and a password reset link. Keep it simple and make it usable with a keyboard.
 
-The agent reads the guidelines, selects relevant patterns and adapts their code to your project. Plugin installs also report layout and motion issues after edits. The skill and pattern documentation are in Korean; one recorded check used an English request and produced English UI copy and a reply in English.
+The agent reads the guidelines and adapts the pattern code to your project. The plugin also checks layout and motion after edits. Skill and pattern documentation is in Korean; [English usage notes](docs/guide.en.md#how-it-works) are in the full guide.
 
 Try the patterns in the [live demo](https://guksu.github.io/suta/). Browser checks are still needed; static checks cannot catch every UI problem.
 
@@ -51,8 +51,8 @@ I use suta in my own work and will keep fixing issues and updating the guideline
 [Releases](https://github.com/Guksu/suta/releases) · [Screen comparisons](docs/comparisons.en.md) · [Benchmark](docs/benchmark.en.md) · [Contributing](docs/guide.en.md#contributing)
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-56%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-633%20passing-555555)
+![Patterns](https://img.shields.io/badge/suta-57%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-651%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## License

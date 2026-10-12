@@ -1,18 +1,18 @@
 # suta: full guide
 
-The short introduction and install steps are in the [README](../README.md). This guide covers every install option, how it works, the post-edit check, all 56 patterns, the repository layout, development and contributing.
+The short introduction and install steps are in the [README](../README.md). This guide covers every install option, how it works, the post-edit check, all 57 patterns, the repository layout, development and contributing.
 
 한국어: [guide.md](guide.md)
 
-Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [Updating](#updating) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [56 patterns](#56-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
+Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [Updating](#updating) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [57 patterns](#57-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
 
 ## Overview
 
-UI built by an AI agent often looks AI-made, and it often ships defects a person would catch, such as a button that a keyboard can't reach. Output like this is called **AI slop**. The table in [What it removes](#what-it-removes) lists the common signs.
+suta provides guidelines and pattern code to reduce repetitive cards, excessive colors and unnecessary decoration in AI-generated UI. The agent uses the guidelines and adapts code from 57 patterns to the project.
 
-suta is an agent skill that makes the agent avoid those signs. Once installed, the agent reads suta every time it works on UI. It follows suta's rules against AI slop and adapts code from 56 patterns. The pattern code supports keyboards, screen readers and the reduced-motion setting (an OS option that asks apps to cut animation). Its logic has unit tests in this repository. Installed as a plugin, suta also runs layout and motion checks every time a file is edited.
+The patterns include keyboard, screen reader and reduced-motion support. The plugin checks layout and motion in files changed through supported editing tools. Shell-written files need a manual audit. The rendered UI and interactions still need browser checks.
 
-The name comes from the Korean *suta* (手打), "hand-made", as in noodles pulled by hand instead of pressed by a machine. The goal is UI that looks finished by hand.
+The name comes from the Korean *suta* (手打), as in noodles made by hand.
 
 ## What it removes
 
@@ -21,7 +21,7 @@ The name comes from the Korean *suta* (手打), "hand-made", as in noodles pulle
 | Every screen built from the same hero → three cards → button template, every button filled | A skeleton per screen type, drawn from screens of 31 Korean reference apps (see the note below). A detail screen keeps one filled button in a bar fixed to the bottom |
 | Every section wrapped in a card, with another box inside the card | Grouping by spacing and thin lines. Cards only for standalone units, one layer deep |
 | Numbers the same size as their labels, spacing and radius values all over the place | Hierarchy from size and weight. Spacing, type and radius come from tokens (a scale) only |
-| Gradient text, glows and colored badges everywhere, 9px text | Emphasis in one or two places per screen. Text at 12px or more, checked on every edit |
+| Gradient text, glows and colored badges everywhere, 9px text | Emphasis in one or two places per screen. Text at 12px or more, covered by the layout check |
 | `transition: all 0.3s ease` on everything | Only the properties that move, with durations and easing sized to the motion (motion tokens) |
 | Animating `height` or `top`, so the page stutters | Only `transform` and `opacity` move. Height uses the grid technique and position changes use FLIP |
 | Ignoring the reduced-motion setting | Reduced-motion support in every stylesheet |
@@ -29,7 +29,7 @@ The name comes from the Korean *suta* (手打), "hand-made", as in noodles pulle
 | Modals that leave focus, Esc and background scroll alone | Focus moves in and returns, Esc closes, the background is locked |
 | Drag-to-dismiss that doesn't follow the finger | Follows the finger and decides from the release velocity |
 | A lone spinner for loading, double submits on rapid taps | Skeletons that hold the layout, buttons locked while pending |
-| Code written from scratch every time | 56 patterns copied into the project and adapted to it |
+| Code written from scratch every time | 57 patterns copied into the project and adapted to it |
 
 The screen-type skeletons come from 1,116 screens collected from 31 Korean reference apps. 12 of them were not app screens (for example, another app's screen or a capture taken mid-transition), so the counts use the remaining 1,104. Other docs in this repository quote one number or the other for this reason.
 
@@ -112,6 +112,8 @@ Command references: [Claude Code](https://code.claude.com/docs/en/discover-plugi
 
 ## How it works
 
+The skill and pattern documentation is written in Korean. One recorded check used an English request and produced English UI copy and a reply in English; this is a single example, not a broad language evaluation.
+
 1. You install suta once. It is a single skill, and at startup the agent reads only its description.
 2. You ask as usual, for example "build a login screen" or "polish this button animation". The agent recognizes UI work and opens suta. You don't need to name the skill.
 3. The agent picks matching patterns from suta's catalog and reads each pattern's manual (`PATTERN.md`).
@@ -129,7 +131,7 @@ Command references: [Claude Code](https://code.claude.com/docs/en/discover-plugi
 
 To call it explicitly, use `/suta:suta` in Claude Code or `$suta` in Codex. To make every UI task use it, add a line such as "Follow the suta skill for UI work" to the project's `AGENTS.md` or `CLAUDE.md`.
 
-> A **skill** is a manual an AI agent reads. suta holds 56 patterns inside one skill and reads only the ones it needs, so it doesn't crowd the agent's skill list even next to other skills.
+> A **skill** is a manual an AI agent reads. suta holds 57 patterns inside one skill and reads only the ones it needs, so it doesn't crowd the agent's skill list even next to other skills.
 
 ### Post-edit check
 
@@ -146,7 +148,7 @@ Installed as a Claude Code or Codex plugin, suta runs layout and motion checks o
 - Mark an intended exception with a comment above the line that gives the reason (`/* layout-audit-ignore: tiny-text — chart axis ticks */`).
 - To turn it off, set the environment variable `SUTA_HOOK=off`. It needs Node 22.18 or later. On older versions it passes without checking. It never blocks an edit.
 
-## 56 patterns
+## 57 patterns
 
 Each name links to the pattern's manual, which is written in Korean. The demo link on the right opens the working screen.
 
@@ -185,6 +187,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | [Press feedback](../skills/suta/patterns/press-feedback/PATTERN.md) | Shrinks on press and restores on release | [Demo](https://guksu.github.io/suta/#/press-feedback) |
 | [Toast stack](../skills/suta/patterns/toast-stack/PATTERN.md) | Stacks multiple notifications at the bottom or top banner position and closes each after its own duration | [Demo](https://guksu.github.io/suta/#/toast-stack) |
 | [Like pop](../skills/suta/patterns/like-pop/PATTERN.md) | Pop effect on heart click or photo double-tap | [Demo](https://guksu.github.io/suta/#/like-pop) |
+| [Celebration overlay](../skills/suta/patterns/celebration/PATTERN.md) | A one-time celebration over the current screen when a goal or badge is reached | [Demo](https://guksu.github.io/suta/#/celebration) |
 | [Cart fly](../skills/suta/patterns/cart-fly/PATTERN.md) | Product flies into the cart icon | [Demo](https://guksu.github.io/suta/#/cart-fly) |
 | [Tooltip](../skills/suta/patterns/tooltip/PATTERN.md) | Shows on mouse or keyboard input and positions by available space | [Demo](https://guksu.github.io/suta/#/tooltip) |
 | [Form shake error](../skills/suta/patterns/form-shake-error/PATTERN.md) | Shakes fields with input errors and shows the error message | [Demo](https://guksu.github.io/suta/#/form-shake-error) |
@@ -249,9 +252,9 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 The layout principles pattern contains these parts.
 
 - 12 principles for order, hierarchy, grouping, alignment and emphasis.
-- Conventions for 16 screen types, including AI chat, shopping apps and stock trading, plus conventions for bottom tab bars and mobile webviews.
+- Conventions for 17 screen types, including AI chat, shopping apps, stock trading and gamification, plus conventions for bottom tab bars and mobile webviews.
 - One set of line icons.
-- Guidance on type, color and surfaces: neutrals, one accent and an error red, plus a separate rise/fall pair for market data.
+- Guidance on type, color and surfaces: neutrals, one accent and an error red, plus a separate rise/fall pair for market data and gold, silver and bronze for reward graphics.
 - One token set for spacing, type, weight, radius and color.
 - Before and after versions of nine typical AI-made screens.
 
@@ -277,7 +280,7 @@ Pattern code can be copied one pattern at a time. Logic shared by several patter
 
 ```text
 suta/
-├─ skills/suta/                     The installed skill: SKILL.md + combined audit (scripts/) + 56 patterns (patterns/)
+├─ skills/suta/                     The installed skill: SKILL.md + combined audit (scripts/) + 57 patterns (patterns/)
 ├─ .claude-plugin/                  Claude Code marketplace and plugin info (the repo root is the plugin, with the post-edit check hook)
 ├─ .codex-plugin/                   Codex plugin info (skill + post-edit check hook)
 ├─ .agents/plugins/                 Codex marketplace info

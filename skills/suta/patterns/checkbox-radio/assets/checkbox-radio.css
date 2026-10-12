@@ -12,7 +12,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

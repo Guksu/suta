@@ -8,10 +8,10 @@
   --_like-pop-duration: var(--like-pop-duration, 400ms);
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   background: none;
   border: none;
-  padding: 0.4rem;
+  padding: 0.5rem;
   cursor: pointer;
   color: inherit;
   font: inherit;

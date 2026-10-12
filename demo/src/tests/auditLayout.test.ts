@@ -128,6 +128,31 @@ describe('auditLayout — 강조와 효과 (effect-overuse·gradient-text)', () 
     expect(rules(audit('a.css', text))).not.toContain('effect-overuse')
   })
 
+  it('효과가 0인 시작 상태(blur(0)·완전히 투명한 그림자)는 세지 않는다 — 스크롤하면 유리가 되는 막대는 효과 한 곳이다', () => {
+    const text = [
+      '.bar {',
+      '  box-shadow: 0 8px 32px rgba(0, 0, 0, 0);',
+      '  -webkit-backdrop-filter: blur(0);',
+      '  backdrop-filter: blur(0px);',
+      '}',
+      '.bar[data-elevated] {',
+      '  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 32px rgba(0, 0, 0, 0.18);',
+      '  backdrop-filter: blur(16px) saturate(160%);',
+      '}',
+      '.ghost { box-shadow: 0 12px 40px transparent; }',
+    ].join('\n')
+    expect(rules(audit('a.css', text))).not.toContain('effect-overuse')
+  })
+
+  it('효과가 0이 아닌 같은 모양은 그대로 센다', () => {
+    const text = [
+      '.a { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }',
+      '.b { backdrop-filter: blur(4px); }',
+      '.c { box-shadow: 0 12px 40px rgb(0 0 0 / 0.3); }',
+    ].join('\n')
+    expect(rules(audit('a.css', text))).toContain('effect-overuse')
+  })
+
   it('Tailwind 클래스의 효과도 세고, 그라데이션 글자는 따로 warn', () => {
     const text = `const H = () => (\n  <div className="bg-gradient-to-r from-purple-500 to-pink-500 shadow-2xl">\n    <h1 className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">국수</h1>\n    <nav className="backdrop-blur-md" />\n  </div>\n)`
     const found = rules(audit('H.tsx', text))
@@ -315,6 +340,29 @@ describe('auditLayout — 유채색 계열 수 (hue-count)', () => {
       '.change.up { color: var(--color-rise); }',
     ].join('\n')
     expect(audit('a.css', css).filter((f) => f.rule === 'hue-count')).toEqual([])
+  })
+
+  it('보상 색(이름에 reward·gold·silver·bronze·medal·coin)은 메달·코인 그림의 색이라 강조색 + 오류 빨강과 따로 센다', () => {
+    const css = [
+      ':root {',
+      '  --color-accent: #1f6b4f;',
+      '  --color-danger: #c8341f;',
+      '  --color-reward: #b07d00;',
+      '  --color-reward-silver: #7b8088;',
+      '  --color-reward-bronze: #a8662b;',
+      '  --medal-gold: #b07d00;',
+      '  --coin: #b07d00;',
+      '}',
+      '.badge.earned .medal { fill: var(--color-reward); }',
+    ].join('\n')
+    expect(audit('a.css', css).filter((f) => f.rule === 'hue-count')).toEqual([])
+  })
+
+  it('보상 변수 밖에 직접 쓴 금색은 그대로 계열로 센다', () => {
+    const css = [':root {', '  --color-accent: #1f6b4f;', '  --color-danger: #c8341f;', '  --color-reward: #b07d00;', '}', '.badge { color: #b07d00; }'].join('\n')
+    const findings = audit('a.css', css).filter((f) => f.rule === 'hue-count')
+    expect(findings).toHaveLength(1)
+    expect(findings[0].lines).toEqual([2, 3, 6])
   })
 
   it('등락 이름이 아닌 변수의 파랑은 그대로 계열로 센다', () => {

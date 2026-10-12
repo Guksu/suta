@@ -1,7 +1,7 @@
 {
   "name": "suta",
-  "version": "0.10.0",
-  "description": "An agent skill that fixes the parts of a UI that look AI-made. Claude Code and Codex read it on every UI request: rules for layout, type, color and motion, code for 56 UI patterns, and a layout and motion check after each file edit. Demo: https://guksu.github.io/suta/",
+  "version": "0.11.0",
+  "description": "UI guidelines and code for 57 patterns for Claude Code and Codex. Includes layout, color, motion and accessibility guidance, with checks after supported file edits.",
   "author": { "name": "Guksu", "url": "https://github.com/Guksu" },
   "homepage": "https://guksu.github.io/suta/",
   "repository": "https://github.com/Guksu/suta",
@@ -18,8 +18,8 @@
   },
   "interface": {
     "displayName": "suta",
-    "shortDescription": "Rules and 56 UI patterns that fix the parts of a UI that look AI-made",
-    "longDescription": "Read on every UI request. It blocks what makes a UI look AI-made: cards inside cards, animations that shake the layout, ignored reduced-motion settings, components you cannot use with a keyboard. The agent reuses code from 56 UI patterns, and a layout and motion check runs after each file edit.",
+    "shortDescription": "Layout, color and motion guidelines with 57 UI patterns",
+    "longDescription": "UI guidelines and code for 57 patterns for Claude Code and Codex. Includes layout, color, motion and accessibility guidance, with checks after supported file edits.",
     "developerName": "Guksu",
     "category": "Coding",
     "websiteURL": "https://guksu.github.io/suta/"

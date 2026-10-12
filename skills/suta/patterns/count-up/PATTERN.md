@@ -16,7 +16,7 @@ description: 숫자가 목표값까지 굴러 올라가는 카운트업(count up
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
 | `assets/createCountUp.ts` | 코어 — rAF 보간, 포맷, reduced-motion | 모든 프로젝트 |
-| `assets/count-up.css` | 고정폭 숫자(레이아웃 떨림 방지) | 모든 프로젝트 |
+| `assets/count-up.css` | 고정폭 숫자(레이아웃 떨림 방지), 화면 낭독기용 최종값(`.count-up-sr`) | 모든 프로젝트 |
 | `assets/CountUp.tsx` | React 래퍼 (코어 사용) | React 프로젝트만 |
 
 TS가 아닌 프로젝트에 복사할 때는 타입 표기를 벗겨 .js/.jsx로 저장한다 — 로직은 그대로다.
@@ -39,6 +39,7 @@ const Balance = ({ amount }: { amount: number }) => (
 ```js
 import { createCountUp } from './createCountUp.js'
 
+// <strong class="count-up"><span class="balance" aria-hidden="true"></span><span class="count-up-sr">1,234,567</span></strong>
 const el = document.querySelector('.balance')
 createCountUp({ element: el, to: 1234567, durationMs: 800 }).start()
 // 값이 바뀌면: createCountUp({ element: el, from: 이전값, to: 새값 }).start()
@@ -57,5 +58,7 @@ createCountUp({ element: el, to: 1234567, durationMs: 800 }).start()
 
 - **고정폭 숫자는 필수다** — `count-up.css`의 `font-variant-numeric: tabular-nums`가 없으면 자릿수 폭이 매 프레임 달라져 주변 레이아웃이 떨린다.
 - **reduced-motion 대응 내장** — 굴러가는 연출 없이 최종값을 즉시 쓴다. 분기 제거 금지.
-- 접근성: 카운트 중의 중간값은 보조기기에 소음이다 — 스크린 리더에 최종값만 전달하려면 컨테이너에 `aria-live` 대신 최종값을 `aria-label`로 붙여라.
+- **화면 낭독기에는 최종값만 닿게 한다.** 굴러가는 중간값은 보조기기에 소음이다. React 래퍼는 굴러가는 숫자를 `aria-hidden`으로 두고, 최종값을 숨긴 글자(`.count-up-sr`)로 따로 넣는다. 그래서 낭독 영역(`role="status"`·`aria-live`) 안에 두어도 최종값이 한 번만 읽힌다.
+  - 순수 JS로 쓸 때도 같은 구조로 만든다: 굴러가는 요소에 `aria-hidden="true"`, 옆에 최종값을 담은 `.count-up-sr` 요소.
+  - 낭독 영역에는 사건(포인트를 받았어요·목표 달성)만 넣는다. 매초 바뀌는 걸음 수·타이머·남은 거리는 낭독 영역 밖에 둔다 — 넣으면 바뀔 때마다 읽힌다.
 - 서버에서 받은 문자열 금액을 그대로 넣지 마라 — 코어는 number를 보간한다. 파싱은 호출부 책임.

@@ -40,6 +40,9 @@ export const COLOR = {
   success: '#13795b',
   rise: '#d0262d',
   fall: '#1b64da',
+  reward: '#b07d00',
+  rewardSilver: '#7b8088',
+  rewardBronze: '#a8662b',
 } as const
 
 /** 크기의 하한·상한 */

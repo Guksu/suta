@@ -56,7 +56,7 @@
   z-index: 42;
   min-width: var(--lpm-menu-min-width, 12rem);
   margin: 0;
-  padding: 0.3rem;
+  padding: 0.25rem;
   border: 1px solid var(--lpm-menu-border, rgb(255 255 255 / 0.12));
   border-radius: var(--lpm-radius, 16px);
   background: var(--lpm-menu-bg, rgb(255 255 255 / 0.92));
@@ -77,9 +77,9 @@
 .lpm-menu-item {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.65rem 0.8rem;
+  padding: 0.75rem;
   border: none;
   border-radius: calc(var(--lpm-radius, 16px) - 6px);
   background: none;

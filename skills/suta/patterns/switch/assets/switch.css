@@ -9,7 +9,7 @@
   --_duration: var(--switch-duration, 200ms);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

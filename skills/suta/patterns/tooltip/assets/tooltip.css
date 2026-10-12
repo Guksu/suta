@@ -14,7 +14,7 @@
   --_slide: 4px; /* 닫힘 위치가 앵커 쪽으로 밀려 있어, 열릴 때 앵커에서 떠오르는 것처럼 보인다 */
   position: absolute;
   z-index: 30;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   background: var(--_bg);
   color: var(--tooltip-color, #fff);
