@@ -59,7 +59,7 @@ Version 0.10 added order panel and search field placement guidelines based on 10
 
 From left: home, check-in and missions, goal celebration, step ranking, badges, my page. Captured at 390px wide. Steps, points and rankings are sample data.
 
-We ran it twice without suta and twice with suta 0.11. The image shows the first run of each condition. The table covers all 6 screens.
+We ran suta 0.11.0 twice and compared the results with two earlier runs without suta. The image shows the first run of each condition. The table covers all 6 screens per run.
 
 | | Without suta (2 runs) | With suta 0.11 (2 runs) |
 |---|---|---|
@@ -73,9 +73,9 @@ We ran it twice without suta and twice with suta 0.11. The image shows the first
 
 The 5 violations on the suta side are 4 hand-picked gray labels (4.35:1 contrast on the light gray background) and 1 points link whose spoken name differs from its visible text ("3,240P").
 
-Two models compared 12 pairs of screens without knowing which used suta. Each pair was shown twice with the order reversed. Both judges selected suta in 20 of their 24 comparisons. All 4 losses were the celebration and ranking screens of the first run. The judges preferred the dedicated celebration page (large trophy and confetti) and the ranking podium built without suta. On the suta side, they read "3,955 more steps for 30P", left on the home screen behind the celebration, as contradicting the reached goal, and noted that the pinned "my rank" row covered the last row of the list. One judge was the same model used to generate the screens, and the judges saw still captures, so the celebration motion was not judged.
+Two models compared 12 pairs of screens with the installation condition hidden, showing each pair twice with the order reversed. Both selected suta in 20 of 24 comparisons. In the other 4, they preferred the dedicated celebration page and ranking podium from the first run without suta. They also noted that suta's next-reward message appeared to contradict the completed goal, and that the pinned rank row covered the end of the list.
 
-We also ran the same request with suta 0.10 and with a snapshot taken during 0.11 development. The judges chose suta 17:7 and 19:5 with 0.10, and 10:14 and 15:9 with the snapshot. Version 0.11 changed the celebration figure, the home primary button, the mission list and the check-in rewards after those results. Unlike the e-commerce and stock trading tests, the walking rewards judging added "fun and motivation that fit this app" to the criteria. See the [walking rewards study](research/2026-10-12-walking-reward.md) (Korean) for references and per-run results.
+There were only two runs per condition. One judge was also the screen generation model, and the judges saw still images, so they did not compare motion. This evaluation also included "fun and motivation that fit this app." See the [walking rewards study](research/2026-10-12-walking-reward.md) (Korean) for earlier versions and per-run results.
 
 ## Benchmark
 
