@@ -18,7 +18,8 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 10px 12px;
+  min-height: 48px; /* 입력칸·주 버튼과 같은 높이 */
+  padding: 8px 12px;
   border: 1px solid var(--_border);
   border-radius: 10px;
   background: var(--_bg);
@@ -47,7 +48,7 @@
   left: 0;
   right: 0;
   margin: 0;
-  padding: 6px;
+  padding: 4px;
   list-style: none;
   background: var(--_bg);
   border: 1px solid var(--_border);
@@ -81,7 +82,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 9px 10px;
+  min-height: 40px;
+  padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
 }

@@ -64,7 +64,7 @@ console.log(formatFindings(findings))
 |------|--------|---------|------|
 | `tiny-text` | 11px 미만 error, 11px대 warn | CSS `font-size`·`font`, Tailwind `text-[10px]`, 인라인 스타일 `fontSize`. 화면 낭독기 전용(`sr-only`)과 아이콘 글꼴(`icon`·`fa-`·`material-icons` 등)은 뺀다 | P7 |
 | `nested-card` | warn | 둥근 모서리 + 테두리·그림자·배경을 가진 요소 안의 같은 요소. JSX·HTML 태그 중첩(Tailwind 클래스, CSS가 상자로 정의한 클래스, `Card` 컴포넌트)과 CSS 자손 선택자·중첩으로 판정한다. 입력칸·버튼·링크·배지·컨트롤 부속은 뺀다 | P5 |
-| `effect-overuse` | warn | 색 그라데이션·`backdrop-filter`·큰 그림자(흐림 16px 이상)가 한 파일에 3곳 이상. 검은 스크림·흰 반짝임은 세지 않는다 | P3 |
+| `effect-overuse` | warn | 색 그라데이션·`backdrop-filter`·큰 그림자(흐림 16px 이상)가 한 파일에 3곳 이상. 검은 스크림·흰 반짝임, 전이의 시작 상태(`blur(0)`·완전히 투명한 그림자)는 세지 않는다 | P3 |
 | `gradient-text` | warn | `background-clip: text`·`bg-clip-text` | P3 |
 | `font-size-variety` | warn | 한 파일의 글자 크기 7종 이상 | P2·P10 |
 | `font-weight-variety` | warn | 굵기 4종 이상 | P2 |
@@ -73,7 +73,7 @@ console.log(formatFindings(findings))
 | `centered-text-block` | warn | 문단의 가운데 정렬 — CSS는 문단·설명류 선택자, JSX·HTML은 `text-center` 안에서 글자로 적힌 부분이 40자 이상인 `<p>`(`{설명}` 같은 식은 길이를 몰라 세지 않는다) | P6 |
 | `image-distort` | warn | `object-fit: fill`·`object-fill` | P9 |
 | `tinted-surface` | warn | 옅은 유채색 바탕(연노랑·살구·연분홍·연민트·연파랑) — CSS `background`·변수 정의, Tailwind `bg-{색}-50~200`, 인라인 스타일. 반투명 색은 흰 면 위에 얹은 색으로 판정한다. OKLCH 밝기 0.9 이상 + 채도 0.012 이상이 기준이고, slate 같은 푸른 회색은 회색으로 둔다. 파일마다 한 번 요약 | P5·`tone.md` |
-| `hue-count` | warn | 한 파일의 유채색 계열(빨강·주황·노랑·초록·청록·파랑·보라·분홍) 3종 이상 — 모든 색 속성·변수 정의·Tailwind 색 이름에서 센다. 다크 모드의 같은 계열은 하나로 센다. 시세의 등락 색 변수(`--color-rise`·`--color-fall`처럼 이름에 rise·fall·up·down)는 빼고 센다 | `tone.md` |
+| `hue-count` | warn | 한 파일의 유채색 계열(빨강·주황·노랑·초록·청록·파랑·보라·분홍) 3종 이상 — 모든 색 속성·변수 정의·Tailwind 색 이름에서 센다. 다크 모드의 같은 계열은 하나로 센다. 시세의 등락 색 변수(`--color-rise`·`--color-fall`처럼 이름에 rise·fall·up·down)와 보상 색 변수(`--color-reward`처럼 이름에 reward·medal·coin·gold·silver·bronze)는 빼고 센다 | `tone.md` |
 | `emoji-icon` | warn | JSX·HTML에 그림으로 그려지는 이모지(🏠 🛒 ❤️). 아이콘·사진 자리의 이모지는 기기마다 모양이 달라 AI가 만든 화면의 표시다. ★ ✓ × → © 같은 글자 기호와 주석은 뺀다. 파일마다 한 번 요약 | `tone.md` |
 | `viewport-height` | warn | `height`·`min-height`·`max-height: 100vh`와 Tailwind `h-screen`·`min-h-screen` — 같은 블록·요소에 `dvh`·`svh` 짝이 없을 때. 모바일 브라우저·웹뷰에서 아래가 잘린다 | 웹뷰 |
 | `input-zoom` | warn | 글자 입력칸(`input`·`textarea`·`select`, 이름이 `input`·`textarea`로 끝나는 클래스, Tailwind `text-sm`을 단 입력칸)의 16px 미만 글자. iOS는 초점이 갈 때 화면을 확대한다. 체크·라디오·버튼 입력, placeholder, `@media (pointer: fine)`·넓은 화면 묶음은 뺀다 | 웹뷰 |

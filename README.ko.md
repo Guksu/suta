@@ -1,6 +1,6 @@
 # suta
 
-Claude Code나 Codex가 UI를 만들 때 참고하는 레이아웃·색·모션 기준과 UI 패턴 56종의 코드입니다.
+Claude Code나 Codex가 UI를 만들 때 참고하는 레이아웃·색·모션 기준과 UI 패턴 57종의 코드입니다.
 
 AI로 UI를 만들 때마다 비슷한 카드와 과한 색상, 불필요한 장식이 반복되는 게 불편했습니다. 이런 디자인의 AI slop을 줄여보려고 suta를 만들었습니다.
 
@@ -51,8 +51,8 @@ npx skills add Guksu/suta --skill suta
 [릴리스](https://github.com/Guksu/suta/releases) · [화면 비교](docs/comparisons.md) · [벤치마크](docs/benchmark.md) · [기여하기](docs/guide.md#기여하기)
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-56%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-633%20passing-555555)
+![Patterns](https://img.shields.io/badge/suta-57%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-651%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## 라이선스

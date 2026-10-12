@@ -27,7 +27,7 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
-  padding: 6px 14px;
+  padding: 8px 12px;
   border-radius: calc(var(--_radius) - var(--_pad));
   font-size: 0.875rem;
   line-height: 1.3;

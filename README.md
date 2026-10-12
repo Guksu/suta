@@ -1,6 +1,6 @@
 # suta
 
-Layout, color and motion guidelines, with code for 56 UI patterns, for Claude Code and Codex.
+Layout, color and motion guidelines, with code for 57 UI patterns, for Claude Code and Codex.
 
 I built suta because AI-generated UI kept repeating the same cards, excessive colors and unnecessary decoration. I wanted to reduce that design AI slop.
 
@@ -51,8 +51,8 @@ I use suta in my own work and will keep fixing issues and updating the guideline
 [Releases](https://github.com/Guksu/suta/releases) · [Screen comparisons](docs/comparisons.en.md) · [Benchmark](docs/benchmark.en.md) · [Contributing](docs/guide.en.md#contributing)
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-56%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-633%20passing-555555)
+![Patterns](https://img.shields.io/badge/suta-57%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-651%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## License

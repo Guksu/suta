@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "An agent skill that fixes the parts of a UI that look AI-made",
-    "version": "0.10.0"
+    "version": "0.11.0"
   },
   "plugins": [
     {
       "name": "suta",
       "source": "./",
-      "description": "An agent skill that fixes the parts of a UI that look AI-made. Claude Code and Codex read it on every UI request: rules for layout, type, color and motion, code for 56 UI patterns, and a layout and motion check after each file edit. Demo: https://guksu.github.io/suta/",
-      "version": "0.10.0",
+      "description": "An agent skill that fixes the parts of a UI that look AI-made. Claude Code and Codex read it on every UI request: rules for layout, type, color and motion, code for 57 UI patterns, and a layout and motion check after each file edit. Demo: https://guksu.github.io/suta/",
+      "version": "0.11.0",
       "author": { "name": "Guksu" },
       "homepage": "https://github.com/Guksu/suta",
       "keywords": ["ai-slop", "frontend", "ui", "layout", "animation", "interaction", "accessibility", "css", "react"]

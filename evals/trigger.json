@@ -18,7 +18,9 @@
     "모바일 웹뷰에 쓰는 쇼핑몰 홈·상품 상세·장바구니 화면 구현해줘",
     "하단 GNB 있는 앱 화면 만들어줘",
     "증권 플랫폼 웹사이트 만들어줘, 시세랑 주문 화면 있어야 해",
-    "build the UI for a stock trading screen with a watchlist and an order panel"
+    "build the UI for a stock trading screen with a watchlist and an order panel",
+    "걷기 리워드 앱 만들어줘, 출석이랑 걸음 순위 화면 있어야 해",
+    "build the UI for a gamified habit app with streaks, badges and a leaderboard screen"
   ],
   "shouldNot": [
     "주문 API 엔드포인트 추가해줘",

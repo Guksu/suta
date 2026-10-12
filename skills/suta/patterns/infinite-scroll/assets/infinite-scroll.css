@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   padding: var(--infinite-scroll-gap, 1.25rem) 0;
   color: var(--infinite-scroll-dim, #6b7280);
   font-size: 0.9rem;

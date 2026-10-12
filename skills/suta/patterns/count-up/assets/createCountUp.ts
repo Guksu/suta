@@ -22,7 +22,8 @@ type CreateCountUpOptions = {
 
 const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3)
 
-const defaultFormat = (value: number) => Math.round(value).toLocaleString('ko-KR')
+/** 기본 표시 — 정수 반올림 + 천 단위 구분. React 래퍼가 화면 낭독기용 최종값을 같은 형식으로 쓴다 */
+export const defaultFormat = (value: number) => Math.round(value).toLocaleString('ko-KR')
 
 const prefersReducedMotion = () =>
   typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches

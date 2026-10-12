@@ -1,0 +1,16 @@
+{
+  "skill": "celebration",
+  "should": [
+    "목표 달성하면 축하 화면 띄워줘",
+    "레벨 업 했을 때 빵빠레 터지는 연출 넣어줘",
+    "배지 획득 축하 팝업 만들어줘",
+    "add a celebration overlay with confetti when the user completes a goal",
+    "포인트 받으면 축하 효과 보여줘"
+  ],
+  "shouldNot": [
+    "좋아요 누르면 하트 튀게 해줘",
+    "확인 팝업 띄워줘",
+    "토스트 알림 띄워줘",
+    "숫자 올라가는 효과 넣어줘"
+  ]
+}

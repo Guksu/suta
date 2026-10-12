@@ -15,6 +15,11 @@ describe('layout-principles 아이콘 한 벌', () => {
     for (const name of needed) expect(ICONS).toHaveProperty(name)
   })
 
+  it('게이미피케이션 앱의 순위·배지·출석·연속 기록에 필요한 이름을 모두 갖는다 — 이모지 메달·불꽃 대신', () => {
+    const needed = ['trophy', 'medal', 'lock', 'flame', 'calendar-check', 'footprints', 'chart', 'gift', 'point', 'check']
+    for (const name of needed) expect(ICONS).toHaveProperty(name)
+  })
+
   it('뜻이 있으면 role="img"와 이름, 장식이면 aria-hidden — 채움은 fill만 바꾼다', () => {
     const labelled = iconSvg({ name: 'cart', label: '장바구니 "3"' })
     expect(labelled).toContain('role="img"')

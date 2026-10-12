@@ -119,6 +119,16 @@ describe('layoutTokens — 색 역할 (P2 농도·P3 강조·P5 면)', () => {
     expect(COLOR.rise).not.toBe(COLOR.danger)
   })
 
+  it('보상 색(금·은·동)은 그림(메달·코인·1~3위 표시)이라 흰 면과 옅은 바탕에서 3:1 이상이고, 세 값과 강조색·오류 빨강이 모두 다르다', () => {
+    const rewards = [COLOR.reward, COLOR.rewardSilver, COLOR.rewardBronze]
+    for (const tone of rewards) {
+      for (const ground of [COLOR.surface, COLOR.canvas]) expect(contrastRatio(tone, ground)).toBeGreaterThanOrEqual(3)
+    }
+    expect(new Set([...rewards, COLOR.accent, COLOR.danger]).size).toBe(5)
+    // 금색 면 위의 글자(메달 안 숫자)는 주 글자색으로 — 흰 글자는 3.6:1이라 작은 글자에 모자란다
+    expect(contrastRatio(COLOR.text, COLOR.reward)).toBeGreaterThanOrEqual(4.5)
+  })
+
   it('옅은 바탕은 흰 면과 구별되지만 선·글자보다 약하다 — 면은 톤 차이로 나눈다', () => {
     const canvas = contrastRatio(COLOR.canvas, COLOR.surface)
     expect(canvas).toBeGreaterThanOrEqual(1.05)

@@ -40,7 +40,7 @@
   justify-content: center;
   border: none;
   background: none;
-  padding: 0.25rem 0.4rem;
+  padding: 0.25rem 0.5rem;
   color: var(--reorder-handle-color, #9aa1af);
   font: inherit;
   line-height: 1;

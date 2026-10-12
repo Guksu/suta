@@ -4,6 +4,7 @@ import { ScrollRevealDemo } from './scroll-reveal/ScrollRevealDemo'
 import { SkeletonDemo } from './skeleton/SkeletonDemo'
 import { CountUpDemo } from './count-up/CountUpDemo'
 import { LikePopDemo } from './like-pop/LikePopDemo'
+import { CelebrationDemo } from './celebration/CelebrationDemo'
 import { TabIndicatorDemo } from './tab-indicator/TabIndicatorDemo'
 import { BottomSheetDemo } from './bottom-sheet/BottomSheetDemo'
 import { StickyHeaderDemo } from './sticky-header/StickyHeaderDemo'
@@ -323,6 +324,27 @@ import { DoubleTapArea } from './DoubleTapArea'
 </DoubleTapArea>
 <LikeButton liked={liked} onChange={setLiked} count={128} />`,
     Component: LikePopDemo,
+  },
+  {
+    slug: 'celebration',
+    title: '축하 오버레이',
+    description: '목표 달성·배지 획득 순간에 지금 화면 위로 한 번 뜨는 축하',
+    titleEn: 'Celebration overlay',
+    descriptionEn: 'A one-time celebration over the current screen when a goal or badge is reached',
+    category: '피드백',
+    usage: `import { Celebration } from './Celebration'
+import { Icon } from './Icon' // layout-principles의 선 아이콘 한 벌
+
+<Celebration
+  open={open}
+  onClose={() => setOpen(false)}
+  title="오늘 목표 달성!"
+  reward="+100P"
+  description="8,000걸음을 걸었어요"
+  figure={<Icon name="trophy" />}
+/>
+// 자주 생기는 작은 적립(+3P)은 축하가 아니라 위쪽 토스트 한 줄(toast-stack)`,
+    Component: CelebrationDemo,
   },
   {
     slug: 'cart-fly',

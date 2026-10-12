@@ -52,7 +52,7 @@
 
 .field-error-text {
   display: block;
-  padding-top: 6px;
+  padding-top: 4px;
   font-size: 0.875rem;
   color: var(--error-color, #dc2626);
   opacity: 0;
