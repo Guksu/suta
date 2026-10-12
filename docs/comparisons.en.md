@@ -51,6 +51,32 @@ Two models compared 14 pairs of screens without knowing which used suta. Each pa
 
 Version 0.10 added order panel and search field placement guidelines based on 10 stock trading websites. See the [stock trading website study](research/2026-10-09-securities-web.md) (Korean) for the method and comparison with the previous version.
 
+### Mobile web app: walking rewards (gamification)
+
+> Build a walking rewards app. It's a gamified app where walking earns points. It needs home (today's steps, claim points), check-in and missions, goal celebration, step ranking, badges, my page (point history, weekly record) and bottom tabs. *(Translated from the original Korean request.)*
+
+![Walking rewards app screens built from the same request. Top row without suta (AS-IS), bottom row with suta (TO-BE). From left: home, check-in and missions, goal celebration, step ranking, badges, my page](assets/walking-as-is-to-be.jpg)
+
+From left: home, check-in and missions, goal celebration, step ranking, badges, my page. Captured at 390px wide. Steps, points and rankings are sample data.
+
+We ran suta 0.11.0 twice and compared the results with two earlier runs without suta. The image shows the first run of each condition. The table covers all 6 screens per run.
+
+| | Without suta (2 runs) | With suta 0.11 (2 runs) |
+|---|---|---|
+| Accessibility violations (axe, 390px) | 51 and 35, mostly color contrast | 5 and 0 |
+| Emoji on screen | 41 and 64 (tabs, badges, medals, flames) | 0. Line icons and gold, silver and bronze medal icons |
+| Celebration | A separate page. An emoji trophy bounces and confetti keeps falling | A dialog over the current screen. A trophy on a gold disc and pieces that burst once |
+| Infinite animations on the idle celebration screen | 25 and 28 | 0 |
+| Focus when the celebration opens | Start of the document | The "OK" button |
+| Badges | One run showed unearned badges as color emoji, the other used a lock emoji | Earned badges on a gold disc, unearned ones gray with a lock and a progress count |
+| Generation time and cost | 2.1 to 2.2 minutes, $0.30 to $0.34 | 4.7 to 8.9 minutes, $0.98 to $1.62 |
+
+The 5 violations on the suta side are 4 hand-picked gray labels (4.35:1 contrast on the light gray background) and 1 points link whose spoken name differs from its visible text ("3,240P").
+
+Two models compared 12 pairs of screens with the installation condition hidden, showing each pair twice with the order reversed. Both selected suta in 20 of 24 comparisons. In the other 4, they preferred the dedicated celebration page and ranking podium from the first run without suta. They also noted that suta's next-reward message appeared to contradict the completed goal, and that the pinned rank row covered the end of the list.
+
+There were only two runs per condition. One judge was also the screen generation model, and the judges saw still images, so they did not compare motion. This evaluation also included "fun and motivation that fit this app." See the [walking rewards study](research/2026-10-12-walking-reward.md) (Korean) for earlier versions and per-run results.
+
 ## Benchmark
 
 Requests for eight screen types—detail, form, settings, dashboard, landing, cart, list and interaction—were run twice per condition. The table shows round 2 results: browser measurements of pages generated with suta 0.6.0 and without suta.
