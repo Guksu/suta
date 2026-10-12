@@ -5,14 +5,14 @@
     "url": "https://github.com/Guksu"
   },
   "metadata": {
-    "description": "An agent skill that fixes the parts of a UI that look AI-made",
+    "description": "UI guidelines and reusable patterns for Claude Code and Codex",
     "version": "0.11.0"
   },
   "plugins": [
     {
       "name": "suta",
       "source": "./",
-      "description": "An agent skill that fixes the parts of a UI that look AI-made. Claude Code and Codex read it on every UI request: rules for layout, type, color and motion, code for 57 UI patterns, and a layout and motion check after each file edit. Demo: https://guksu.github.io/suta/",
+      "description": "UI guidelines and code for 57 patterns for Claude Code and Codex. Includes layout, color, motion and accessibility guidance, with checks after supported file edits.",
       "version": "0.11.0",
       "author": { "name": "Guksu" },
       "homepage": "https://github.com/Guksu/suta",

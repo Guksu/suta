@@ -8,11 +8,11 @@ Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Insta
 
 ## Overview
 
-UI built by an AI agent often looks AI-made, and it often ships defects a person would catch, such as a button that a keyboard can't reach. Output like this is called **AI slop**. The table in [What it removes](#what-it-removes) lists the common signs.
+suta provides guidelines and pattern code to reduce repetitive cards, excessive colors and unnecessary decoration in AI-generated UI. The agent uses the guidelines and adapts code from 57 patterns to the project.
 
-suta is an agent skill that makes the agent avoid those signs. Once installed, the agent reads suta every time it works on UI. It follows suta's rules against AI slop and adapts code from 57 patterns. The pattern code supports keyboards, screen readers and the reduced-motion setting (an OS option that asks apps to cut animation). Its logic has unit tests in this repository. Installed as a plugin, suta also runs layout and motion checks every time a file is edited.
+The patterns include keyboard, screen reader and reduced-motion support. The plugin checks layout and motion in files changed through supported editing tools. Shell-written files need a manual audit. The rendered UI and interactions still need browser checks.
 
-The name comes from the Korean *suta* (手打), "hand-made", as in noodles pulled by hand instead of pressed by a machine. The goal is UI that looks finished by hand.
+The name comes from the Korean *suta* (手打), as in noodles made by hand.
 
 ## What it removes
 
@@ -21,7 +21,7 @@ The name comes from the Korean *suta* (手打), "hand-made", as in noodles pulle
 | Every screen built from the same hero → three cards → button template, every button filled | A skeleton per screen type, drawn from screens of 31 Korean reference apps (see the note below). A detail screen keeps one filled button in a bar fixed to the bottom |
 | Every section wrapped in a card, with another box inside the card | Grouping by spacing and thin lines. Cards only for standalone units, one layer deep |
 | Numbers the same size as their labels, spacing and radius values all over the place | Hierarchy from size and weight. Spacing, type and radius come from tokens (a scale) only |
-| Gradient text, glows and colored badges everywhere, 9px text | Emphasis in one or two places per screen. Text at 12px or more, checked on every edit |
+| Gradient text, glows and colored badges everywhere, 9px text | Emphasis in one or two places per screen. Text at 12px or more, covered by the layout check |
 | `transition: all 0.3s ease` on everything | Only the properties that move, with durations and easing sized to the motion (motion tokens) |
 | Animating `height` or `top`, so the page stutters | Only `transform` and `opacity` move. Height uses the grid technique and position changes use FLIP |
 | Ignoring the reduced-motion setting | Reduced-motion support in every stylesheet |
@@ -111,6 +111,8 @@ For a **skills CLI** install, run `npx skills update suta` from the project wher
 Command references: [Claude Code](https://code.claude.com/docs/en/discover-plugins#update-plugins-now) · [Codex marketplaces](https://developers.openai.com/plugins/build/plugins) · [skills CLI](https://skills.sh/docs/cli).
 
 ## How it works
+
+The skill and pattern documentation is written in Korean. One recorded check used an English request and produced English UI copy and a reply in English; this is a single example, not a broad language evaluation.
 
 1. You install suta once. It is a single skill, and at startup the agent reads only its description.
 2. You ask as usual, for example "build a login screen" or "polish this button animation". The agent recognizes UI work and opens suta. You don't need to name the skill.

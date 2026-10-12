@@ -1,8 +1,8 @@
 # suta
 
-Layout, color and motion guidelines, with code for 57 UI patterns, for Claude Code and Codex.
+A UI skill for Claude Code and Codex, with layout, color and motion guidelines and code for 57 patterns.
 
-I built suta because AI-generated UI kept repeating the same cards, excessive colors and unnecessary decoration. I wanted to reduce that design AI slop.
+I built suta to reduce the repetitive cards, excessive colors and unnecessary decoration I kept seeing in AI-generated UI.
 
 [한국어](README.ko.md) · [Live demo](https://guksu.github.io/suta/) · [Install](#installation) · [Full guide](docs/guide.en.md)
 
@@ -40,7 +40,7 @@ After installing, ask your agent:
 
 > Use suta to build a login screen with email, password, a sign-in button and a password reset link. Keep it simple and make it usable with a keyboard.
 
-The agent reads the guidelines, selects relevant patterns and adapts their code to your project. Plugin installs also report layout and motion issues after edits. The skill and pattern documentation are in Korean; one recorded check used an English request and produced English UI copy and a reply in English.
+The agent reads the guidelines and adapts the pattern code to your project. The plugin also checks layout and motion after edits. Skill and pattern documentation is in Korean; [English usage notes](docs/guide.en.md#how-it-works) are in the full guide.
 
 Try the patterns in the [live demo](https://guksu.github.io/suta/). Browser checks are still needed; static checks cannot catch every UI problem.
 
