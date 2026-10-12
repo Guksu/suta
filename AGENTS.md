@@ -73,6 +73,11 @@ node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일�
 9. **시크릿은 읽지도 기록하지도 않는다.** `.env`·credential·키 파일을 열지 않는다.
 10. **산출물은 파일로.** 작업 기록은 `docs/worklog/YYYY-MM-DD-{주제}.md`에 `docs/templates/worklog.md` 형식(1. 개요 / 2. 작업내용 / 3. 주의사항)으로 남긴다.
 11. **출력은 읽는 사람이 이해할 수 있게.** 전문용어는 처음 나올 때 한 줄로 풀이하고, 한 문장에 하나의 내용만 담는다.
+12. **요청마다 화면 비교를 남긴다.** 사용자가 요청한 작업이 화면 결과를 바꾸면 AS-IS/TO-BE 이미지를 만든다. 둘 곳은 작업 크기로 나눈다.
+    - 실사용 점검·벤치마크: `docs/comparisons.md`·`comparisons.en.md`에 절을 더한다. 요청문, 이미지 `docs/assets/{주제}-as-is-to-be.jpg`, 실행 수, 표, 판정, 연구 문서 링크를 넣는다.
+    - 패턴·관례·검사 규칙 같은 작은 변경: 데모나 산출물의 전후 캡처 한 장을 `docs/worklog/assets/{날짜}-{주제}.jpg`로 두고 작업 기록과 PR 본문에 싣는다. PR 본문의 이미지는 커밋 해시가 든 raw 주소로 건다.
+    - 이미지는 각 조건의 첫 실행이나 같은 화면의 전후로 만든다. 잘 나온 실행을 골라 넣지 않는다. 그림 안 글자는 줄 머리 AS-IS·TO-BE만 쓴다.
+    - 화면이 없는 요청(커밋·PR, 문장 손질)은 빼고, 뺀 이유를 보고에 한 줄로 적는다.
 
 ## 패턴 추가·수정 절차
 
@@ -84,7 +89,7 @@ node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일�
 4. `demo/src/demos/{패턴}/` 데모 페이지 + `demo/src/demos/index.ts` 등록(`title`·`description`과 영어 `titleEn`·`descriptionEn` 모두, `category`는 카탈로그 묶음이 된다). 데모 안 문구는 `defineCopy({ ko, en })` 두 벌(규칙 7). 테스트는 `demo/src/tests/`.
 5. `npm run catalog` — 진입 스킬의 패턴 카탈로그를 다시 만든다. 손으로 고치지 않는다.
 6. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.ko.md`의 배지 숫자(패턴 수, tests 수)를 갱신한다 — 검사 스크립트가 두 README의 배지를 실제 수와 비교한다.
-7. 워크로그.
+7. 워크로그. 데모 전후 캡처를 함께 둔다(규칙 12).
 
 진입 스킬(`skills/suta/SKILL.md`)의 description을 고칠 때는 `evals/trigger.json`도 같이 본다. 일반 UI 요청(should)에는 suta가 걸리고, UI가 아닌 요청(shouldNot)에는 걸리지 않아야 한다. description은 1,024바이트 이하이고 `": "`를 쓰지 않는다(YAML).
 
