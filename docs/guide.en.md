@@ -145,6 +145,7 @@ Installed as a Claude Code or Codex plugin, suta runs layout and motion checks o
 
 - Only the lines this edit changed count. Problems that were already in the file never stop the agent. When something else is being reported, one extra line notes "N existing errors unrelated to this edit". A newly created file is checked in full.
 - Checked files are CSS, SCSS, Less, TSX, JSX, Vue, Svelte and HTML (layout and motion) and TS/JS (motion). `node_modules`, build folders and test files are skipped.
+- In React Native and Expo apps, the audit also reads `StyleSheet.create` values (font size, spacing, radius, color) and Reanimated animations (layout properties, infinite loops, durations). [Porting to React Native](../skills/suta/patterns/layout-principles/references/react-native.md) (Korean) explains how to carry the web patterns over.
 - Mark an intended exception with a comment above the line that gives the reason (`/* layout-audit-ignore: tiny-text — chart axis ticks */`).
 - To turn it off, set the environment variable `SUTA_HOOK=off`. It needs Node 22.18 or later. On older versions it passes without checking. It never blocks an edit.
 

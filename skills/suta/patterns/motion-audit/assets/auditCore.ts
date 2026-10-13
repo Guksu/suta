@@ -136,6 +136,97 @@ export const ignoredLines = ({ text, marker }: { text: string; marker: RegExp })
 
 export const sortFindings = (findings: Finding[]) => findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)
 
+/* ---------------- JS·TS 코드 스캔 (React Native 스타일 객체·애니메이션 호출) ---------------- */
+
+const QUOTES = new Set(["'", '"', '`'])
+const OPEN_TO_CLOSE: Record<string, string> = { '(': ')', '[': ']', '{': '}' }
+
+/** 문자열은 그대로 두고 // · 블록 주석만 공백으로 지운다 — 'https://…' 같은 문자열 속 //를 주석으로 보지 않는다 */
+export const codeWithoutComments = (text: string) => {
+  let out = ''
+  let i = 0
+  while (i < text.length) {
+    const ch = text[i]
+    if (QUOTES.has(ch)) {
+      let j = i + 1
+      while (j < text.length && text[j] !== ch) j += text[j] === '\\' ? 2 : 1
+      out += text.slice(i, j + 1)
+      i = j + 1
+    } else if (ch === '/' && text[i + 1] === '/') {
+      const end = text.indexOf('\n', i)
+      const stop = end === -1 ? text.length : end
+      out += blank(text.slice(i, stop))
+      i = stop
+    } else if (ch === '/' && text[i + 1] === '*') {
+      const end = text.indexOf('*/', i + 2)
+      const stop = end === -1 ? text.length : end + 2
+      out += blank(text.slice(i, stop))
+      i = stop
+    } else {
+      out += ch
+      i += 1
+    }
+  }
+  return out
+}
+
+/** 여는 괄호 위치 → 짝이 맞는 닫는 괄호 위치(문자열 안 괄호는 건너뛴다). 짝이 없으면 -1 */
+export const matchingClose = (code: string, open: number) => {
+  const stack: string[] = []
+  for (let i = open; i < code.length; i += 1) {
+    const ch = code[i]
+    if (QUOTES.has(ch)) {
+      let j = i + 1
+      while (j < code.length && code[j] !== ch) j += code[j] === '\\' ? 2 : 1
+      i = j
+    } else if (OPEN_TO_CLOSE[ch]) stack.push(OPEN_TO_CLOSE[ch])
+    else if (ch === stack[stack.length - 1]) {
+      stack.pop()
+      if (stack.length === 0) return i
+    }
+  }
+  return -1
+}
+
+/** [start, end) 구간을 깊이 0의 쉼표로 나눈다 — 각 조각의 앞뒤 공백을 뺀 글자와 시작 위치 */
+export const splitTopLevelCode = ({ code, start, end }: { code: string; start: number; end: number }) => {
+  const parts: Array<{ text: string; index: number }> = []
+  let depth = 0
+  let from = start
+  const close = (to: number) => {
+    const raw = code.slice(from, to)
+    const lead = raw.length - raw.trimStart().length
+    if (raw.trim()) parts.push({ text: raw.trim(), index: from + lead })
+  }
+  for (let i = start; i < end; i += 1) {
+    const ch = code[i]
+    if (QUOTES.has(ch)) {
+      let j = i + 1
+      while (j < end && code[j] !== ch) j += code[j] === '\\' ? 2 : 1
+      i = j
+    } else if (OPEN_TO_CLOSE[ch]) depth += 1
+    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1
+    else if (ch === ',' && depth === 0) {
+      close(i)
+      from = i + 1
+    }
+  }
+  close(end)
+  return parts
+}
+
+/** `callee(` 호출마다 인자 구간 — 정규식 이름(예: /useAnimatedStyle/)과 여는 괄호·닫는 괄호 위치 */
+export const callsOf = ({ code, callee }: { code: string; callee: RegExp }) => {
+  const pattern = new RegExp(`(?:^|[^\\w$.])(${callee.source})\\s*\\(`, 'g')
+  const calls: Array<{ index: number; open: number; close: number }> = []
+  for (const match of code.matchAll(pattern)) {
+    const open = (match.index ?? 0) + match[0].length - 1
+    const close = matchingClose(code, open)
+    if (close > open) calls.push({ index: (match.index ?? 0) + match[0].indexOf(match[1]), open, close })
+  }
+  return calls
+}
+
 /** 결과를 `file:line rule message` 줄로 — 에이전트가 그대로 읽고 고칠 수 있는 형식 */
 export const formatFindings = (findings: Finding[]) =>
   findings.map((f) => `${f.file}:${f.line} [${f.severity}] ${f.rule} — ${f.message}\n    → ${f.fix}`).join('\n')

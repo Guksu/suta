@@ -23,11 +23,14 @@
  *  input-zoom          warn — 16px 미만 글자 입력칸(iOS가 초점을 받을 때 화면을 확대한다)                       웹뷰
  *  zoom-disabled       warn — viewport의 user-scalable=no·maximum-scale=1(확대를 막는다, WCAG 1.4.4)            접근성
  *
+ * React Native: `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙(글자 크기·간격·반경·색·큰 그림자)으로 본다.
+ * 토큰 참조(space.lg·colors.accent)·스프레드·조건식은 값을 모르니 세지 않는다. 터치 영역·대비·낭독은 기기에서 확인한다.
+ *
  * 의도적 예외: 그 줄(또는 바로 앞 줄)에 `layout-audit-ignore: {규칙} — {이유}` 주석을 두면 그 줄의 지적을 건너뛴다.
  * 파일 전체에서 한 규칙을 끄려면 `layout-audit-ignore-file: {규칙} — {이유}`. 예외에는 반드시 이유를 적는다.
  */
 
-import { blank, blankComments, cssBlocks, declarationsOf, ignoredLines, lineOf, sortFindings, type CssBlock, type Finding, type Severity, type Source } from './auditCore.ts'
+import { blank, blankComments, callsOf, codeWithoutComments, cssBlocks, declarationsOf, ignoredLines, lineOf, matchingClose, sortFindings, splitTopLevelCode, type CssBlock, type Finding, type Severity, type Source } from './auditCore.ts'
 import { isOnGrid, nearestSpace, toPx } from './layoutTokens.ts'
 
 // 결과 형식은 공통 코어(auditCore.ts)가 정본이다 — motion-audit와 결과를 합칠 수 있게 같은 형식을 쓴다
@@ -79,10 +82,74 @@ const markupOf = (text: string) =>
  * className={`…`}처럼 한 줄짜리 템플릿은 실제 클래스 값이라 남긴다 */
 const blankMarkupStrings = (code: string) => code.replace(/`(?:\\.|[^`\\])*`/g, (literal) => (literal.includes('\n') && /<[A-Za-z]/.test(literal) ? blank(literal) : literal))
 
+/* ---------------- React Native 스타일 객체 → CSS ---------------- */
+
+const SCRIPT_FILE = /\.(ts|js|mjs|cjs)$/i
+const DECLARATION_FILE = /\.d\.ts$/i
+
+/** RN 스타일 속성 → 같은 검사를 받는 CSS 속성. 값의 단위는 RN 기본(dp)을 px로 본다 */
+const rnPropOf = (key: string): string | null => {
+  if (key === 'fontSize') return 'font-size'
+  if (key === 'fontWeight') return 'font-weight'
+  if (key === 'textAlign') return 'text-align'
+  if (key === 'color' || key === 'tintColor') return 'color'
+  if (key === 'backgroundColor') return 'background-color'
+  if (/^border(Top|Bottom|Left|Right|Start|End)?Color$/.test(key)) return 'border-color'
+  if (/^border(Top|Bottom)?(Left|Right|Start|End)?Radius$/.test(key)) return 'border-radius'
+  if (/^(padding|margin)(Top|Bottom|Left|Right|Start|End|Horizontal|Vertical)?$/.test(key)) return key.startsWith('padding') ? 'padding' : 'margin'
+  if (key === 'gap' || key === 'rowGap' || key === 'columnGap') return 'gap'
+  if (key === 'shadowRadius') return 'box-shadow'
+  return null
+}
+
+const NUMBER = /^-?\d*\.?\d+$/
+const STRING = /^(['"])([^'"\\]*)\1$/
+
+/** RN 값 하나 → CSS 값. 숫자·문자열 리터럴만 안다(토큰 참조·조건식은 null) */
+const rnValueOf = ({ prop, raw }: { prop: string; raw: string }): string | null => {
+  const value = raw.trim()
+  const text = value.match(STRING)?.[2]
+  if (prop === 'box-shadow') return NUMBER.test(value) ? `0 0 ${value}px rgba(0, 0, 0, 0.2)` : null
+  if (prop === 'font-weight' || prop === 'text-align' || prop.endsWith('color')) return text ?? (prop === 'font-weight' && NUMBER.test(value) ? value : null)
+  if (NUMBER.test(value)) return `${value}px`
+  return text ?? null
+}
+
+/**
+ * `StyleSheet.create({ 이름: { 속성: 값 } })`을 같은 줄 수의 CSS로 옮긴다 — 선언마다 원본 줄에 `.rn-이름 { … }` 한 덩어리.
+ * 줄 번호를 그대로 두어야 file:line이 RN 코드의 그 줄을 가리킨다.
+ */
+const rnStyleCss = (text: string) => {
+  if (!/StyleSheet\s*\.\s*create\s*\(/.test(text)) return ''
+  const code = codeWithoutComments(text)
+  const lines: string[] = text.split('\n').map(() => '')
+  for (const call of callsOf({ code, callee: /StyleSheet\s*\.\s*create/ })) {
+    const open = code.indexOf('{', call.open)
+    if (open < 0 || open > call.close) continue
+    const close = matchingClose(code, open)
+    for (const entry of splitTopLevelCode({ code, start: open + 1, end: close })) {
+      const named = entry.text.match(/^(['"]?)([A-Za-z_$][\w$]*)\1\s*:\s*\{/)
+      if (!named) continue
+      const styleOpen = code.indexOf('{', entry.index + named[0].length - 1)
+      const styleClose = matchingClose(code, styleOpen)
+      for (const decl of splitTopLevelCode({ code, start: styleOpen + 1, end: styleClose })) {
+        const pair = decl.text.match(/^(['"]?)([A-Za-z]+)\1\s*:\s*([\s\S]+)$/)
+        const prop = pair ? rnPropOf(pair[2]) : null
+        const value = pair && prop ? rnValueOf({ prop, raw: pair[3] }) : null
+        if (!prop || value == null) continue
+        const line = lineOf(code, decl.index) - 1
+        lines[line] += `.rn-${named[2]} { ${prop}: ${value}; } `
+      }
+    }
+  }
+  return lines.join('\n')
+}
+
 const partsOf = ({ file, text }: Source) => {
   if (CSS_FILE.test(file)) return { css: text, markup: '' }
   if (SFC_FILE.test(file)) return { css: styleOnly(text), markup: markupOf(text) }
-  if (JSX_FILE.test(file)) return { css: '', markup: blankMarkupStrings(markupOf(text)) }
+  if (JSX_FILE.test(file)) return { css: rnStyleCss(text), markup: blankMarkupStrings(markupOf(text)) }
+  if (SCRIPT_FILE.test(file) && !DECLARATION_FILE.test(file)) return { css: rnStyleCss(text), markup: '' }
   return { css: '', markup: '' }
 }
 

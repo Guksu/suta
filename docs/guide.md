@@ -143,6 +143,7 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 
 - 이번 편집이 바꾼 줄만 봅니다. 원래 있던 문제로는 에이전트를 멈추지 않습니다. 다른 알림이 나갈 때만 "이번 편집과 무관한 기존 error N건"을 한 줄 덧붙입니다. 새로 만든 파일은 전체를 봅니다.
 - 검사 대상은 CSS·SCSS·Less·TSX·JSX·Vue·Svelte·HTML(레이아웃·모션)과 TS·JS(모션)입니다. `node_modules`·빌드 폴더와 테스트 파일은 건너뜁니다.
+- React Native·Expo 앱은 `StyleSheet.create`의 값(글자 크기·간격·반경·색)과 Reanimated 애니메이션(레이아웃 속성·무한 반복·시간)까지 검사합니다. 웹 패턴 코드를 옮기는 방법은 [React Native로 옮기기](../skills/suta/patterns/layout-principles/references/react-native.md)에 있습니다.
 - 의도한 예외는 그 줄 위에 이유를 적은 주석으로 남깁니다(`/* layout-audit-ignore: tiny-text — 차트 축 눈금 */`).
 - 끄려면 환경 변수 `SUTA_HOOK=off`를 둡니다. Node 22.18 이상이 필요하고, 그보다 낮으면 검사 없이 지나갑니다. 편집을 막지는 않습니다.
 

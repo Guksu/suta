@@ -68,6 +68,15 @@ console.log(formatFindings(findings))
 | `js-interval-anim` | warn | `setInterval`로 style 갱신 | `requestAnimationFrame` 또는 CSS |
 | `will-change-global` | warn | 상시 `will-change` | 움직이기 직전 상태에서만 |
 
+**React Native(`.ts·.tsx·.js·.jsx`):**
+
+| 규칙 | 심각도 | 잡는 것 | 고치는 법 |
+|------|--------|---------|-----------|
+| `layout-animation` | error | Reanimated `useAnimatedStyle`이 width·height·top·left·margin·padding·fontSize 등을 돌려준다 | transform(scaleX·translateY)과 opacity로 |
+| `infinite-loop` | warn | `withRepeat(…, -1)`·`Animated.loop`가 있는데 파일에 동작 줄이기 처리(`useReducedMotion`·`ReduceMotion`·`isReduceMotionEnabled`)가 없다 | 동작 줄이기면 반복을 시작하지 않는다 |
+| `no-reduced-motion` | warn | react-native `Animated`·`LayoutAnimation`(OS 설정을 따르지 않는다)에 확인 코드가 없다. Reanimated는 기본으로 따라서 세지 않는다 | `AccessibilityInfo.isReduceMotionEnabled()`로 이동을 끄거나 Reanimated로 |
+| `duration-range` | warn | `withTiming`·`Animated.timing`의 duration 숫자가 60ms 미만·700ms 초과(반복 안은 2000ms 초과) | 위 CSS 기준과 같다 |
+
 ## 의도적 예외
 
 규칙이 틀린 게 아니라 이 자리에서는 감수하는 게 맞을 때가 있다(absolute 요소의 width 전이, 계속 끌리는 요소의 `will-change`). 그 줄이나 바로 앞 줄에 이유를 붙여 예외를 선언한다:

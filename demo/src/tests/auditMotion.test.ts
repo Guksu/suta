@@ -118,3 +118,50 @@ describe('auditMotion — JS 규칙과 출력', () => {
     expect(auditMotion([{ file: 'clean.css', text }])).toEqual([])
   })
 })
+
+describe('auditMotion — React Native(Reanimated·Animated)', () => {
+  it('useAnimatedStyle이 width·height·top 같은 레이아웃 속성을 움직이면 error', () => {
+    const text = [
+      "import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'",
+      'const bar = useAnimatedStyle(() => ({',
+      '  width: withTiming(progress.value * 200),',
+      '}))',
+      'const fade = useAnimatedStyle(() => ({ opacity: o.value, transform: [{ translateY: y.value }] }))',
+    ].join('\n')
+    const findings = auditMotion([{ file: 'bar.tsx', text }])
+    expect(findings.map((f) => [f.rule, f.line, f.severity])).toEqual([['layout-animation', 3, 'error']])
+  })
+
+  it('withRepeat(…, -1)·Animated.loop은 동작 줄이기를 다루지 않으면 warn, 다루면 조용하다', () => {
+    const loop = "import { withRepeat, withTiming } from 'react-native-reanimated'\nshimmer.value = withRepeat(withTiming(1, { duration: 900 }), -1, true)"
+    expect(rules(auditMotion([{ file: 'skeleton.tsx', text: loop }]))).toEqual(['infinite-loop'])
+    const handled = `import { useReducedMotion, withRepeat, withTiming } from 'react-native-reanimated'\nconst reduce = useReducedMotion()\nif (!reduce) shimmer.value = withRepeat(withTiming(1, { duration: 900 }), -1, true)`
+    expect(auditMotion([{ file: 'skeleton.tsx', text: handled }])).toEqual([])
+    const core = "import { Animated } from 'react-native'\nAnimated.loop(Animated.timing(v, { toValue: 1, duration: 800, useNativeDriver: true })).start()"
+    expect(rules(auditMotion([{ file: 'spin.tsx', text: core }]))).toEqual(['no-reduced-motion', 'infinite-loop'])
+  })
+
+  it('React Native Animated·LayoutAnimation은 OS 동작 줄이기를 따르지 않는다 — 확인 코드가 없으면 warn', () => {
+    const text = "import { Animated, LayoutAnimation } from 'react-native'\nAnimated.timing(v, { toValue: 1, duration: 200, useNativeDriver: true }).start()\nLayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)"
+    const findings = auditMotion([{ file: 'list.tsx', text }])
+    expect(findings.map((f) => [f.rule, f.severity])).toEqual([['no-reduced-motion', 'warn']])
+    const checked = `import { AccessibilityInfo, Animated } from 'react-native'\nconst reduce = await AccessibilityInfo.isReduceMotionEnabled()\nAnimated.timing(v, { toValue: 1, duration: reduce ? 0 : 200, useNativeDriver: true }).start()`
+    expect(auditMotion([{ file: 'list.tsx', text: checked }])).toEqual([])
+  })
+
+  it('withTiming의 duration 숫자가 60ms 미만·700ms 초과면 warn — 반복(withRepeat) 안은 2000ms까지', () => {
+    const text = [
+      "import { withRepeat, withTiming, useReducedMotion } from 'react-native-reanimated'",
+      'a.value = withTiming(1, { duration: 40 })',
+      'b.value = withTiming(1, { duration: 900 })',
+      'c.value = withRepeat(withTiming(1, { duration: 1200 }), -1)',
+      'd.value = withTiming(1, { duration: MOTION.enter })',
+      'const reduce = useReducedMotion()',
+    ].join('\n')
+    const findings = auditMotion([{ file: 't.tsx', text }])
+    expect(findings.map((f) => [f.rule, f.line])).toEqual([
+      ['duration-range', 2],
+      ['duration-range', 3],
+    ])
+  })
+})
