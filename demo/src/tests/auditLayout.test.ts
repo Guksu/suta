@@ -470,3 +470,50 @@ describe('auditLayout — 저장소의 패턴 코드', () => {
     expect(auditLayout(sources).filter((f) => f.severity === 'error')).toEqual([])
   })
 })
+
+describe('auditLayout — React Native StyleSheet', () => {
+  const rn = (body: string) => `import { StyleSheet } from 'react-native'\n\nexport const styles = StyleSheet.create({\n${body}\n})\n`
+
+  it('StyleSheet.create의 fontSize 숫자를 글자 크기로 읽는다 — 줄 번호는 원본 그대로', () => {
+    const text = rn(['  title: { fontSize: 24, fontWeight: \'700\' },', '  meta: {', '    fontSize: 10,', '  },'].join('\n'))
+    const findings = audit('screen.tsx', text)
+    const tiny = findings.filter((f) => f.rule === 'tiny-text')
+    expect(tiny.map((f) => [f.line, f.severity])).toEqual([[6, 'error']])
+  })
+
+  it('간격·반경·색을 기존 규칙으로 센다 — 토큰 참조(space.lg·colors.accent)는 값을 모르니 세지 않는다', () => {
+    const text = rn(
+      [
+        '  a: { padding: 6, marginHorizontal: 10, gap: space.lg, borderRadius: 4 },',
+        '  b: { paddingVertical: 2, borderRadius: 6, color: colors.accent },',
+        '  c: { borderRadius: 10, backgroundColor: \'#2563eb\', borderColor: \'#16a34a\' },',
+        '  d: { borderRadius: 14, color: \'#dc2626\', borderTopLeftRadius: radius.full },',
+      ].join('\n'),
+    )
+    const findings = audit('screen.tsx', text)
+    const off = findings.find((f) => f.rule === 'spacing-off-scale')
+    expect(off?.lines).toEqual([4])
+    expect(findings.find((f) => f.rule === 'radius-variety')?.message).toContain('4종')
+    expect(findings.find((f) => f.rule === 'hue-count')?.message).toContain('3종')
+  })
+
+  it('스프레드·조건식·배열(transform)·주석 속 값은 건너뛰고, StyleSheet 밖 객체는 읽지 않는다', () => {
+    const text = [
+      "import { StyleSheet } from 'react-native'",
+      'const tokens = { fontSize: 9 }',
+      'const styles = StyleSheet.create({',
+      '  // fontSize: 8 — 주석',
+      '  card: { ...type.body, transform: [{ rotate: \'-3deg\' }, { scale: 1.1 }], opacity: pressed ? 0.6 : 1 },',
+      "  label: { fontSize: 14, lineHeight: 20, fontFamily: 'GmarketSans-Bold' },",
+      '})',
+    ].join('\n')
+    expect(audit('screen.tsx', text)).toEqual([])
+  })
+
+  it('.ts 파일의 StyleSheet.create도 읽고, 예외 주석은 그 줄에 적용된다', () => {
+    // 예외 주석은 그 줄과 다음 줄을 덮는다 — 지적받을 줄을 앞에 둔다
+    const text = rn(['  dot: { margin: 3 },', '  pill: { fontSize: 11 }, // layout-audit-ignore: tiny-text — 달력 칸 숫자는 OS 확대로 키운다'].join('\n'))
+    const findings = audit('styles.ts', text)
+    expect(rules(findings)).toEqual(['spacing-off-scale'])
+  })
+})

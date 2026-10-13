@@ -16,11 +16,17 @@
  *  js-interval-anim   warn  — setInterval로 style을 갱신 (프레임과 어긋난다. requestAnimationFrame 또는 CSS)
  *  will-change-global warn  — will-change가 상시 선언 (메모리를 잡아 둔다. 움직이기 직전에만)
  *
+ * React Native(.ts·.tsx·.js·.jsx):
+ *  layout-animation   error — Reanimated useAnimatedStyle이 width·height·top·left·margin·padding·fontSize를 움직인다
+ *  infinite-loop      warn  — withRepeat(…, -1)·Animated.loop가 파일 안에서 동작 줄이기(useReducedMotion·ReduceMotion·isReduceMotionEnabled)를 다루지 않는다
+ *  no-reduced-motion  warn  — react-native Animated·LayoutAnimation은 OS 동작 줄이기를 따르지 않는데 확인 코드가 없다(Reanimated는 기본으로 따른다)
+ *  duration-range     warn  — withTiming·Animated.timing의 duration 숫자가 60ms 미만·700ms 초과(반복 안은 2000ms 초과)
+ *
  * 의도적 예외: 그 줄(또는 바로 앞 줄)에 `motion-audit-ignore: {규칙} — {이유}` 주석을 두면 그 줄의 지적을 건너뛴다.
  * 예외에는 반드시 이유를 적는다 — 다음 사람이 규칙을 되살릴지 판단할 근거다.
  */
 
-import { blank, blankComments, cssBlocks, declarationsOf, ignoredLines, lineOf, sortFindings, type Finding, type Source } from './auditCore.ts'
+import { blank, blankComments, callsOf, cssBlocks, declarationsOf, ignoredLines, lineOf, sortFindings, splitTopLevelCode, type Finding, type Source } from './auditCore.ts'
 
 // 결과 형식은 공통 코어(auditCore.ts)가 정본이다 — layout-audit와 결과를 합칠 수 있게 같은 형식을 쓴다
 export type { Finding, Severity } from './auditCore.ts'
@@ -163,6 +169,56 @@ const scriptCode = (text: string) =>
     .join('\n')
     .replace(/`(?:\\.|[^`\\])*`/g, blank)
 
+/* ---------------- React Native (Reanimated·Animated) ---------------- */
+
+const RN_LAYOUT_KEY = /(?:^|[{,\s])((?:min|max)?(?:Width|Height)|width|height|top|left|right|bottom|margin\w*|padding\w*|fontSize|lineHeight|borderWidth|flexBasis|gap)\s*:/g
+const REDUCE_HANDLED = /useReducedMotion|ReduceMotion\.|isReduceMotionEnabled|reduceMotionChanged|prefers-reduced-motion/
+const RN_CORE_ANIMATION = /\bAnimated\.(timing|spring|decay)\s*\(|\bLayoutAnimation\.(configureNext|easeInEaseOut|linear|spring)\s*\(/g
+
+const auditReactNative = ({ code, file, push }: { code: string; file: string; push: (f: Finding) => void }) => {
+  const reduceHandled = REDUCE_HANDLED.test(code)
+  const usesReactNativeCore = /from\s+['"]react-native['"]/.test(code)
+
+  // useAnimatedStyle이 돌려주는 객체에 레이아웃 속성 — 매 프레임 레이아웃을 다시 계산한다(그림자 오프셋 같은 안쪽 객체는 뺀다)
+  for (const call of callsOf({ code, callee: /useAnimatedStyle/ })) {
+    const body = code.slice(call.open, call.close).replace(/(?:textShadowOffset|shadowOffset)\s*:\s*\{[^}]*\}/g, blank)
+    for (const match of body.matchAll(RN_LAYOUT_KEY)) {
+      const at = call.open + (match.index ?? 0) + match[0].indexOf(match[1])
+      push({ file, line: lineOf(code, at), rule: 'layout-animation', severity: 'error', message: `useAnimatedStyle이 ${match[1]}를 움직인다 — 매 프레임 레이아웃을 다시 계산해 끊긴다`, fix: 'transform(scaleX·scaleY·translateX·translateY)과 opacity로. 막대는 고정 폭 트랙 안에서 scaleX, 펼침은 높이를 잰 뒤 translateY·opacity (loading-button·skeleton 참고)' })
+    }
+  }
+
+  // react-native Animated·LayoutAnimation — OS의 동작 줄이기를 스스로 따르지 않는다
+  const coreLines = [...code.matchAll(RN_CORE_ANIMATION)].map((m) => lineOf(code, m.index ?? 0))
+  if (usesReactNativeCore && coreLines.length > 0 && !reduceHandled) {
+    push({ file, line: coreLines[0], lines: [...new Set(coreLines)], rule: 'no-reduced-motion', severity: 'warn', message: 'react-native Animated·LayoutAnimation은 OS의 동작 줄이기를 따르지 않는다 — 확인 코드가 없다', fix: 'AccessibilityInfo.isReduceMotionEnabled()·reduceMotionChanged로 이동·확대를 끄고 페이드만 남긴다. Reanimated(useReducedMotion·ReduceMotion.System)로 옮기면 기본으로 따른다' })
+  }
+
+  // 무한 반복 — withRepeat의 횟수 -1·Infinity, Animated.loop(횟수 없음)
+  const repeats = callsOf({ code, callee: /withRepeat|Animated\.loop/ })
+  for (const call of repeats) {
+    const args = splitTopLevelCode({ code, start: call.open + 1, end: call.close })
+    const isLoop = code.slice(call.index, call.open).includes('loop')
+    const count = isLoop ? args[1]?.text.match(/iterations\s*:\s*([^,}]+)/)?.[1]?.trim() : args[1]?.text
+    const infinite = isLoop ? count == null || /^-1$|^Infinity$/.test(count) : count != null && (/^-\d+$|^Infinity$/.test(count))
+    if (infinite && !reduceHandled) {
+      push({ file, line: lineOf(code, call.index), rule: 'infinite-loop', severity: 'warn', message: '무한 반복 애니메이션 — 동작 줄이기에서 멈추는 코드가 파일에 없다', fix: 'useReducedMotion()이 참이면 반복을 시작하지 않고 정지 상태(맥동 없는 스켈레톤·멈춘 막대 + 글자)로 둔다 (skeleton 패턴 참고)' })
+    }
+  }
+
+  // 시간 — withTiming·Animated.timing의 duration 숫자
+  for (const call of callsOf({ code, callee: /withTiming|Animated\.timing/ })) {
+    const duration = code.slice(call.open, call.close).match(/duration\s*:\s*(\d+(?:\.\d+)?)(?![\w.])/)
+    if (!duration) continue
+    const ms = Number(duration[1])
+    const inRepeat = repeats.some((r) => r.open < call.index && call.close <= r.close)
+    const max = inRepeat ? 2000 : 700
+    if (ms > 0 && (ms < 60 || ms > max)) {
+      push({ file, line: lineOf(code, call.index), rule: 'duration-range', severity: 'warn', message: `${ms}ms — ${ms < 60 ? '60ms 미만은 움직임이 보이지 않는다' : `${max}ms를 넘으면 사용자가 기다리게 된다`}`, fix: '누름 60~120ms, 들어옴 200~300ms, 나감은 들어옴의 3/4. 반복(맥동·진행 막대)은 2000ms 안 (motion-principles)' })
+    }
+  }
+}
+
 const auditScript = ({ file, text, push: rawPush }: Source & { push: (f: Finding) => void }) => {
   const ignored = ignoredLines({ text, marker: /motion-audit-ignore/ })
   const push = (f: Finding) => {
@@ -185,4 +241,5 @@ const auditScript = ({ file, text, push: rawPush }: Source & { push: (f: Finding
       push({ file, line: lineOf(code, m.index), rule: 'layout-animation', severity: 'error', message: `프레임 루프에서 style.${m[1]} 갱신 — 매 프레임 레이아웃이 돈다`, fix: 'style.transform = translate()/scale()로 바꾼다' })
     }
   }
+  auditReactNative({ code, file, push })
 }

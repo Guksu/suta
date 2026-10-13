@@ -79,6 +79,8 @@ console.log(formatFindings(findings))
 | `input-zoom` | warn | 글자 입력칸(`input`·`textarea`·`select`, 이름이 `input`·`textarea`로 끝나는 클래스, Tailwind `text-sm`을 단 입력칸)의 16px 미만 글자. iOS는 초점이 갈 때 화면을 확대한다. 체크·라디오·버튼 입력, placeholder, `@media (pointer: fine)`·넓은 화면 묶음은 뺀다 | 웹뷰 |
 | `zoom-disabled` | warn | viewport 메타의 `user-scalable=no`·`maximum-scale=1` — 글자를 키워 읽어야 하는 사람이 읽을 수 없다(WCAG 1.4.4) | 접근성 |
 
+**React Native:** `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙으로 본다 — `fontSize`(tiny-text·종류 수), `padding*`·`margin*`·`gap`(spacing-off-scale), `border*Radius`(radius-variety), `color`·`backgroundColor`·`border*Color`(hue-count·tinted-surface), `shadowRadius` 16 이상(effect-overuse). 줄 번호는 RN 코드의 그 줄이다. 토큰 참조(`space.lg`·`colors.accent`)·스프레드·조건식은 값을 모르니 세지 않는다(`layout-principles/references/react-native.md`).
+
 ## 의도적 예외
 
 규칙이 틀린 게 아니라 이 자리에서는 감수하는 게 맞을 때가 있다. 차트 축 눈금의 작은 글자, 유리 효과가 목적인 컴포넌트, 외부 서비스 고유 색(카카오 노랑 버튼), 콘텐츠 색(사진 자리·카드 테마)이 그 예다. 그 줄이나 바로 앞 줄에 이유를 붙여 예외를 선언한다.
