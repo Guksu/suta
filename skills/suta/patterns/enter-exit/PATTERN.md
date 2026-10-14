@@ -51,7 +51,7 @@ import { createPresence } from './createPresence.js'
 
 const toast = document.createElement('div')
 toast.className = 'fx fx-slide-up'
-toast.textContent = '저장되었습니다'
+toast.textContent = '저장했어요'
 document.body.appendChild(toast)
 
 const presence = createPresence({

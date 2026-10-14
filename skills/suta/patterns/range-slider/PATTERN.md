@@ -92,7 +92,7 @@ lowerInput.addEventListener('input', () => {
 | 눈금 | `step` | 1 |
 | 최소 간격 | `minDistance` | 0 (붙어도 된다) |
 | 트랙 두께·손잡이 크기 | `--range-height`·`--range-thumb-size` | 6px / 24px |
-| 색 | `--range-accent`(손잡이 테두리+채움)·`--range-track`·`--range-thumb` | 거의 검정(#1b1e24) / 회색 / 흰색 |
+| 색 | `--range-accent`(손잡이 테두리+채움)·`--range-track`·`--range-thumb` | 거의 검정(#1c1c1c) / 회색 / 흰색 |
 
 ## 주의사항
 

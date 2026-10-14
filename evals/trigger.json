@@ -22,7 +22,9 @@
     "걷기 리워드 앱 만들어줘, 출석이랑 걸음 순위 화면 있어야 해",
     "build the UI for a gamified habit app with streaks, badges and a leaderboard screen",
     "Expo 앱에 에러 토스트랑 로딩 막대 좀 만들어줘",
-    "add a loading skeleton and empty state to my React Native screen"
+    "add a loading skeleton and empty state to my React Native screen",
+    "버튼 문구랑 에러 메시지 좀 자연스럽게 다듬어줘",
+    "polish the colors, fonts and button copy on this screen"
   ],
   "shouldNot": [
     "주문 API 엔드포인트 추가해줘",

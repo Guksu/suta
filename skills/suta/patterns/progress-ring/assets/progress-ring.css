@@ -35,7 +35,7 @@
 }
 
 .progress-ring-bar {
-  --_color: var(--ring-color, #1b1e24);
+  --_color: var(--ring-color, #1c1c1c);
   stroke: var(--_color);
   stroke-linecap: round;
   stroke-dasharray: var(--ring-circumference);

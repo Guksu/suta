@@ -36,10 +36,10 @@ const COPY = defineCopy({
     ),
     searchLabel: '메뉴 검색',
     loading: '찾는 중…',
-    error: '불러오지 못했습니다',
+    error: '불러오지 못했어요',
     requests: (n: number) => `서버 요청 ${n}회`,
     picked: (name: string) => `선택: ${name}`,
-    notPicked: '아직 고르지 않았습니다',
+    notPicked: '아직 고르지 않았어요',
     resetRequests: '요청 수 초기화',
   },
   en: {

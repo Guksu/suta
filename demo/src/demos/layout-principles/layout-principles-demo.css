@@ -481,16 +481,30 @@
   color: var(--color-text);
 }
 
-/* 옅은 바탕 위에 흰 묶음을 놓는다 — 면은 테두리·그림자 대신 톤 차이로 나눈다.
- * 강조색은 서비스가 정한다. 국수집이라 간장색 하나를 골랐다(오류의 빨강·완료의 초록과 겹치지 않게) */
+/* 폭 가득 흰 목록 — 국내 앱 30곳 중 26곳이 설정 행을 화면 폭 가득 흰 면에 두었다(옅은 바탕 + 흰 둥근 묶음은 3곳).
+ * 묶음 사이는 8px 옅은 띠와 작은 라벨로 나눈다.
+ * 강조색은 서비스가 정한다. 국수집이라 누룽지 같은 주황 갈색 하나를 골랐다(오류의 빨강·완료의 초록과 겹치지 않게).
+ * 짙은 간장색(#8a4b1f)은 탁해서 검정처럼 읽혔다 — 같은 색상각에서 채도를 올렸다(tone.md 3절) */
 .lp-t-page {
-  --color-accent: #8a4b1f;
+  --color-accent: #b4580f;
   display: grid;
   align-content: start;
   gap: var(--space-2);
   padding: var(--space-6) var(--page-inline) var(--space-8);
   background: var(--color-canvas);
   color: var(--color-text);
+}
+
+/* ⑦ 설정만 — 흰 면, 행이 폭 가득(좌우 여백은 행 안쪽으로) */
+.lp-t-settings {
+  gap: 0;
+  padding-inline: 0;
+  background: var(--color-surface);
+}
+
+.lp-t-settings .lp-t-title {
+  margin-block-end: var(--space-2);
+  padding-inline: var(--page-inline);
 }
 
 .lp-t-title {
@@ -501,10 +515,10 @@
   word-break: keep-all;
 }
 
-/* 구역 이름 — 묶음 밖 위에 옅게 두고 묶음에 붙인다(앞 묶음과는 16px 더 띄운다) */
+/* 구역 이름 — 행과 같은 왼쪽 선에 작게, 옅게 */
 .lp-t-group-label {
-  margin: var(--space-4) 0 0;
-  padding-inline: var(--space-1);
+  margin: 0;
+  padding: var(--space-4) var(--page-inline) var(--space-1);
   font-size: var(--text-small);
   color: var(--color-text-tertiary);
 }
@@ -513,9 +527,12 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  overflow: hidden;
+}
+
+/* 묶음 사이 8px 띠 — 다음 구역 라벨(또는 라벨 없는 묶음) 위에 */
+.lp-t-group + .lp-t-group-label,
+.lp-t-group + .lp-t-group {
+  border-top: 8px solid var(--color-canvas);
 }
 
 /* 묶음 안 행은 선 한 줄로 나눈다. 행 전체가 누르는 영역이다 */
@@ -527,12 +544,8 @@
   box-sizing: border-box;
   inline-size: 100%;
   min-block-size: 56px;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--page-inline);
   cursor: pointer;
-}
-
-.lp-t-group li + li .lp-t-row {
-  border-top: 1px solid var(--color-line);
 }
 
 .lp-t-row-button {
@@ -583,7 +596,7 @@
   transform: rotate(45deg);
 }
 
-/* 스위치 — 강조색은 켜진 상태에만. 손잡이만 움직인다(transform) */
+/* 스위치 — 켜짐은 강조색(레퍼런스 18곳 중 16곳), 꺼짐은 옅은 트랙(89%) + 1px 테두리(흰 바탕 대비 3:1). 손잡이만 움직인다(transform) */
 .lp-t-switch {
   appearance: none;
   position: relative;
@@ -592,7 +605,8 @@
   block-size: 28px;
   margin: 0;
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--color-text-tertiary) 55%, var(--color-surface));
+  background: #e5e5e5;
+  box-shadow: inset 0 0 0 1px #8a8a8a;
   cursor: pointer;
   transition: background-color var(--motion-duration-instant) var(--motion-ease-out);
 }
@@ -606,11 +620,13 @@
   block-size: 20px;
   border-radius: var(--radius-full);
   background: var(--color-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
   transition: transform var(--motion-duration-fast) var(--motion-ease-out);
 }
 
 .lp-t-switch:checked {
   background: var(--color-accent);
+  box-shadow: none;
 }
 
 .lp-t-switch:checked::after {
@@ -627,7 +643,8 @@
   justify-self: start;
   min-block-size: var(--tap-min);
   margin-block-start: var(--space-2);
-  padding-inline: var(--space-1);
+  margin-inline-start: var(--page-inline);
+  padding-inline: 0;
   border: 0;
   background: none;
   color: var(--color-text-tertiary);
@@ -777,7 +794,7 @@
 /* ⑨ AI 채팅 — 범용 채팅 화면의 관례: 머리 한 줄, 가운데 한 열, 아래 입력창 하나.
  * 색은 무채색 + 강조색(보내기) + 오류 빨강뿐이다. 보조 행동은 모두 무채색 아이콘·글자 버튼이다 */
 .lp-t-chat {
-  --color-accent: #1b1e24; /* 근거(브랜드)가 없는 도우미 화면이라 토큰 기본값 거의 검정 */
+  --color-accent: #1c1c1c; /* 근거(브랜드)가 없는 도우미 화면이라 토큰 기본값 거의 검정 */
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-block-size: 560px;

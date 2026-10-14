@@ -197,7 +197,8 @@ const renderMetrics = () => {
     }
   }
 
-  const boxes = visible.filter(isBox)
+  // 제품 화면을 본뜬 그림(role="img"·aria-hidden="true") 안의 상자는 페이지 구조가 아니라 그림이다 — layout-audit의 nested-card와 같은 기준
+  const boxes = visible.filter((el) => isBox(el) && !el.closest('[role="img"], [aria-hidden="true"]'))
   const boxSet = new Set(boxes)
   const nestedBoxes = boxes.filter((el) => {
     for (let node = el.parentElement; node; node = node.parentElement) if (boxSet.has(node)) return true

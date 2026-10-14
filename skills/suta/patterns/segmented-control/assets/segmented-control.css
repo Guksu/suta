@@ -56,7 +56,7 @@
 }
 
 .segment-input:focus-visible + .segment-label {
-  outline: 2px solid var(--segment-focus-color, #1b1e24);
+  outline: 2px solid var(--segment-focus-color, #1c1c1c);
   outline-offset: 4px;
   border-radius: 4px;
 }

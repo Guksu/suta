@@ -22,6 +22,9 @@ The name comes from the Korean *suta* (手打), as in noodles made by hand.
 | Every section wrapped in a card, with another box inside the card | Grouping by spacing and thin lines. Cards only for standalone units, one layer deep |
 | Numbers the same size as their labels, spacing and radius values all over the place | Hierarchy from size and weight. Spacing, type and radius come from tokens (a scale) only |
 | Gradient text, glows and colored badges everywhere, 9px text | Emphasis in one or two places per screen. Text at 12px or more, covered by the layout check |
+| A dark, muddy accent (deep teal, soy-sauce brown), or slate grays next to a warm accent | One clear accent and pure neutral grays. The palette tool (`palette.mjs`) builds a matching set that keeps contrast |
+| No font chosen, so every device falls back to its own default | One Korean UI font (Pretendard or similar) loaded as a file |
+| "(demo)" and "test account" left on screen, polite and formal Korean endings mixed | One polite-casual voice (해요체) and set shapes for buttons, errors and empty states, covered by the copy check |
 | `transition: all 0.3s ease` on everything | Only the properties that move, with durations and easing sized to the motion (motion tokens) |
 | Animating `height` or `top`, so the page stutters | Only `transform` and `opacity` move. Height uses the grid technique and position changes use FLIP |
 | Ignoring the reduced-motion setting | Reduced-motion support in every stylesheet |
@@ -140,12 +143,13 @@ Installed as a Claude Code or Codex plugin, suta runs layout and motion checks o
 | Result | What goes back to the agent |
 |---|---|
 | error: text under 11px, layout-property animation, `transition: all`, missing reduced-motion | The list and how to fix each, sent back so the agent fixes it on the spot |
-| warn: nested cards, effect overuse, off-scale spacing and more | A notice of up to 5 lines. Whether to fix it is a judgement call against the principles |
+| warn: nested cards, effect overuse, off-scale spacing, muddy accents, leftover demo copy, mixed Korean endings and more | A notice of up to 5 lines. Whether to fix it is a judgement call against the principles |
 | Clean, or not a checked file | Nothing |
 
 - Only the lines this edit changed count. Problems that were already in the file never stop the agent. When something else is being reported, one extra line notes "N existing errors unrelated to this edit". A newly created file is checked in full.
 - Checked files are CSS, SCSS, Less, TSX, JSX, Vue, Svelte and HTML (layout and motion) and TS/JS (motion). `node_modules`, build folders and test files are skipped.
 - In React Native and Expo apps, the audit also reads `StyleSheet.create` values (font size, spacing, radius, color) and Reanimated animations (layout properties, infinite loops, durations). [Porting to React Native](../skills/suta/patterns/layout-principles/references/react-native.md) (Korean) explains how to carry the web patterns over.
+- The copy check reads Korean strings in code: their sentence endings (해요체 vs 합쇼체) and developer leftovers such as "(데모)" or "테스트 계정". Paragraphs over 40 characters and terms-of-service sentences are not counted.
 - Mark an intended exception with a comment above the line that gives the reason (`/* layout-audit-ignore: tiny-text — chart axis ticks */`).
 - To turn it off, set the environment variable `SUTA_HOOK=off`. It needs Node 22.18 or later. On older versions it passes without checking. It never blocks an edit.
 
@@ -248,7 +252,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses | [Demo](https://guksu.github.io/suta/#/motion-principles) |
 | [Motion audit](../skills/suta/patterns/motion-audit/PATTERN.md) | Scans CSS and JS for layout-property animations, missing reduced-motion, out-of-range durations and more, reports them as `file:line` and points to the pattern that fixes each | [Demo](https://guksu.github.io/suta/#/motion-audit) |
 | [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius and color (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
-| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, emoji used as icons, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
+| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
 
 The layout principles pattern contains these parts.
 
@@ -256,7 +260,10 @@ The layout principles pattern contains these parts.
 - Conventions for 17 screen types, including AI chat, shopping apps, stock trading and gamification, plus conventions for bottom tab bars and mobile webviews.
 - One set of line icons.
 - Guidance on type, color and surfaces: neutrals, one accent and an error red, plus a separate rise/fall pair for market data and gold, silver and bronze for reward graphics.
-- One token set for spacing, type, weight, radius and color.
+- Color pairing guidance and a tool: a clear accent (the lightness and chroma range of 31 well-made apps), neutrals that match it, and `scripts/palette.mjs '<accent>'`, which prints a full set that keeps 4.5:1 contrast.
+- Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles.
+- Copy guidance (Korean): one voice (해요체) and the shapes of buttons, dialogs, errors, empty states and toasts, drawn from 7,539 UI strings in well-made apps.
+- One token set for spacing, type, weight, radius, color and font.
 - Before and after versions of nine typical AI-made screens.
 
 ## Layout

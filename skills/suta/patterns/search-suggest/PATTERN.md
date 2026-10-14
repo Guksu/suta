@@ -52,7 +52,7 @@ const MenuSearch = () => {
       {search.isOpen && (
         <ul {...search.listProps} className="suggest-panel">
           {search.status === 'loading' && <li className="suggest-message">찾는 중…</li>}
-          {search.status === 'error' && <li className="suggest-message">불러오지 못했습니다</li>}
+          {search.status === 'error' && <li className="suggest-message">불러오지 못했어요</li>}
           {search.items.map((menu, index) => (
             <li key={menu.id} {...search.getOptionProps(index)} className="suggest-option">
               {menu.name}

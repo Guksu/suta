@@ -29,7 +29,7 @@ const COPY = defineCopy({
     price: (n: number) => `${n.toLocaleString('ko-KR')}원`,
     menuLabel: (menu: string) => `${menu} 주문 관리`,
     result: ({ menu, action }: { menu: string; action: string }) => `실행: ${menu} — ${action}`,
-    idle: '아직 아무 동작도 실행하지 않았습니다',
+    idle: '아직 아무 동작도 실행하지 않았어요',
     controlsLabel: '메뉴 옵션',
     alignEnd: '버튼 오른쪽에 맞추기',
     note: (

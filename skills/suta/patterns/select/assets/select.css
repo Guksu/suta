@@ -94,7 +94,7 @@
 }
 
 .select-option[aria-selected='true'] {
-  color: var(--select-accent, #1b1e24);
+  color: var(--select-accent, #1c1c1c);
   font-weight: 600;
 }
 

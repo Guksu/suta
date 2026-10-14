@@ -287,6 +287,20 @@ describe('auditLayout — 옅은 색 면 (tinted-surface)', () => {
     expect(audit('Row.tsx', text).find((f) => f.rule === 'tinted-surface')?.lines).toEqual([3, 4])
   })
 
+  it('강조색의 선택 바탕 변수(palette.mjs의 --color-accent-soft)와 채도 높은 채운 색(카카오 노랑 버튼)은 옅은 색 면이 아니다', () => {
+    const css = [
+      ':root {',
+      '  --color-accent: #c65012;',
+      '  --color-accent-soft: #fbece6;',
+      '  --primary-soft: #e6f3ee;',
+      '}',
+      '.btn-kakao { background: #fee500; color: #191919; }',
+      '.chip.is-on { background: var(--color-accent-soft); }',
+      '.notice { background: #fef08a; }',
+    ].join('\n')
+    expect(audit('a.css', css).find((f) => f.rule === 'tinted-surface')?.lines).toEqual([8])
+  })
+
   it('suta 토큰 파일(무채색 + 강조색 거의 검정 + 오류 빨강 + 등락 색 짝)은 조용하다', () => {
     const tokens = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/layout-tokens.css'), 'utf8')
     expect(audit('layout-tokens.css', tokens).filter((f) => f.rule === 'tinted-surface' || f.rule === 'hue-count')).toEqual([])
@@ -515,5 +529,229 @@ describe('auditLayout — React Native StyleSheet', () => {
     const text = rn(['  dot: { margin: 3 },', '  pill: { fontSize: 11 }, // layout-audit-ignore: tiny-text — 달력 칸 숫자는 OS 확대로 키운다'].join('\n'))
     const findings = audit('styles.ts', text)
     expect(rules(findings)).toEqual(['spacing-off-scale'])
+  })
+})
+
+describe('auditLayout — 색 조합 (muddy-accent·neutral-temperature)', () => {
+  it('어둡고 탁한 강조색 변수(밝기 0.55 미만·채도 0.12 미만)를 잡는다 — 거의 검정처럼 읽힌다', () => {
+    const css = [':root {', '  --color-accent: #0e7a56;', '  --color-accent-soft: #e7f2ee;', '  --primary: #6a3e26;', '  --color-text: #0e7a56;', '}'].join('\n')
+    const findings = audit('tokens.css', css).filter((f) => f.rule === 'muddy-accent')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [2, 'warn'],
+      [4, 'warn'],
+    ])
+    expect(findings[0].message).toContain('#0e7a56')
+    expect(findings[0].fix).toContain('palette.mjs')
+  })
+
+  it('맑은 강조색·무채색 강조색은 조용하다', () => {
+    const css = ':root { --color-accent: #3182f6; --brand: #fe6e0c; --accent: #1c1c1c; --color-primary: #c62828; }'
+    expect(audit('tokens.css', css).filter((f) => f.rule === 'muddy-accent')).toEqual([])
+  })
+
+  it('따뜻한 강조색 옆의 푸른 회색(slate) 글자·면 변수를 한 번 알린다', () => {
+    const css = [':root {', '  --color-accent: #fe6e0c;', '  --color-text: #1b1e24;', '  --color-text-secondary: #4b5260;', '  --color-canvas: #f1f5f9;', '  --color-surface: #ffffff;', '}'].join('\n')
+    const findings = audit('tokens.css', css).filter((f) => f.rule === 'neutral-temperature')
+    expect(findings).toHaveLength(1)
+    expect(findings[0].lines).toEqual([3, 4, 5])
+    expect(findings[0].message).toContain('#fe6e0c')
+  })
+
+  it('순수 회색이거나 강조색과 같은 쪽으로 기운 회색은 조용하다', () => {
+    const pure = ':root { --color-accent: #fe6e0c; --color-text: #1c1c1c; --color-canvas: #f3f3f3; --color-line: #e6e6e6; }'
+    const blue = ':root { --color-accent: #3182f6; --color-text: #191f28; --color-canvas: #f2f4f6; }'
+    expect(audit('a.css', pure).filter((f) => f.rule === 'neutral-temperature')).toEqual([])
+    expect(audit('b.css', blue).filter((f) => f.rule === 'neutral-temperature')).toEqual([])
+  })
+
+  it('Tailwind의 따뜻한 강조색 채움 + slate·gray 글자도 잡는다(zinc·neutral·stone은 조용하다)', () => {
+    const cold = ['export const Buy = () => (', '  <div>', '    <p className="text-slate-600">국물이 진해요</p>', '    <button className="bg-orange-500 text-white">담기</button>', '  </div>', ')'].join('\n')
+    const pure = cold.replace('text-slate-600', 'text-neutral-600')
+    const blue = cold.replace('bg-orange-500', 'bg-blue-600')
+    expect(audit('Buy.tsx', cold).filter((f) => f.rule === 'neutral-temperature').map((f) => f.line)).toEqual([3])
+    expect(audit('Buy.tsx', pure).filter((f) => f.rule === 'neutral-temperature')).toEqual([])
+    expect(audit('Buy.tsx', blue).filter((f) => f.rule === 'neutral-temperature')).toEqual([])
+  })
+})
+
+describe('auditLayout — 강조색 대비 (accent-contrast)', () => {
+  it('강조색 면과 그 위 글자, 강조 글자와 바탕이 4.5:1에 못 미치면 알린다 — 반올림하지 않고 잰다(4.49는 실패)', () => {
+    const css = [':root {', '  --color-accent: #078857;', '  --color-on-accent: #ffffff;', '  --color-accent-text: #008051;', '  --color-surface: #ffffff;', '  --color-canvas: #f3f3f3;', '}'].join('\n')
+    const findings = audit('tokens.css', css).filter((f) => f.rule === 'accent-contrast')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [2, 'warn'],
+      [4, 'warn'],
+    ])
+    expect(findings[0].message).toContain('4.49')
+    expect(findings[0].fix).toContain('palette.mjs')
+  })
+
+  it('강조 글자는 선택 바탕(--color-accent-soft) 위에서도 잰다 — 선택된 항목의 글자다', () => {
+    const css = [':root {', '  --color-accent-text: #007e54;', '  --color-accent-soft: #e6f3ee;', '  --color-surface: #ffffff;', '}'].join('\n')
+    const findings = audit('tokens.css', css).filter((f) => f.rule === 'accent-contrast')
+    expect(findings.map((f) => f.line)).toEqual([2])
+    expect(findings[0].message).toContain('--color-accent-soft')
+    expect(findings[0].message).toContain('4.47')
+  })
+
+  it('4.5:1 이상이거나 짝이 되는 변수가 없으면 조용하다', () => {
+    const ok = ':root { --color-accent: #018655; --color-on-accent: #ffffff; --color-accent-text: #007e50; --color-surface: #fff; --color-canvas: #f3f3f3; }'
+    const alone = ':root { --color-accent: #3182f6; }'
+    expect(audit('a.css', ok).filter((f) => f.rule === 'accent-contrast')).toEqual([])
+    expect(audit('b.css', alone).filter((f) => f.rule === 'accent-contrast')).toEqual([])
+  })
+})
+
+describe('auditLayout — 제품 화면 그림 (interactive-in-picture · 그림 안 nested-card)', () => {
+  it('role="img"·aria-hidden 그림 안의 상자 겹침은 페이지 구조가 아니라 세지 않는다 — 그림 밖은 그대로 잡는다', () => {
+    const html = [
+      '<div role="img" aria-label="주간 달력 화면" class="rounded-xl border bg-white">',
+      '  <div class="rounded-lg border bg-white">월요일</div>',
+      '</div>',
+      '<div aria-hidden="true" class="rounded-xl border">',
+      '  <div class="rounded-lg shadow-md">칩</div>',
+      '</div>',
+      '<section class="rounded-xl border">',
+      '  <div class="rounded-lg border">진짜 상자 안 상자</div>',
+      '</section>',
+    ].join('\n')
+    expect(audit('index.html', html).filter((f) => f.rule === 'nested-card').map((f) => f.line)).toEqual([8])
+  })
+
+  it('그림(role="img") 안의 버튼·링크·입력칸은 error — 스크린 리더는 그림 하나로 읽고 키보드는 안의 컨트롤에 닿는다', () => {
+    const html = [
+      '<div class="shot" role="img" aria-label="예약 링크 화면">',
+      '  <p>목요일 10월 16일</p>',
+      '  <button type="button">10:30</button>',
+      '  <a href="#">링크 복사</a>',
+      '</div>',
+      '<div aria-hidden="true">',
+      '  <button type="button" tabindex="-1">확정</button>',
+      '  <a href="#">더 보기</a>',
+      '</div>',
+      '<button type="button">무료로 시작</button>',
+    ].join('\n')
+    const findings = audit('index.html', html).filter((f) => f.rule === 'interactive-in-picture')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [3, 'error'],
+      [4, 'error'],
+      [8, 'error'],
+    ])
+    expect(findings[0].fix).toContain('span')
+  })
+})
+
+describe('auditLayout — 번호 표식 (numbered-markers)', () => {
+  it('기능 목록의 01·02·03 번호 표식을 파일마다 한 번 알린다 — 시중 랜딩 42곳 중 3곳, suta 0.6~0.13 랜딩은 6번 모두', () => {
+    const html = [
+      '<section class="features">',
+      '  <h2>일정 관리에 꼭 필요한 세 가지</h2>',
+      '  <ol>',
+      '    <li><span class="num">01</span><h3>겹침 없는 하루</h3></li>',
+      '    <li><span class="num">02</span><h3>한 번에 맞추는 회의</h3></li>',
+      '    <li><span class="num">03</span><h3>쓰던 캘린더 그대로</h3></li>',
+      '  </ol>',
+      '</section>',
+      '<div class="week"><span>13</span><span>14</span><span>15</span></div>',
+    ].join('\n')
+    // 달력 날짜 칸(13·14·15)이 함께 있어도 기능 번호는 기능 번호다
+    const findings = audit('index.html', html).filter((f) => f.rule === 'numbered-markers')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([[4, 'warn']])
+    expect(findings[0].lines).toEqual([4, 5, 6])
+    expect(findings[0].fix).toContain('제품 화면')
+  })
+
+  it('데이터 배열로 그린 번호도 센다', () => {
+    const text = [
+      "const FEATURES = [",
+      "  { no: '01', title: '겹침 없는 하루' },",
+      "  { no: '02', title: '한 번에 맞추는 회의' },",
+      "  { no: '03', title: '쓰던 캘린더 그대로' },",
+      ']',
+      'export const Features = () => <ol>{FEATURES.map((f) => <li key={f.no}>{f.no} {f.title}</li>)}</ol>',
+    ].join('\n')
+    expect(audit('Features.tsx', text).filter((f) => f.rule === 'numbered-markers').map((f) => f.line)).toEqual([2])
+  })
+
+  it('월·시 목록(10 이상이 함께 있다), 번호 두 개, 시각·날짜는 조용하다', () => {
+    const months = ['<select>', ...Array.from({ length: 12 }, (_, i) => `  <option>${String(i + 1).padStart(2, '0')}</option>`), '</select>'].join('\n')
+    const two = '<p><span>01</span> 시작</p>\n<p><span>02</span> 끝</p>'
+    const times = '<time>09:30</time><time>2026.10.01</time><span>01월</span><span>02월</span><span>03월</span>'
+    for (const [file, text] of [['a.html', months], ['b.html', two], ['c.html', times]]) {
+      expect(audit(file, text).filter((f) => f.rule === 'numbered-markers')).toEqual([])
+    }
+  })
+})
+
+describe('auditLayout — 문구 (meta-copy·mixed-tone)', () => {
+  it('화면에 남은 개발·데모 문구를 잡는다 — 주석과 입력 예시는 조용하다', () => {
+    const text = [
+      'export const Login = () => (',
+      '  <form>',
+      '    {/* 데모 데이터로 채운다 */}',
+      '    <input placeholder="예) 홍길동" />',
+      '    <p>테스트 계정: demo@example.com / 1234</p>',
+      '    <p>Lorem ipsum dolor sit amet</p>',
+      "    <button onClick={() => toast('주문이 접수되었어요 (데모)')}>주문</button>",
+      '  </form>',
+      ')',
+    ].join('\n')
+    const findings = audit('Login.tsx', text).filter((f) => f.rule === 'meta-copy')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [5, 'warn'],
+      [6, 'warn'],
+      [7, 'warn'],
+    ])
+    expect(findings[0].fix).toContain('copy.md')
+  })
+
+  it('짧은 UI 문구에 해요체와 합쇼체가 둘 이상씩 섞이면 한 번 알린다', () => {
+    const text = [
+      'const MESSAGES = {',
+      "  saved: '저장했어요',",
+      "  added: '장바구니에 담았어요',",
+      "  removed: '삭제되었습니다',",
+      "  wrong: '인증번호가 올바르지 않습니다',",
+      '}',
+      'export const Toast = () => <p>{MESSAGES.saved}</p>',
+    ].join('\n')
+    const findings = audit('Toast.tsx', text).filter((f) => f.rule === 'mixed-tone')
+    expect(findings).toHaveLength(1)
+    expect(findings[0].message).toContain('해요체 2')
+    expect(findings[0].message).toContain('합쇼체 2')
+    expect(findings[0].lines).toEqual([4, 5])
+  })
+
+  it('한쪽이 하나뿐이거나, 긴 설명 문단·약관 문장은 세지 않는다', () => {
+    const one = ["const A = ['저장했어요', '담았어요', '지웠어요', '삭제되었습니다']", 'export const X = () => <p>{A[0]}</p>'].join('\n')
+    const long = [
+      "const A = ['저장했어요', '담았어요']",
+      'export const X = () => (',
+      '  <div>',
+      '    <p>버튼을 누르면 시트가 아래에서 올라오고, 끌어내리면 닫힙니다. 키보드로는 Esc를 누릅니다.</p>',
+      '    <p>위 약관에 동의합니다</p>',
+      '    <p>개인정보 수집·이용에 동의합니다</p>',
+      '  </div>',
+      ')',
+    ].join('\n')
+    expect(audit('One.tsx', one).filter((f) => f.rule === 'mixed-tone')).toEqual([])
+    expect(audit('Long.tsx', long).filter((f) => f.rule === 'mixed-tone')).toEqual([])
+  })
+
+  it('<code>·<strong> 같은 글자 속 태그로 끊긴 설명 문단은 한 문단으로 읽는다', () => {
+    const text = [
+      "const A = ['저장했어요', '담았어요']",
+      'export const X = () => (',
+      '  <p>',
+      '    열린 뒤 <kbd>Tab</kbd>을 눌러 보세요. 전부 네이티브 <code>dialog</code>가 하는 일입니다.',
+      '    바깥을 눌러도 <strong>닫히지 않습니다</strong>.',
+      '  </p>',
+      ')',
+    ].join('\n')
+    expect(audit('Inline.tsx', text).filter((f) => f.rule === 'mixed-tone')).toEqual([])
+  })
+
+  it('CSS 파일과 문구가 없는 파일은 조용하다', () => {
+    expect(audit('a.css', '.a { content: "저장되었습니다"; } .b { content: "담았어요"; }').filter((f) => f.rule === 'mixed-tone' || f.rule === 'meta-copy')).toEqual([])
   })
 })

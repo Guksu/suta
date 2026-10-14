@@ -6,7 +6,7 @@
 .field {
   --_duration: var(--field-duration, 150ms);
   --_border: var(--field-border, #d4d9e1);
-  --_accent: var(--field-accent, #1b1e24);
+  --_accent: var(--field-accent, #1c1c1c);
   position: relative;
   display: flex;
   flex-direction: column;

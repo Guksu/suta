@@ -33,7 +33,7 @@ const COPY = defineCopy({
     preparing: '준비 중',
     orderName: '잔치국수 2인분 · 손만두 1접시',
     checking: '주방에서 확인 중…',
-    almost: '곧 나갑니다',
+    almost: '곧 나가요',
     boiling: '면 삶는 중',
     orderCaption: '가운데 슬롯에 퍼센트 숫자. 값이 없으면(무한 로딩) 짧은 호가 돕니다.',
   },

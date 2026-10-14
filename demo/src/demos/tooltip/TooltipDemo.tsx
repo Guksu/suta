@@ -10,8 +10,8 @@ const COPY = defineCopy({
     delay: '호버 지연',
     note: '마우스는 지연 후, 키보드 포커스(Tab 이동)는 즉시 열립니다 — 스치는 커서에는 반응하지 않고 의도가 분명한 포커스는 기다리게 하지 않습니다. Esc로 닫힙니다.',
     extra: { button: '면 추가', tip: '곱빼기는 +1,000원' },
-    spice: { button: '맵기', tip: '2단계 — 국물이 칼칼합니다' },
-    fresh: { button: '생면', tip: '매일 아침 뽑은 생면만 씁니다' },
+    spice: { button: '맵기', tip: '2단계 — 국물이 칼칼해요' },
+    fresh: { button: '생면', tip: '매일 아침 뽑은 생면만 써요' },
     takeout: { button: '포장', tip: '국물은 따로 담아드려요' },
   },
   en: {

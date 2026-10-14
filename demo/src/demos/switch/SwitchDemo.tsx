@@ -14,7 +14,7 @@ const COPY = defineCopy({
     note: '마우스로 누르고 있어 보세요 — 썸이 살짝 눌리는 스퀴시(iOS 관례)가 들어 있습니다. Tab으로 포커스한 뒤 Space로도 켜집니다 — 네이티브 체크박스가 그대로 일하기 때문입니다.',
     title: '주문 옵션',
     refill: '셀프 리필 (준비 중)',
-    result: (count: number) => (count > 0 ? `옵션 ${count}개가 주문에 적용됩니다.` : '원하는 옵션을 켜보세요.'),
+    result: (count: number) => (count > 0 ? `옵션 ${count}개가 주문에 적용돼요.` : '원하는 옵션을 켜보세요.'),
   },
   en: {
     options: { extra: 'Large size (+₩1,000)', greenOnion: 'Extra scallions', egg: 'Add an egg (+₩500)', soupApart: 'Pack the broth separately' },

@@ -21,7 +21,7 @@ const COPY = defineCopy({
     // 패턴 기본값과 같은 문구 — 영어판과 모양을 맞추려고 여기에 적는다
     otpLabel: '인증번호',
     digitLabel: ({ label, position }: { label: string; position: number }) => `${label} ${position}번째 자리`,
-    error: '인증번호가 올바르지 않습니다',
+    error: '인증번호를 다시 확인해 주세요',
     success: '인증되었습니다 ✓',
     attempts: (n: number) => `시도 ${n}회`,
     reset: '다시 하기',

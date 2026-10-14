@@ -132,7 +132,7 @@ watchKeyboard({ onChange: (open) => setHidden(open) })
 | 대상 | 방법 | 기본값 |
 |------|------|--------|
 | 높이 | `--bottom-nav-height` | 56px (+ 안전 영역) |
-| 색 | `--bottom-nav-color`(나머지 탭)·`--bottom-nav-current`(현재 탭)·`--bottom-nav-bg`·`--bottom-nav-line` | 옅은 글자 #646b77 / 거의 검정 #1b1e24 / 흰색 / #e3e5e9 |
+| 색 | `--bottom-nav-color`(나머지 탭)·`--bottom-nav-current`(현재 탭)·`--bottom-nav-bg`·`--bottom-nav-line` | 옅은 글자 #686868 / 거의 검정 #1c1c1c / 흰색 / #e3e5e9 |
 | 배지 | `--bottom-nav-badge-bg` | 오류 빨강 #c8341f |
 | 넓은 화면 | `--bottom-nav-max-width` — 모바일 화면을 넓은 창에서 열 때 본문 열 폭에 맞춘다 | 없음(폭 가득) |
 | 숨김 속도 | `--bottom-nav-duration` — 나타남 250ms, 숨김은 그 3/4 | 250ms |

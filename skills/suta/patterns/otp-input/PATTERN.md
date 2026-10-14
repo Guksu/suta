@@ -49,7 +49,7 @@ const VerifyStep = () => {
     const ok = await confirmCode(code)
     if (ok) return goNext()
     // 틀린 번호를 남겨 두면 사용자가 지우는 일부터 해야 한다 — 흔들고 비워 첫 칸으로
-    setMessage('인증번호가 올바르지 않습니다')
+    setMessage('인증번호를 다시 확인해 주세요')
     otp.current?.shake()
     otp.current?.clear()
   }
@@ -93,7 +93,7 @@ const otp = createOtpInput({
 | 칸 수 | `length` | 6 |
 | 허용 문자 | `isAllowed` (코어 옵션) — 영문 코드면 `(c) => /[0-9A-Za-z]/.test(c)` | 숫자만 |
 | 칸 크기·간격 | `--otp-cell-size`·`--otp-gap` | 3rem / 0.5rem |
-| 색 | `--otp-accent`·`--otp-border`·`--otp-error`·`--otp-bg` | 거의 검정(#1b1e24) / 회색 / 빨강 / 흰색 |
+| 색 | `--otp-accent`·`--otp-border`·`--otp-error`·`--otp-bg` | 거의 검정(#1c1c1c) / 회색 / 빨강 / 흰색 |
 | 칸 이름 | `digitLabel({ label, position })` — position은 1부터 | "{label} {position}번째 자리" |
 
 ## 주의사항

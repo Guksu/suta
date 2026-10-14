@@ -87,7 +87,7 @@ const MenuFeed = () => {
             <button type="button" onClick={feed.retry}>다시 시도</button>
           </>
         )}
-        {feed.status === 'done' && <span>마지막입니다</span>}
+        {feed.status === 'done' && <span>마지막이에요</span>}
         {feed.status === 'idle' && <button type="button" onClick={feed.loadNow}>더 보기</button>}
       </div>
     </>

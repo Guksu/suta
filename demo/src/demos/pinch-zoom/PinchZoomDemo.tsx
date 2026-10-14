@@ -18,7 +18,7 @@ const COPY = defineCopy({
     captions: { deulkkae: '들깨칼국수 — 오늘 들깨 갓 볶았습니다', bibim: '비빔국수, 여름 한정 매운맛', mandu: '손만두 빚는 아침' },
     intro: '두 손가락으로 사진을 벌려 보세요.',
     zooming: (scale: number) => `확대 중 — ${scale.toFixed(2)}×`,
-    settled: '제자리로 돌아왔습니다.',
+    settled: '제자리로 돌아왔어요.',
     controlsLabel: '제스처 옵션',
     maxScale: '최대 배율',
     dim: '배경 딤',

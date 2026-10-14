@@ -34,7 +34,7 @@ const CancelOrder = () => {
       <button type="button" onClick={() => setOpen(true)}>주문 취소</button>
       <Modal open={open} onClose={() => setOpen(false)} labelledBy="cancel-title">
         <h2 id="cancel-title">주문을 취소할까요?</h2>
-        <p>조리가 시작되면 취소할 수 없습니다.</p>
+        <p>조리가 시작되면 취소할 수 없어요.</p>
         <button type="button" onClick={() => setOpen(false)}>돌아가기</button>
         <button type="button" onClick={confirmCancel}>취소하기</button>
       </Modal>

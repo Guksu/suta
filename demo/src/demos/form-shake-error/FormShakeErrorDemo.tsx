@@ -10,7 +10,7 @@ const COPY = defineCopy({
     hint: '빈 채로 예약을 눌러 보세요.',
     nameError: '예약자 이름을 입력해 주세요',
     phoneError: '010-1234-5678 형식으로 입력해 주세요',
-    success: (name: string) => `${name}님, 예약이 접수되었습니다`,
+    success: (name: string) => `${name}님, 예약을 받았어요`,
     invalid: '입력을 확인해 주세요.',
     controlsLabel: '애니메이션 옵션',
     distance: '세기',

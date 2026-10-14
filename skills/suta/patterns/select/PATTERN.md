@@ -48,7 +48,7 @@ const OrderForm = () => {
 |------|------|
 | 패널 드롭 속도 | `--select-duration` (기본 200ms) |
 | 배경·테두리 | `--select-bg`(#fff)·`--select-border`(#d4d9e1) |
-| 하이라이트·선택 색 | `--select-highlight`(#f1f5f9)·`--select-accent`(#1b1e24) |
+| 하이라이트·선택 색 | `--select-highlight`(#f1f5f9)·`--select-accent`(#1c1c1c) |
 | 패널 최대 높이 | `--select-panel-max-height` (기본 240px — 넘으면 패널 안 스크롤) |
 | 최소 폭 | `--select-min-width` (기본 200px) |
 | 이름 | `label` 또는 화면 라벨의 id `labelledBy` (없으면 `placeholder`가 이름이 된다 — 콤보박스는 안의 글자를 이름으로 쓰지 않는다) |

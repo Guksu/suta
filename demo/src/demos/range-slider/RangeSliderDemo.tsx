@@ -48,7 +48,7 @@ const COPY = defineCopy({
     title: '가격대',
     handles: { lower: '최저 가격', upper: '최고 가격' },
     count: (n: number) => `이 가격대에 ${n}개 메뉴`,
-    empty: '이 가격대에는 메뉴가 없습니다',
+    empty: '이 가격대에는 메뉴가 없어요',
   },
   en: {
     menus: {

@@ -3,7 +3,7 @@
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .upload-root {
-  --_accent: var(--upload-accent, #1b1e24);
+  --_accent: var(--upload-accent, #1c1c1c);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -106,7 +106,7 @@
 .upload-thumb-icon {
   display: grid;
   place-items: center;
-  color: var(--upload-icon-color, #4b5260);
+  color: var(--upload-icon-color, #525252);
 }
 
 .upload-meta {

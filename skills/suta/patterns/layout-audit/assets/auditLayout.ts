@@ -7,7 +7,8 @@
  *
  * 규칙 (id — 심각도 — 무엇을 잡는가 — 원칙):
  *  tiny-text           error·warn — 11px 미만 글자는 error, 11px대는 warn                                   P7
- *  nested-card         warn — 둥근 모서리 + 테두리·그림자·배경을 가진 상자 안의 같은 상자(JSX·HTML·CSS 선택자)  P5
+ *  nested-card         warn — 둥근 모서리 + 테두리·그림자·배경을 가진 상자 안의 같은 상자(JSX·HTML·CSS 선택자). role="img"·aria-hidden 그림 안은 뺀다  P5
+ *  interactive-in-picture error — role="img" 그림이나 aria-hidden 영역 안의 키보드가 닿는 컨트롤(버튼·링크·입력칸)   접근성
  *  effect-overuse      warn — 색 그라데이션·backdrop-filter·큰 그림자가 한 파일에 3곳 이상(blur(0)·투명 그림자 같은 시작 상태는 뺀다)   P3
  *  gradient-text       warn — background-clip: text·bg-clip-text                                            P3
  *  font-size-variety   warn — 한 파일의 글자 크기 7종 이상                                                  P2·P10
@@ -22,6 +23,12 @@
  *  viewport-height     warn — 100vh·h-screen에 dvh·svh 짝이 없다(모바일 브라우저·웹뷰에서 아래가 잘린다)          웹뷰
  *  input-zoom          warn — 16px 미만 글자 입력칸(iOS가 초점을 받을 때 화면을 확대한다)                       웹뷰
  *  zoom-disabled       warn — viewport의 user-scalable=no·maximum-scale=1(확대를 막는다, WCAG 1.4.4)            접근성
+ *  muddy-accent        warn — 어둡고 탁한 강조색 변수(OKLCH 밝기 0.55 미만·채도 0.03~0.12) — 거의 검정처럼 읽힌다     tone
+ *  neutral-temperature warn — 따뜻한 강조색 옆의 푸른 회색(slate) 글자·면 — 무채색은 순수 회색이거나 강조색 쪽으로    tone
+ *  accent-contrast     warn — 한 파일에 함께 정의된 강조색과 그 위 글자, 강조 글자와 바탕의 대비가 4.5:1 미만(반올림 없이)   tone·접근성
+ *  meta-copy           warn — 화면에 남은 개발·데모 문구((데모)·테스트 계정·Lorem ipsum·예시 데이터)                 copy
+ *  mixed-tone          warn — 짧은 UI 문구에 해요체와 합쇼체가 둘 이상씩 섞였다(약관·긴 설명 문단은 뺀다)             copy
+ *  numbered-markers    warn — 기능 목록의 01·02·03 번호 표식(01~09가 7개 이상이면 월·시 목록이라 뺀다)               랜딩
  *
  * React Native: `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙(글자 크기·간격·반경·색·큰 그림자)으로 본다.
  * 토큰 참조(space.lg·colors.accent)·스프레드·조건식은 값을 모르니 세지 않는다. 터치 영역·대비·낭독은 기기에서 확인한다.
@@ -301,11 +308,14 @@ const familyOf = (color: { r: number; g: number; b: number }) => {
 const overWhite = ({ r, g, b, a }: Rgba) => ({ r: r * a + 255 * (1 - a), g: g * a + 255 * (1 - a), b: b * a + 255 * (1 - a) })
 
 /** 옅은 유채색 면 — 연노랑·살구·연분홍·연민트·연파랑 바탕(밝기 0.9 이상). 옅은 색은 채도가 낮아 기준을 따로 둔다:
- * 회색(stone·zinc)은 C 0.005 이하, Tailwind의 -50 바탕은 C 0.013~0.03이다. slate-200(C 0.0126)은 회색으로 남긴다 */
+ * 회색(stone·zinc)은 C 0.005 이하, Tailwind의 -50 바탕은 C 0.013~0.03이다. slate-200(C 0.0126)은 회색으로 남긴다.
+ * 위로는 C 0.13 미만까지 — yellow-200(0.124)까지가 옅은 면이고, 카카오 노랑(#fee500, 0.19) 같은 채운 색은 밝아도 면이 아니라 버튼 색이다 */
 const isTint = (color: Rgba) => {
   const { L, C, h } = oklchOf(overWhite(color))
-  return L >= 0.9 && C >= (h >= 200 && h <= 280 ? 0.014 : 0.012)
+  return L >= 0.9 && C >= (h >= 200 && h <= 280 ? 0.014 : 0.012) && C < 0.13
 }
+/** 강조색의 선택 바탕 변수 — palette.mjs가 내는 --color-accent-soft. 옅은 색 바탕을 선택 상태 하나에 강조색으로 쓰는 것은 tone.md가 허용한 자리다 */
+const ACCENT_SOFT_VAR = /^--(?:color-)?(?:accent|primary|brand|point|main)-(?:soft|subtle|weak|tint|muted)$/
 
 const TW_HUES: Record<string, string> = { red: '빨강', rose: '빨강', orange: '주황', amber: '주황', yellow: '노랑', lime: '초록', green: '초록', emerald: '초록', teal: '청록', cyan: '청록', sky: '파랑', blue: '파랑', indigo: '파랑', violet: '보라', purple: '보라', fuchsia: '분홍', pink: '분홍' }
 const TW_COLOR = /^(bg|text|border(?:-[xytrblse])?|ring|fill|stroke|from|via|to|outline|decoration|accent|caret|divide|shadow)-([a-z]+)-(\d{2,3})(?:\/\d+)?$/
@@ -489,9 +499,13 @@ type Tally = {
   tints: number[]
   hues: Map<string, number[]>
   emoji: Map<string, number[]>
+  /** 따뜻한 강조색(색 조합 규칙) — 처음 본 값 */
+  warmAccent: string | null
+  /** 푸른 회색 글자·면·선이 정의된 줄 */
+  coolNeutrals: number[]
 }
 
-const newTally = (): Tally => ({ sizes: new Map(), weights: new Map(), radii: new Map(), offScale: [], effects: [], tints: [], hues: new Map(), emoji: new Map() })
+const newTally = (): Tally => ({ sizes: new Map(), weights: new Map(), radii: new Map(), offScale: [], effects: [], tints: [], hues: new Map(), emoji: new Map(), warmAccent: null, coolNeutrals: [] })
 
 /** 등락 색 짝을 정의하는 변수 — 시세·손익의 상승·하락 색은 강조색·오류 빨강과 따로 센다(tone.md 2절) */
 const TREND_VAR = /^--(?:[\w-]*-)?(rise|fall|up|down|gain|loss|bull|bear)(?:-[\w-]*)?$/
@@ -504,7 +518,7 @@ const tallyColors = ({ prop, value, line, tally }: { prop: string; value: string
   if (colors.length === 0) return
   const ownFamily = TREND_VAR.test(prop) || REWARD_VAR.test(prop)
   for (const color of colors) if (!ownFamily && color.a >= 0.05 && isChromatic(color)) remember({ map: tally.hues, key: familyOf(color), line })
-  const surface = /^background(-color|-image)?$/.test(prop) || prop.startsWith('--')
+  const surface = /^background(-color|-image)?$/.test(prop) || (prop.startsWith('--') && !ACCENT_SOFT_VAR.test(prop))
   if (surface && colors.some(isTint)) tally.tints.push(line)
 }
 /** 값마다 나온 줄을 모은다 — 요약 지적의 첫 줄과 관여 줄 전체(편집 후 훅용)를 함께 낸다 */
@@ -675,7 +689,22 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
   }
 }
 
-type Element = { name: string; line: number; isBox: boolean; align: 'center' | 'start' | null; centerReported: boolean }
+type Element = { name: string; line: number; isBox: boolean; align: 'center' | 'start' | null; centerReported: boolean; picture: 'img' | 'hidden' | null }
+
+/** 그림으로 표시한 영역 — role="img"(설명 하나로 읽히는 제품 화면 그림)와 aria-hidden="true"(장식). 그 안은 페이지 구조가 아니다 */
+const pictureOf = (attrs: string): 'img' | 'hidden' | null => {
+  if (/(?:^|\s)role\s*=\s*(?:"img"|'img'|\{\s*["']img["']\s*\})/.test(attrs)) return 'img'
+  if (/(?:^|\s)aria-hidden\s*=\s*(?:"true"|'true'|\{\s*true\s*\})/.test(attrs)) return 'hidden'
+  return null
+}
+const INTERACTIVE_TAG = /^(?:button|input|select|textarea)$/
+const INTERACTIVE_ROLE = /(?:^|\s)role\s*=\s*["'](?:button|link|checkbox|switch|tab|menuitem|radio|slider)["']/
+/** 키보드가 닿는 컨트롤인가 — tabindex="-1"이면 닿지 않는다 */
+const isInteractive = ({ name, attrs }: { name: string; attrs: string }) => {
+  const lower = name.toLowerCase()
+  const focusable = INTERACTIVE_TAG.test(lower) || (lower === 'a' && /(?:^|\s)href\s*=/.test(attrs)) || INTERACTIVE_ROLE.test(attrs) || /(?:^|\s)tabindex\s*=\s*["']?\{?\s*(?:0|[1-9]\d*)\b/.test(attrs)
+  return focusable && !/(?:^|\s)tabindex\s*=\s*["']?\{?\s*-1\b/.test(attrs)
+}
 
 const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string; boxKeys: Set<string>; tally: Tally; push: Push; remBase: number }) => {
   const stack: Element[] = []
@@ -787,14 +816,23 @@ const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string
     const namedCard = CARD_COMPONENT.test(name) || plain.some((c) => CARD_CLASS.test(c))
     const isBox = !excluded && (twBox || cssBox || namedCard)
 
-    if (isBox) {
-      const outer = [...stack].reverse().find((el) => el.isBox)
+    // 그림 안(제품 화면을 본뜬 그림)은 상자가 겹쳐도 페이지 구조가 아니다. 그 안의 컨트롤은 접근성 오류다
+    const ownPicture = pictureOf(tag.attrs)
+    const inherited = [...stack].reverse().find((el) => el.picture)?.picture ?? null
+    const picture = ownPicture ?? inherited
+    if (inherited && isInteractive({ name, attrs: tag.attrs })) {
+      const where = inherited === 'img' ? '그림(role="img")' : '숨긴 영역(aria-hidden="true")'
+      push({ line, rule: 'interactive-in-picture', severity: 'error', message: `${where} 안에 키보드가 닿는 컨트롤(<${name}>) — 스크린 리더는 그림을 설명 한 줄로 읽는데 Tab은 안의 컨트롤에 닿는다(axe nested-interactive·aria-hidden-focus)`, fix: '제품 화면 그림 안의 버튼·링크·입력칸은 모양만 같은 span·div로 그린다. 실제로 누르게 할 거면 role="img"·aria-hidden을 빼고 진짜 UI로 둔다 (screen-conventions.md 랜딩)' })
+    }
+
+    if (isBox && !picture) {
+      const outer = [...stack].reverse().find((el) => el.isBox && !el.picture)
       if (outer) push({ line, rule: 'nested-card', severity: 'warn', message: `상자 안에 상자 — 바깥 상자(${outer.line}줄) 안에 테두리·배경·그림자가 있는 상자가 또 있다`, fix: '안쪽 상자를 걷어 내고 간격·얇은 선·정렬로 나눈다. 카드는 독립 단위에 한 겹만 (P5)' })
     }
 
     // 정렬 — text-center는 자식에게 이어진다. 가운데 정렬 안의 긴 문단을 잡는다
     const classAlign = plain.includes('text-center') ? 'center' : plain.some((c) => /^text-(left|start|right|end|justify)$/.test(c)) ? 'start' : null
-    const element: Element = { name, line, isBox, align: inlineAlign ?? classAlign, centerReported: false }
+    const element: Element = { name, line, isBox, align: inlineAlign ?? classAlign, centerReported: false, picture }
     if (lowerName === 'p') {
       const source = [element, ...[...stack].reverse()].find((el) => el.align != null)
       if (source?.align === 'center' && !source.centerReported) {
@@ -849,6 +887,213 @@ const summarizeTally = ({ tally, push }: { tally: Tally; push: Push }) => {
     const lines = [...tally.effects].sort((a, b) => a - b)
     push({ line: lines[0], lines: [...new Set(lines)], rule: 'effect-overuse', severity: 'warn', message: `강한 효과 ${lines.length}곳(${lines.slice(0, 8).join('·')}줄) — 그라데이션·유리·큰 그림자는 화면마다 한두 곳`, fix: '1순위 요소 한 곳에만 남기고 나머지는 단색 면·얇은 선·간격으로 (P3)' })
   }
+  if (tally.warmAccent && tally.coolNeutrals.length > 0) {
+    const lines = [...new Set(tally.coolNeutrals)].sort((a, b) => a - b)
+    push({ line: lines[0], lines, rule: 'neutral-temperature', severity: 'warn', message: `따뜻한 강조색(${tally.warmAccent}) 옆에 푸른 회색 ${lines.length}곳(${lines.slice(0, 8).join('·')}줄) — 잘 만든 앱 29곳 중 24곳은 글자·면이 순수 회색이고, 기운 곳은 강조색 쪽으로만 기울었다`, fix: "무채색을 순수 회색(--color-text #1c1c1c·--color-canvas #f3f3f3)으로. 기울이려면 강조색 색상각으로 채도 0.01 안팎 — node <스킬 폴더>/scripts/palette.mjs '<강조색>' --tint (tone.md 4절)" })
+  }
+}
+
+/* ---------------- 색 조합 — 강조색과 무채색의 짝(tone.md 3·4절) ---------------- */
+
+/** 강조색 변수 — 이름이 accent·primary·brand·point·main(뒤에 -color만). -soft·-text·on- 같은 파생 변수는 뺀다 */
+const ACCENT_VAR = /^--(?:color-)?(?:accent|primary|brand|point|main)(?:-color)?$/
+/** 무채색 역할 변수 — 글자·면·선·회색 단계 */
+const NEUTRAL_VAR = /^--(?:color-)?(?:text|fg|foreground|ink|body|muted|subtle|canvas|bg|background|surface|line|border|divider|gray|grey|slate|neutral)(?:-[\w-]+)?$/
+/** JS 토큰 객체(React Native theme 등)의 같은 역할 — `accent: '#0e7a56'` */
+const JS_COLOR_TOKEN = /\b(accent|primary|brand|text|textSecondary|textTertiary|textMuted|canvas|background|surface|line|border)\s*:\s*(['"])(#[0-9a-fA-F]{3,8})\2/g
+/** Tailwind — 따뜻한 강조색 채움과 푸른 회색(slate·gray) 글자·면·선 */
+const TW_WARM_FILL = /^bg-(?:red|rose|orange|amber|yellow)-(?:[4-8]00)$/
+const TW_COOL_GRAY = /^(?:text|bg|border|divide)-(?:slate|gray)-\d{2,3}$/
+
+type Tone = { L: number; C: number; h: number }
+const toneOf = (value: string): Tone | null => {
+  const color = colorsIn(unwrapVar(value))[0]
+  return color && color.a > 0.5 ? oklchOf(color) : null
+}
+/** 레퍼런스 31곳의 강조색은 밝기 0.58~0.76·채도 0.16~0.22(사분위). 탁한 강조색은 1곳(브랜드색)뿐이었다 */
+const isMuddy = ({ L, C }: Tone) => L < 0.55 && C >= 0.03 && C < 0.12
+const isWarm = ({ C, h }: Tone) => C >= 0.08 && (h < 110 || h >= 330)
+const isCoolGray = ({ C, h }: Tone) => C >= 0.005 && C < 0.05 && h >= 220 && h <= 290
+
+const muddyFinding = ({ line, hex, tone }: { line: number; hex: string; tone: Tone }): Omit<Finding, 'file'> => ({
+  line,
+  rule: 'muddy-accent',
+  severity: 'warn',
+  message: `탁한 강조색 ${hex}(밝기 ${tone.L.toFixed(2)}·채도 ${tone.C.toFixed(2)}) — 거의 검정처럼 읽혀 주 버튼·선택 상태가 묻힌다. 잘 만든 앱 31곳 중 1곳(브랜드색)뿐이다`,
+  fix: `같은 색상각에서 채도를 올린다(레퍼런스 강조색 밝기 0.58~0.76·채도 0.16~0.22). node <스킬 폴더>/scripts/palette.mjs '${hex}'가 제안값과 한 벌을 낸다. 브랜드색이면 이유를 주석으로 (tone.md 3절)`,
+})
+
+/** 강조색·무채색 변수를 읽어 탁한 강조색은 바로 알리고, 따뜻한 강조색과 푸른 회색은 파일 요약용으로 모은다 */
+const tallyColorRole = ({ prop, value, line, tally, push }: { prop: string; value: string; line: number; tally: Tally; push: Push }) => {
+  const accent = ACCENT_VAR.test(prop)
+  if (!accent && !NEUTRAL_VAR.test(prop)) return
+  const tone = toneOf(value)
+  if (!tone) return
+  if (accent) {
+    if (isMuddy(tone)) push(muddyFinding({ line, hex: value.trim(), tone }))
+    if (isWarm(tone) && !tally.warmAccent) tally.warmAccent = value.trim()
+  } else if (isCoolGray(tone)) {
+    tally.coolNeutrals.push(line)
+  }
+}
+
+/** WCAG 대비 — 반올림하지 않는다. 4.495:1을 4.5로 올려 통과시키면 axe 같은 렌더 검사는 4.49로 떨어뜨린다 */
+const contrastOf = (a: Rgba, b: Rgba) => {
+  const lum = ({ r, g, b: blue }: Rgba) => {
+    const lin = (v: number) => {
+      const c = v / 255
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    }
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(blue)
+  }
+  const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+/** 강조색 짝 — [검사할 변수, 그 위·아래에 놓이는 변수]. 이름은 palette.mjs가 내는 이름과 흔한 별칭 */
+const ON_ACCENT_VARS = ['--color-on-accent', '--on-accent', '--color-on-primary', '--on-primary']
+const ACCENT_TEXT_VARS = ['--color-accent-text', '--accent-text', '--color-primary-text', '--primary-text']
+const GROUND_VARS = ['--color-surface', '--surface', '--color-canvas', '--canvas', '--color-bg', '--bg', '--color-accent-soft', '--accent-soft', '--color-primary-soft', '--primary-soft']
+
+/** 한 파일 안에서 강조색과 그 짝이 함께 정의되면 대비를 잰다 — 렌더 없이 잡히는 유일한 대비(토큰 정의) */
+const auditAccentContrast = ({ facts, push }: { facts: BlockFacts[]; push: Push }) => {
+  const defs = new Map<string, { color: Rgba; hex: string; line: number }>()
+  for (const { decls } of facts) {
+    for (const { prop, value, line } of decls) {
+      if (!prop.startsWith('--') || defs.has(prop)) continue
+      const colors = colorsIn(unwrapVar(value))
+      if (colors.length === 1 && colors[0].a > 0.99) defs.set(prop, { color: colors[0], hex: value.trim(), line })
+    }
+  }
+  const failing = (target: { color: Rgba }, others: string[]) =>
+    others.flatMap((name) => {
+      const other = defs.get(name)
+      return other ? [{ name, hex: other.hex, ratio: contrastOf(target.color, other.color) }] : []
+    }).filter(({ ratio }) => ratio < 4.5)
+  for (const [name, accent] of defs) {
+    if (!ACCENT_VAR.test(name)) continue
+    const bad = failing(accent, ON_ACCENT_VARS)
+    if (bad.length) push(contrastFinding({ line: accent.line, what: `강조색 ${name}(${accent.hex})과 그 위 글자`, bad }))
+  }
+  for (const name of ACCENT_TEXT_VARS) {
+    const text = defs.get(name)
+    if (!text) continue
+    const bad = failing(text, GROUND_VARS)
+    if (bad.length) push(contrastFinding({ line: text.line, what: `강조 글자 ${name}(${text.hex})과 바탕`, bad }))
+  }
+}
+
+const floor2 = (ratio: number) => (Math.floor(ratio * 100) / 100).toFixed(2)
+const contrastFinding = ({ line, what, bad }: { line: number; what: string; bad: Array<{ name: string; hex: string; ratio: number }> }): Omit<Finding, 'file'> => ({
+  line,
+  rule: 'accent-contrast',
+  severity: 'warn',
+  message: `${what}의 대비가 4.5:1에 못 미친다 — ${bad.map(({ name, hex, ratio }) => `${name}(${hex}) ${floor2(ratio)}:1`).join(', ')}. 주 버튼 글자와 강조 글자가 읽히지 않는다(WCAG 1.4.3)`,
+  fix: "같은 색상각에서 강조색을 조금 어둡게(밝은 노랑은 위 글자를 짙은 색으로). node <스킬 폴더>/scripts/palette.mjs '<강조색>'이 반올림 없이 4.5:1을 넘긴 한 벌을 낸다 (tone.md 3절)",
+})
+
+const auditColorRoles = ({ facts, text, markup, script, tally, push }: { facts: BlockFacts[]; text: string; markup: string; script: boolean; tally: Tally; push: Push }) => {
+  for (const { decls } of facts) {
+    for (const { prop, value, line } of decls) tallyColorRole({ prop, value, line, tally, push })
+  }
+  auditAccentContrast({ facts, push })
+  if (script) {
+    const code = codeWithoutComments(text)
+    for (const match of code.matchAll(JS_COLOR_TOKEN)) {
+      const role = /^(accent|primary|brand)$/.test(match[1]) ? '--color-accent' : '--color-text'
+      tallyColorRole({ prop: role, value: match[3], line: lineOf(code, match.index ?? 0), tally, push })
+    }
+  }
+  if (markup) {
+    for (const tag of scanTags(markup)) {
+      if (tag.closing) continue
+      const bases = classTokensOf(tag.attrs).map(baseOf)
+      const line = lineOf(markup, tag.start)
+      const warm = bases.find((b) => TW_WARM_FILL.test(b))
+      if (warm && !tally.warmAccent) tally.warmAccent = warm
+      if (bases.some((b) => TW_COOL_GRAY.test(b))) tally.coolNeutrals.push(line)
+    }
+  }
+}
+
+/* ---------------- 문구 — 개발용 문구와 말투 섞임(references/copy.md) ---------------- */
+
+const HANGUL = /[가-힣]/
+/** 화면에 남은 개발·데모 문구 — 잘 만든 앱 문구 7,539개 중 2개, 일반 AI 산출물은 22번 중 11번 */
+const META_COPY = /\((?:데모|demo|Demo|DEMO|예시|샘플|테스트|임시|더미)\)|데모\s*[:：]|데모용|더미\s*(?:데이터|텍스트)|[Ll]orem ipsum|테스트\s*계정|예시\s*데이터|가상(?:의)?\s*(?:예시|데이터|시세|계좌)|미리보기\s*:/
+/** 약관·법적 고지는 합쇼체가 관례다 — 섞임에서 뺀다 */
+const LEGAL_COPY = /약관|동의합니다|동의하는 것으로|개인정보|고지|이용에 관한/
+/** 짧은 UI 문구만 센다 — 토스트·오류·빈 상태·버튼은 대부분 20자 안팎(레퍼런스 중앙값 4~15자). 긴 설명 문단은 문서의 말투다 */
+const SHORT_COPY_CHARS = 40
+const TRAILING = /[\s.!?~…·,:;"'”’)\]>›→←]+$/
+
+const endingOf = (text: string): 'haeyo' | 'hapsyo' | null => {
+  const t = text.trim().replace(TRAILING, '')
+  if (!HANGUL.test(t)) return null
+  if (/(니다|니까|십시오|습니까|시오)$/.test(t)) return 'hapsyo'
+  if (/(요|죠)$/.test(t)) return 'haeyo'
+  return null
+}
+
+const STRING_LITERAL = /'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"|`(?:\\.|[^`\\])*`/g
+const JSX_TEXT = />([^<>{}]+)</g
+
+/** 글자 속 태그 — 문단 안에 끼어 문장을 조각내므로, 문구를 읽을 때는 지우고 한 문단으로 본다 */
+const INLINE_TAG = /<\/?(?:code|kbd|strong|em|b|i|a|span|mark|small|sup|sub|br)\b[^<>]*>/g
+
+/** 화면 문구 후보 — 문자열 리터럴과 태그 사이 글자. 주석·<style> 안은 지운다(줄 번호는 그대로) */
+const copyOf = (text: string) => {
+  const code = codeWithoutComments(text).replace(/<!--[\s\S]*?-->/g, blank).replace(STYLE_BLOCK, blank).replace(INLINE_TAG, blank)
+  const out: Array<{ text: string; line: number }> = []
+  for (const match of code.matchAll(STRING_LITERAL)) {
+    const inner = match[0].slice(1, -1).replace(/\$\{[^}]*\}/g, '○')
+    out.push({ text: inner, line: lineOf(code, match.index ?? 0) })
+  }
+  for (const match of code.matchAll(JSX_TEXT)) {
+    const inner = match[1].replace(/\s+/g, ' ').trim()
+    if (inner) out.push({ text: inner, line: lineOf(code, (match.index ?? 0) + 1 + match[1].search(/\S/)) })
+  }
+  return out
+}
+
+const auditCopy = ({ text, push }: { text: string; push: Push }) => {
+  const items = copyOf(text)
+  const metaLines = new Set<number>()
+  for (const item of items) {
+    if (!META_COPY.test(item.text) || metaLines.has(item.line)) continue
+    metaLines.add(item.line)
+    push({ line: item.line, rule: 'meta-copy', severity: 'warn', message: `개발·데모 문구가 화면에 남았다 — "${item.text.trim().slice(0, 40)}"`, fix: '사용자가 볼 문구만 남긴다. 지어낸 값이라는 안내가 필요하면 코드 주석이나 README에 (references/copy.md)' })
+  }
+  const haeyo: number[] = []
+  const hapsyo: number[] = []
+  for (const item of items) {
+    const t = item.text.trim()
+    if (!HANGUL.test(t) || [...t].length > SHORT_COPY_CHARS || LEGAL_COPY.test(t)) continue
+    const ending = endingOf(t)
+    if (ending === 'haeyo') haeyo.push(item.line)
+    else if (ending === 'hapsyo') hapsyo.push(item.line)
+  }
+  if (haeyo.length >= 2 && hapsyo.length >= 2) {
+    const minority = [...new Set(hapsyo.length <= haeyo.length ? hapsyo : haeyo)].sort((a, b) => a - b)
+    push({ line: minority[0], lines: minority, rule: 'mixed-tone', severity: 'warn', message: `말투가 섞였다 — 해요체 ${haeyo.length}·합쇼체 ${hapsyo.length}(${minority.slice(0, 8).join('·')}줄). 잘 만든 앱도 자주 틀리는 곳이지만(화면의 42%), 오류·토스트·제목은 해요체가 76~87%다`, fix: "앱의 말투를 하나로 — 해요체(약관·법적 고지만 합쇼체). 예: '삭제되었습니다' → '삭제했어요', '올바르지 않습니다' → '다시 확인해 주세요' (references/copy.md)" })
+  }
+}
+
+/* ---------------- 번호 표식 — 01·02·03 기능 목록(screen-conventions.md 랜딩) ---------------- */
+
+const ZERO_PAD_MARKER = /^0([1-9])\.?$/
+
+/** 시중 랜딩 42곳 중 3곳만 기능을 01·02·03 번호 목록으로 보였다. suta 0.6~0.13 랜딩은 6번 모두 그랬다 */
+const auditNumberedMarkers = ({ text, push }: { text: string; push: Push }) => {
+  const firstLine = new Map<string, number>()
+  for (const item of copyOf(text)) {
+    const match = item.text.trim().match(ZERO_PAD_MARKER)
+    if (match && !firstLine.has(match[1])) firstLine.set(match[1], item.line)
+  }
+  // 01~03이 다 있어야 목록이다. 01~09가 7개 이상이면 월·시·날짜 고르기 목록이다(기능 목록은 3~6개)
+  if (!['1', '2', '3'].every((n) => firstLine.has(n)) || firstLine.size >= 7) return
+  const lines = [...firstLine.values()].sort((a, b) => a - b)
+  push({ line: lines[0], lines, rule: 'numbered-markers', severity: 'warn', message: `기능 목록에 01·02·03 번호 표식 ${firstLine.size}개 — 시중 SaaS·서비스 랜딩 42곳 중 3곳(7%)만 이렇게 보였다. 번호 + 제목 + 설명만 있는 목록은 AI가 만든 랜딩의 표시다`, fix: '기능마다 그 기능이 보이는 제품 화면 조각을 붙인다 — 글·화면을 좌우로 번갈아 놓은 줄, 탭으로 바뀌는 큰 화면, 크기가 다른 상자 격자. 순서가 있는 단계(가입 절차)면 1·2·3 단계 표시를 쓴다 (screen-conventions.md 랜딩)' })
 }
 
 /** 예외 주석을 단 줄은 파일 단위 요약(종류 수·계열 수·척도 밖 간격)에서도 뺀다 — 로고 그림의 브랜드색처럼 이유가 적힌 값이 요약을 다시 켜지 않게 */
@@ -864,6 +1109,8 @@ const withoutIgnored = ({ tally, ignored }: { tally: Tally; ignored: Set<number>
     tints: keep(tally.tints),
     hues: keepMap(tally.hues),
     emoji: keepMap(tally.emoji),
+    warmAccent: tally.warmAccent,
+    coolNeutrals: keep(tally.coolNeutrals),
   }
 }
 
@@ -902,7 +1149,9 @@ export const auditLayout = (sources: Source[]): Finding[] => {
   const remBase = remBaseOf(prepared.flatMap((p) => p.facts))
 
   for (const { source, parts, tally, facts } of prepared) {
-    if (!parts.css && !parts.markup) continue
+    const script = (JSX_FILE.test(source.file) || SCRIPT_FILE.test(source.file)) && !DECLARATION_FILE.test(source.file)
+    const copyTarget = script || SFC_FILE.test(source.file)
+    if (!parts.css && !parts.markup && !copyTarget) continue
     const ignored = ignoredLines({ text: source.text, marker: /layout-audit-ignore(?!-file)/ })
     const fileIgnored = new Set([...source.text.matchAll(/layout-audit-ignore-file:\s*([\w-]+)/g)].map((m) => m[1]))
     const push: Push = (finding) => {
@@ -912,6 +1161,11 @@ export const auditLayout = (sources: Source[]): Finding[] => {
     if (parts.markup) {
       auditMarkup({ markup: parts.markup, boxKeys, tally, push, remBase })
       collectEmoji({ markup: parts.markup, tally })
+    }
+    auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })
+    if (copyTarget) {
+      auditCopy({ text: source.text, push })
+      auditNumberedMarkers({ text: source.text, push })
     }
     summarizeTally({ tally: withoutIgnored({ tally, ignored }), push })
   }

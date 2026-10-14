@@ -35,7 +35,7 @@ const COPY = defineCopy({
       remove: () => `${name} 수량 삭제`,
       increase: () => `${name} 수량 늘리기`,
     }),
-    empty: '장바구니가 비었습니다',
+    empty: '장바구니가 비었어요',
     total: '합계',
     refill: '다시 채우기',
   },

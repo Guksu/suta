@@ -77,6 +77,72 @@ Two models compared 12 pairs of screens with the installation condition hidden, 
 
 There were only two runs per condition. One judge was also the screen generation model, and the judges saw still images, so they did not compare motion. This evaluation also included "fun and motivation that fit this app." See the [walking rewards study](research/2026-10-12-walking-reward.md) (Korean) for earlier versions and per-run results.
 
+### Color, fonts and copy: suta 0.12 → 0.13
+
+This section does not compare against a setup without suta. We built the same requests with suta 0.12 and suta 0.13 to compare only what changed this time: color pairing, fonts and copy. The requests are 6 from the publishing benchmark: login, cafe menu detail, restaurant search results, settings, product option sheet, and a landing page for a scheduling SaaS.
+
+![Screens built with suta 0.12 (AS-IS, top row) and suta 0.13 (TO-BE, bottom row). From left: login, menu detail, search results, settings, option sheet, landing](assets/color-font-copy-as-is-to-be.jpg)
+
+From left: login, menu detail, search results, settings, option sheet, landing. Captured at 390px wide. Long pages are cropped to the top 1,220px.
+
+Each request ran twice, 12 runs per condition. The image shows the first run of each condition. The table covers all 12 runs.
+
+| | suta 0.12 (12 runs) | suta 0.13 (12 runs) |
+|---|---|---|
+| Accent color | Muddy in 6 (deep teal, brown, forest green), near-black in 5, clear in 1 | Clear in 8 (orange, green), near-black in 4 (login, settings), muddy in 0 |
+| Accent lightness and chroma (OKLCH median) | 0.43 and 0.067 | 0.58 and 0.170 (31 well-made apps: 0.67 and 0.18) |
+| Text color | Bluish gray in 10, pure gray in 2 | Pure gray in 12 |
+| Runs mixing polite and formal Korean endings | 2 | 0 |
+| First font in the body stack | System font in 9, Pretendard in 3 | Pretendard in 12 (Korean font token) |
+| Accessibility violations (axe, 390px) | 0 | 2 |
+| Generation time and cost (median) | 108 seconds, $0.43 | 113 seconds, $0.45 |
+
+The 2 violations in 0.13 are below. We fixed both in suta after measuring, but did not rerun with the fixed version.
+
+- Accent text on a selected item was 4.47:1 against the light accent background. The palette tool did not check that background.
+- White text on the green Naver button was 2.25:1. The run did not follow the screen convention "Naver uses a white button with its logo."
+
+The benchmark blocks external files, so neither condition could load a font file. The font in the images is the capture device's default.
+
+Two models compared 12 pairs of screens with the version hidden, showing each pair twice with the order reversed. They picked 0.13 in 11 and 10 of 24 comparisons. Most reasons were about structure that varies from run to run: an empty product photo slot, whether the sheet was open on the first screen, section titles in settings. Of the 7 reasons that mentioned color, 5 called the dark brown on the cafe screen "fitting for a cafe" and the orange "loud." Both models also noted a single word left on the last line of the 0.13 landing headline. We fixed that after measuring by adding heading wrap guidance (`text-wrap: balance`).
+
+There were only two runs per condition. One judge was also the screen generation model, and the judging criteria did not mention color, fonts or copy. See the [color, font and copy study](research/2026-10-14-color-font-copy.md) (Korean) for the reference analysis and per-run results.
+
+### Settings and landing: suta 0.13 → 0.14
+
+After seeing the previous section's image, we heard that the settings screen and the scheduling SaaS landing still looked AI-made in 0.13. So we went back to the full screen lists of the 31 reference apps and recorded 161 settings-type screens. We also captured and measured the full front pages of 42 widely used SaaS and service websites. We built 0.14 from those conventions and ran the same two requests again.
+
+![Screens built with suta 0.13 (AS-IS, top row) and suta 0.14 (TO-BE, bottom row). From left: settings at 390px, landing at 390px, landing at 1440px](assets/settings-landing-as-is-to-be.jpg)
+
+From left: settings (390px), landing on mobile (390px, top 2,000px), landing on desktop (1440px, full page). The image shows the first run of each condition. We ran 0.14 three times, fixing the conventions after each round. For TO-BE, settings is the first run of round 2 and landing is the first run of round 3. Each is the first run after that convention was last changed.
+
+| | suta 0.13 (3 runs) | suta 0.14 (settings round 2, 3 runs; landing round 3, 3 runs) | Reference |
+|---|---|---|---|
+| Settings surface | Rounded groups on a light background, 3 | Full-width white list, 3 | Full-width list in 26 of 30 apps |
+| Switch when on | Black, 3 | Accent color, 3 | Accent color in 16 of 18 apps |
+| Display theme | Segmented control inside the list, 3 | Row with current value and chevron, 3 | Row with current value and chevron, when present |
+| Landing page height (1440) | 2,349\~3,297px | 5,080\~5,667px | Median 9,800px |
+| Landing sections | 4\~5 | 6\~7 | Median 10 |
+| Features as a 01·02·03 numbered list | 3 | 0 | 3 of 42 sites |
+| Testimonials | 0\~1 | 6\~7 | Testimonial section on 28 of 42 sites |
+| Hero picture at 390px | One-day schedule card | Today list (weekly calendar on desktop) | — |
+| Accessibility violations (axe, 390px, total) | Settings 0, landing 1 | Settings 0, landing 3 | — |
+| Generation time and cost (landing, median) | 115 seconds, $0.43 | 214 seconds, $0.68 | — |
+
+Two models compared pairs of screens with the version hidden, showing each pair twice with the order reversed. Scores are 0.14 : 0.13.
+
+| Round | Settings | Landing |
+|---|---|---|
+| 0.14 round 1 | 2 : 4 (both models) | 4 : 2 |
+| 0.14 round 2 | 2 : 4 | 2 : 4 |
+| 0.14 round 3 | — | 6 : 0 (both models) |
+
+- Landing lost round 2 on a real defect. On mobile, the weekly calendar picture was squeezed into 390px, so labels were cut off and overlapped. On desktop, the picture was cut off at the right edge. The convention had said the picture should be "cut at the container edge to suggest there is more." Round 3 replaced that with "fits inside its container; on mobile, draw a separate one-column picture." It won all 6 comparisons.
+- Settings lost both rounds to 0.13. The judges picked rounded card groups, a description under every switch, a segmented theme control, and only the requested items. Against 0.14 they cited "an info group the request did not ask for" and "one extra step to pick the theme." That template is the opposite of most reference apps, and it is what this work set out to remove. So we did not revert the settings conventions to follow the judges.
+- 2 of the 3 accessibility violations in landing round 3 are light gray (#8a8a8a) text inside the picture. After measuring we added "no lighter than the tertiary text color" to the conventions, but did not rerun with that change.
+
+There were only three runs per condition. One judge was also the screen generation model. For settings, the judges' taste leaned toward the template AI tends to produce. See the [settings and landing study](research/2026-10-14-settings-landing.md) (Korean) for the reference analysis and per-round results.
+
 ## Benchmark
 
 Requests for eight screen types—detail, form, settings, dashboard, landing, cart, list and interaction—were run twice per condition. The table shows round 2 results: browser measurements of pages generated with suta 0.6.0 and without suta.

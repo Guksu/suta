@@ -6,8 +6,8 @@
 
 .bottom-nav {
   --_height: var(--bottom-nav-height, 56px);
-  --_color: var(--bottom-nav-color, #646b77);
-  --_current: var(--bottom-nav-current, #1b1e24);
+  --_color: var(--bottom-nav-color, #686868);
+  --_current: var(--bottom-nav-current, #1c1c1c);
   --_duration: var(--bottom-nav-duration, 250ms);
   --_ease: cubic-bezier(0.22, 1, 0.36, 1);
 

@@ -14,7 +14,7 @@ const COPY = defineCopy({
       {
         id: 'waiting',
         title: '웨이팅은 어떻게 하나요?',
-        content: '매장 앞 태블릿에 전화번호를 등록해주세요. 입장 순서가 되면 알림톡을 보내드립니다.',
+        content: '매장 앞 태블릿에 전화번호를 등록해 주세요. 입장 순서가 되면 알림톡을 보내 드려요.',
       },
       {
         id: 'parking',
