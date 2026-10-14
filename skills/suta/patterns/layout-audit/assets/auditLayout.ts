@@ -7,7 +7,8 @@
  *
  * 규칙 (id — 심각도 — 무엇을 잡는가 — 원칙):
  *  tiny-text           error·warn — 11px 미만 글자는 error, 11px대는 warn                                   P7
- *  nested-card         warn — 둥근 모서리 + 테두리·그림자·배경을 가진 상자 안의 같은 상자(JSX·HTML·CSS 선택자)  P5
+ *  nested-card         warn — 둥근 모서리 + 테두리·그림자·배경을 가진 상자 안의 같은 상자(JSX·HTML·CSS 선택자). role="img"·aria-hidden 그림 안은 뺀다  P5
+ *  interactive-in-picture error — role="img" 그림이나 aria-hidden 영역 안의 키보드가 닿는 컨트롤(버튼·링크·입력칸)   접근성
  *  effect-overuse      warn — 색 그라데이션·backdrop-filter·큰 그림자가 한 파일에 3곳 이상(blur(0)·투명 그림자 같은 시작 상태는 뺀다)   P3
  *  gradient-text       warn — background-clip: text·bg-clip-text                                            P3
  *  font-size-variety   warn — 한 파일의 글자 크기 7종 이상                                                  P2·P10
@@ -27,6 +28,7 @@
  *  accent-contrast     warn — 한 파일에 함께 정의된 강조색과 그 위 글자, 강조 글자와 바탕의 대비가 4.5:1 미만(반올림 없이)   tone·접근성
  *  meta-copy           warn — 화면에 남은 개발·데모 문구((데모)·테스트 계정·Lorem ipsum·예시 데이터)                 copy
  *  mixed-tone          warn — 짧은 UI 문구에 해요체와 합쇼체가 둘 이상씩 섞였다(약관·긴 설명 문단은 뺀다)             copy
+ *  numbered-markers    warn — 기능 목록의 01·02·03 번호 표식(01~09가 7개 이상이면 월·시 목록이라 뺀다)               랜딩
  *
  * React Native: `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙(글자 크기·간격·반경·색·큰 그림자)으로 본다.
  * 토큰 참조(space.lg·colors.accent)·스프레드·조건식은 값을 모르니 세지 않는다. 터치 영역·대비·낭독은 기기에서 확인한다.
@@ -687,7 +689,22 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
   }
 }
 
-type Element = { name: string; line: number; isBox: boolean; align: 'center' | 'start' | null; centerReported: boolean }
+type Element = { name: string; line: number; isBox: boolean; align: 'center' | 'start' | null; centerReported: boolean; picture: 'img' | 'hidden' | null }
+
+/** 그림으로 표시한 영역 — role="img"(설명 하나로 읽히는 제품 화면 그림)와 aria-hidden="true"(장식). 그 안은 페이지 구조가 아니다 */
+const pictureOf = (attrs: string): 'img' | 'hidden' | null => {
+  if (/(?:^|\s)role\s*=\s*(?:"img"|'img'|\{\s*["']img["']\s*\})/.test(attrs)) return 'img'
+  if (/(?:^|\s)aria-hidden\s*=\s*(?:"true"|'true'|\{\s*true\s*\})/.test(attrs)) return 'hidden'
+  return null
+}
+const INTERACTIVE_TAG = /^(?:button|input|select|textarea)$/
+const INTERACTIVE_ROLE = /(?:^|\s)role\s*=\s*["'](?:button|link|checkbox|switch|tab|menuitem|radio|slider)["']/
+/** 키보드가 닿는 컨트롤인가 — tabindex="-1"이면 닿지 않는다 */
+const isInteractive = ({ name, attrs }: { name: string; attrs: string }) => {
+  const lower = name.toLowerCase()
+  const focusable = INTERACTIVE_TAG.test(lower) || (lower === 'a' && /(?:^|\s)href\s*=/.test(attrs)) || INTERACTIVE_ROLE.test(attrs) || /(?:^|\s)tabindex\s*=\s*["']?\{?\s*(?:0|[1-9]\d*)\b/.test(attrs)
+  return focusable && !/(?:^|\s)tabindex\s*=\s*["']?\{?\s*-1\b/.test(attrs)
+}
 
 const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string; boxKeys: Set<string>; tally: Tally; push: Push; remBase: number }) => {
   const stack: Element[] = []
@@ -799,14 +816,23 @@ const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string
     const namedCard = CARD_COMPONENT.test(name) || plain.some((c) => CARD_CLASS.test(c))
     const isBox = !excluded && (twBox || cssBox || namedCard)
 
-    if (isBox) {
-      const outer = [...stack].reverse().find((el) => el.isBox)
+    // 그림 안(제품 화면을 본뜬 그림)은 상자가 겹쳐도 페이지 구조가 아니다. 그 안의 컨트롤은 접근성 오류다
+    const ownPicture = pictureOf(tag.attrs)
+    const inherited = [...stack].reverse().find((el) => el.picture)?.picture ?? null
+    const picture = ownPicture ?? inherited
+    if (inherited && isInteractive({ name, attrs: tag.attrs })) {
+      const where = inherited === 'img' ? '그림(role="img")' : '숨긴 영역(aria-hidden="true")'
+      push({ line, rule: 'interactive-in-picture', severity: 'error', message: `${where} 안에 키보드가 닿는 컨트롤(<${name}>) — 스크린 리더는 그림을 설명 한 줄로 읽는데 Tab은 안의 컨트롤에 닿는다(axe nested-interactive·aria-hidden-focus)`, fix: '제품 화면 그림 안의 버튼·링크·입력칸은 모양만 같은 span·div로 그린다. 실제로 누르게 할 거면 role="img"·aria-hidden을 빼고 진짜 UI로 둔다 (screen-conventions.md 랜딩)' })
+    }
+
+    if (isBox && !picture) {
+      const outer = [...stack].reverse().find((el) => el.isBox && !el.picture)
       if (outer) push({ line, rule: 'nested-card', severity: 'warn', message: `상자 안에 상자 — 바깥 상자(${outer.line}줄) 안에 테두리·배경·그림자가 있는 상자가 또 있다`, fix: '안쪽 상자를 걷어 내고 간격·얇은 선·정렬로 나눈다. 카드는 독립 단위에 한 겹만 (P5)' })
     }
 
     // 정렬 — text-center는 자식에게 이어진다. 가운데 정렬 안의 긴 문단을 잡는다
     const classAlign = plain.includes('text-center') ? 'center' : plain.some((c) => /^text-(left|start|right|end|justify)$/.test(c)) ? 'start' : null
-    const element: Element = { name, line, isBox, align: inlineAlign ?? classAlign, centerReported: false }
+    const element: Element = { name, line, isBox, align: inlineAlign ?? classAlign, centerReported: false, picture }
     if (lowerName === 'p') {
       const source = [element, ...[...stack].reverse()].find((el) => el.align != null)
       if (source?.align === 'center' && !source.centerReported) {
@@ -1053,6 +1079,23 @@ const auditCopy = ({ text, push }: { text: string; push: Push }) => {
   }
 }
 
+/* ---------------- 번호 표식 — 01·02·03 기능 목록(screen-conventions.md 랜딩) ---------------- */
+
+const ZERO_PAD_MARKER = /^0([1-9])\.?$/
+
+/** 시중 랜딩 42곳 중 3곳만 기능을 01·02·03 번호 목록으로 보였다. suta 0.6~0.13 랜딩은 6번 모두 그랬다 */
+const auditNumberedMarkers = ({ text, push }: { text: string; push: Push }) => {
+  const firstLine = new Map<string, number>()
+  for (const item of copyOf(text)) {
+    const match = item.text.trim().match(ZERO_PAD_MARKER)
+    if (match && !firstLine.has(match[1])) firstLine.set(match[1], item.line)
+  }
+  // 01~03이 다 있어야 목록이다. 01~09가 7개 이상이면 월·시·날짜 고르기 목록이다(기능 목록은 3~6개)
+  if (!['1', '2', '3'].every((n) => firstLine.has(n)) || firstLine.size >= 7) return
+  const lines = [...firstLine.values()].sort((a, b) => a - b)
+  push({ line: lines[0], lines, rule: 'numbered-markers', severity: 'warn', message: `기능 목록에 01·02·03 번호 표식 ${firstLine.size}개 — 시중 SaaS·서비스 랜딩 42곳 중 3곳(7%)만 이렇게 보였다. 번호 + 제목 + 설명만 있는 목록은 AI가 만든 랜딩의 표시다`, fix: '기능마다 그 기능이 보이는 제품 화면 조각을 붙인다 — 글·화면을 좌우로 번갈아 놓은 줄, 탭으로 바뀌는 큰 화면, 크기가 다른 상자 격자. 순서가 있는 단계(가입 절차)면 1·2·3 단계 표시를 쓴다 (screen-conventions.md 랜딩)' })
+}
+
 /** 예외 주석을 단 줄은 파일 단위 요약(종류 수·계열 수·척도 밖 간격)에서도 뺀다 — 로고 그림의 브랜드색처럼 이유가 적힌 값이 요약을 다시 켜지 않게 */
 const withoutIgnored = ({ tally, ignored }: { tally: Tally; ignored: Set<number> }): Tally => {
   const keep = (lines: number[]) => lines.filter((line) => !ignored.has(line))
@@ -1120,7 +1163,10 @@ export const auditLayout = (sources: Source[]): Finding[] => {
       collectEmoji({ markup: parts.markup, tally })
     }
     auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })
-    if (copyTarget) auditCopy({ text: source.text, push })
+    if (copyTarget) {
+      auditCopy({ text: source.text, push })
+      auditNumberedMarkers({ text: source.text, push })
+    }
     summarizeTally({ tally: withoutIgnored({ tally, ignored }), push })
   }
   return sortFindings(findings)

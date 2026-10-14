@@ -1,6 +1,6 @@
 {
   "name": "suta",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "UI guidelines and code for 57 patterns for Claude Code and Codex. Includes layout, color, motion and accessibility guidance, with checks after supported file edits.",
   "author": { "name": "Guksu", "url": "https://github.com/Guksu" },
   "homepage": "https://guksu.github.io/suta/",

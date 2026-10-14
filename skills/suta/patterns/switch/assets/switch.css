@@ -1,6 +1,7 @@
 /* switch — 네이티브 체크박스 위에 얹는 토글 스위치. 썸 슬라이드 + 트랙 색 전환 + 누름 스퀴시.
- * 커스터마이즈: --switch-width, --switch-height, --switch-duration, --switch-on-bg, --switch-off-bg.
- * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
+ * 커스터마이즈: --switch-width, --switch-height, --switch-duration, --switch-on-bg, --switch-off-bg, --switch-off-border.
+ * 색 기준: 국내 앱 설정 화면 레퍼런스에서 켜진 스위치는 18곳 중 16곳이 서비스 강조색, 꺼진 트랙은 89%가 옅은 회색이었다.
+ * 켜짐은 강조색 토큰(--color-accent)을 따르고, 꺼짐은 옅은 트랙 + 1px 테두리로 흰 바탕 대비 3:1(비텍스트)을 지킨다.  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .switch {
   --_w: var(--switch-width, 44px);
@@ -31,8 +32,10 @@
   width: var(--_w);
   height: var(--_h);
   border-radius: 999px;
-  background: var(--switch-off-bg, #868b94);
-  transition: background var(--_duration) ease;
+  background: var(--switch-off-bg, #e5e5e5);
+  /* 옅은 트랙만으로는 흰 바탕과 구별이 약하다 — 테두리(#8a8a8a, 3.45:1)가 스위치의 윤곽을 알린다 */
+  box-shadow: inset 0 0 0 1px var(--switch-off-border, #8a8a8a);
+  transition: background var(--_duration) ease, box-shadow var(--_duration) ease;
 }
 
 .switch-thumb {
@@ -48,7 +51,8 @@
 }
 
 .switch-input:checked + .switch-track {
-  background: var(--switch-on-bg, #1c1c1c);
+  background: var(--switch-on-bg, var(--color-accent, #1c1c1c));
+  box-shadow: inset 0 0 0 1px transparent;
 }
 
 .switch-input:checked + .switch-track .switch-thumb {
@@ -65,7 +69,7 @@
 }
 
 .switch-input:focus-visible + .switch-track {
-  outline: 2px solid var(--switch-on-bg, #1c1c1c);
+  outline: 2px solid var(--switch-on-bg, var(--color-accent, #1c1c1c));
   outline-offset: 2px;
 }
 

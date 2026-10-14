@@ -602,6 +602,87 @@ describe('auditLayout — 강조색 대비 (accent-contrast)', () => {
   })
 })
 
+describe('auditLayout — 제품 화면 그림 (interactive-in-picture · 그림 안 nested-card)', () => {
+  it('role="img"·aria-hidden 그림 안의 상자 겹침은 페이지 구조가 아니라 세지 않는다 — 그림 밖은 그대로 잡는다', () => {
+    const html = [
+      '<div role="img" aria-label="주간 달력 화면" class="rounded-xl border bg-white">',
+      '  <div class="rounded-lg border bg-white">월요일</div>',
+      '</div>',
+      '<div aria-hidden="true" class="rounded-xl border">',
+      '  <div class="rounded-lg shadow-md">칩</div>',
+      '</div>',
+      '<section class="rounded-xl border">',
+      '  <div class="rounded-lg border">진짜 상자 안 상자</div>',
+      '</section>',
+    ].join('\n')
+    expect(audit('index.html', html).filter((f) => f.rule === 'nested-card').map((f) => f.line)).toEqual([8])
+  })
+
+  it('그림(role="img") 안의 버튼·링크·입력칸은 error — 스크린 리더는 그림 하나로 읽고 키보드는 안의 컨트롤에 닿는다', () => {
+    const html = [
+      '<div class="shot" role="img" aria-label="예약 링크 화면">',
+      '  <p>목요일 10월 16일</p>',
+      '  <button type="button">10:30</button>',
+      '  <a href="#">링크 복사</a>',
+      '</div>',
+      '<div aria-hidden="true">',
+      '  <button type="button" tabindex="-1">확정</button>',
+      '  <a href="#">더 보기</a>',
+      '</div>',
+      '<button type="button">무료로 시작</button>',
+    ].join('\n')
+    const findings = audit('index.html', html).filter((f) => f.rule === 'interactive-in-picture')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [3, 'error'],
+      [4, 'error'],
+      [8, 'error'],
+    ])
+    expect(findings[0].fix).toContain('span')
+  })
+})
+
+describe('auditLayout — 번호 표식 (numbered-markers)', () => {
+  it('기능 목록의 01·02·03 번호 표식을 파일마다 한 번 알린다 — 시중 랜딩 42곳 중 3곳, suta 0.6~0.13 랜딩은 6번 모두', () => {
+    const html = [
+      '<section class="features">',
+      '  <h2>일정 관리에 꼭 필요한 세 가지</h2>',
+      '  <ol>',
+      '    <li><span class="num">01</span><h3>겹침 없는 하루</h3></li>',
+      '    <li><span class="num">02</span><h3>한 번에 맞추는 회의</h3></li>',
+      '    <li><span class="num">03</span><h3>쓰던 캘린더 그대로</h3></li>',
+      '  </ol>',
+      '</section>',
+      '<div class="week"><span>13</span><span>14</span><span>15</span></div>',
+    ].join('\n')
+    // 달력 날짜 칸(13·14·15)이 함께 있어도 기능 번호는 기능 번호다
+    const findings = audit('index.html', html).filter((f) => f.rule === 'numbered-markers')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([[4, 'warn']])
+    expect(findings[0].lines).toEqual([4, 5, 6])
+    expect(findings[0].fix).toContain('제품 화면')
+  })
+
+  it('데이터 배열로 그린 번호도 센다', () => {
+    const text = [
+      "const FEATURES = [",
+      "  { no: '01', title: '겹침 없는 하루' },",
+      "  { no: '02', title: '한 번에 맞추는 회의' },",
+      "  { no: '03', title: '쓰던 캘린더 그대로' },",
+      ']',
+      'export const Features = () => <ol>{FEATURES.map((f) => <li key={f.no}>{f.no} {f.title}</li>)}</ol>',
+    ].join('\n')
+    expect(audit('Features.tsx', text).filter((f) => f.rule === 'numbered-markers').map((f) => f.line)).toEqual([2])
+  })
+
+  it('월·시 목록(10 이상이 함께 있다), 번호 두 개, 시각·날짜는 조용하다', () => {
+    const months = ['<select>', ...Array.from({ length: 12 }, (_, i) => `  <option>${String(i + 1).padStart(2, '0')}</option>`), '</select>'].join('\n')
+    const two = '<p><span>01</span> 시작</p>\n<p><span>02</span> 끝</p>'
+    const times = '<time>09:30</time><time>2026.10.01</time><span>01월</span><span>02월</span><span>03월</span>'
+    for (const [file, text] of [['a.html', months], ['b.html', two], ['c.html', times]]) {
+      expect(audit(file, text).filter((f) => f.rule === 'numbered-markers')).toEqual([])
+    }
+  })
+})
+
 describe('auditLayout — 문구 (meta-copy·mixed-tone)', () => {
   it('화면에 남은 개발·데모 문구를 잡는다 — 주석과 입력 예시는 조용하다', () => {
     const text = [

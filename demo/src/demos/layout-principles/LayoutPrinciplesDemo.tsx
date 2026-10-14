@@ -83,6 +83,12 @@ const COPY = defineCopy({
       cook: { label: '조리 시작 알림', desc: '주문한 국수를 삶기 시작하면 알려 드려요' },
       event: { label: '새 메뉴·쿠폰 소식', desc: '한 달에 한두 번 보내요' },
     },
+    theme: '화면 테마',
+    themeValue: '시스템 설정',
+    about: '정보',
+    support: '고객센터',
+    terms: '이용약관',
+    version: '버전 정보',
     settings: '설정',
     notification: '알림',
     account: '계정',
@@ -167,9 +173,9 @@ const COPY = defineCopy({
       },
       settings: {
         title: '⑦ 설정',
-        principle: 'P5 면은 톤 차이로 · P2 글자 색 세 단계 · P3 강조색 하나',
+        principle: 'P11 익숙한 구조 · P2 글자 색 세 단계 · P3 강조색 하나',
         before: '흰 바탕에 테두리·그림자 카드를 겹치고, 이름과 설명이 같은 연회색이다. 강조색은 기본 파랑이고 채운 버튼이 둘이다.',
-        after: '옅은 바탕 위 흰 묶음(테두리·그림자 없음). 구역 이름은 묶음 밖 위에 옅게, 항목 이름은 진하게, 설명은 한 단계 옅게. 강조색은 켜진 스위치에만 쓰고, 탈퇴는 옅은 글자 링크로 낮춘다.',
+        after: '폭 가득 흰 목록(국내 앱 30곳 중 26곳의 모양). 묶음은 작은 옅은 라벨과 8px 띠로 나누고, 설명 줄은 뜻이 낯선 행(소식 빈도)에만 둔다. 켜진 스위치는 강조색, 꺼진 트랙은 옅은 회색. 테마는 현재 값 + 꺾쇠 행, 고객센터·약관·버전까지 둔다. 탈퇴는 옅은 글자 링크로 낮춘다.',
       },
       login: {
         title: '⑧ 로그인',
@@ -248,6 +254,12 @@ const COPY = defineCopy({
       cook: { label: 'Cooking started', desc: 'We’ll tell you when your noodles go in the pot' },
       event: { label: 'New menu and coupons', desc: 'Once or twice a month' },
     },
+    theme: 'Theme',
+    themeValue: 'System',
+    about: 'About',
+    support: 'Help center',
+    terms: 'Terms of service',
+    version: 'Version',
     settings: 'Settings',
     notification: 'Notifications',
     account: 'Account',
@@ -332,9 +344,9 @@ const COPY = defineCopy({
       },
       settings: {
         title: '⑦ Settings',
-        principle: 'P5 Surfaces by tone · P2 Three text shades · P3 One accent color',
+        principle: 'P11 Familiar structure · P2 Three text shades · P3 One accent color',
         before: 'Cards with borders and shadows stack on white, and names and descriptions share the same light gray. The accent is default blue, with two filled buttons.',
-        after: 'White groups on a pale background, with no borders or shadows. Section names sit faintly above each group, item names are dark, and descriptions are one step lighter. The accent appears only on switches that are on, and Delete account drops to a faint text link.',
+        after: 'A full-width white list, the shape 26 of 30 Korean apps use. Small faint labels and an 8px band separate groups, and only the row whose meaning is unclear (how often news arrives) gets a description. Switches that are on use the accent, and the off track is light gray. Theme is a row with its current value and a chevron, and Help center, Terms and Version are there too. Delete account drops to a faint text link.',
       },
       login: {
         title: '⑧ Log in',
@@ -648,7 +660,7 @@ const DetailAfter = () => {
   )
 }
 
-/* ---- ⑦ 설정 — 면 두 단계·글자 색 세 단계·강조색 하나(P5·P2·P3) ---- */
+/* ---- ⑦ 설정 — 폭 가득 목록·글자 색 세 단계·강조색 하나(P11·P2·P3). 국내 앱 30곳의 설정 화면 관례 ---- */
 
 const SettingsBefore = () => {
   const t = useCopy()
@@ -683,9 +695,11 @@ const SettingsBefore = () => {
 const SettingsAfter = () => {
   const t = useCopy()
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ cook: true, event: false })
+  // 설명 줄은 라벨만으로 결과가 낯선 행에만 — 레퍼런스 스위치 화면에서 행의 24%
+  const described = new Set<string>(['event'])
 
   return (
-    <div className="lp-t-page">
+    <div className="lp-t-page lp-t-settings">
       <p className="lp-t-title">{t.settings}</p>
       <p className="lp-t-group-label" id="lp-t-notice">
         {t.notification}
@@ -696,7 +710,7 @@ const SettingsAfter = () => {
             <label className="lp-t-row">
               <span className="lp-t-row-text">
                 <span className="lp-t-label">{t.notices[id].label}</span>
-                <span className="lp-t-desc">{t.notices[id].desc}</span>
+                {described.has(id) && <span className="lp-t-desc">{t.notices[id].desc}</span>}
               </span>
               <input
                 type="checkbox"
@@ -713,14 +727,39 @@ const SettingsAfter = () => {
         {t.screen}
       </p>
       <ul className="lp-t-group" aria-labelledby="lp-t-screen">
-        <li>
-          <button type="button" className="lp-t-row lp-t-row-button">
-            <span className="lp-t-label">{t.textSize}</span>
-            <span className="lp-t-value">
-              {t.textSizeValue}
+        {[
+          [t.textSize, t.textSizeValue],
+          [t.theme, t.themeValue],
+        ].map(([label, value]) => (
+          <li key={label}>
+            <button type="button" className="lp-t-row lp-t-row-button">
+              <span className="lp-t-label">{label}</span>
+              <span className="lp-t-value">
+                {value}
+                <span aria-hidden="true" className="lp-t-chevron" />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="lp-t-group-label" id="lp-t-about">
+        {t.about}
+      </p>
+      <ul className="lp-t-group" aria-labelledby="lp-t-about">
+        {[t.support, t.terms].map((label) => (
+          <li key={label}>
+            <button type="button" className="lp-t-row lp-t-row-button">
+              <span className="lp-t-label">{label}</span>
               <span aria-hidden="true" className="lp-t-chevron" />
-            </span>
-          </button>
+            </button>
+          </li>
+        ))}
+        <li>
+          {/* 고칠 수 없는 값에는 꺾쇠를 달지 않는다 */}
+          <div className="lp-t-row">
+            <span className="lp-t-label">{t.version}</span>
+            <span className="lp-t-value">1.4.2</span>
+          </div>
         </li>
       </ul>
       <ul className="lp-t-group" aria-label={t.account}>

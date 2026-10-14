@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "UI guidelines and reusable patterns for Claude Code and Codex",
-    "version": "0.13.0"
+    "version": "0.14.0"
   },
   "plugins": [
     {
       "name": "suta",
       "source": "./",
       "description": "UI guidelines and code for 57 patterns for Claude Code and Codex. Includes layout, color, motion and accessibility guidance, with checks after supported file edits.",
-      "version": "0.13.0",
+      "version": "0.14.0",
       "author": { "name": "Guksu" },
       "homepage": "https://github.com/Guksu/suta",
       "keywords": ["ai-slop", "frontend", "ui", "layout", "animation", "interaction", "accessibility", "css", "react"]

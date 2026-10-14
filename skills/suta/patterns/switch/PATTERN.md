@@ -56,7 +56,7 @@ document.querySelector('.switch-input').addEventListener('change', (e) => {
 | 대상 | 방법 |
 |------|------|
 | 크기 | `--switch-width`(44px)·`--switch-height`(26px) — 썸 크기·이동 거리가 함께 계산된다 |
-| 켜짐/꺼짐 색 | `--switch-on-bg`(#1c1c1c — 거의 검정. 브랜드색으로 바꾼다)·`--switch-off-bg`(#868b94 — 흰 바탕 대비 3.4:1, 비텍스트 기준 3:1 이상) |
+| 켜짐/꺼짐 색 | `--switch-on-bg`(기본은 강조색 토큰 `--color-accent`, 토큰이 없으면 #1c1c1c)·`--switch-off-bg`(#e5e5e5 옅은 트랙)·`--switch-off-border`(#8a8a8a 1px — 흰 바탕 대비 3.45:1, 비텍스트 기준 3:1 이상). 국내 앱 설정 화면에서 켜진 스위치는 18곳 중 16곳이 서비스 강조색, 꺼진 트랙은 89%가 옅은 회색이었다. 켜짐을 검정으로 두면 미완성처럼 보인다 |
 | 속도 | `--switch-duration` (기본 200ms — 하루 수십 번 누르는 컨트롤이라 짧게) |
 
 ## 주의사항

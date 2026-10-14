@@ -17,7 +17,7 @@ description: CSS·JSX·HTML에서 AI가 흔히 만드는 레이아웃 문제를 
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/auditLayout.ts` | 코어 — 규칙 21개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
+| `assets/auditLayout.ts` | 코어 — 규칙 23개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
 | `assets/auditCore.ts` | 공통 코어 — 결과 형식, CSS 블록 자르기, 예외 주석 | 함께 복사 |
 | `assets/layoutTokens.ts` | 간격 척도·글자 하한 — `layout-principles`와 같은 파일 | 함께 복사 |
 | `assets/audit.mjs` | CLI — 폴더 재귀, `--json`, `--warn-only`, error가 있으면 exit 1 | Node 22.18+ |
@@ -63,7 +63,7 @@ console.log(formatFindings(findings))
 | 규칙 | 심각도 | 잡는 것 | 원칙 |
 |------|--------|---------|------|
 | `tiny-text` | 11px 미만 error, 11px대 warn | CSS `font-size`·`font`, Tailwind `text-[10px]`, 인라인 스타일 `fontSize`. 화면 낭독기 전용(`sr-only`)과 아이콘 글꼴(`icon`·`fa-`·`material-icons` 등)은 뺀다 | P7 |
-| `nested-card` | warn | 둥근 모서리 + 테두리·그림자·배경을 가진 요소 안의 같은 요소. JSX·HTML 태그 중첩(Tailwind 클래스, CSS가 상자로 정의한 클래스, `Card` 컴포넌트)과 CSS 자손 선택자·중첩으로 판정한다. 입력칸·버튼·링크·배지·컨트롤 부속은 뺀다 | P5 |
+| `nested-card` | warn | 둥근 모서리 + 테두리·그림자·배경을 가진 요소 안의 같은 요소. JSX·HTML 태그 중첩(Tailwind 클래스, CSS가 상자로 정의한 클래스, `Card` 컴포넌트)과 CSS 자손 선택자·중첩으로 판정한다. 입력칸·버튼·링크·배지·컨트롤 부속은 뺀다. `role="img"`·`aria-hidden="true"` 안(제품 화면을 본뜬 그림)은 세지 않는다 | P5 |
 | `effect-overuse` | warn | 색 그라데이션·`backdrop-filter`·큰 그림자(흐림 16px 이상)가 한 파일에 3곳 이상. 검은 스크림·흰 반짝임, 전이의 시작 상태(`blur(0)`·완전히 투명한 그림자)는 세지 않는다 | P3 |
 | `gradient-text` | warn | `background-clip: text`·`bg-clip-text` | P3 |
 | `font-size-variety` | warn | 한 파일의 글자 크기 7종 이상 | P2·P10 |
@@ -83,6 +83,8 @@ console.log(formatFindings(findings))
 | `accent-contrast` | warn | 한 파일에 함께 정의된 강조색과 그 위 글자(`--color-accent`↔`--color-on-accent`), 강조 글자와 바탕(`--color-accent-text`↔`--color-surface`·`--color-canvas`·`--color-accent-soft`)의 대비가 4.5:1 미만. 반올림하지 않고 잰다(4.495:1은 실패 — axe가 4.49로 본다). 짝이 없거나 반투명이면 건너뛴다 | `tone.md` |
 | `meta-copy` | warn | 화면에 남은 개발·데모 문구 — `(데모)`·`테스트 계정`·`예시 데이터`·`가상의 데이터`·`Lorem ipsum`·`미리보기:`. 주석은 뺀다 | `copy.md` |
 | `mixed-tone` | warn | 짧은 UI 문구(40자 이하)에 해요체와 합쇼체가 둘 이상씩 섞였다. 약관·개인정보 문장과 `<code>`·`<strong>`으로 끊긴 설명 문단은 세지 않는다. 적은 쪽의 줄을 알린다 | `copy.md` |
+| `numbered-markers` | warn | 기능 목록의 01·02·03 번호 표식 — 화면 글자나 문자열이 `01`·`02`·`03`(뒤에 마침표 허용)인 것이 셋 이상. 시중 SaaS·서비스 랜딩 42곳 중 3곳만 이렇게 보였고, suta 0.6\~0.13 랜딩은 6번 모두 그랬다. 01\~09가 7개 이상이면 월·시 고르기 목록이라 뺀다. 파일마다 한 번 요약 | `screen-conventions.md` 랜딩 |
+| `interactive-in-picture` | error | `role="img"` 그림이나 `aria-hidden="true"` 영역 안의 키보드가 닿는 컨트롤(`button`·`a href`·`input`·`select`·`textarea`·`role=button` 등, `tabindex="-1"`은 뺀다). 스크린 리더는 그림을 설명 한 줄로 읽는데 Tab은 안으로 들어간다(axe `nested-interactive`·`aria-hidden-focus`). 제품 화면 그림 안의 버튼은 `span`으로 모양만 그린다 | 접근성·`screen-conventions.md` 랜딩 |
 
 **React Native:** `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙으로 본다 — `fontSize`(tiny-text·종류 수), `padding*`·`margin*`·`gap`(spacing-off-scale), `border*Radius`(radius-variety), `color`·`backgroundColor`·`border*Color`(hue-count·tinted-surface), `shadowRadius` 16 이상(effect-overuse). 줄 번호는 RN 코드의 그 줄이다. 토큰 참조(`space.lg`·`colors.accent`)·스프레드·조건식은 값을 모르니 세지 않는다(`layout-principles/references/react-native.md`).
 
