@@ -6,9 +6,9 @@ I built suta to reduce the repetitive cards, excessive colors and unnecessary de
 
 [한국어](README.ko.md) · [Live demo](https://guksu.github.io/suta/) · [Install](#installation) · [Full guide](docs/guide.en.md)
 
-![The same shopping app request: without suta on top, with suta below](docs/assets/as-is-to-be.jpg)
+![The same four requests: without suta on the left, with suta 0.14 on the right](docs/assets/benchmark-as-is-to-be.jpg)
 
-Same request, model and settings in Claude Code. Top: without suta (one run). Bottom: run 3 of 4 with suta 0.8. Results vary; generation took longer with suta. [Method, all results and limitations](docs/comparisons.en.md) · [Photo credits](docs/assets/CREDITS.md)
+Same requests, model and settings in Claude Code: a scheduling SaaS landing page, a seller dashboard, a login screen and a settings screen. Left: without suta. Right: suta 0.14. Each is the first of two runs per condition. Results vary, and generation took about three times longer with suta. [Method, all results and limitations](docs/comparisons.en.md)
 
 ## Installation
 

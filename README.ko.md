@@ -6,9 +6,9 @@ AI로 UI를 만들 때마다 비슷한 카드와 과한 색상, 불필요한 장
 
 [English](README.md) · [라이브 데모](https://guksu.github.io/suta/) · [설치](#설치) · [상세 안내](docs/guide.md)
 
-![같은 쇼핑 앱 요청으로 만든 화면. 위는 suta 없이, 아래는 suta를 설치하고 만든 결과](docs/assets/as-is-to-be.jpg)
+![같은 요청 네 개로 만든 화면. 왼쪽은 suta 없이, 오른쪽은 suta 0.14를 설치하고 만든 결과](docs/assets/benchmark-as-is-to-be.jpg)
 
-Claude Code에서 같은 요청·모델·설정을 사용했습니다. 위는 미설치 조건의 단일 실행, 아래는 suta 0.8로 네 번 실행한 결과 중 세 번째입니다. 실행마다 결과가 달라지며, suta 사용 시 생성 시간이 늘었습니다. [실험 방법·전체 결과·한계](docs/comparisons.md) · [사진 출처](docs/assets/CREDITS.md)
+Claude Code에서 같은 요청·모델·설정을 사용했습니다. 요청은 일정 관리 SaaS 랜딩, 판매자 대시보드, 로그인, 설정 화면입니다. 왼쪽은 미설치, 오른쪽은 suta 0.14이고, 조건마다 두 번 실행한 것 중 첫 번째입니다. 실행마다 결과가 달라지며, suta 사용 시 생성 시간이 약 세 배 늘었습니다. [실험 방법·전체 결과·한계](docs/comparisons.md)
 
 ## 설치
 

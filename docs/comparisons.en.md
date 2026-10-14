@@ -6,6 +6,49 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Desktop and mobile: landing, dashboard, login and settings (suta 0.14)
+
+This is the image at the top of the README. We re-ran 4 of the 8 publishing benchmark requests with suta 0.14.0. We chose the four requests before running them.
+
+- Landing: "Build a landing page for a scheduling SaaS. Include a hero, 3 key features, 3 pricing tiers, FAQ and a footer, and make it responsive."
+- Dashboard: "Build the first screen of a seller dashboard for an online store. Include key metrics such as today's sales, orders and visitors, a recent orders list, and a CSS bar chart of this week's sales. Support desktop and mobile."
+- Login: "Build a login screen with email and password fields, a login button, 3 social login buttons, and sign-up and password reset links. Also show the error state for invalid input."
+- Settings: "Build a mobile app settings screen with a profile area at the top, a few notification toggles, language and theme selection, and log out and delete account at the bottom."
+
+The requests were written in Korean; these are translations.
+
+![Left column without suta (AS-IS), right column with suta 0.14 (TO-BE). From top: scheduling SaaS landing page, seller dashboard, login and settings](assets/benchmark-as-is-to-be.jpg)
+
+Left: without suta. Right: suta 0.14.0. From top: landing (1440px, top 1,600px), seller dashboard (1280px, first screen), and login and settings (390px, first screen). Each condition ran twice; the image shows the first run of each. The table covers all 8 runs.
+
+| | Without suta (8 runs) | suta 0.14 (8 runs) |
+|---|---|---|
+| Accent color | Blue, indigo or violet in all 8 (#3b5bdb, #4f46e5 and similar) | Green in 4 (landing, settings), near-black in 2 (login), blue in 1 and orange in 1 (dashboard) |
+| Gradients, blur and large shadows | 12 | 1 |
+| Bordered or shadowed boxes | 52 | 18 |
+| Touch targets under 24px | 25 | 7 |
+| Text under 12px | 24 | 0 |
+| Accessibility violations (axe, 390px) | 16 | 1 |
+| Screens overflowing horizontally at 320px | 1 (dashboard) | 1 (landing) |
+| Generation time and cost (median) | 65 seconds, $0.18 | 185 seconds, $0.60 |
+
+Two models compared the 8 pairs with the condition hidden, showing each pair twice with the order reversed. They picked suta in 9 and 7 of 16 comparisons, so there was no overall winner. Results split by request. Scores are suta : without.
+
+| Request | Default model | Other model |
+|---|---|---|
+| Landing | 3 : 1 | 3 : 1 |
+| Dashboard | 4 : 0 | 4 : 0 |
+| Login | 2 : 2 | 0 : 4 |
+| Settings | 0 : 4 | 0 : 4 |
+
+- For the landing page, judges picked suta for "a screen that looks like a real product" and "trust signals such as customers and numbers." They called the other side "a common template of a violet gradient and three stacked cards." The one loss cited "a logo band and made-up stats the request did not ask for" and "no navigation on mobile."
+- In the dashboard, the first run without suta overflowed on mobile, cutting off metric cards and buttons on the right. The first suta run had flaws too: the desktop bar chart card was far too tall, and some text overlapped in the mobile order list.
+- For login, the screen without suta showed the requested error state with preview chips, and the judges valued that. They did not find an error state on the suta side.
+- Settings lost all 4 comparisons for the same reasons as in the [settings and landing section](#settings-and-landing-suta-013--014). The judges picked rounded card groups, a segmented theme control and a red delete-account button. They called suta's support and terms group "items the request did not ask for."
+- Most of suta's audit warnings came from the first landing run. Its product picture was not marked `role="img"`, which produced 63 `nested-card` warnings.
+
+There were only two runs per condition. One judge was also the screen generation model, and only still screens were judged. [Work log](worklog/2026-10-14-readme-comparison.md) (Korean)
+
 ### Mobile webview: e-commerce
 
 > Build the e-commerce screens for a mobile webview: home, product list, product detail, my page, cart, settings, and a GNB (bottom navigation). *(Translated from the original Korean request.)*
