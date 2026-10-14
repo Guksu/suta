@@ -18,7 +18,7 @@ const COPY = defineCopy({
     noodlePlaceholder: '면 종류 선택',
     spiceLabel: '맵기',
     spicePlaceholder: '맵기 선택',
-    result: ({ noodle, spice }: { noodle: string; spice: string }) => `${noodle}, ${spice}로 준비하겠습니다.`,
+    result: ({ noodle, spice }: { noodle: string; spice: string }) => `${noodle}, ${spice}로 준비할게요.`,
     resultEmpty: '두 가지를 고르면 주문 문장이 완성됩니다.',
   },
   en: {

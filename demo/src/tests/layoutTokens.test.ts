@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { COLOR, GAP, LEADING, LIMITS, RADIUS, RATIO, SPACE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
+import { COLOR, FONT, GAP, LEADING, LIMITS, RADIUS, RATIO, SPACE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
+import { oklchOf } from '@skills/layout-principles/assets/palette'
 
 // vitest는 demo/에서 돈다 — 정본 CSS를 파일로 읽어 TS 상수와 비교한다(두 벌이 어긋나면 검사기와 화면이 다른 척도를 쓴다)
 const css = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/layout-tokens.css'), 'utf8')
@@ -31,6 +32,20 @@ describe('layoutTokens — CSS 토큰과 TS 상수가 같은 값이다', () => {
     expect(cssVar('--control-height')).toBe(`${LIMITS.controlHeightPx}px`)
     expect(cssVar('--content-max')).toBe(`${LIMITS.contentMaxPx}px`)
     for (const [name, ratio] of Object.entries(RATIO)) expect(cssVar(`--ratio-${name}`)).toBe(ratio)
+  })
+})
+
+describe('layoutTokens — 글꼴과 무채색의 온도', () => {
+  it('글꼴 목록이 CSS와 같고, 한국어 UI 글꼴(Pretendard)을 먼저 찾은 뒤 운영체제 한국어 글꼴로 내려간다', () => {
+    expect(cssVar('--font-sans')).toBe(FONT.sans)
+    const families = FONT.sans.split(',').map((name) => name.trim().replace(/"/g, ''))
+    expect(families[0]).toBe('Pretendard Variable')
+    for (const korean of ['Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic']) expect(families).toContain(korean)
+    expect(families.at(-1)).toBe('sans-serif')
+  })
+
+  it('글자·선·면의 무채색은 순수 회색이다 — 잘 만든 앱 29곳 중 24곳(푸른 회색은 따뜻한 강조색 옆에서 차갑다)', () => {
+    for (const tone of [COLOR.text, COLOR.textSecondary, COLOR.textTertiary, COLOR.line, COLOR.canvas]) expect(oklchOf(tone).c).toBeLessThan(0.002)
   })
 })
 

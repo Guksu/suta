@@ -4,9 +4,9 @@
 
 .celebration {
   --_surface: var(--celebration-surface, var(--color-surface, #ffffff));
-  --_text: var(--celebration-text, var(--color-text, #1b1e24));
-  --_muted: var(--celebration-muted, var(--color-text-secondary, #4b5260));
-  --_tone-accent: var(--celebration-accent, var(--color-accent, #1b1e24));
+  --_text: var(--celebration-text, var(--color-text, #1c1c1c));
+  --_muted: var(--celebration-muted, var(--color-text-secondary, #525252));
+  --_tone-accent: var(--celebration-accent, var(--color-accent, #1c1c1c));
   --_on-accent: var(--celebration-on-accent, var(--color-on-accent, #ffffff));
   --_tone-reward: var(--celebration-reward, var(--color-reward, #b07d00));
   --_tone-silver: var(--celebration-silver, var(--color-reward-silver, #7b8088));

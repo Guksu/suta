@@ -100,7 +100,7 @@ const describeRejections = (rejections: FileRejection[]) =>
   rejections
     .map(({ file, reason }) =>
       reason === 'type' ? `${file.name}: 이미지만 올릴 수 있어요`
-      : reason === 'size' ? `${file.name}: 5MB를 넘습니다`
+      : reason === 'size' ? `${file.name}: 5MB를 넘어요`
       : `${file.name}: 최대 5장까지만 올릴 수 있어요`,
     )
     .join('\n')
@@ -129,7 +129,7 @@ createDropZone({
 | 받을 형식 | `accept` — `"image/*"`·`".pdf"`·`"image/png,.heic"` | 제한 없음 |
 | 용량·개수 | `maxSizeBytes`·`maxFiles` | 제한 없음 |
 | 안내 문구 | `children`으로 직접 그린다 | 기본 문구 + 제한 요약 |
-| 색 | `--upload-accent`·`--upload-border`·`--upload-error` | 거의 검정(#1b1e24) / 회색 / 빨강 |
+| 색 | `--upload-accent`·`--upload-border`·`--upload-error` | 거의 검정(#1c1c1c) / 회색 / 빨강 |
 | 창 전체 드롭 차단 | `blockWindowDrop` (코어) | 켜짐 |
 | 안내·낭독 문구 | 안내는 `children`, 진행 막대·지우기 버튼 이름은 `labels` — `{ uploading(name), remove(name) }` | 한국어 |
 

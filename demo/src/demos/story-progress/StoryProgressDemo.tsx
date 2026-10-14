@@ -11,10 +11,10 @@ const SCENE_DISHES: DishId[] = ['broth', 'dough', 'janchi', 'bajirak']
 const COPY = defineCopy({
   ko: {
     scenes: [
-      { title: '새벽 4시', copy: '육수를 올리는 시간. 멸치와 다시마가 먼저 출근합니다.' },
-      { title: '오전 9시', copy: '반죽을 밀어 썹니다. 오늘 면발의 굵기가 여기서 정해집니다.' },
-      { title: '정오', copy: '첫 그릇이 나갑니다. 오늘도 곱빼기 비율이 높습니다.' },
-      { title: '밤 9시', copy: '마지막 손님의 바지락칼국수. 솥을 씻으며 내일 육수를 계획합니다.' },
+      { title: '새벽 4시', copy: '육수를 올리는 시간. 멸치와 다시마가 먼저 출근해요.' },
+      { title: '오전 9시', copy: '반죽을 밀어 썰어요. 오늘 면발의 굵기가 여기서 정해져요.' },
+      { title: '정오', copy: '첫 그릇이 나가요. 오늘도 곱빼기 비율이 높아요.' },
+      { title: '밤 9시', copy: '마지막 손님의 바지락칼국수. 솥을 씻으며 내일 육수를 계획해요.' },
     ],
     controlsLabel: '옵션',
     duration: '구간 시간',

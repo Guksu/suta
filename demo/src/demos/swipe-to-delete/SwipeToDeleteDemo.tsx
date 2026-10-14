@@ -36,7 +36,7 @@ const COPY = defineCopy({
     note: '행을 왼쪽으로 끌어 보세요 — 절반 이상 끌면 삭제 버튼이 열리고, 액션 폭의 2.5배 이상 끌거나 세게 튕기면 바로 삭제됩니다. 세로로 스크롤하면 행이 따라오지 않습니다(축 잠금). Tab으로 삭제 버튼에 가면 행이 열립니다. 아래 주문 내역은 액션이 세 개라 열림 폭이 액션 폭 × 3이고, 끝까지 밀면 마지막 액션(삭제)이 늘어나며 실행됩니다.',
     cartTitle: '장바구니',
     deleteLabel: '삭제',
-    cartEmpty: '장바구니가 비었습니다.',
+    cartEmpty: '장바구니가 비었어요.',
     cartSummary: ({ total, lastDeleted }: { total: string; lastDeleted?: string }) =>
       `합계 ${total}${lastDeleted ? ` · 마지막 삭제: ${lastDeleted}` : ''}`,
     refill: '다시 채우기',
@@ -44,7 +44,7 @@ const COPY = defineCopy({
     ordersSubtitle: '여러 액션 행 — 보관 · 나중에 · 삭제',
     actions: { archive: '보관', later: '나중에', unlater: '해제', delete: '삭제' },
     laterBadge: '나중에',
-    ordersEmpty: '주문 내역이 없습니다.',
+    ordersEmpty: '주문 내역이 없어요.',
     orderLog: {
       archive: (title: string) => `보관함으로 옮김: ${title}`,
       later: (title: string) => `나중에 다시 주문: ${title}`,

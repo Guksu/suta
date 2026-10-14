@@ -56,7 +56,7 @@ document.querySelector('.switch-input').addEventListener('change', (e) => {
 | 대상 | 방법 |
 |------|------|
 | 크기 | `--switch-width`(44px)·`--switch-height`(26px) — 썸 크기·이동 거리가 함께 계산된다 |
-| 켜짐/꺼짐 색 | `--switch-on-bg`(#1b1e24 — 거의 검정. 브랜드색으로 바꾼다)·`--switch-off-bg`(#868b94 — 흰 바탕 대비 3.4:1, 비텍스트 기준 3:1 이상) |
+| 켜짐/꺼짐 색 | `--switch-on-bg`(#1c1c1c — 거의 검정. 브랜드색으로 바꾼다)·`--switch-off-bg`(#868b94 — 흰 바탕 대비 3.4:1, 비텍스트 기준 3:1 이상) |
 | 속도 | `--switch-duration` (기본 200ms — 하루 수십 번 누르는 컨트롤이라 짧게) |
 
 ## 주의사항

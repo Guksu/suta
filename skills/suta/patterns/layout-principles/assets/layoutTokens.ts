@@ -6,6 +6,11 @@
  * 두 파일의 값이 어긋나면 검사기와 화면이 다른 척도를 쓰므로, 값을 바꿀 때는 둘 다 바꾼다(테스트가 비교한다).
  */
 
+/** 글꼴 — layout-tokens.css의 --font-sans. Pretendard(SIL OFL 1.1)를 먼저 찾고 운영체제 한국어 글꼴로 내려간다(파일은 프로젝트에 넣는다) */
+export const FONT = {
+  sans: '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
+} as const
+
 /** 간격 척도(px) — 키의 숫자 × 4 = px. --space-{키} */
 export const SPACE = { 1: 4, 2: 8, 3: 12, 4: 16, 6: 24, 8: 32, 12: 48, 16: 64 } as const
 
@@ -28,13 +33,13 @@ export const RATIO = { square: '1 / 1', photo: '4 / 3', wide: '16 / 9' } as cons
 
 /** 색 역할 — 글자 3단계·면 2단계·선·강조색·상태 색. --color-{이름}(camelCase는 하이픈으로) */
 export const COLOR = {
-  text: '#1b1e24',
-  textSecondary: '#4b5260',
-  textTertiary: '#646b77',
-  line: '#e4e6ea',
+  text: '#1c1c1c',
+  textSecondary: '#525252',
+  textTertiary: '#686868',
+  line: '#e6e6e6',
   surface: '#ffffff',
-  canvas: '#f2f3f5',
-  accent: '#1b1e24',
+  canvas: '#f3f3f3',
+  accent: '#1c1c1c',
   onAccent: '#ffffff',
   danger: '#c8341f',
   success: '#13795b',

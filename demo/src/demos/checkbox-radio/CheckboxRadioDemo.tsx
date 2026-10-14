@@ -23,7 +23,7 @@ const COPY = defineCopy({
     agree: '주문 안내에 동의합니다',
     toppingCount: (count: number) => ` + 토핑 ${count}개`,
     ready: ' — 주문 가능',
-    needAgree: ' — 동의가 필요합니다',
+    needAgree: ' — 동의가 필요해요',
   },
   en: {
     noodles: { somyeon: 'Thin wheat noodles', kalguksu: 'Knife-cut noodles', jjolmyeon: 'Chewy spicy noodles' },

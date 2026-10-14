@@ -50,8 +50,8 @@ const COPY = defineCopy({
       bibim: { name: '비빔국수', desc: '새콤한 양념에 오이·삶은 달걀.' },
       kalMandu: { name: '칼국수 + 만두', desc: '새벽에 치댄 반죽. 손만두 4알.' },
       mulnaeng: { name: '물냉면', desc: '살얼음 육수. 여름 한정.' },
-      kong: { name: '콩국수', desc: '국산 백태만 씁니다.' },
-      deulkkae: { name: '들깨칼국수', desc: '거피 들깨를 그날 갈아 씁니다.' },
+      kong: { name: '콩국수', desc: '국산 백태만 써요.' },
+      deulkkae: { name: '들깨칼국수', desc: '거피 들깨를 그날 갈아 써요.' },
       manduguk: { name: '만두국', desc: '손만두 6알, 사골 육수.' },
       rice: { name: '공기밥', desc: '국물에 말아 드세요.' },
     },
@@ -88,7 +88,7 @@ const COPY = defineCopy({
     menuList: '메뉴 목록',
     storeList: '매장 목록',
     orderList: '주문 목록',
-    end: '끝까지 내려왔습니다. 위로 올려 보세요.',
+    end: '끝까지 내려왔어요. 위로 올려 보세요.',
   },
   en: {
     modes: {

@@ -49,7 +49,7 @@ const COPY = defineCopy({
       hide: (name: string) => `${name} 숨김`,
     },
     favoriteMark: '즐겨찾기',
-    empty: '메뉴를 전부 숨겼습니다.',
+    empty: '메뉴를 전부 숨겼어요.',
     lastAction: '마지막 동작:',
     noneYet: '아직 없음',
     showHidden: (count: number) => `숨긴 메뉴 ${count}개 다시 보이기`,

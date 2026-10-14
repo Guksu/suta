@@ -19,7 +19,7 @@
   border: none;
   border-radius: 10px;
   padding: 0.75rem 1.5rem;
-  background: var(--loading-button-bg, #1b1e24);
+  background: var(--loading-button-bg, #1c1c1c);
   color: #fff;
   font: inherit;
   font-weight: 600;

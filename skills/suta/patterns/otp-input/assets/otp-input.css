@@ -5,7 +5,7 @@
 
 .otp-group {
   --_size: var(--otp-cell-size, 3rem);
-  --_accent: var(--otp-accent, #1b1e24);
+  --_accent: var(--otp-accent, #1c1c1c);
   display: flex;
   gap: var(--otp-gap, 0.5rem);
   /* 여섯 칸(기본 328px)이 320px 화면에서 넘치지 않게 — 부모보다 넓어지지 않고, 칸이 대신 줄어든다 */

@@ -10,7 +10,7 @@
   --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   /* tone별 배경 — 마지막 액션이 danger(삭제)인 기존 사용법은 --swipe-action-bg 하나로 그대로 바꿀 수 있다 */
   --_tone-danger: var(--swipe-action-bg, #dc2626);
-  --_tone-accent: var(--swipe-action-accent-bg, #1b1e24);
+  --_tone-accent: var(--swipe-action-accent-bg, #1c1c1c);
   --_tone-default: var(--swipe-action-default-bg, #6b7280);
   position: relative;
   overflow: hidden;

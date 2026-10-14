@@ -77,6 +77,37 @@ Two models compared 12 pairs of screens with the installation condition hidden, 
 
 There were only two runs per condition. One judge was also the screen generation model, and the judges saw still images, so they did not compare motion. This evaluation also included "fun and motivation that fit this app." See the [walking rewards study](research/2026-10-12-walking-reward.md) (Korean) for earlier versions and per-run results.
 
+### Color, fonts and copy: suta 0.12 → 0.13
+
+This section does not compare against a setup without suta. We built the same requests with suta 0.12 and suta 0.13 to compare only what changed this time: color pairing, fonts and copy. The requests are 6 from the publishing benchmark: login, cafe menu detail, restaurant search results, settings, product option sheet, and a landing page for a scheduling SaaS.
+
+![Screens built with suta 0.12 (AS-IS, top row) and suta 0.13 (TO-BE, bottom row). From left: login, menu detail, search results, settings, option sheet, landing](assets/color-font-copy-as-is-to-be.jpg)
+
+From left: login, menu detail, search results, settings, option sheet, landing. Captured at 390px wide. Long pages are cropped to the top 1,220px.
+
+Each request ran twice, 12 runs per condition. The image shows the first run of each condition. The table covers all 12 runs.
+
+| | suta 0.12 (12 runs) | suta 0.13 (12 runs) |
+|---|---|---|
+| Accent color | Muddy in 6 (deep teal, brown, forest green), near-black in 5, clear in 1 | Clear in 8 (orange, green), near-black in 4 (login, settings), muddy in 0 |
+| Accent lightness and chroma (OKLCH median) | 0.43 and 0.067 | 0.58 and 0.170 (31 well-made apps: 0.67 and 0.18) |
+| Text color | Bluish gray in 10, pure gray in 2 | Pure gray in 12 |
+| Runs mixing polite and formal Korean endings | 2 | 0 |
+| First font in the body stack | System font in 9, Pretendard in 3 | Pretendard in 12 (Korean font token) |
+| Accessibility violations (axe, 390px) | 0 | 2 |
+| Generation time and cost (median) | 108 seconds, $0.43 | 113 seconds, $0.45 |
+
+The 2 violations in 0.13 are below. We fixed both in suta after measuring, but did not rerun with the fixed version.
+
+- Accent text on a selected item was 4.47:1 against the light accent background. The palette tool did not check that background.
+- White text on the green Naver button was 2.25:1. The run did not follow the screen convention "Naver uses a white button with its logo."
+
+The benchmark blocks external files, so neither condition could load a font file. The font in the images is the capture device's default.
+
+Two models compared 12 pairs of screens with the version hidden, showing each pair twice with the order reversed. They picked 0.13 in 11 and 10 of 24 comparisons. Most reasons were about structure that varies from run to run: an empty product photo slot, whether the sheet was open on the first screen, section titles in settings. Of the 7 reasons that mentioned color, 5 called the dark brown on the cafe screen "fitting for a cafe" and the orange "loud." Both models also noted a single word left on the last line of the 0.13 landing headline. We fixed that after measuring by adding heading wrap guidance (`text-wrap: balance`).
+
+There were only two runs per condition. One judge was also the screen generation model, and the judging criteria did not mention color, fonts or copy. See the [color, font and copy study](research/2026-10-14-color-font-copy.md) (Korean) for the reference analysis and per-run results.
+
 ## Benchmark
 
 Requests for eight screen types—detail, form, settings, dashboard, landing, cart, list and interaction—were run twice per condition. The table shows round 2 results: browser measurements of pages generated with suta 0.6.0 and without suta.

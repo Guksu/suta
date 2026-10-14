@@ -56,7 +56,7 @@ const ReserveForm = () => {
 | 대상 | 방법 |
 |------|------|
 | 떠오름 속도 | `--field-duration` (기본 150ms — 타이핑 시작을 방해하지 않게 짧게) |
-| 포커스 색 | `--field-accent` (기본 #1b1e24 — 라벨·테두리·포커스 링이 함께 물든다) |
+| 포커스 색 | `--field-accent` (기본 #1c1c1c — 라벨·테두리·포커스 링이 함께 물든다) |
 | 테두리·라벨 색 | `--field-border`(#d4d9e1)·`--field-label-color`(#8a93a1) |
 
 ## 주의사항

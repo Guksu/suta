@@ -48,7 +48,7 @@
 }
 
 .switch-input:checked + .switch-track {
-  background: var(--switch-on-bg, #1b1e24);
+  background: var(--switch-on-bg, #1c1c1c);
 }
 
 .switch-input:checked + .switch-track .switch-thumb {
@@ -65,7 +65,7 @@
 }
 
 .switch-input:focus-visible + .switch-track {
-  outline: 2px solid var(--switch-on-bg, #1b1e24);
+  outline: 2px solid var(--switch-on-bg, #1c1c1c);
   outline-offset: 2px;
 }
 

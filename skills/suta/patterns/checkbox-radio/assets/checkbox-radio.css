@@ -6,7 +6,7 @@
 .check {
   --_size: var(--check-size, 22px);
   --_duration: var(--check-duration, 200ms);
-  --_accent: var(--check-accent, #1b1e24);
+  --_accent: var(--check-accent, #1c1c1c);
   --_border: var(--check-border, #868b94);
   --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;

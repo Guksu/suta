@@ -28,7 +28,7 @@ import { Accordion } from './Accordion'
 
 const FAQS = [
   { id: 'takeout', title: '포장 되나요?', content: '네, 모든 메뉴 포장 가능합니다.' },
-  { id: 'waiting', title: '웨이팅은 어떻게 하나요?', content: '매장 앞 태블릿에 등록해주세요.' },
+  { id: 'waiting', title: '웨이팅은 어떻게 하나요?', content: '매장 앞 태블릿에 등록해 주세요.' },
 ]
 
 const FaqSection = () => <Accordion items={FAQS} />

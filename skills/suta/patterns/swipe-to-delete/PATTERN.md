@@ -103,7 +103,7 @@ item.querySelector('.swipe-action').addEventListener('click', swipe.swipeOut)
 | 여러 액션 | `actions` prop — `{ label, onClick, tone? }[]`, 왼쪽부터 순서대로. 마지막이 끝까지 밀기 액션 |
 | 끝까지 밀기 임계 | `swipeOutThresholdPx` prop (기본: 단일 액션은 폭×2.5, 여러 액션은 열림 폭 + 폭×0.75) · 코어 `swipeOutVelocity`(0.8px/ms) |
 | 속도 | `--swipe-duration` (260ms — 정착·접힘·마지막 버튼 늘어남 공통) |
-| 색 | tone별 `--swipe-action-bg`(danger, #dc2626) · `--swipe-action-accent-bg`(#1b1e24) · `--swipe-action-default-bg`(#6b7280), `--swipe-bg`(내용 배경 — 반드시 불투명해야 액션이 가려진다) |
+| 색 | tone별 `--swipe-action-bg`(danger, #dc2626) · `--swipe-action-accent-bg`(#1c1c1c) · `--swipe-action-default-bg`(#6b7280), `--swipe-bg`(내용 배경 — 반드시 불투명해야 액션이 가려진다) |
 | 액션 문구 | 단일이면 `actionLabel` prop, 여러 개면 각 `actions[].label` |
 
 ## 주의사항

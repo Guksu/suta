@@ -9,7 +9,7 @@ const PRICE = 16000
 
 const COPY = defineCopy({
   ko: {
-    soldOut: '품절된 메뉴입니다',
+    soldOut: '품절된 메뉴예요',
     controlsLabel: '버튼 옵션',
     latency: '서버 응답 지연',
     minLoading: '최소 로딩 유지',
@@ -21,7 +21,7 @@ const COPY = defineCopy({
     price: (n: number) => `${n.toLocaleString('ko-KR')}원 · 성수동 손칼국수`,
     loadingLabel: '주문 중',
     successLabel: '주문 완료',
-    errorLabel: '품절입니다',
+    errorLabel: '품절이에요',
     order: '주문하기',
     clicks: '버튼 클릭',
     sent: '실제 전송',

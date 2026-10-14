@@ -8,7 +8,8 @@ suta의 패턴 코드는 웹(DOM·CSS)이다. React Native·Expo 앱에는 코�
 
 - AI 슬롭 금지선, 화면 유형 뼈대(`screen-conventions.md`), 톤(`tone.md`).
 - 값: 글자 12·14·16·20·24(본문 16), 간격 4px 척도(묶음 안 8·묶음 사이 24·구역 사이 32), 반경 3종(조작 8·카드 12·시트 24), 누르는 영역 44, 주 버튼 48.
-- 색 역할: UI 유채색은 강조색 하나 + 오류 빨강. 글자 3단계, 면 2단계(흰 면·옅은 회색).
+- 색 역할: UI 유채색은 강조색 하나 + 오류 빨강. 글자 3단계, 면 2단계(흰 면·옅은 회색). 강조색은 맑게, 무채색은 순수 회색이거나 강조색 쪽으로(`tone.md` 3·4절). `scripts/palette.mjs '<강조색>' --json`의 값을 토큰 객체에 옮긴다.
+- 문구: 해요체 하나, 버튼 2~6자, 오류는 무엇을 어떻게(`copy.md`). 검사 규칙 `mixed-tone`·`meta-copy`가 `.tsx`의 문자열을 읽는다.
 - 모션 시간: 누름 60ms·복귀 220ms, 들어옴 240ms·나감 180ms(들어옴의 3/4), 반복(맥동·진행)은 2초 안.
 
 ## 2. 토큰
@@ -67,6 +68,8 @@ export const pressedOpacity = 0.6 // 누른 행·칸 — 한 값으로
 `scripts/audit.mjs`는 `.ts·.tsx·.js·.jsx`에서 아래를 읽는다.
 
 - `StyleSheet.create` 안의 숫자·문자열 값: 글자 크기, 간격, 반경, 색, `shadowRadius`.
+- 토큰 객체의 `accent`·`primary`·`brand`·`text`·`canvas` 같은 색 값: 탁한 강조색(`muddy-accent`), 따뜻한 강조색 옆 푸른 회색(`neutral-temperature`). 강조색 짝의 대비(`accent-contrast`)는 CSS 변수만 읽으니, RN은 `palette.mjs`로 만든 값을 쓰거나 기기에서 확인한다.
+- 화면 문자열: 개발·데모 문구(`meta-copy`), 해요체·합쇼체 섞임(`mixed-tone`).
 - JSX 인라인 `style`.
 - Reanimated `useAnimatedStyle`이 레이아웃 속성을 움직이는 곳.
 - `withRepeat(…, -1)`·`Animated.loop`의 동작 줄이기 처리.

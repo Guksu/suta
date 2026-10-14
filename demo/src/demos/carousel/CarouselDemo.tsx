@@ -18,7 +18,7 @@ const SLIDES = [
 const COPY = defineCopy({
   ko: {
     slides: {
-      monthly: { title: '이달의 국수', copy: '얼큰 칼국수 — 국물이 먼저 반깁니다' },
+      monthly: { title: '이달의 국수', copy: '얼큰 칼국수 — 국물이 먼저 반겨요' },
       new: { title: '신메뉴', copy: '왕만두 세트 — 반죽부터 직접' },
       summer: { title: '여름 한정', copy: '냉모밀 — 육수 슬러시 직전' },
       challenge: { title: '도전 메뉴', copy: '지옥 비빔국수 — 우유 제공' },

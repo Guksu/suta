@@ -6,7 +6,7 @@ import './toast-stack-demo.css'
 // 토스트는 문장 하나로 결과를 알린다 — 끝에 이모지를 붙여 꾸미지 않는다
 const COPY = defineCopy({
   ko: {
-    messages: ['저장되었습니다', '장바구니에 담았습니다', '주문이 접수되었습니다', '찜 목록에 추가했습니다', '링크를 복사했습니다'],
+    messages: ['저장했어요', '장바구니에 담았어요', '주문을 받았어요', '찜 목록에 추가했어요', '링크를 복사했습니다'],
     controlsLabel: '옵션',
     duration: '소멸 시간',
     position: '위치',

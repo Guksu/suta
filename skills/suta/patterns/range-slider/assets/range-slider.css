@@ -27,7 +27,7 @@
   background: linear-gradient(
     to right,
     var(--range-track, #e5e7eb) 0 var(--range-lower, 0%),
-    var(--range-fill-color, var(--range-accent, #1b1e24)) var(--range-lower, 0%) var(--range-upper, 100%),
+    var(--range-fill-color, var(--range-accent, #1c1c1c)) var(--range-lower, 0%) var(--range-upper, 100%),
     var(--range-track, #e5e7eb) var(--range-upper, 100%) 100%
   );
 }
@@ -60,7 +60,7 @@
   -webkit-appearance: none;
   width: var(--_thumb);
   height: var(--_thumb);
-  border: 2px solid var(--range-thumb-border, var(--range-accent, #1b1e24));
+  border: 2px solid var(--range-thumb-border, var(--range-accent, #1c1c1c));
   border-radius: 50%;
   background: var(--range-thumb, #fff);
   box-shadow: var(--range-thumb-shadow, 0 1px 4px rgb(0 0 0 / 0.2));
@@ -72,7 +72,7 @@
 .range-input::-moz-range-thumb {
   width: var(--_thumb);
   height: var(--_thumb);
-  border: 2px solid var(--range-thumb-border, var(--range-accent, #1b1e24));
+  border: 2px solid var(--range-thumb-border, var(--range-accent, #1c1c1c));
   border-radius: 50%;
   background: var(--range-thumb, #fff);
   box-shadow: var(--range-thumb-shadow, 0 1px 4px rgb(0 0 0 / 0.2));
@@ -93,12 +93,12 @@
 }
 
 .range-input:focus-visible::-webkit-slider-thumb {
-  outline: 2px solid var(--range-accent, #1b1e24);
+  outline: 2px solid var(--range-accent, #1c1c1c);
   outline-offset: 2px;
 }
 
 .range-input:focus-visible::-moz-range-thumb {
-  outline: 2px solid var(--range-accent, #1b1e24);
+  outline: 2px solid var(--range-accent, #1c1c1c);
   outline-offset: 2px;
 }
 

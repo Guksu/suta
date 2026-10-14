@@ -3,7 +3,7 @@ import { Accordion } from '@skills/accordion/assets/Accordion'
 
 const ITEMS = [
   { id: 'takeout', title: '포장 되나요?', content: '네, 모든 메뉴 포장 가능합니다.' },
-  { id: 'waiting', title: '웨이팅은 어떻게 하나요?', content: '매장 앞 태블릿에 등록해주세요.' },
+  { id: 'waiting', title: '웨이팅은 어떻게 하나요?', content: '매장 앞 태블릿에 등록해 주세요.' },
   { id: 'parking', title: '주차할 곳이 있나요?', content: '건물 지하 주차장 1시간 무료입니다.' },
 ]
 

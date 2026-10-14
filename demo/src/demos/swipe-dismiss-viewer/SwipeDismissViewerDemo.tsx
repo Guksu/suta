@@ -17,7 +17,7 @@ const COPY = defineCopy({
   ko: {
     start: '사진을 눌러 크게 보고, 아무 방향으로 끌어내려 닫아 보세요.',
     opened: (name: string) => `${name} 열림`,
-    closed: (name: string) => `${name} 닫힘 — 썸네일 자리로 돌아왔습니다.`,
+    closed: (name: string) => `${name} 닫힘 — 썸네일 자리로 돌아왔어요.`,
     controlsLabel: '안내',
     note: '썸네일에서 커지며 열리고, 끌면 손가락을 따라 작아지며 뒤가 비칩니다. 120px 이상 끌거나 세게 튕기면 썸네일 자리로 돌아가며 닫히고, 그 전에 놓으면 중앙으로 스프링 복귀합니다. Esc·✕로도 같은 복귀로 닫힙니다. 마우스로도 됩니다.',
     title: '국수공방 갤러리',

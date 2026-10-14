@@ -76,7 +76,7 @@ const COPY = defineCopy({
     save: '찜',
     spiceChoose: '맵기 선택',
     spiceLegend: '맵기',
-    detailDesc: '고소한 들깨 국물에 직접 민 칼국수. 들깨는 그날 아침에 갈아 넣습니다.',
+    detailDesc: '고소한 들깨 국물에 직접 민 칼국수. 들깨는 그날 아침에 갈아 넣어요.',
     saveAction: '찜하기',
     addFor: (price: string) => `${price} 담기`,
     notices: {

@@ -78,7 +78,7 @@ button.addEventListener('pointercancel', held.stop)
 | 범위·눈금 | `min`·`max`·`step` | 1 / 99 / 1 |
 | 반복 시작까지 | `delayMs` (코어) | 400ms |
 | 반복 간격·가속 | `intervalMs`·`acceleration`·`minIntervalMs` (코어) | 160ms / 0.82배 / 45ms |
-| 높이·색 | `--qty-height`·`--qty-bg`·`--qty-border`·`--qty-accent` | 2.5rem / 흰색 / 회색 / 거의 검정(#1b1e24) |
+| 높이·색 | `--qty-height`·`--qty-bg`·`--qty-border`·`--qty-accent` | 2.5rem / 흰색 / 회색 / 거의 검정(#1c1c1c) |
 | 숫자 칸 너비 | `--qty-value-width` | 3rem |
 | 버튼 이름 | `buttonLabels` — `{ decrease, remove, increase }`, 각각 그룹 이름(label)을 받는다 | "{label} 줄이기·삭제·늘리기" |
 
