@@ -1,0 +1,67 @@
+name: Release
+
+# 매니페스트 버전으로 GitHub 릴리스를 만든다(docs/releases/README.md 절차 3~4).
+# 노트 docs/releases/v{버전}.md가 main에 들어오면 검사를 다시 돌리고, 그 커밋을 대상으로 릴리스를 만든다.
+# 같은 버전 릴리스가 이미 있으면 아무것도 하지 않는다 — 기존 태그를 옮기거나 덮어쓰지 않는다.
+on:
+  push:
+    branches: [main]
+    paths: ['docs/releases/v*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: 버전과 노트 확인
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./.claude-plugin/plugin.json').version")
+          tag="v${version}"
+          notes="docs/releases/${tag}.md"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "notes=${notes}" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "${tag} 릴리스가 이미 있어 건너뛴다"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif [ ! -f "$notes" ]; then
+            echo "${notes}가 없어 건너뛴다"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.meta.outputs.skip == 'false'
+        run: npm ci
+      - if: steps.meta.outputs.skip == 'false'
+        run: npm run lint
+      - if: steps.meta.outputs.skip == 'false'
+        run: npm test
+      # 세 매니페스트의 버전이 같은지도 여기서 확인한다
+      - if: steps.meta.outputs.skip == 'false'
+        run: npm run validate
+      - if: steps.meta.outputs.skip == 'false'
+        run: npm run build
+      - name: 릴리스 만들기
+        if: steps.meta.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.meta.outputs.tag }}" \
+            --target "$GITHUB_SHA" \
+            --title "suta ${{ steps.meta.outputs.version }}" \
+            --notes-file "${{ steps.meta.outputs.notes }}"
