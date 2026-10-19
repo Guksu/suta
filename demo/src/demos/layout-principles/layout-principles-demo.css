@@ -295,6 +295,7 @@
  * 실제 화면에서는 바를 position: fixed(bottom: 0)로 두고 본문 아래에 바 높이만큼 여백을 준다 */
 .lp-a-detail {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
   block-size: 560px;
 }
@@ -796,6 +797,7 @@
 .lp-t-chat {
   --color-accent: #1c1c1c; /* 근거(브랜드)가 없는 도우미 화면이라 토큰 기본값 거의 검정 */
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* 열을 적지 않으면 입력칸 기본 폭이 틀을 넓힌다(grid-blowout) */
   grid-template-rows: auto 1fr auto;
   min-block-size: 560px;
   background: var(--color-surface);
@@ -1013,6 +1015,83 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ⑩ 글 목록 — 사진이 없으면 콘텐츠 그림(content-art.css). 그림의 색은 콘텐츠라 UI 색 수에 넣지 않는다 */
+.lp-a-feed {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.lp-a-feed-list,
+.lp-a-shortcuts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 분류 바로가기 — 콘텐츠 자리라 색이 든 그림 아이콘(illustrations.ts). 바탕 칸 없이 그림 40 + 라벨 12 */
+.lp-a-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: var(--space-4) var(--space-2);
+  border-block-end: var(--band) solid var(--color-canvas);
+  font-size: var(--text-caption);
+  text-align: center;
+}
+
+.lp-a-shortcuts li {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+}
+
+.lp-a-feed-row {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-block-end: 1px solid var(--color-line);
+}
+
+.lp-a-feed-text {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.lp-a-feed-title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.lp-a-feed-meta {
+  margin: 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-caption);
+}
+
+/* 썸네일은 모든 글에서 같은 크기·같은 자리 — 사진이 없는 글은 이 자리만 비운다 */
+.lp-a-feed-thumb {
+  position: relative;
+  flex: none;
+  inline-size: 72px;
+}
+
+.lp-a-feed-count {
+  position: absolute;
+  inset-block-end: var(--space-1);
+  inset-inline-end: var(--space-1);
+  min-inline-size: 20px;
+  padding-inline: var(--space-1);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.55);
+  color: #ffffff;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  line-height: 20px;
+  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

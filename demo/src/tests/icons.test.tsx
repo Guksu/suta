@@ -20,6 +20,11 @@ describe('layout-principles 아이콘 한 벌', () => {
     for (const name of needed) expect(ICONS).toHaveProperty(name)
   })
 
+  it('은행 거래 행의 분류(교통·카드·이체·장보기·통신·저축·입금·은행)마다 다른 모양을 갖는다 — 모든 행에 같은 아이콘을 두지 않게', () => {
+    const needed = ['bus', 'credit-card', 'arrow-left-right', 'shopping-basket', 'smartphone', 'piggy-bank', 'wallet', 'landmark', 'coffee', 'utensils']
+    for (const name of needed) expect(ICONS).toHaveProperty(name)
+  })
+
   it('뜻이 있으면 role="img"와 이름, 장식이면 aria-hidden — 채움은 fill만 바꾼다', () => {
     const labelled = iconSvg({ name: 'cart', label: '장바구니 "3"' })
     expect(labelled).toContain('role="img"')

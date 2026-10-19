@@ -205,12 +205,13 @@ const renderMetrics = () => {
     return false
   }).length
 
-  // 강한 효과 — 넓은 그라데이션, 배경 흐림, 흐림 16px 이상 그림자, 그라데이션 글자
+  // 강한 효과 — 넓은 그라데이션, 배경 흐림, 흐림 16px 이상 그림자, 그라데이션 글자.
+  // 그림(role="img"·aria-hidden="true"·콘텐츠 그림 .art) 안의 그라데이션은 사진 대역의 내용이라 장식 효과로 세지 않는다 — 두 조건에 같게 적용
   let strongEffects = 0
   for (const el of visible) {
     const cs = getComputedStyle(el)
     const r = el.getBoundingClientRect()
-    const gradient = /gradient\(/.test(cs.backgroundImage) && r.width * r.height >= 2000
+    const gradient = /gradient\(/.test(cs.backgroundImage) && r.width * r.height >= 2000 && !el.closest('[role="img"], [aria-hidden="true"], .art')
     const blur = cs.backdropFilter && cs.backdropFilter !== 'none'
     const bigShadow = cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some((shadow) => {
       const lengths = shadow.replace(/rgba?\([^)]*\)|#[0-9a-f]+|inset/gi, '').match(/-?\d*\.?\d+px/g) ?? []

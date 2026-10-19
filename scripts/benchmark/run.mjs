@@ -5,12 +5,13 @@
  *   suta      suta 플러그인(진입 스킬 + 편집 후 검사 훅)을 --plugin-dir로 실은 Claude Code
  * 모델·설정·도구 권한은 두 조건이 같다. 다른 것은 플러그인 하나뿐이다.
  *
- * 요청문: evals/benchmark/prompts.json. 실행마다 빈 작업 폴더에서 시작하고, 결과는 그 폴더의 index.html이다.
+ * 요청문: evals/benchmark/prompts.json(--prompts로 다른 요청 세트, 예: evals/benchmark/app-prompts.json). 실행마다 빈 작업 폴더에서 시작하고, 결과는 그 폴더의 index.html이다.
  * 기록: <out>/runs/<조건>/<요청 id>-<반복>/ 에 work/(산출물)·stream.jsonl(전체 대화)·meta.json(시간·토큰·도구 사용)
  * 이미 끝난 실행(meta.json의 done)은 건너뛰므로, 중간에 끊겨도 같은 명령으로 이어서 돌린다.
  *
  * 사용: node scripts/benchmark/run.mjs --out <폴더> [--repeats 2] [--concurrency 3] [--only id,id]
  *                                     [--conditions baseline,suta] [--model 이름] [--effort 수준] [--budget 4]
+ *                                     [--prompts evals/benchmark/app-prompts.json]
  * 다음 단계: measure.mjs(측정) → report.mjs(집계)
  */
 import { spawn } from 'node:child_process'
@@ -38,7 +39,7 @@ const effort = option('effort', '')
 const budget = option('budget', '4')
 const TIMEOUT_MS = 20 * 60 * 1000
 
-const spec = JSON.parse(readFileSync(join(root, 'evals/benchmark/prompts.json'), 'utf8'))
+const spec = JSON.parse(readFileSync(resolve(root, option('prompts', 'evals/benchmark/prompts.json')), 'utf8'))
 const prompts = spec.prompts.filter((p) => !only || only.split(',').includes(p.id))
 
 // suta 조건이 실을 플러그인 — 마켓플레이스 설치와 같은 구성(매니페스트 + skills/)만, 실행마다 따로 복사한다

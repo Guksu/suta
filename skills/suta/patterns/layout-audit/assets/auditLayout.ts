@@ -29,6 +29,12 @@
  *  meta-copy           warn — 화면에 남은 개발·데모 문구((데모)·테스트 계정·Lorem ipsum·예시 데이터)                 copy
  *  mixed-tone          warn — 짧은 UI 문구에 해요체와 합쇼체가 둘 이상씩 섞였다(약관·긴 설명 문단은 뺀다)             copy
  *  numbered-markers    warn — 기능 목록의 01·02·03 번호 표식(01~09가 7개 이상이면 월·시 목록이라 뺀다)               랜딩
+ *  stacked-icon-buttons error — display가 grid·flex·block인 아이콘 버튼 둘 이상을 flex·grid가 아닌 부모에 나란히(세로로 쌓인다)  렌더
+ *  grid-blowout        error — 행을 fr로 나눈 grid 틀에 열이 없다(입력칸 기본 폭·줄임표 글자가 틀을 화면보다 넓게 민다)       렌더
+ *  hidden-text-escape  error — 화면 높이(100dvh) 틀에서 숨김 글자(.sr-only, absolute)를 쓰는데 세로 스크롤 칸에 position이 없다(글자가 칸 밖으로 새어 페이지가 늘어난다)  렌더
+ *
+ * 콘텐츠 그림: `.art`·`.art--장면` 선택자(layout-principles/assets/content-art.css의 사진 대역)와 `--art-*` 변수는 사진처럼 내용이라
+ * 색(hue-count·tinted-surface)·효과(effect-overuse)·반경(radius-variety)·상자(nested-card)로 세지 않는다.
  *
  * React Native: `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙(글자 크기·간격·반경·색·큰 그림자)으로 본다.
  * 토큰 참조(space.lg·colors.accent)·스프레드·조건식은 값을 모르니 세지 않는다. 터치 영역·대비·낭독은 기기에서 확인한다.
@@ -370,8 +376,13 @@ const anatomyOf = (selector: string) => {
 const EXCLUDED_NAME = /^(?:input|textarea|select|option|button|a|link|img|image|svg|video|picture|iframe|label|code|pre|kbd)$|(?:button|input|badge|chip|tag|pill|avatar|icon|switch|toggle|checkbox|radio|tooltip)$/i
 const EXCLUDED_CLASS = /(?:^|[-_])(?:btn|button|badge|chip|tag|pill|avatar|icon|input|field|kbd|toggle|switch|thumb|track|indicator|knob|handle|highlight|segment|slider|progress|skeleton|dot|swatch|scrim|overlay|backdrop|tooltip|popover|dropdown|toast)(?:[-_]|$)/i
 
+/** 콘텐츠 그림(사진 대역) — layout-principles/assets/content-art.css의 `.art`·`.art--장면`. 사진처럼 내용이라 UI 색·효과·반경·상자로 세지 않는다 */
+const ART_CLASS = /^art(?:--[\w-]+|__[\w-]+)?$/
+const ART_VAR = /^--art(?:-[\w-]+)?$/
+const isArtSelector = (selector: string) => anatomyOf(selector).last.classes.some((c) => ART_CLASS.test(c))
+
 const keysOf = (compound: Compound) => [...compound.classes.map((c) => `.${c}`), ...(compound.tag ? [compound.tag] : [])]
-const isExcludedCompound = (compound: Compound) => (compound.tag != null && EXCLUDED_NAME.test(compound.tag)) || compound.classes.some((c) => EXCLUDED_CLASS.test(c))
+const isExcludedCompound = (compound: Compound) => (compound.tag != null && EXCLUDED_NAME.test(compound.tag)) || compound.classes.some((c) => EXCLUDED_CLASS.test(c) || ART_CLASS.test(c))
 
 /* ---------------- CSS 블록 판정 ---------------- */
 
@@ -515,7 +526,7 @@ const REWARD_VAR = /^--(?:[\w-]*-)?(reward|medal|trophy|coin|gold|silver|bronze)
 /** 선언 하나의 색 — 계열은 모든 색 속성·변수에서(등락 색·보상 색 변수는 빼고), 옅은 면은 바탕과 변수 정의에서 센다 */
 const tallyColors = ({ prop, value, line, tally }: { prop: string; value: string; line: number; tally: Tally }) => {
   const colors = colorsIn(value)
-  if (colors.length === 0) return
+  if (colors.length === 0 || ART_VAR.test(prop)) return
   const ownFamily = TREND_VAR.test(prop) || REWARD_VAR.test(prop)
   for (const color of colors) if (!ownFamily && color.a >= 0.05 && isChromatic(color)) remember({ map: tally.hues, key: familyOf(color), line })
   const surface = /^background(-color|-image)?$/.test(prop) || (prop.startsWith('--') && !ACCENT_SOFT_VAR.test(prop))
@@ -617,6 +628,8 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
     const hidden = isVisuallyHidden(fact)
     const icon = ICON_SELECTOR.test(block.fullSelector)
     const input = !isDesktopOnly(block.selector) && splitTopLevel(block.fullSelector).some(isInputSelector)
+    // 콘텐츠 그림 — 장면을 그리는 색·그라데이션·퍼센트 반경은 사진의 픽셀과 같다
+    const art = splitTopLevel(block.fullSelector).every(isArtSelector)
     // 같은 블록에 dvh·svh 짝이 있으면 100vh는 옛 브라우저용 대비 값이다
     const dynamicHeights = new Set(decls.filter((d) => DYNAMIC_VIEWPORT.test(d.value)).map((d) => d.prop))
     let clipReported = false
@@ -643,6 +656,7 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
         const raw = unwrapVar(value).toLowerCase()
         if (!RESET_VALUES.test(raw) && !/^(bolder|lighter)$/.test(raw)) remember({ map: tally.weights, key: String(WEIGHT_NAMES[raw] ?? raw), line })
       } else if (/^border(-(top|bottom)-(left|right)|-(start|end)-(start|end))?-radius$/.test(prop)) {
+        if (art) continue
         for (const part of splitValues(value)) {
           const raw = unwrapVar(part).toLowerCase()
           if (raw === '0' || raw === '50%' || raw === '100%' || /full|pill|round|circle|^calc\(/.test(raw)) continue
@@ -666,6 +680,7 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
         push({ line, rule: 'image-distort', severity: 'warn', message: 'object-fit: fill — 사진이 틀에 맞춰 늘어난다', fix: 'aspect-ratio로 틀을 정하고 object-fit: cover로 잘라 채운다 (P9)' })
       }
 
+      if (art) continue
       // 강한 효과 — 장식 그라데이션·유리·큰 그림자
       if (/^(background|background-image|border-image)$/.test(prop) && GRADIENT.test(value) && hasChromaticColor(value)) tally.effects.push(line)
       // blur(0)은 유리가 되기 전의 시작 상태(전이용)라 세지 않는다
@@ -810,7 +825,7 @@ const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string
     // 상자 판정 — Tailwind 조합, 같은 묶음 CSS가 상자로 정의한 클래스, 카드 이름
     const name = tag.name
     const lowerName = name.toLowerCase()
-    const excluded = EXCLUDED_NAME.test(name) || plain.some((c) => EXCLUDED_CLASS.test(c))
+    const excluded = EXCLUDED_NAME.test(name) || plain.some((c) => EXCLUDED_CLASS.test(c) || ART_CLASS.test(c))
     const twBox = plain.some(twIsRounded) && plain.some((c) => twIsBordered(c) || twIsShadowed(c) || twIsFilled(c))
     const cssBox = [...plain.map((c) => `.${c}`), lowerName].some((key) => boxKeys.has(key))
     const namedCard = CARD_COMPONENT.test(name) || plain.some((c) => CARD_CLASS.test(c))
@@ -851,6 +866,198 @@ const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string
   }
 }
 
+/* ---------------- 세로로 쌓인 아이콘 버튼 ---------------- */
+
+/** CSS 블록마다 마지막 요소의 display·position — 마크업 요소에 어떤 표시 방식이 걸릴 수 있는지 짐작한다 */
+type DisplayRule = { compound: Compound; display: string | null; position: string | null }
+
+const collectDisplayRules = (factsByFile: BlockFacts[][]): DisplayRule[] =>
+  factsByFile.flat().flatMap(({ block, decls }) => {
+    const last = (prop: string) => decls.filter((d) => d.prop === prop).at(-1)?.value.trim().toLowerCase() ?? null
+    const display = last('display')
+    const position = last('position')
+    if (!display && !position) return []
+    return splitTopLevel(block.fullSelector).map((selector) => ({ compound: anatomyOf(selector).last, display, position }))
+  })
+
+type MarkupNode = { name: string; classes: string[]; attrs: string; line: number; iconOnly: boolean; kids: MarkupNode[] }
+
+const BLOCK_DISPLAY = /^(block|flex|grid|table|flow-root|list-item)$/
+const ROW_DISPLAY = /^(flex|grid|inline-flex|inline-grid|contents)$/
+const TW_BLOCK = /^(block|flex|grid|table|flow-root)$/
+const TW_ROW = /^(flex|grid|inline-flex|inline-grid|contents)$/
+
+/** 선택자의 마지막 요소가 이 요소에 걸릴 수 있는가 — id·속성 선택자처럼 모르는 것은 걸린다고 본다(놓치는 쪽으로) */
+const mayMatch = ({ compound, node }: { compound: Compound; node: MarkupNode }) =>
+  (compound.tag == null || compound.tag === node.name.toLowerCase()) && compound.classes.every((c) => node.classes.includes(c))
+
+/** 버튼이 블록처럼 줄을 차지하는가 — 명시한 display가 grid·flex·block일 때만. 기본(inline-block)이나 inline-*·absolute는 아니다 */
+const isBlockButton = ({ node, rules }: { node: MarkupNode; rules: DisplayRule[] }) => {
+  const plain = node.classes.filter((c) => !c.includes(':'))
+  if (plain.some((c) => /^(absolute|fixed|hidden|inline-flex|inline-grid|inline-block|inline)$/.test(c))) return false
+  const own = rules.filter((rule) => (rule.compound.tag != null || rule.compound.classes.length > 0) && mayMatch({ compound: rule.compound, node }))
+  if (own.some((rule) => rule.position != null && /^(absolute|fixed)$/.test(rule.position))) return false
+  if (own.some((rule) => rule.display != null && !BLOCK_DISPLAY.test(rule.display))) return false
+  return plain.some((c) => TW_BLOCK.test(c)) || own.some((rule) => rule.display != null && BLOCK_DISPLAY.test(rule.display))
+}
+
+/** 부모가 자식을 한 줄로 놓을 수 있는가 — flex·grid·contents. 인라인 스타일·Tailwind·CSS 규칙 중 하나라도 그러면 그렇다고 본다 */
+const laysOutInRow = ({ node, rules }: { node: MarkupNode; rules: DisplayRule[] }) => {
+  const style = attrValue({ attrs: node.attrs, name: /(?:^|\s)style\s*=\s*/ }) ?? ''
+  // 따옴표는 \x22·\x27로 쓴다 — 정규식 안의 맨 따옴표는 주석 걷기(codeWithoutComments)의 문자열 판정을 흐린다
+  if (/display\s*:\s*[\x22\x27]?(inline-)?(flex|grid)|display\s*:\s*[\x22\x27]?contents/i.test(style)) return true
+  if (node.classes.some((c) => TW_ROW.test(baseOf(c)))) return true
+  return rules.some((rule) => rule.display != null && ROW_DISPLAY.test(rule.display) && mayMatch({ compound: rule.compound, node }))
+}
+
+/** 마크업을 가벼운 나무로 — 버튼·링크는 안에 글자가 없는(아이콘만 있는) 것인지도 적는다 */
+const markupTree = (markup: string) => {
+  const root: MarkupNode = { name: '#root', classes: [], attrs: '', line: 0, iconOnly: false, kids: [] }
+  const stack: MarkupNode[] = [root]
+  for (const tag of scanTags(markup)) {
+    if (tag.closing) {
+      const index = stack.map((node) => node.name).lastIndexOf(tag.name)
+      if (index > 0) stack.length = index
+      continue
+    }
+    const lower = tag.name.toLowerCase()
+    let iconOnly = false
+    if (lower === 'button' || lower === 'a') {
+      const close = markup.indexOf(`</${tag.name}`, tag.end)
+      const inner = tag.selfClosing || close < 0 ? '' : markup.slice(tag.end, close)
+      const text = inner.replace(/<[^>]*>/g, '').trim()
+      iconOnly = !tag.selfClosing && /<[A-Za-z]/.test(inner) && text === ''
+    }
+    const node: MarkupNode = { name: tag.name, classes: classTokensOf(tag.attrs), attrs: tag.attrs, line: lineOf(markup, tag.start), iconOnly, kids: [] }
+    stack[stack.length - 1].kids.push(node)
+    if (!tag.selfClosing) stack.push(node)
+  }
+  return root
+}
+
+/** 블록처럼 줄을 차지하는 아이콘 버튼 둘 이상을 flex·grid가 아닌 부모에 나란히 두면 세로로 쌓인다 — 렌더해야 보이는 흠을 코드에서 잡는다 */
+const auditStackedButtons = ({ markup, rules, push }: { markup: string; rules: DisplayRule[]; push: Push }) => {
+  const visit = (parent: MarkupNode) => {
+    const inRow = parent.name === '#root' || laysOutInRow({ node: parent, rules })
+    let run: MarkupNode[] = []
+    const flush = () => {
+      if (!inRow && run.length >= 2) {
+        push({ line: run[1].line, rule: 'stacked-icon-buttons', severity: 'error', message: `아이콘 버튼 ${run.length}개가 세로로 쌓인다 — display가 grid·flex·block인 버튼을 flex·grid가 아닌 부모(<${parent.name}>)에 나란히 두었다`, fix: '부모를 display: flex(+ gap 4~8, align-items: center)로 두거나, 버튼을 display: inline-grid로 바꾼다' })
+      }
+      run = []
+    }
+    for (const kid of parent.kids) {
+      if (kid.iconOnly && isBlockButton({ node: kid, rules })) run.push(kid)
+      else flush()
+      visit(kid)
+    }
+    flush()
+  }
+  visit(markupTree(markup))
+}
+
+/* ---------------- 화면 틀이 화면보다 넓어지거나 길어지는 것 — 렌더해야 보이는 흠 두 가지 ---------------- */
+
+const declared = ({ decls, prop }: { decls: BlockFacts['decls']; prop: string }) => decls.filter((d) => d.prop === prop).at(-1)?.value.trim().toLowerCase() ?? null
+const selectorKeysOf = (block: CssBlock) => splitTopLevel(block.fullSelector).map((s) => s.trim().replace(/\s+/g, ' ')).filter(Boolean)
+const definesColumns = (decls: BlockFacts['decls']) =>
+  decls.some((d) => d.prop === 'grid-template-columns' || ((d.prop === 'grid-template' || d.prop === 'grid') && d.value.includes('/')))
+// position이 static이 아니거나 contain이 layout·paint를 걸면 안의 절대 위치 요소는 이 칸을 기준으로 놓이고 이 칸에 잘린다
+const containsAbsolute = (decls: BlockFacts['decls']) => {
+  const position = declared({ decls, prop: 'position' })
+  const contain = declared({ decls, prop: 'contain' }) ?? ''
+  return (position != null && position !== 'static') || /layout|paint|strict|content/.test(contain)
+}
+const SCROLL_VALUE = /^(auto|scroll)$/
+/** 세로로 스크롤되는 칸 — overflow-y·overflow-block, 또는 overflow 단축 속성의 세로 값(값 둘이면 둘째) */
+const isVerticalScroller = (decls: BlockFacts['decls']) =>
+  decls.some((d) => {
+    const values = d.value.trim().toLowerCase().split(/\s+/)
+    if (d.prop === 'overflow-y' || d.prop === 'overflow-block') return SCROLL_VALUE.test(values[0])
+    return d.prop === 'overflow' && SCROLL_VALUE.test(values[1] ?? values[0])
+  })
+// 화면 높이에 맞춘 틀(높이 100dvh) — 페이지 자체는 스크롤되지 않아야 하는 앱 화면이다. 숨김 글자가 새면 페이지가 길어져 입력 줄이 밀린다
+const VIEWPORT_FRAME = /^100(d|s|l)?vh$/
+const TW_VIEWPORT_FRAME = /^(h-screen|h-dvh|h-svh|h-lvh|h-\[100(d|s|l)?vh\])$/
+// 문서 전체 스크롤과 dialog(최상위 층, 브라우저가 position: fixed로 둔다) 안은 새지 않는다
+const DOCUMENT_SCROLLER = /^(html|body|:root)$/i
+const IN_DIALOG = /(^|[\s>+~])dialog\b/i
+
+// 화면 낭독용 숨김 글자 클래스 — 직접 정의한 것과 Tailwind의 sr-only 모두 position: absolute다
+// 따옴표는 \x22·\x27·\x60으로 쓴다(위 laysOutInRow와 같은 이유)
+const HIDDEN_TEXT_CLASS = /(?:^|[\s\x22\x27\x60.{])(sr-only|visually-?hidden|screen-reader-text)(?=$|[\s\x22\x27\x60{,:)])/m
+const HIDDEN_CLASS_TOKEN = /^(sr-only|visually-?hidden|screen-reader-text)$/
+const TW_SCROLLER = /^overflow(-y)?-(auto|scroll)$/
+const TW_POSITIONED = /^(relative|absolute|fixed|sticky|contain-(layout|paint|strict|content))$/
+const HIDDEN_ESCAPE_FIX = '스크롤 칸에 position: relative를 더한다'
+const HIDDEN_ESCAPE_MESSAGE = '스크롤 칸(overflow: auto·scroll)에 position이 없다 — 안에 둔 화면 낭독용 숨김 글자(position: absolute)가 스크롤 칸이 아니라 페이지 기준으로 놓여 칸 밖으로 샌다(페이지가 길어져 입력 줄 아래가 비거나 가로로 넘친다)'
+
+const holdsHiddenText = (node: MarkupNode): boolean => node.classes.some((c) => HIDDEN_CLASS_TOKEN.test(c)) || node.kids.some(holdsHiddenText)
+
+/** 스크롤 칸 안에 숨김 글자가 들어가는가 — 마크업에서 칸을 찾으면 그 안의 자식으로, 스크립트가 행을 그려 넣는 화면이면 스크립트로 판단한다.
+ *  마크업에서 칸을 못 찾으면(id 선택자, CSS 파일만 검사) 들어간다고 본다 */
+const mayHoldHiddenText = ({ compounds, tree, scriptHidden }: { compounds: Compound[]; tree: MarkupNode | null; scriptHidden: boolean }) => {
+  if (tree == null) return true
+  const known = compounds.filter((compound) => compound.tag != null || compound.classes.length > 0)
+  const matches: MarkupNode[] = []
+  const find = (node: MarkupNode) => {
+    if (node.name !== '#root' && known.some((compound) => mayMatch({ compound, node }))) matches.push(node)
+    node.kids.forEach(find)
+  }
+  find(tree)
+  if (matches.length === 0) return true
+  return scriptHidden || matches.some(holdsHiddenText)
+}
+
+// 글자 입력칸은 스크롤되어도 자식을 담지 않는다
+const FORM_CONTROL = /^(textarea|input|select)$/i
+
+/** 같은 선택자의 블록이 모두 모인 뒤에 판정한다 — `.room {}`과 `.room { grid-template-columns }`를 나눠 써도 하나로 본다 */
+const auditFrameOverflow = ({ facts, allFacts, text, markup, script, push }: { facts: BlockFacts[]; allFacts: BlockFacts[]; text: string; markup: string; script: string; push: Push }) => {
+  const withColumns = new Set(allFacts.filter((f) => definesColumns(f.decls)).flatMap((f) => selectorKeysOf(f.block)))
+  const positioned = new Set(allFacts.filter((f) => containsAbsolute(f.decls)).flatMap((f) => selectorKeysOf(f.block)))
+  // 이 파일이 숨김 글자를 정의하거나 쓸 때만 본다 — 숨김 글자가 없는 스크롤 칸은 새는 것이 없다
+  const hiddenText = facts.some((f) => isVisuallyHidden(f) && declared({ decls: f.decls, prop: 'position' }) === 'absolute') || HIDDEN_TEXT_CLASS.test(codeWithoutComments(text))
+  const tree = markup ? markupTree(markup) : null
+  const twFrame = (node: MarkupNode): boolean => node.classes.some((c) => TW_VIEWPORT_FRAME.test(c)) || node.kids.some(twFrame)
+  const viewportFrame = facts.some((f) => f.decls.some((d) => d.prop === 'height' && VIEWPORT_FRAME.test(d.value.trim().toLowerCase()))) || (tree != null && twFrame(tree))
+  const checkEscape = hiddenText && viewportFrame
+  // 스크립트가 숨김 글자를 만든다 — 대화 행·알림 행을 JS로 그려 넣는 화면
+  const scriptHidden = HIDDEN_TEXT_CLASS.test(codeWithoutComments(script))
+
+  for (const { block, decls } of facts) {
+    if (splitTopLevel(block.fullSelector).every(isArtSelector)) continue
+    const keys = selectorKeysOf(block)
+    // 행을 둘 이상 두고 그중 하나를 fr로 채운 grid는 화면 높이를 채우는 틀이다. 열을 적지 않으면 열 하나가 auto라,
+    // 자식의 최소 폭(입력칸 기본 폭·줄임표 글자)이 틀 전체를 민다. 행 하나(0fr → 1fr 높이 전이)는 틀이 아니다
+    const display = declared({ decls, prop: 'display' })
+    const rows = (declared({ decls, prop: 'grid-template-rows' }) ?? '').trim()
+    const tracks = rows ? splitTopLevel(rows, /\s/).filter(Boolean) : []
+    if (display != null && /^(inline-)?grid$/.test(display) && tracks.length >= 2 && /\dfr\b/.test(rows) && !keys.some((key) => withColumns.has(key))) {
+      push({ line: block.line, rule: 'grid-blowout', severity: 'error', message: '행을 fr로 나눈 grid 틀에 열(grid-template-columns)이 없다 — 열이 auto라 입력칸(textarea) 기본 폭이나 줄임표 글자(white-space: nowrap)가 틀 전체를 화면보다 넓게 민다(390px에서 가로로 넘친다)', fix: 'grid-template-columns: minmax(0, 1fr)을 더한다. 또는 틀을 display: flex; flex-direction: column으로 세운다' })
+    }
+    // 숨김 글자(.sr-only)는 position: absolute인데 위치를 적지 않아, 기준이 되는 조상이 없으면 페이지 기준으로 놓인다.
+    // 스크롤 칸이 그 글자를 자르지 못해 페이지가 길어지거나 넓어진다 — 입력 줄 아래 빈 영역, 가로 넘침
+    if (checkEscape && isVerticalScroller(decls) && !keys.some((key) => positioned.has(key))) {
+      const last = keys.map((key) => key.split(/[\s>+~]+/).pop() ?? '')
+      if (last.every((compound) => DOCUMENT_SCROLLER.test(compound) || FORM_CONTROL.test(compound)) || keys.every((key) => IN_DIALOG.test(key))) continue
+      if (!mayHoldHiddenText({ compounds: keys.map((key) => anatomyOf(key).last), tree, scriptHidden })) continue
+      push({ line: block.line, rule: 'hidden-text-escape', severity: 'error', message: HIDDEN_ESCAPE_MESSAGE, fix: HIDDEN_ESCAPE_FIX })
+    }
+  }
+
+  // Tailwind — overflow-y-auto 칸에 relative가 없다
+  if (!checkEscape || tree == null) return
+  const visit = (node: MarkupNode) => {
+    const plain = node.classes.filter((c) => !c.includes(':'))
+    if (plain.some((c) => TW_SCROLLER.test(c)) && !plain.some((c) => TW_POSITIONED.test(c)) && (scriptHidden || holdsHiddenText(node))) {
+      push({ line: node.line, rule: 'hidden-text-escape', severity: 'error', message: HIDDEN_ESCAPE_MESSAGE, fix: `${HIDDEN_ESCAPE_FIX}(Tailwind는 relative 클래스)` })
+    }
+    node.kids.forEach(visit)
+  }
+  visit(tree)
+}
+
 const summarizeTally = ({ tally, push }: { tally: Tally; push: Push }) => {
   const allLines = (lines: number[]) => [...new Set(lines)].sort((a, b) => a - b)
   const linesOf = (map: Map<string, number[]>) => allLines([...map.values()].flat())
@@ -881,7 +1088,7 @@ const summarizeTally = ({ tally, push }: { tally: Tally; push: Push }) => {
   if (tally.emoji.size > 0) {
     const lines = linesOf(tally.emoji)
     const count = [...tally.emoji.values()].flat().length
-    push({ line: lines[0], lines, rule: 'emoji-icon', severity: 'warn', message: `이모지 ${count}개(${lines.length}줄, ${[...tally.emoji.keys()].slice(0, 5).join(' ')}) — 아이콘·사진 자리의 이모지는 기기마다 모양이 다르고 AI가 만든 화면의 표시다`, fix: '같은 크기·같은 선 굵기의 선 아이콘 한 벌(layout-principles/assets/icons.ts)로. 사진이 없으면 같은 비율의 옅은 바탕 칸 (tone.md)' })
+    push({ line: lines[0], lines, rule: 'emoji-icon', severity: 'warn', message: `이모지 ${count}개(${lines.length}줄, ${[...tally.emoji.keys()].slice(0, 5).join(' ')}) — 아이콘·사진 자리의 이모지는 기기마다 모양이 다르고 AI가 만든 화면의 표시다`, fix: '같은 크기·같은 선 굵기의 선 아이콘 한 벌(layout-principles/assets/icons.ts)로. 사진·카테고리 그림 자리는 실제 사진, 없으면 콘텐츠 그림(layout-principles/assets/content-art.css) (tone.md)' })
   }
   if (tally.effects.length >= EFFECT_LIMIT) {
     const lines = [...tally.effects].sort((a, b) => a - b)
@@ -1146,7 +1353,9 @@ export const auditLayout = (sources: Source[]): Finding[] => {
     return { source, parts, tally, facts: parts.css ? factsFor(parts.css) : [] }
   })
   const boxKeys = collectBoxKeys(prepared.map((p) => p.facts))
+  const displayRules = collectDisplayRules(prepared.map((p) => p.facts))
   const remBase = remBaseOf(prepared.flatMap((p) => p.facts))
+  const allFacts = prepared.flatMap((p) => p.facts)
 
   for (const { source, parts, tally, facts } of prepared) {
     const script = (JSX_FILE.test(source.file) || SCRIPT_FILE.test(source.file)) && !DECLARATION_FILE.test(source.file)
@@ -1158,8 +1367,11 @@ export const auditLayout = (sources: Source[]): Finding[] => {
       if (!ignored.has(finding.line) && !fileIgnored.has(finding.rule)) findings.push({ file: source.file, ...finding })
     }
     auditCssFacts({ facts, boxKeys, tally, push, remBase })
+    const scriptText = SFC_FILE.test(source.file) ? [...source.text.matchAll(SCRIPT_BLOCK)].map((m) => m[0]).join('\n') : ''
+    auditFrameOverflow({ facts, allFacts, text: source.text, markup: parts.markup, script: scriptText, push })
     if (parts.markup) {
       auditMarkup({ markup: parts.markup, boxKeys, tally, push, remBase })
+      auditStackedButtons({ markup: parts.markup, rules: displayRules, push })
       collectEmoji({ markup: parts.markup, tally })
     }
     auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })

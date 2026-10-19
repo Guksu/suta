@@ -152,7 +152,7 @@ console.log('\n요청별', JSON.stringify(perPrompt))
 const results = {
   date: option('date', new Date().toISOString().slice(0, 10)),
   about: '같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md',
-  prompts: JSON.parse(readFileSync(join(root, 'evals/benchmark/prompts.json'), 'utf8')).prompts.map((p) => p.id),
+  prompts: JSON.parse(readFileSync(resolve(root, option('prompts', 'evals/benchmark/prompts.json')), 'utf8')).prompts.map((p) => p.id),
   metrics: METRICS.map(({ key, label, en, kind, self, descriptive }) => ({ key, label, en, kind, ...(self ? { self: true } : {}), ...(descriptive ? { descriptive: true } : {}) })),
   ...(hasTone ? { tone: TONE.map(({ key, label, en, ref, kind }) => ({ key, label, en, ref, kind: kind ?? 'median' })) } : {}),
   summary,

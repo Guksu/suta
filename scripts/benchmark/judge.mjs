@@ -7,7 +7,8 @@
  *
  * 입력: measure.mjs가 실행 폴더마다 남긴 shot-390.png(모바일 전체)·shot-1280.png(데스크톱 첫 화면)
  * 결과: <out>/judgments.json
- * 사용: node scripts/benchmark/judge.mjs --out <폴더> [--concurrency 4] [--model 이름] [--name 결과파일이름]
+ * 사용: node scripts/benchmark/judge.mjs --out <폴더> [--concurrency 4] [--model 이름] [--name 결과파일이름] [--prompts 요청 세트]
+ * 요청 세트에 mobileOnly: true가 있으면(앱 화면) 모바일 화면만 보여 준다. 앱 화면을 데스크톱 배치로 판정하지 않게
  */
 import { spawn } from 'node:child_process'
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -28,7 +29,9 @@ const concurrency = Number(option('concurrency', '4'))
 const model = option('model', '')
 // 판정 결과 파일 이름 — 다른 판정 모델로 한 번 더 판정할 때 앞의 결과를 덮지 않게
 const name = option('name', 'judgments')
-const prompts = Object.fromEntries(JSON.parse(readFileSync(join(root, 'evals/benchmark/prompts.json'), 'utf8')).prompts.map((p) => [p.id, p.prompt]))
+const spec = JSON.parse(readFileSync(resolve(root, option('prompts', 'evals/benchmark/prompts.json')), 'utf8'))
+const prompts = Object.fromEntries(spec.prompts.map((p) => [p.id, p.prompt]))
+const mobileOnly = spec.mobileOnly === true
 
 // run.mjs와 같은 이유로 부모 세션 정보를 지운다
 const childEnv = { ...process.env }
@@ -40,7 +43,17 @@ const SCHEMA = JSON.stringify({
   required: ['winner', 'reason'],
 })
 
-const instruction = (request) => `같은 요청으로 만든 웹 화면 두 개(A, B)의 스크린샷이 이 폴더에 있다.
+const instruction = (request) =>
+  mobileOnly
+    ? `같은 요청으로 만든 모바일 앱 화면 두 개(A, B)의 스크린샷이 이 폴더에 있다.
+- A-mobile.png, B-mobile.png: 390px 폭 모바일 화면 전체
+
+요청: "${request}"
+
+두 이미지를 모두 Read로 연 뒤, 숙련된 프로덕트 디자이너가 실제 앱에 그대로 내보내도 좋다고 할 쪽을 골라라.
+정보의 위계, 읽기 쉬움, 간격·정렬의 일관성, 실제 앱다운 배치, 전체 완성도를 본다.
+차이가 거의 없으면 tie. 답은 winner(A·B·tie)와 reason(한국어 한 문장)만.`
+    : `같은 요청으로 만든 웹 화면 두 개(A, B)의 스크린샷이 이 폴더에 있다.
 - A-mobile.png, B-mobile.png: 390px 폭 모바일 화면 전체
 - A-desktop.png, B-desktop.png: 1280px 폭 데스크톱 첫 화면
 
@@ -67,9 +80,11 @@ const judgeOnce = ({ pair, order }) =>
     rmSync(work, { recursive: true, force: true })
     mkdirSync(work, { recursive: true })
     copyFileSync(join(a, 'shot-390.png'), join(work, 'A-mobile.png'))
-    copyFileSync(join(a, 'shot-1280.png'), join(work, 'A-desktop.png'))
     copyFileSync(join(b, 'shot-390.png'), join(work, 'B-mobile.png'))
-    copyFileSync(join(b, 'shot-1280.png'), join(work, 'B-desktop.png'))
+    if (!mobileOnly) {
+      copyFileSync(join(a, 'shot-1280.png'), join(work, 'A-desktop.png'))
+      copyFileSync(join(b, 'shot-1280.png'), join(work, 'B-desktop.png'))
+    }
     const argv = ['-p', '--output-format', 'json', '--no-session-persistence', '--tools', 'Read', '--json-schema', SCHEMA]
     if (model) argv.push('--model', model)
     const child = spawn('claude', argv, { cwd: work, env: childEnv, stdio: ['pipe', 'pipe', 'pipe'] })
