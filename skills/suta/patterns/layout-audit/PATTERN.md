@@ -17,7 +17,7 @@ description: CSS·JSX·HTML에서 AI가 흔히 만드는 레이아웃 문제를 
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/auditLayout.ts` | 코어 — 규칙 23개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
+| `assets/auditLayout.ts` | 코어 — 규칙 26개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
 | `assets/auditCore.ts` | 공통 코어 — 결과 형식, CSS 블록 자르기, 예외 주석 | 함께 복사 |
 | `assets/layoutTokens.ts` | 간격 척도·글자 하한 — `layout-principles`와 같은 파일 | 함께 복사 |
 | `assets/audit.mjs` | CLI — 폴더 재귀, `--json`, `--warn-only`, error가 있으면 exit 1 | Node 22.18+ |
@@ -85,6 +85,11 @@ console.log(formatFindings(findings))
 | `mixed-tone` | warn | 짧은 UI 문구(40자 이하)에 해요체와 합쇼체가 둘 이상씩 섞였다. 약관·개인정보 문장과 `<code>`·`<strong>`으로 끊긴 설명 문단은 세지 않는다. 적은 쪽의 줄을 알린다 | `copy.md` |
 | `numbered-markers` | warn | 기능 목록의 01·02·03 번호 표식 — 화면 글자나 문자열이 `01`·`02`·`03`(뒤에 마침표 허용)인 것이 셋 이상. 시중 SaaS·서비스 랜딩 42곳 중 3곳만 이렇게 보였고, suta 0.6\~0.13 랜딩은 6번 모두 그랬다. 01\~09가 7개 이상이면 월·시 고르기 목록이라 뺀다. 파일마다 한 번 요약 | `screen-conventions.md` 랜딩 |
 | `interactive-in-picture` | error | `role="img"` 그림이나 `aria-hidden="true"` 영역 안의 키보드가 닿는 컨트롤(`button`·`a href`·`input`·`select`·`textarea`·`role=button` 등, `tabindex="-1"`은 뺀다). 스크린 리더는 그림을 설명 한 줄로 읽는데 Tab은 안으로 들어간다(axe `nested-interactive`·`aria-hidden-focus`). 제품 화면 그림 안의 버튼은 `span`으로 모양만 그린다 | 접근성·`screen-conventions.md` 랜딩 |
+| `stacked-icon-buttons` | error | 아이콘 버튼(안에 글자 없이 아이콘만 있는 `button`·`a`) 둘 이상을 나란히 두었는데, 버튼은 `display: grid`·`flex`·`block`이고 부모는 flex·grid가 아니다. 렌더하면 머리의 알림·설정이 세로로 쌓인다(suta 0.15 첫 판의 은행 홈 2번 모두). 같은 파일·묶음의 CSS 규칙, 인라인 스타일, Tailwind 클래스로 판정하고, 부모에 걸릴 수 있는 flex·grid 규칙이 하나라도 있으면 잡지 않는다 | 렌더 |
+| `grid-blowout` | error | 행을 둘 이상 두고 하나를 `fr`로 채운 grid 틀(화면 높이 틀)에 열(`grid-template-columns`)이 없다. 열이 `auto`라 입력칸(textarea) 기본 폭이나 줄임표 글자(`white-space: nowrap`)가 틀 전체를 화면보다 넓게 민다(suta 0.15 채팅방 3번이 390px에서 413\~458px로 넘쳤다). 같은 선택자의 다른 블록이나 `grid-template`·`grid` 단축 속성이 열을 적으면 잡지 않는다. 행 하나(`0fr → 1fr` 높이 전이)는 틀이 아니다 | 렌더 |
+| `hidden-text-escape` | error | 화면 높이 틀(`height: 100dvh`, Tailwind `h-dvh`·`h-screen`)이 있는 파일에서 숨김 글자(`.sr-only`·`.visually-hidden`, `position: absolute`)를 쓰는데, 세로 스크롤 칸(`overflow-y: auto`)에 `position`·`contain`이 없다. 숨김 글자가 스크롤 칸이 아니라 페이지 기준으로 놓여 칸 밖으로 새고, 페이지가 길어져 입력 줄 아래가 빈다(suta 0.15 채팅방 3번). HTML이면 그 칸의 마크업 자식이나 행을 그려 넣는 스크립트에 숨김 글자가 있을 때만 잡는다. 벤치 산출물 383개 중 4개를 잡았고 그중 3개가 실제로 샜다 | 렌더 |
+
+**콘텐츠 그림:** `.art`·`.art--장면` 선택자(`layout-principles/assets/content-art.css`의 사진 대역)와 `--art-*` 변수는 사진처럼 내용이다. 색(`hue-count`·`tinted-surface`)·효과(`effect-overuse`)·반경(`radius-variety`)·상자(`nested-card`)로 세지 않는다. 글자 크기·간격은 그대로 본다.
 
 **React Native:** `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙으로 본다 — `fontSize`(tiny-text·종류 수), `padding*`·`margin*`·`gap`(spacing-off-scale), `border*Radius`(radius-variety), `color`·`backgroundColor`·`border*Color`(hue-count·tinted-surface), `shadowRadius` 16 이상(effect-overuse). 줄 번호는 RN 코드의 그 줄이다. 토큰 참조(`space.lg`·`colors.accent`)·스프레드·조건식은 값을 모르니 세지 않는다(`layout-principles/references/react-native.md`).
 

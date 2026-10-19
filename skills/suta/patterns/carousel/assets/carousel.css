@@ -27,21 +27,26 @@
   scroll-snap-align: center;
 }
 
-/* 도트 내비게이션 (선택) */
+/* 도트 내비게이션 (선택)
+ * 보이는 점은 8px 원, 지금 장은 같은 원의 색으로 알린다 — 잘 만든 앱 화면 7장의 페이지 점은 모두 지름 6~9pt 원,
+ * 중심 간격 13~18pt였고 늘어나는 알약형은 없었다. 점을 누르게 하므로 누르는 칸은 투명한 테두리로 24px까지 넓힌다
+ * (WCAG 2.5.8 최소 24px). 44px 칸으로 넓히면 점 사이가 36px로 벌어져 점이 흩어져 보인다. 칸이 곧 간격이라 gap은 0이다 */
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 0;
+  gap: 0;
+  padding: 4px 0;
 }
 
 .carousel-dot {
+  box-sizing: content-box;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: none;
+  border: 8px solid transparent;
   padding: 0;
   background: rgba(128, 128, 128, 0.35);
+  background-clip: content-box;
   cursor: pointer;
   transition: background 150ms ease, scale 150ms ease;
 }

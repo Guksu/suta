@@ -6,6 +6,50 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Mobile app screens, 8 types (suta 0.15)
+
+Eight requests for app screens only. Each result was judged on one 390px screen.
+
+- A neighborhood community feed, a food delivery home, a stay detail page, a one-to-one secondhand trade chat (with a photo message), shopping app notifications (read state, grouped by date), a photo social app profile, a budget app onboarding (three steps plus a notification permission) and a banking home.
+- The full requests are in [`evals/benchmark/app-prompts.json`](../evals/benchmark/app-prompts.json).
+
+![Top row without suta (AS-IS), bottom row with suta 0.15 (TO-BE). From the left: feed, delivery home, stay detail, chat, notifications, profile, onboarding, banking home](assets/app-as-is-to-be.jpg)
+
+Top is without suta, bottom is suta 0.15.0. From the left: neighborhood feed, delivery home, stay detail, secondhand trade chat, shopping notifications, profile, budget onboarding and banking home, each the first 390×844 screen. Both rows are each condition's first run. suta's conventions were revised six times, and the bottom row is the last round (round 6). The table covers all 16 runs per condition.
+
+| | Without suta (16 runs) | suta 0.15 (16 runs) |
+|---|---|---|
+| Emoji | 80 (in 7 runs) | 0 |
+| Accessibility violations (axe, 390px) | 232 (all 16 runs) | 17 (5 runs) |
+| Text under 12px | 97 | 0 |
+| Touch targets under 24px | 17 | 0 |
+| Bordered or shadowed boxes | 85 | 37 |
+| Strong effects (gradients inside pictures excluded) | 34 | 1 |
+| Screens overflowing at 320px | 1 | 0 |
+| Generation time and cost (median) | 81 s, $0.19 | 133 s, $0.52 |
+
+Two models compared 16 blind pairs twice each, swapping the order. They picked suta 19 and 20 times out of 32. Through round 5 it stayed around 15, and with 0.14 it was 4 and 3 out of 16. Scores are suta : without, with round 5 in parentheses.
+
+| Request | Default model | Other model |
+|---|---|---|
+| Neighborhood feed | 4 : 0 (4 : 0) | 4 : 0 (4 : 0) |
+| Delivery home | 4 : 0 (3 : 1) | 4 : 0 (3 : 1) |
+| Profile | 3 : 1 (4 : 0) | 4 : 0 (4 : 0) |
+| Chat | 3 : 1 (0 : 4) | 3 : 1 (0 : 4) |
+| Banking home | 2 : 2 (1 : 3) | 2 : 2 (1 : 3) |
+| Shopping notifications | 1 : 3 (1 : 3) | 2 : 2 (1 : 3) |
+| Stay detail | 1 : 3 (2 : 2) | 1 : 3 (3 : 1) |
+| Onboarding | 1 : 3 (0 : 4) | 0 : 4 (0 : 4) |
+
+- 0.14 left photo slots as gray boxes with a photo icon, and the judges read that as unfinished. When no real photo exists, 0.15 fills those slots with content art that matches the content (a noodle bowl, a cat, a landscape) and uses illustrated icons for category shortcuts. The runs without suta filled the same slots with gradients and emoji.
+- Through round 5, both chat runs had flaws: one was cut off on the right at 390px, and the other left empty space under the input bar. The causes were a grid frame with no column defined and screen-reader text leaking out of the scroll area. In round 6 two new audit rules (`grid-blowout`, `hidden-text-escape`) catch both, and both chat runs fit inside 390×844.
+- Round 6 also fixed screen details. Delivery store photos are now a three-photo set of plate stand-ins and the banner is a solid deep color. Notification rows show the product photo and a body line. The banking home has same-size transfer and history buttons and a different icon for each transaction category. The onboarding picture is drawn in the accent color set.
+- The feed and profile won on layout. Delivery mostly won in runs where the side without suta left out the requested tab bar.
+- Stay detail lost because its hero photo stand-in read as "a shape placeholder". Notifications lost because both runs tinted the whole list (the convention is the top 2 or 3 unread rows only), which made read state hard to tell.
+- For onboarding, the judges picked the stretched pill page indicator and the larger illustration. All seven reference screens used same-size circular dots and none used a pill, so suta kept circles.
+
+Each condition ran only twice. One judge model is the same as the generating model, and only still screens were judged. [Research notes (Korean)](research/2026-10-19-app-screens.md) · [Work log (Korean)](worklog/2026-10-19-app-screens.md)
+
 ### Desktop and mobile: landing, dashboard, login and settings (suta 0.14)
 
 This is the image at the top of the README. We re-ran 4 of the 8 publishing benchmark requests with suta 0.14.0. We chose the four requests before running them.

@@ -1,8 +1,12 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { GAP, RADIUS, SPACE, TEXT, WEIGHT, groupGapOk } from '@skills/layout-principles/assets/layoutTokens'
 import { Icon as LineIcon } from '@skills/layout-principles/assets/Icon'
+import { Illustration } from '@skills/layout-principles/assets/Illustration'
+import type { IconName } from '@skills/layout-principles/assets/icons'
+import type { IllustrationName } from '@skills/layout-principles/assets/illustrations'
 import { photoSrc } from '../../shared/dishes'
 import '@skills/layout-principles/assets/layout-tokens.css'
+import '@skills/layout-principles/assets/content-art.css'
 import { defineCopy, useDemoLang } from '../../demoLang'
 import './layout-principles-demo.css'
 import './layout-principles-before.css'
@@ -35,7 +39,28 @@ type Spice = (typeof SPICE)[number]
 
 const NOTICES = ['cook', 'event'] as const
 
-type ExampleId = 'order' | 'intro' | 'pay' | 'menu' | 'photo' | 'detail' | 'settings' | 'login' | 'chat'
+type ExampleId = 'order' | 'intro' | 'pay' | 'menu' | 'photo' | 'detail' | 'settings' | 'login' | 'chat' | 'feed'
+
+// ⑩ 피드 — 장면은 글의 내용에서, 색 한 벌은 행마다 돌린다. 사진이 없는 글은 null
+const FEED = [
+  { id: 'broth', scene: 'bowl', tone: 'clay', photos: 3, comments: 24 },
+  { id: 'spicy', scene: null, tone: null, photos: 0, comments: 17 },
+  { id: 'cat', scene: 'pet', tone: 'sand', photos: 2, comments: 41 },
+  { id: 'window', scene: 'room', tone: 'sky', photos: 1, comments: 12 },
+  { id: 'pack', scene: 'product', tone: 'sage', photos: 1, comments: 6 },
+] as const
+type FeedId = (typeof FEED)[number]['id']
+
+// ⑩ 분류 바로가기 — 전은 회색 원 + 같은 선 아이콘, 후는 그림 아이콘(콘텐츠 자리)
+const SHORTCUTS: Array<{ id: 'noodle' | 'dumpling' | 'rice' | 'cafe' | 'dessert'; line: IconName; art: IllustrationName }> = [
+  { id: 'noodle', line: 'bowl', art: 'steaming-bowl' },
+  { id: 'dumpling', line: 'utensils', art: 'dumpling' },
+  { id: 'rice', line: 'bowl', art: 'cooked-rice' },
+  { id: 'cafe', line: 'coffee', art: 'hot-beverage' },
+  { id: 'dessert', line: 'cake-slice', art: 'shortcake' },
+]
+type ShortcutId = (typeof SHORTCUTS)[number]['id']
+type FeedCopy = { title: string; meta: string; alt?: string }
 type ExampleCopy = { title: string; principle: string; before: string; after: string }
 
 const COPY = defineCopy({
@@ -112,6 +137,19 @@ const COPY = defineCopy({
     chatQuestion: '비 오는 날 어울리는 국수 추천해줘',
     chatAnswer: ['비 오는 날에는 뜨끈한 국물이 좋아요.', '칼국수는 바지락 국물이 진하고, 잔치국수는 멸치 국물이 맑아요. 손만두를 곁들이면 한 끼로 넉넉해요.'],
     chatHelper: '국수 추천 도우미',
+    feedLabel: '성수동 국수 모임 글 목록',
+    feedComments: (count: number) => `댓글 ${count}`,
+    feedPhotos: (count: number) => `사진 ${count}장`,
+    feedNoPhoto: '사진 없음',
+    shortcutLabel: '메뉴 분류',
+    shortcuts: { noodle: '국수', dumpling: '만두', rice: '덮밥', cafe: '카페', dessert: '디저트' } as Record<ShortcutId, string>,
+    feed: {
+      broth: { title: '들깨칼국수 국물이 더 진해졌어요', meta: '국수러버 · 성수동 · 8분 전', alt: '들깨칼국수 한 그릇' },
+      spicy: { title: '비빔국수 덜 맵게 주문하는 법 있나요?', meta: '맵찔이 · 성수동 · 22분 전' },
+      cat: { title: '가게 앞 고양이 이름이 생겼대요', meta: '골목산책 · 성수동 · 1시간 전', alt: '가게 앞 고양이' },
+      window: { title: '창가 자리가 새로 생겼어요', meta: '점심한그릇 · 성수동 · 3시간 전', alt: '창가 자리가 있는 가게 안' },
+      pack: { title: '손만두 포장 용기가 바뀌었어요', meta: '만두파 · 성수동 · 9시간 전', alt: '손만두 포장 용기' },
+    } as Record<FeedId, FeedCopy>,
     chatMode: '추천 모드',
     chatContext: '성수 국수집 · 메뉴판 12개',
     chatTodayMenu: '오늘의 메뉴판',
@@ -188,6 +226,12 @@ const COPY = defineCopy({
         principle: 'P1 정보는 한 곳 · P3 색은 강조색 하나 · P11 범용 채팅 화면의 관례',
         before: '머리 아래에 사이트·대상 줄을 쌓고, 같은 대상을 입력창에 또 보인다. 상태마다 노랑·초록 알약, 오류는 분홍 상자, 보조 버튼은 회색 채움 알약이다.',
         after: '머리 한 줄(모델·새 대화·기록). 내 말은 회색 말풍선, 답변은 말풍선 없는 본문과 무채색 아이콘 한 줄. 첨부는 입력창 안 한 곳, 오류는 그 자리 글자 + 다시 시도. 채운 버튼은 보내기 하나다.',
+      },
+      feed: {
+        title: '⑩ 콘텐츠 자리 — 분류 그림과 사진',
+        principle: 'P9 사진 · 콘텐츠 그림 — 색은 콘텐츠가 맡고 틀은 무채색',
+        before: '분류 바로가기가 회색 원 안의 같은 선 아이콘이고, 사진 자리는 회색 칸 + 사진 아이콘이다. 사진이 없는 글에도 "사진 없음" 칸을 둔다. 글자·면은 깔끔해도 디자인 시안처럼 비어 보인다.',
+        after: '분류 바로가기는 색이 든 그림 아이콘(시중 앱 16곳 중 12곳이 이 자리를 그렇게 그렸다), 사진 자리는 글 내용에 맞는 콘텐츠 그림(국수 그릇·고양이·가게 안·포장 용기)이다. 탭·글자·선 같은 틀은 무채색 그대로다. 사진이 없는 글은 그 자리만 비운다.',
       },
     } as Record<ExampleId, ExampleCopy>,
     paneBefore: '고치기 전',
@@ -283,6 +327,19 @@ const COPY = defineCopy({
     chatQuestion: 'Recommend noodles for a rainy day',
     chatAnswer: ['A hot broth is best on a rainy day.', 'Knife-cut noodles come in a rich clam broth, and anchovy-broth noodles in a clear one. Add handmade dumplings for a filling meal.'],
     chatHelper: 'Noodle advisor',
+    feedLabel: 'Seongsu noodle club posts',
+    feedComments: (count: number) => `${count} comments`,
+    feedPhotos: (count: number) => `${count} photos`,
+    feedNoPhoto: 'No photo',
+    shortcutLabel: 'Menu categories',
+    shortcuts: { noodle: 'Noodles', dumpling: 'Dumplings', rice: 'Rice bowls', cafe: 'Cafe', dessert: 'Dessert' } as Record<ShortcutId, string>,
+    feed: {
+      broth: { title: 'The perilla knife-cut noodle broth got richer', meta: 'NoodleLover · Seongsu · 8 min ago', alt: 'A bowl of perilla knife-cut noodles' },
+      spicy: { title: 'How do I order the spicy noodles milder?', meta: 'MildPlease · Seongsu · 22 min ago' },
+      cat: { title: 'The cat outside the shop finally has a name', meta: 'AlleyWalker · Seongsu · 1 hr ago', alt: 'The cat outside the shop' },
+      window: { title: 'There are new window seats now', meta: 'LunchBowl · Seongsu · 3 hr ago', alt: 'Inside the shop with window seats' },
+      pack: { title: 'The takeout box for handmade dumplings changed', meta: 'DumplingFan · Seongsu · 9 hr ago', alt: 'Handmade dumpling takeout box' },
+    } as Record<FeedId, FeedCopy>,
     chatMode: 'Advice mode',
     chatContext: 'Seongsu Noodle House · 12 menu items',
     chatTodayMenu: 'Today’s menu',
@@ -359,6 +416,12 @@ const COPY = defineCopy({
         principle: 'P1 Info in one place · P3 One accent color · P11 The common chat screen convention',
         before: 'Site and context rows pile up under the header, and the same context shows again in the input. Every status gets a yellow or green pill, errors get a pink box, and secondary buttons are gray filled pills.',
         after: 'A one-line header (model, new chat, history). Your messages are gray bubbles, and answers are plain text with one row of neutral icons. Attachments live in one place inside the input, and an error is text in place plus Try again. Send is the only filled button.',
+      },
+      feed: {
+        title: '⑩ Content slots: category art and photos',
+        principle: 'P9 Photos · Content art: content carries the color, the frame stays neutral',
+        before: 'Category shortcuts are the same line icon in gray circles, and each photo slot is a gray box with a photo icon. Posts without photos get a “No photo” box too. The type and surfaces are tidy, yet it looks like an empty mockup.',
+        after: 'Category shortcuts use colored illustrated icons (12 of 16 popular apps draw this slot that way), and photo slots get content art that matches the post (a noodle bowl, a cat, the shop inside, a takeout box). Tabs, text and lines stay neutral. Posts without photos simply leave the slot empty.',
       },
     },
     paneBefore: 'Before',
@@ -974,6 +1037,84 @@ const ChatAfter = () => {
   )
 }
 
+/* ---- ⑩ 글 목록의 사진 자리 — 사진이 없으면 콘텐츠 그림, 색은 콘텐츠가 맡는다(P9) ---- */
+
+const FeedBefore = () => {
+  const t = useCopy()
+  return (
+    <div className="lp-b-feed">
+    <ul className="lp-b-shortcuts" aria-label={t.shortcutLabel}>
+      {SHORTCUTS.map((item) => (
+        <li key={item.id}>
+          <span className="lp-b-shortcut-icon">
+            <LineIcon name={item.line} />
+          </span>
+          {t.shortcuts[item.id]}
+        </li>
+      ))}
+    </ul>
+    <ul className="lp-b-feed-list" aria-label={t.feedLabel}>
+      {FEED.map((post) => {
+        const copy = t.feed[post.id]
+        return (
+          <li key={post.id} className="lp-b-feed-row">
+            <div className="lp-b-feed-text">
+              <p className="lp-b-strong">{copy.title}</p>
+              <p className="lp-b-faint">{copy.meta}</p>
+            </div>
+            <span className="lp-b-feed-thumb">
+              {post.scene ? <LineIcon name="image" /> : <span className="lp-b-faint">{t.feedNoPhoto}</span>}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+    </div>
+  )
+}
+
+const FeedAfter = () => {
+  const t = useCopy()
+  return (
+    <div className="lp-a-feed">
+    <ul className="lp-a-shortcuts" aria-label={t.shortcutLabel}>
+      {SHORTCUTS.map((item) => (
+        <li key={item.id}>
+          <Illustration name={item.art} size={40} />
+          {t.shortcuts[item.id]}
+        </li>
+      ))}
+    </ul>
+    <ul className="lp-a-feed-list" aria-label={t.feedLabel}>
+      {FEED.map((post) => {
+        const copy = t.feed[post.id]
+        return (
+          <li key={post.id} className="lp-a-feed-row">
+            <div className="lp-a-feed-text">
+              <p className="lp-a-feed-title">{copy.title}</p>
+              <p className="lp-a-feed-meta">
+                {copy.meta} · {t.feedComments(post.comments)}
+              </p>
+            </div>
+            {post.scene && (
+              <span className="lp-a-feed-thumb">
+                <span className={`art art--${post.scene} art--${post.tone}`} role="img" aria-label={copy.alt} />
+                {post.photos > 1 && (
+                  <span className="lp-a-feed-count">
+                    <span aria-hidden="true">{post.photos}</span>
+                    <span className="lp-t-sr">{t.feedPhotos(post.photos)}</span>
+                  </span>
+                )}
+              </span>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+    </div>
+  )
+}
+
 type Example = { id: ExampleId; Before: () => ReactNode; After: () => ReactNode; flush?: boolean; light?: boolean }
 
 const EXAMPLES: Example[] = [
@@ -986,6 +1127,7 @@ const EXAMPLES: Example[] = [
   { id: 'settings', Before: SettingsBefore, After: SettingsAfter, flush: true, light: true },
   { id: 'login', Before: LoginBefore, After: LoginAfter, flush: true, light: true },
   { id: 'chat', Before: ChatBefore, After: ChatAfter, flush: true, light: true },
+  { id: 'feed', Before: FeedBefore, After: FeedAfter, flush: true, light: true },
 ]
 
 const Pane = ({ label, note, tone, flush = false, light = false, children }: { label: string; note: string; tone: 'before' | 'after'; flush?: boolean; light?: boolean; children: ReactNode }) => (

@@ -250,19 +250,21 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 | [모션 원칙과 토큰](../skills/suta/patterns/motion-principles/PATTERN.md) | 시간 5단계·이징 5종·스태거·reduced-motion을 토큰 한 벌로 정하고, 움직임 종류별로 어느 값을 쓸지 정한 원칙 | [데모](https://guksu.github.io/suta/#/motion-principles) |
 | [모션 검사](../skills/suta/patterns/motion-audit/PATTERN.md) | CSS·JS를 훑어 레이아웃 속성 애니메이션·reduced-motion 누락·시간 범위 밖 등을 `file:line`으로 찾고 고치는 패턴을 안내 | [데모](https://guksu.github.io/suta/#/motion-audit) |
 | [레이아웃 원칙과 토큰](../skills/suta/patterns/layout-principles/PATTERN.md) | 레이아웃 원칙, 화면 유형별 관례, 간격·글자·굵기·반경·색 토큰 한 벌(구성은 표 아래에) | [데모](https://guksu.github.io/suta/#/layout-principles) |
-| [레이아웃 검사](../skills/suta/patterns/layout-audit/PATTERN.md) | CSS·JSX·HTML을 훑어 카드 안 카드·11px 미만 글자·효과 남발·척도 밖 간격·문단 가운데 정렬·옅은 색 면·색 계열 과다·탁한 강조색·대비가 모자란 강조색 짝·따뜻한 강조색 옆 푸른 회색·이모지 아이콘·개발용 문구·말투 섞임·랜딩의 01·02·03 번호 목록·제품 화면 그림 안의 버튼·모바일 웹뷰의 100vh와 입력칸 확대 등을 `file:line`으로 찾고 고칠 원칙을 안내 | [데모](https://guksu.github.io/suta/#/layout-audit) |
+| [레이아웃 검사](../skills/suta/patterns/layout-audit/PATTERN.md) | CSS·JSX·HTML을 훑어 카드 안 카드·11px 미만 글자·효과 남발·척도 밖 간격·문단 가운데 정렬·옅은 색 면·색 계열 과다·탁한 강조색·대비가 모자란 강조색 짝·따뜻한 강조색 옆 푸른 회색·이모지 아이콘·개발용 문구·말투 섞임·랜딩의 01·02·03 번호 목록·제품 화면 그림 안의 버튼·세로로 쌓인 아이콘 버튼·화면보다 넓어지는 grid 틀·스크롤 칸 밖으로 새는 숨김 글자·모바일 웹뷰의 100vh와 입력칸 확대 등을 `file:line`으로 찾고 고칠 원칙을 안내 | [데모](https://guksu.github.io/suta/#/layout-audit) |
 
 레이아웃 원칙 패턴에는 다음이 들어 있습니다.
 
 - 순서·위계·묶음·정렬·강조 원칙 12개
-- 화면 유형 17종의 관례(AI 채팅·쇼핑 앱·증권·게이미피케이션 포함)와 하단 탭 바·모바일 웹뷰의 관례
-- 선 아이콘 한 벌
+- 화면 유형 20종의 관례(채팅방·알림·AI 채팅·쇼핑 앱·은행·증권·게이미피케이션 포함)와 하단 탭 바·모바일 웹뷰·콘텐츠 그림의 관례
+- 선 아이콘 한 벌(탭 바·머리·버튼 같은 틀)
+- 그림 아이콘 한 벌(`illustrations.ts`, 57개) — 분류 바로가기·혜택·배너·가게 사진 대역 같은 큰 콘텐츠 칸에 쓰는 색이 든 평면 그림(Microsoft Fluent Emoji Flat, MIT). 목록 행은 선 아이콘이다
+- 콘텐츠 그림(`content-art.css`) — 사진이 아직 없을 때 사진·배너·바로가기 그림·로고 자리를 채우는 단순한 장면 14종(식탁 위 접시 포함)과 로고·바로가기 표시 2종, 색 한 벌 7종
 - 글자·색·면 기준(무채색 + 강조색 하나 + 오류 빨강, 시세 화면은 상승·하락 색 짝을, 게이미피케이션은 보상 그림의 금·은·동을 따로)
 - 색 조합 기준과 도구 — 맑은 강조색(잘 만든 앱 31곳의 밝기·채도 범위), 강조색에 맞춘 무채색, `scripts/palette.mjs '<강조색>'`가 대비 4.5:1을 지킨 한 벌을 출력
 - 글꼴 기준 — 한국어 UI 글꼴 한 벌(`--font-sans`), 제목용 글꼴은 짧은 제목에만
 - 문구 기준 — 잘 만든 앱의 UI 문구 7,539개로 정한 말투(해요체 하나)와 버튼·대화상자·오류·빈 상태·토스트의 꼴
 - 간격·글자·굵기·반경·색·글꼴 토큰 한 벌
-- AI가 흔히 만드는 화면 9개와 고친 화면 비교
+- AI가 흔히 만드는 화면 10개와 고친 화면 비교
 
 ## 구성
 

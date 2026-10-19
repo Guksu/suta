@@ -41,15 +41,3 @@
   outline-offset: 2px;
 }
 
-/* 도트 누르는 칸 — 보이는 점은 8px 그대로 두고, 투명한 테두리로 칸을 24px까지 넓힌다(WCAG 2.5.8 최소 24px).
- * 배경은 안쪽(content-box)에만 칠해 점 크기가 바뀌지 않는다. 칸이 넓어진 만큼 간격·위아래 여백을 줄여 전체 높이(32px)는 그대로다 */
-.carousel-dots {
-  gap: 0;
-  padding: var(--space-1) 0;
-}
-
-.carousel-dots .carousel-dot {
-  box-sizing: content-box;
-  border: 8px solid transparent;
-  background-clip: content-box;
-}

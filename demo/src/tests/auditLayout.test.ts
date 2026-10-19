@@ -641,6 +641,232 @@ describe('auditLayout — 제품 화면 그림 (interactive-in-picture · 그림
   })
 })
 
+describe('auditLayout — 콘텐츠 그림 (.art 사진 대역)', () => {
+  it('콘텐츠 그림(.art·.art--*) 선택자와 --art-* 변수의 색·그라데이션·반경은 UI 규칙으로 세지 않는다 — 사진 자리의 내용이다', () => {
+    const css = [
+      '.art { --art-a: #ede4d6; --art-b: #d9c4a5; --art-c: #a8754d; border-radius: var(--art-radius, 8px); background-color: var(--art-a); }',
+      '.art--sage { --art-a: #e2eae0; --art-b: #b7cab2; --art-c: #5f7f5a; }',
+      '.art--sky { --art-a: #dde8f1; --art-b: #b3c8dd; --art-c: #56769b; }',
+      '.art--rose { --art-a: #f1e2e0; --art-c: #a85d57; }',
+      '.art--food { background: radial-gradient(circle, var(--art-c) 0 15%, transparent 15.5%), radial-gradient(circle, #d9c4a5 0 13%, transparent 13.5%), var(--art-a); }',
+      '.art--outdoor { background: radial-gradient(circle, #faf6ef 0 9%, transparent 9.5%), linear-gradient(#a8754d, #5f7f5a); }',
+      '.art--city { background: linear-gradient(#56769b, #56769b) 30% 100% / 30% 62% no-repeat, #dde8f1; }',
+      '.art--drink::before { border-radius: 6% 6% 18% 18% / 4% 4% 12% 12%; background: linear-gradient(#faf6ef 0 16%, #a8754d 16%); }',
+      '.art--product::before { border-radius: 14% / 8%; box-shadow: 0 12px 32px rgb(0 0 0 / 0.2); }',
+      '.card .art { border-radius: 12px; }',
+      ':root { --art-tile: #f0e0d2; }',
+    ].join('\n')
+    expect(audit('content-art.css', css)).toEqual([])
+  })
+
+  it('그림 밖 UI의 옅은 색 면·유채색·효과는 그대로 센다', () => {
+    const css = [
+      ':root { --art-c: #a8754d; }',
+      ':root { --color-accent: #3182f6; }',
+      '.art--food { background: linear-gradient(#a8754d, #5f7f5a); }',
+      '.badge-new { background: #fff3c4; color: #b26a00; }',
+      '.tag { background: #e3f6ea; color: #1e8e4b; }',
+      '.hero { background: linear-gradient(135deg, #7c3aed, #3182f6); }',
+      '.promo { background: linear-gradient(135deg, #ff6b6b, #f59f00); }',
+      '.glass { backdrop-filter: blur(12px); }',
+    ].join('\n')
+    const findings = audit('a.css', css)
+    expect(rules(findings)).toEqual(expect.arrayContaining(['tinted-surface', 'hue-count', 'effect-overuse']))
+    for (const finding of findings) expect(finding.lines ?? [finding.line]).not.toEqual(expect.arrayContaining([1]))
+    for (const finding of findings) expect(finding.lines ?? [finding.line]).not.toEqual(expect.arrayContaining([3]))
+  })
+
+  it('카드 안의 콘텐츠 그림은 상자 안 상자가 아니다 — 사진(img)과 같다', () => {
+    const html = [
+      '<style>',
+      '.store { border-radius: 12px; background: #fff; border: 1px solid #e5e5e5; }',
+      '.art { border-radius: 8px; background-color: #ede4d6; }',
+      '.store .art { border-radius: 8px; }',
+      '</style>',
+      '<article class="store">',
+      '  <div class="art art--food art--clay"></div>',
+      '  <h3>성수 칼국수</h3>',
+      '</article>',
+    ].join('\n')
+    expect(audit('index.html', html).filter((f) => f.rule === 'nested-card')).toEqual([])
+  })
+
+  it('정본 content-art.css는 경고도 없다', () => {
+    const path = resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/content-art.css')
+    expect(audit(path, readFileSync(path, 'utf8'))).toEqual([])
+  })
+})
+
+describe('auditLayout — 세로로 쌓인 아이콘 버튼 (stacked-icon-buttons)', () => {
+  const css = [
+    '<style>',
+    '.topbar { display: flex; justify-content: space-between; }',
+    '.icon-button { display: grid; place-items: center; width: 44px; height: 44px; }',
+    '</style>',
+  ].join('\n')
+
+  it('display: grid 아이콘 버튼 둘을 flex가 아닌 부모에 나란히 두면 error — 머리의 알림·설정이 세로로 쌓인다(suta 0.15 은행 홈 2번 모두)', () => {
+    const html = [
+      css,
+      '<header class="topbar">',
+      '  <h1>모아뱅크</h1>',
+      '  <div>',
+      '    <button class="icon-button" type="button" aria-label="알림"><svg aria-hidden="true"></svg></button>',
+      '    <button class="icon-button" type="button" aria-label="설정"><svg aria-hidden="true"></svg></button>',
+      '  </div>',
+      '</header>',
+    ].join('\n')
+    const findings = audit('index.html', html).filter((f) => f.rule === 'stacked-icon-buttons')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([[9, 'error']])
+    expect(findings[0].fix).toContain('inline-grid')
+  })
+
+  it('부모가 flex·grid이거나, 버튼이 inline-grid이거나, 글자 버튼이면 잡지 않는다', () => {
+    const html = [
+      css,
+      '<style>.actions { display: flex; gap: 4px; } .ib { display: inline-grid; } .topbar > div { display: flex; }</style>',
+      '<div class="actions">',
+      '  <button class="icon-button" aria-label="알림"><svg></svg></button>',
+      '  <button class="icon-button" aria-label="설정"><svg></svg></button>',
+      '</div>',
+      '<div>',
+      '  <button class="ib" aria-label="알림"><svg></svg></button>',
+      '  <button class="ib" aria-label="설정"><svg></svg></button>',
+      '</div>',
+      '<div>',
+      '  <button class="icon-button">취소</button>',
+      '  <button class="icon-button">삭제</button>',
+      '</div>',
+      '<header class="topbar"><div>',
+      '  <button class="icon-button" aria-label="알림"><svg></svg></button>',
+      '  <button class="icon-button" aria-label="설정"><svg></svg></button>',
+      '</div></header>',
+      '<div style="display: flex">',
+      '  <button class="icon-button" aria-label="알림"><svg></svg></button>',
+      '  <button class="icon-button" aria-label="설정"><svg></svg></button>',
+      '</div>',
+    ].join('\n')
+    expect(audit('index.html', html).filter((f) => f.rule === 'stacked-icon-buttons')).toEqual([])
+  })
+
+  it('Tailwind — flex 없는 부모 안의 grid·flex 아이콘 버튼', () => {
+    const html = [
+      '<div class="ml-auto">',
+      '  <button class="grid h-11 w-11 place-items-center" aria-label="알림"><svg /></button>',
+      '  <button class="grid h-11 w-11 place-items-center" aria-label="설정"><svg /></button>',
+      '</div>',
+      '<div class="flex gap-1">',
+      '  <button class="grid h-11 w-11 place-items-center" aria-label="알림"><svg /></button>',
+      '  <button class="grid h-11 w-11 place-items-center" aria-label="설정"><svg /></button>',
+      '</div>',
+    ].join('\n')
+    expect(audit('Header.tsx', html).filter((f) => f.rule === 'stacked-icon-buttons').map((f) => f.line)).toEqual([3])
+  })
+})
+
+describe('auditLayout — 열을 적지 않은 grid 틀 (grid-blowout)', () => {
+  it('행을 fr로 나눈 grid 틀에 열이 없으면 error — 입력칸 기본 폭이 틀을 440px로 밀었다(suta 0.15 채팅방 3번)', () => {
+    const css = [
+      '.screen {',
+      '  display: grid;',
+      '  grid-template-rows: auto auto minmax(0, 1fr) auto;',
+      '  height: 100dvh;',
+      '}',
+      '.list { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto 1fr; }',
+      '.shell { display: grid; grid-template: auto 1fr auto / minmax(0, 1fr); }',
+      '.icon-btn { display: grid; place-items: center; }',
+      '.stack { display: grid; grid-template-rows: auto auto; gap: 8px; }',
+    ].join('\n')
+    const findings = audit('chat.css', css).filter((f) => f.rule === 'grid-blowout')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([[1, 'error']])
+    expect(findings[0].fix).toContain('grid-template-columns: minmax(0, 1fr)')
+  })
+
+  it('같은 선택자의 다른 블록이 열을 적었거나, grid 단축 속성이 열을 적으면 잡지 않는다', () => {
+    const css = [
+      '.room { display: grid; grid-template-rows: auto 1fr auto; }',
+      '.room { grid-template-columns: minmax(0, 1fr); }',
+      '.app { display: grid; grid: auto 1fr / 100%; }',
+      '.page { display: flex; flex-direction: column; grid-template-rows: auto 1fr; }',
+      // 아코디언·오류 문구의 높이 전이(0fr → 1fr)는 행 하나라 틀이 아니다
+      '.panel { display: grid; grid-template-rows: 0fr; }',
+      '.panel[data-open] { grid-template-rows: 1fr; }',
+    ].join('\n')
+    expect(audit('a.css', css).filter((f) => f.rule === 'grid-blowout')).toEqual([])
+  })
+})
+
+describe('auditLayout — 스크롤 칸 밖으로 새는 숨김 글자 (hidden-text-escape)', () => {
+  const srOnly = '.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }'
+  const frame = '.room { display: flex; flex-direction: column; height: 100dvh; }'
+
+  it('화면 높이 틀 안의 세로 스크롤 칸에 position이 없고 숨김 글자를 쓰면 error — 대화 목록 안 숨김 글자가 페이지를 1,131px로 늘렸다(suta 0.15 채팅방 3번)', () => {
+    const css = [
+      srOnly,
+      '.log {',
+      '  flex: 1;',
+      '  min-height: 0;',
+      '  overflow-y: auto;',
+      '}',
+      frame,
+      // 가로로 넘기는 칩 줄은 새는 일이 드물다(벤치 산출물 383개 중 0번) — 세지 않는다
+      '.chips { display: flex; overflow-x: auto; }',
+      '.panel { overflow: hidden; }',
+    ].join('\n')
+    const findings = audit('chat.css', css).filter((f) => f.rule === 'hidden-text-escape')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([[2, 'error']])
+    expect(findings[0].fix).toContain('position: relative')
+  })
+
+  it('스크롤 칸에 position·contain이 있거나, 숨김 글자가 없거나, 화면 높이 틀이 없거나, 문서 전체 스크롤(html·body)이면 잡지 않는다', () => {
+    const css = [
+      srOnly,
+      frame,
+      '.log { overflow-y: auto; position: relative; }',
+      '.feed { overflow: auto; contain: content; }',
+      '.list { overflow-y: scroll; }',
+      '.list { position: relative; }',
+      'html, body { overflow-y: auto; }',
+      'dialog .body { overflow-y: auto; }',
+    ].join('\n')
+    expect(audit('a.css', css).filter((f) => f.rule === 'hidden-text-escape')).toEqual([])
+    expect(audit('b.css', `${frame}\n.log { overflow-y: auto; }`).filter((f) => f.rule === 'hidden-text-escape')).toEqual([])
+    // 화면 높이 틀이 없는 보통 페이지 — 안쪽 스크롤 칸의 숨김 글자가 문서 끝을 넘는 일이 드물다
+    expect(audit('c.css', `${srOnly}\n.menu { max-height: 240px; overflow-y: auto; }`).filter((f) => f.rule === 'hidden-text-escape')).toEqual([])
+  })
+
+  it('HTML이면 스크롤 칸 안에 숨김 글자가 들어가는지 본다 — 마크업 자식이나, 행을 그려 넣는 스크립트', () => {
+    const head = ['<style>', srOnly, frame, '.log { flex: 1; min-height: 0; overflow-y: auto; }', '</style>']
+    // 숨김 글자는 머리의 라벨에만 있고 대화 칸은 글자뿐 — 샐 것이 없다
+    const quiet = [...head, '<div class="room"><h1><span class="sr-only">대화 상대</span>하늘다람쥐</h1>', '<div class="log"><p>안녕하세요</p></div></div>'].join('\n')
+    expect(audit('quiet.html', quiet).filter((f) => f.rule === 'hidden-text-escape')).toEqual([])
+    // 대화 칸은 비어 있고 스크립트가 행마다 숨김 글자(보낸 시각)를 붙인다 — suta 0.15 채팅방이 이랬다
+    const scripted = [...head, '<div class="room"><div class="log" id="log"></div></div>', '<script>', "const t = document.createElement('span'); t.className = 'sr-only';", '</script>'].join('\n')
+    expect(audit('scripted.html', scripted).filter((f) => f.rule === 'hidden-text-escape').map((f) => f.line)).toEqual([4])
+  })
+
+  it('숨김 글자 클래스를 쓰는 파일만 본다 — 정의가 전역 CSS에 있어도, Tailwind의 sr-only·overflow-y-auto여도', () => {
+    const findings = auditLayout([
+      { file: 'global.css', text: '.visually-hidden { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; }' },
+      { file: 'Chat.html', text: ['<style>', '.messages { overflow-y: auto; }', '.app { height: 100dvh; display: flex; flex-direction: column; }', '</style>', '<div class="messages"><span class="visually-hidden">오후 2:12</span></div>'].join('\n') },
+      { file: 'list.css', text: '.list { overflow-y: auto; }' },
+      {
+        file: 'Thread.tsx',
+        text: [
+          '<main className="flex h-dvh flex-col">',
+          '  <div className="flex-1 overflow-y-auto">',
+          '    <span className="sr-only">읽음</span>',
+          '  </div>',
+          '  <div className="relative overflow-y-auto"><span className="sr-only">읽음</span></div>',
+          '  <div className="flex overflow-x-auto"><span className="sr-only">읽음</span></div>',
+          '</main>',
+        ].join('\n'),
+      },
+    ]).filter((f) => f.rule === 'hidden-text-escape')
+    expect(findings.map((f) => [f.file, f.line])).toEqual([['Chat.html', 2], ['Thread.tsx', 2]])
+  })
+})
+
 describe('auditLayout — 번호 표식 (numbered-markers)', () => {
   it('기능 목록의 01·02·03 번호 표식을 파일마다 한 번 알린다 — 시중 랜딩 42곳 중 3곳, suta 0.6~0.13 랜딩은 6번 모두', () => {
     const html = [

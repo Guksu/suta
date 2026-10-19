@@ -252,19 +252,21 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses | [Demo](https://guksu.github.io/suta/#/motion-principles) |
 | [Motion audit](../skills/suta/patterns/motion-audit/PATTERN.md) | Scans CSS and JS for layout-property animations, missing reduced-motion, out-of-range durations and more, reports them as `file:line` and points to the pattern that fixes each | [Demo](https://guksu.github.io/suta/#/motion-audit) |
 | [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius and color (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
-| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
+| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, icon buttons that stack vertically, grid frames that grow wider than the screen, screen-reader text leaking out of scroll areas, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
 
 The layout principles pattern contains these parts.
 
 - 12 principles for order, hierarchy, grouping, alignment and emphasis.
-- Conventions for 17 screen types, including AI chat, shopping apps, stock trading and gamification, plus conventions for bottom tab bars and mobile webviews.
-- One set of line icons.
+- Conventions for 20 screen types, including chat rooms, notifications, AI chat, shopping apps, banking, stock trading and gamification, plus conventions for bottom tab bars, mobile webviews and content art.
+- One set of line icons for the frame (tab bars, headers, buttons).
+- One set of 57 illustrated icons (`illustrations.ts`) for large content slots such as category shortcuts, benefits, banners and stand-in store photos (Microsoft Fluent Emoji Flat, MIT). List rows use line icons.
+- Content art (`content-art.css`): 14 simple scenes (including a plate on a table for menu photos), a logo mark and a shortcut tile in 7 palettes that fill photo, banner, shortcut and logo slots before real images exist.
 - Guidance on type, color and surfaces: neutrals, one accent and an error red, plus a separate rise/fall pair for market data and gold, silver and bronze for reward graphics.
 - Color pairing guidance and a tool: a clear accent (the lightness and chroma range of 31 well-made apps), neutrals that match it, and `scripts/palette.mjs '<accent>'`, which prints a full set that keeps 4.5:1 contrast.
 - Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles.
 - Copy guidance (Korean): one voice (해요체) and the shapes of buttons, dialogs, errors, empty states and toasts, drawn from 7,539 UI strings in well-made apps.
 - One token set for spacing, type, weight, radius, color and font.
-- Before and after versions of nine typical AI-made screens.
+- Before and after versions of ten typical AI-made screens.
 
 ## Layout
 

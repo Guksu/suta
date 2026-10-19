@@ -368,3 +368,65 @@
   border-radius: 8px;
   background: #fff7e6;
 }
+
+/* ⑩ 글 목록 — 글자·면은 깔끔한데 사진 자리가 회색 칸 + 사진 아이콘(suta 0.14의 앱 화면이 블라인드 판정에서 진 첫째 이유) */
+.lp-b-feed {
+  background: #ffffff;
+  color: #1c1c1c;
+}
+
+.lp-b-feed-list,
+.lp-b-shortcuts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 분류 바로가기 — 회색 원 안의 같은 굵기 선 아이콘. 깔끔하지만 무엇이 다른지 그림이 말하지 않는다 */
+.lp-b-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 16px 8px;
+  border-bottom: 8px solid #f3f3f3;
+  font-size: 12px;
+  text-align: center;
+}
+
+.lp-b-shortcut-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 48px;
+  block-size: 48px;
+  margin: 0 auto 4px;
+  border-radius: 50%;
+  background: #f3f3f3;
+  color: #525252;
+}
+
+.lp-b-feed-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.lp-b-feed-text {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.lp-b-feed-text p {
+  margin: 0 0 4px;
+}
+
+.lp-b-feed-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 72px;
+  block-size: 72px;
+  border-radius: 8px;
+  background: #f3f3f3;
+  color: #9a9a9a;
+  font-size: 12px;
+}
