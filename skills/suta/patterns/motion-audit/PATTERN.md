@@ -56,6 +56,8 @@ console.log(formatFindings(findings))
 
 ## 규칙
 
+error는 모두 사용 문제다(버벅임·동작 줄이기 무시). warn 중 `infinite-loop`(장식용 반복일 때)·`js-interval-anim`·`will-change-global`과 React Native의 `no-reduced-motion`도 사용 문제라, 프로젝트에 모션 체계가 있어도 고친다. `duration-range`·`linear-movement`·`ease-in-exit`는 시간·이징의 취향이다. 프로젝트에 모션 토큰이 있으면 그 값을 따르고 고치지 않는다.
+
 | 규칙 | 심각도 | 잡는 것 | 고치는 법 |
 |------|--------|---------|-----------|
 | `layout-animation` | error | width·height·top·left·margin·padding·font-size 등을 transition/@keyframes/프레임 루프에서 변경 | 높이는 accordion의 `grid-template-rows`, 위치는 flip-list의 FLIP, 폭은 `scaleX` |

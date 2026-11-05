@@ -40,15 +40,16 @@ description: 화면의 순서·위계·묶음·정렬·강조를 정하는 레�
 ## 사용 방법
 
 1. **순서부터 정한다(P1).** 그리기 전에 화면에 들어갈 요소를 목록으로 적고 순위를 매긴다. 1순위는 하나다. 넣을 이유를 한 문장으로 말할 수 없는 요소는 뺀다. 화면 유형이 정해져 있으면 `references/screen-conventions.md`에서 그 유형의 뼈대부터 가져온다(P11).
-2. `assets/layout-tokens.css`를 복사해 전역 CSS 맨 앞에서 불러온다. 값마다 이유가 적혀 있으니 읽어라.
-3. **톤을 정한다.** UI의 유채색은 강조색 하나 + 오류 빨강까지다. 프로젝트에 색 체계가 있으면 그 값을 색 역할 이름(`--color-*`)에 연결하되, 상태마다 색·옅은 색 바탕 짝을 둔 팔레트는 줄인다. 없으면 맑은 강조색 하나를 서비스 성격에서 골라 `--color-accent`를 바꾸고(`palette.ts`·`scripts/palette.mjs`가 한 벌을 낸다), 화면마다 면을 두 단계(흰 면 + 옅은 바탕)로 정한다. 글꼴(`--font-sans`)을 파일로 불러온다(`references/tone.md`). 문구는 `references/copy.md`를 따른다.
+2. 프로젝트에 디자인 토큰이 없으면 `assets/layout-tokens.css`를 복사해 전역 CSS 맨 앞에서 불러온다. 값마다 이유가 적혀 있으니 읽어라. 토큰이 있으면 그 값을 쓰고, 이 파일은 역할 이름(`--color-text`·`--gap-group` 등)을 맞출 때만 참고한다.
+3. **톤을 정한다.** 프로젝트에 색·글꼴 체계가 있으면 그 값을 색 역할 이름(`--color-*`)에 연결하고 팔레트는 바꾸지 않는다. 대비가 4.5:1에 못 미치는 글자처럼 사용 문제가 있는 값만 고치고, 고친 범위를 알린다. 체계가 없으면 UI의 유채색은 강조색 하나 + 오류 빨강까지다. 맑은 강조색 하나를 서비스 성격에서 골라 `--color-accent`를 바꾸고(`palette.ts`·`scripts/palette.mjs`가 한 벌을 낸다), 화면마다 면을 두 단계(흰 면 + 옅은 바탕)로 정한다. 글꼴(`--font-sans`)을 파일로 불러온다(`references/tone.md`). 문구는 `references/copy.md`를 따른다.
 4. 컴포넌트에서는 숫자·색 대신 토큰을 쓴다.
 
 ```css
 @import './layout-tokens.css';
 
 :root {
-  --color-accent: #8a4b1f; /* 강조색 하나 — 국수집이라 간장색. 기본 파랑을 그대로 두지 않는다 */
+  /* 프로젝트에 브랜드색이 있으면 그 값을 잇는다 — 예: --color-accent: var(--brand-primary); */
+  --color-accent: #ca4c00; /* 기준이 없을 때만 — 국수집이라 따뜻한 주황. palette.mjs가 흰 글자 4.5:1을 맞춘 값 */
 }
 .order {
   display: grid;
