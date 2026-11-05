@@ -130,7 +130,30 @@ const touchesEdit = ({ finding, changed }: { finding: Finding; changed?: Changed
 const IGNORE_GUIDE =
   '의도된 예외라면 그 줄 바로 위에 이유를 적은 주석을 둔다 — /* layout-audit-ignore: {규칙} — {이유} */ 또는 /* motion-audit-ignore: {규칙} — {이유} */'
 
-const oneLine = (f: Finding) => `- ${f.file}:${f.line} ${f.rule} — ${f.message}`
+/** warn 중 사용 문제 — 읽기·조작·넘침·성능을 해친다. 기존 디자인 체계의 값이어도 고친다(진입 스킬 SKILL.md "사용 문제와 취향").
+ * 나머지 warn(카드·색 수·간격 척도·이모지·시간 값 등)은 취향·관례라, 디자인 기준이 없는 화면에서만 고친다 */
+export const USABILITY_WARN_RULES: ReadonlySet<string> = new Set([
+  'tiny-text',
+  'accent-contrast',
+  'viewport-height',
+  'input-zoom',
+  'zoom-disabled',
+  'image-distort',
+  'infinite-loop',
+  'js-interval-anim',
+  'will-change-global',
+  'no-reduced-motion', // React Native에서만 warn(웹은 error)
+])
+
+const isUsability = (f: Finding) => USABILITY_WARN_RULES.has(f.rule)
+
+const oneLine = (f: Finding) => `- ${f.severity === 'warn' && isUsability(f) ? '[사용 문제] ' : ''}${f.file}:${f.line} ${f.rule} — ${f.message}`
+
+// 사용 문제 warn을 앞에 둔다 — 줄 수를 줄일 때 먼저 잘려 나가지 않게
+const usabilityFirst = (findings: Finding[]) => [...findings.filter(isUsability), ...findings.filter((f) => !isUsability(f))]
+
+const WARN_GUIDE =
+  '[사용 문제]는 기존 디자인 체계에서도 고친다. 나머지는 취향·관례라 디자인 기준이 없는 화면에서만 고치고, 프로젝트 디자인 체계의 값이면 그대로 둔다.'
 
 const listWithRest = ({ findings, max }: { findings: Finding[]; max: number }) => {
   const lines = findings.slice(0, max).map(oneLine)
@@ -143,17 +166,17 @@ const listWithRest = ({ findings, max }: { findings: Finding[]; max: number }) =
 export const hookResponse = ({ findings, changed, maxLines = 5 }: { findings: Finding[]; changed?: ChangedLines; maxLines?: number }): HookResponse => {
   const mine = findings.filter((finding) => touchesEdit({ finding, changed }))
   const errors = mine.filter((f) => f.severity === 'error')
-  const warns = mine.filter((f) => f.severity === 'warn')
+  const warns = usabilityFirst(mine.filter((f) => f.severity === 'warn'))
   const before = findings.filter((f) => f.severity === 'error' && !mine.includes(f)).length
   // 기존 error는 막지 않는다 — 이미 무언가를 알릴 때만 한 줄로 덧붙인다(편집마다 같은 소리를 내지 않게)
   const beforeNote = before > 0 ? `\n이 파일에는 이번 편집과 무관한 기존 error ${before}건이 더 있다 — 이번 작업 범위가 아니면 그대로 둔다.` : ''
   if (errors.length > 0) {
     const detail = errors.map((f) => `${f.file}:${f.line} [error] ${f.rule} — ${f.message}\n    → ${f.fix}`).join('\n')
-    const warnPart = warns.length > 0 ? `\n\nwarn ${warns.length}건(판단해서 고친다):\n${listWithRest({ findings: warns, max: maxLines })}` : ''
+    const warnPart = warns.length > 0 ? `\n\nwarn ${warns.length}건 — ${WARN_GUIDE}\n${listWithRest({ findings: warns, max: maxLines })}` : ''
     return { exitCode: 2, stdout: '', stderr: `suta 검사 — 방금 고친 줄에 error ${errors.length}건. 고친 뒤 계속한다.\n${detail}\n${IGNORE_GUIDE}${warnPart}${beforeNote}\n` }
   }
   if (warns.length > 0) {
-    const additionalContext = `suta 검사 warn ${warns.length}건 — 편집은 유지된다. 원칙(layout-principles·motion-principles)을 보고 고칠지 판단한다.\n${listWithRest({ findings: warns, max: maxLines })}${beforeNote}`
+    const additionalContext = `suta 검사 warn ${warns.length}건 — 편집은 유지된다. ${WARN_GUIDE}\n${listWithRest({ findings: warns, max: maxLines })}${beforeNote}`
     return { exitCode: 0, stdout: JSON.stringify({ hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext } }), stderr: '' }
   }
   return { exitCode: 0, stdout: '', stderr: '' }

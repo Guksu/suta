@@ -14,7 +14,20 @@ The patterns include keyboard, screen reader and reduced-motion support. The plu
 
 The name comes from the Korean *suta* (手打), as in noodles made by hand.
 
+### Projects that already have a design
+
+When guidance conflicts, suta follows this order.
+
+1. What the user explicitly asked for. Requested features and states are never dropped, and features or sections nobody asked for are not added.
+2. The project's existing design system. Tokens, components, brand colors, fonts and screen structure are used as they are.
+3. Real usability problems. Keyboard access, focus, text contrast, overflow on narrow screens and reduced motion are fixed even in existing styles, and the agent reports what it changed and how far.
+4. suta's defaults. The color, card and screen-structure rules in the table below apply only to projects with no design standard.
+
+On landing pages, customer logos, user counts, testimonials and performance numbers come only from material the user provides when the service is real. Without it, the section is left out and the agent asks for the material. Invented values are used only in work the user calls a mockup or demo, and the screen itself labels them as examples.
+
 ## What it removes
+
+In the table below, the color, card, font and copy rows are defaults for projects without a design standard. The rows on text under 12px, motion (`transition: all`, layout animation, reduced motion), keyboard and focus, drag-to-dismiss and double submits apply either way.
 
 | What AI usually makes | With suta |
 |---|---|
@@ -119,7 +132,7 @@ The skill and pattern documentation is written in Korean. One recorded check use
 
 1. You install suta once. It is a single skill, and at startup the agent reads only its description.
 2. You ask as usual, for example "build a login screen" or "polish this button animation". The agent recognizes UI work and opens suta. You don't need to name the skill.
-3. The agent picks matching patterns from suta's catalog and reads each pattern's manual (`PATTERN.md`).
+3. The agent reads the entry document (`SKILL.md`): priorities, the usability rules and the rules for factual content. It then reads only the documents the request needs: the defaults (`references/defaults.md`) when the project has no design standard, the conventions for the screen type, and for components the pattern catalog (`references/catalog.md`) and each chosen pattern's manual (`PATTERN.md`).
 4. It copies the pattern code into the project and adapts it to the project's framework and styling.
 5. It runs the combined audit script (`scripts/audit.mjs`) and fixes what it finds. The script looks for layout defects (nested cards, text under 12px, effect overuse, off-scale spacing) and motion defects (layout animations, `transition: all`, missing reduced-motion support) in one pass.
 
@@ -142,8 +155,9 @@ Installed as a Claude Code or Codex plugin, suta runs layout and motion checks o
 
 | Result | What goes back to the agent |
 |---|---|
-| error: text under 11px, layout-property animation, `transition: all`, missing reduced-motion | The list and how to fix each, sent back so the agent fixes it on the spot |
-| warn: nested cards, effect overuse, off-scale spacing, muddy accents, leftover demo copy, mixed Korean endings and more | A notice of up to 5 lines. Whether to fix it is a judgement call against the principles |
+| error: usability problems such as text under 11px, buttons inside pictures, grid shells wider than the screen, layout-property animation, `transition: all`, missing reduced-motion | The list and how to fix each, sent back so the agent fixes it on the spot |
+| warn, usability: input zoom, low contrast, mobile `100vh`, zoom disabled, stretched photos and more | Marked `[사용 문제]` (usability) and listed first. Fixed even in an existing design system |
+| warn, taste: nested cards, effect overuse, off-scale spacing, muddy accents, mixed Korean endings and more | A notice only. Fixed only on screens without a design standard; values from the project's own system stay |
 | Clean, or not a checked file | Nothing |
 
 - Only the lines this edit changed count. Problems that were already in the file never stop the agent. When something else is being reported, one extra line notes "N existing errors unrelated to this edit". A newly created file is checked in full.
@@ -272,7 +286,11 @@ The layout principles pattern contains these parts.
 
 ```text
 skills/suta/                         The skill that gets installed
-├─ SKILL.md                         Workflow · AI-slop rules · layout and motion values · pattern catalog
+├─ SKILL.md                         Entry document read every time: priorities · usability rules · factual content · which doc to read · final checks · pattern index
+├─ references/
+│  ├─ defaults.md                   Defaults for projects without a design standard · layout and motion values
+│  ├─ checklist.md                  Final checks for no-standard projects and per screen type
+│  └─ catalog.md                    Pattern catalog with one-line summaries (generated)
 ├─ scripts/
 │  ├─ audit.mjs                     Combined audit: layout and motion rules in one pass
 │  └─ post-edit-hook.mjs            Post-edit check hook (Claude Code and Codex plugins)
@@ -321,8 +339,8 @@ Open the [local demo](http://localhost:5173/suta/) in a browser. To check on a p
 | `npm test` | Vitest + jsdom tests |
 | `npm run lint` | Code lint |
 | `npm run build` | Production build |
-| `npm run catalog` | Rebuilds the entry skill's pattern catalog from each `PATTERN.md` and the demo list |
-| `node scripts/validateSkills.mjs` | Entry skill and pattern structure, catalog sync, shared-code matches, README badge numbers |
+| `npm run catalog` | Rebuilds the entry skill's pattern index (`SKILL.md`) and catalog (`references/catalog.md`) from each `PATTERN.md` and the demo list |
+| `node scripts/validateSkills.mjs` | Entry skill and pattern structure, reference-doc paths and links from the entry doc, index and catalog sync, shared-code matches, README badge numbers |
 | `node scripts/evalSelection.mjs` | Selection eval: whether UI requests trigger suta (`evals/trigger.json`) and requests pick the right pattern (`evals/selection/`) |
 | `npm run validate` | Both checks above plus the combined layout and motion audit (errors only) in one go |
 
@@ -340,7 +358,7 @@ If you work with a coding agent, [`AGENTS.md`](../AGENTS.md) (Korean) holds the 
 2. Write the manual at `skills/suta/patterns/{name}/PATTERN.md`. `name` matches the folder name. `description` states in the third person only what the pattern does and when to use it (80–300 characters). Its first sentence becomes the one-line summary in the catalog. The body follows the order: when to use → why it's built this way → usage (React / plain JS) → options → caveats.
 3. Add the implementation in `assets/`: CSS and framework-independent logic. Write tests for the logic first, and respect the reduced-motion setting.
 4. Register the demo. In `demo/src/demos/{name}/`, import from `@skills/{name}/assets/...`, then register it in `demo/src/demos/index.ts`.
-5. Run `npm run catalog` to rebuild the entry skill's pattern catalog.
+5. Run `npm run catalog` to rebuild the entry skill's pattern index and catalog.
 6. Run build, lint, tests, structure checks and the selection eval (`npm run validate`). Then check the behavior in a browser and review the motion's speed, easing and accessibility settings.
 
 Add a row to the pattern table in this guide and in the Korean one (`guide.md`). When the number of patterns or tests changes, update the README badges too, or the structure check fails.

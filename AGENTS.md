@@ -8,7 +8,8 @@ suta — AI 슬롭(AI가 만든 티가 나는 UI)을 없애는 설치형 에이�
 
 | 무엇 | 경로 | 내용 |
 |---|---|---|
-| 진입 스킬 | `skills/suta/SKILL.md` | UI 요청에 걸리는 description + 작업 절차·AI 슬롭 금지선·레이아웃·모션 값 + 패턴 카탈로그(자동 생성 — `npm run catalog`) |
+| 진입 스킬 | `skills/suta/SKILL.md` | UI 요청마다 읽힌다. description + 우선순위(요구 → 기존 디자인 체계 → 사용 문제 → suta 기본값)·사용 문제의 선·사실 정보·읽을 문서 표·끝내기 전 확인·패턴 색인(자동 생성 — `npm run catalog`) |
+| 진입 스킬 참조 문서 | `skills/suta/references/` | 특정 작업에서만 읽는다. `defaults.md`(디자인 기준이 없을 때의 기본값·값 표)·`checklist.md`(기준이 없을 때·화면 유형별 확인)·`catalog.md`(패턴 한 줄 설명, 자동 생성). SKILL.md의 "읽을 문서" 표가 언제 읽는지 정한다 |
 | 통합 검사·훅 | `skills/suta/scripts/` | `audit.mjs`(레이아웃·모션 검사를 한 번에) + `post-edit-hook.mjs`(편집 후 검사 훅) + 순수 로직(`auditAll.ts`·`hookCore.ts`) |
 | 패턴 57종 | `skills/suta/patterns/{패턴}/` | `PATTERN.md`(설명서) + `assets/`(바닐라 코어 .ts 의존성 0 + React 래퍼 .tsx + CSS) + `references/`(상세) |
 
@@ -24,7 +25,7 @@ suta — AI 슬롭(AI가 만든 티가 나는 UI)을 없애는 설치형 에이�
 suta/
 ├─ AGENTS.md                         이 파일 — 공통 작업 지침(단일 출처)
 ├─ CLAUDE.md                         Claude Code 전용 — AGENTS.md를 가져오고 훅·스킬 이름만 덧붙임
-├─ skills/suta/                      설치되는 진입 스킬 — SKILL.md + scripts/(통합 검사·편집 후 검사 훅) + patterns/{패턴}/(PATTERN.md + assets/)
+├─ skills/suta/                      설치되는 진입 스킬 — SKILL.md + references/(기본값·확인 목록·카탈로그) + scripts/(통합 검사·편집 후 검사 훅) + patterns/{패턴}/(PATTERN.md + assets/)
 ├─ .claude-plugin/                   Claude Code 마켓플레이스·플러그인 정보. source "./" — 저장소 루트가 곧 플러그인. 편집 후 검사 훅을 인라인으로 담는다
 ├─ .codex-plugin/                    Codex 플러그인 정보 — skills "./skills/" + 편집 후 검사 훅(인라인)
 ├─ .agents/plugins/                  Codex 마켓플레이스 정보(local "./") — codex plugin marketplace add Guksu/suta
@@ -48,7 +49,7 @@ npm run dev                       # 데모 개발 서버 → http://localhost:51
 npm run build                     # tsc -b && vite build
 npm run lint                      # eslint (demo/ 기준)
 npm test                          # vitest run (jsdom)
-npm run catalog                   # 진입 스킬의 패턴 카탈로그를 PATTERN.md·데모 레지스트리에서 다시 만든다
+npm run catalog                   # 진입 스킬의 패턴 색인(SKILL.md)·카탈로그(references/catalog.md)를 PATTERN.md·데모 레지스트리에서 다시 만든다
 node scripts/validateSkills.mjs   # 진입 스킬·패턴 구조 검사 — 실패하면 exit 1
 node scripts/evalSelection.mjs    # 선택 평가 — UI 요청에 suta가 걸리는지, 요청에 맞는 패턴이 골라지는지
 node skills/suta/scripts/audit.mjs <경로>   # 레이아웃·모션 통합 검사 — error가 있으면 exit 1
@@ -87,9 +88,11 @@ node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일�
 2. `skills/suta/patterns/{패턴}/PATTERN.md` — frontmatter `name`(= 폴더명)·`description`. **description 규칙:** 3인칭으로 "무엇을 하는가 + 언제 쓰는가"만 적는다. 80~300자, 150~250자 권장. 첫 문장이 진입 스킬 카탈로그의 한 줄 요약이 되므로 "무엇을 구현한다."로 짧게 끝낸다. 사용자가 실제로 쓸 표현을 따옴표로 나열하고 핵심 영어 용어를 한 번 넣는다. 구현 방식 요약과 에이전트 명령문은 넣지 않는다. 본문: 언제 쓰는가 → 기술 선택(왜 이 기술인가) → 파일 표 → 사용 방법(React / 순수 JS) → 커스터마이즈 → 주의사항.
 3. `assets/` — 코어 + React 래퍼 + CSS. 접근성 포함.
 4. `demo/src/demos/{패턴}/` 데모 페이지 + `demo/src/demos/index.ts` 등록(`title`·`description`과 영어 `titleEn`·`descriptionEn` 모두, `category`는 카탈로그 묶음이 된다). 데모 안 문구는 `defineCopy({ ko, en })` 두 벌(규칙 7). 테스트는 `demo/src/tests/`.
-5. `npm run catalog` — 진입 스킬의 패턴 카탈로그를 다시 만든다. 손으로 고치지 않는다.
+5. `npm run catalog` — 진입 스킬의 패턴 색인과 카탈로그를 다시 만든다. 손으로 고치지 않는다.
 6. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.ko.md`의 배지 숫자(패턴 수, tests 수)를 갱신한다 — 검사 스크립트가 두 README의 배지를 실제 수와 비교한다.
 7. 워크로그. 데모 전후 캡처를 함께 둔다(규칙 12).
+
+진입 스킬의 지침을 고칠 때는 늘 읽혀야 하는 것(사용 문제의 선·우선순위·사실 정보)은 `SKILL.md`에, 특정 작업에서만 필요한 것(취향 기본값·화면 유형별 확인)은 `skills/suta/references/`에 둔다. 새 참조 문서를 만들면 `SKILL.md`의 "읽을 문서" 표에 언제 읽는지 적는다(검사 스크립트가 연결을 확인한다).
 
 진입 스킬(`skills/suta/SKILL.md`)의 description을 고칠 때는 `evals/trigger.json`도 같이 본다. 일반 UI 요청(should)에는 suta가 걸리고, UI가 아닌 요청(shouldNot)에는 걸리지 않아야 한다. description은 1,024바이트 이하이고 `": "`를 쓰지 않는다(YAML).
 
@@ -98,7 +101,7 @@ node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일�
 | # | 게이트 | 방법 |
 |---|---|---|
 | 1 | 빌드·린트·테스트 | `npm run build && npm run lint && npm test` |
-| 2 | 구조·선택 평가 | `npm run validate` (`validateSkills.mjs` — 카탈로그·매니페스트 동기 포함 + `evalSelection.mjs` — 트리거·패턴 + 레이아웃·모션 통합 검사) |
+| 2 | 구조·선택 평가 | `npm run validate` (`validateSkills.mjs` — 색인·카탈로그·매니페스트 동기, 진입 문서의 핵심 절·참조 문서 연결 포함 + `evalSelection.mjs` — 트리거·패턴 + 레이아웃·모션 통합 검사) |
 | 3 | 브라우저 실동작 | 데모 페이지를 실제 브라우저로 열어 동작·계산된 스타일·스크린샷으로 확인 |
 | 4 | 모션 리뷰 | 이징·타이밍·reduced-motion 검토. 지적 사항 반영 |
 

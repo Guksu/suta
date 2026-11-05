@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Icon } from '@skills/layout-principles/assets/Icon'
 import { DemoLangContext } from './demoLang'
 import { CATEGORIES, demos, type DemoEntry } from './demos'
+import { HomeCase } from './HomeCase'
 import { CATEGORY_LABEL, STRINGS, useLang, type Lang } from './i18n'
 import { DISHES, type DishId, dishName } from './shared/dishes'
 import { DishPhoto } from './shared/DishPhoto'
@@ -179,58 +180,79 @@ const Home = ({ lang }: { lang: Lang }) => {
   const visible = demos.filter(matches)
 
   return (
-    <section className="home">
+    <div className="home">
       <h1>suta</h1>
       <p className="home-intro">{t.homeIntro(demos.length)}</p>
+      <ul className="home-values">
+        {t.values.map((value) => (
+          <li key={value.title}>
+            <strong>{value.title}</strong>
+            <span>{value.body}</span>
+          </li>
+        ))}
+      </ul>
       <p className="home-links">
         <a href={REPO_URL} target="_blank" rel="noreferrer">
           {t.github}
         </a>
-        <a href={`${REPO_URL}/blob/main/${lang === 'en' ? 'README.en.md' : 'README.md'}`} target="_blank" rel="noreferrer">
+        {/* 화면 언어의 README — 영어가 README.md(정본), 한국어가 README.ko.md다 */}
+        <a href={`${REPO_URL}/blob/main/${t.readmeFile}`} target="_blank" rel="noreferrer">
           {t.readme}
         </a>
       </p>
+      <HomeCase lang={lang} />
       <section className="home-install" aria-labelledby="home-install-title">
         <div className="usage-head">
           <h2 id="home-install-title">{t.installTitle}</h2>
           <CopyButton text={INSTALL_COMMANDS} lang={lang} />
         </div>
+        <p className="home-install-step">{t.installStep}</p>
         <pre className="usage-code">
           <code>{INSTALL_COMMANDS}</code>
         </pre>
+        <div className="home-install-request">
+          <div className="usage-head">
+            <h3>{t.firstRequestLabel}</h3>
+            <CopyButton text={t.firstRequest} lang={lang} />
+          </div>
+          <blockquote>{t.firstRequest}</blockquote>
+        </div>
         <p className="home-install-note">{t.installNote}</p>
       </section>
-      <div className="home-search">
-        <input
-          type="search"
-          placeholder={t.searchPlaceholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label={t.searchLabel}
-        />
-        {keyword && <span className="home-search-count">{t.matches(visible.length)}</span>}
-      </div>
-      {CATEGORIES.map((category) => {
-        const group = visible.filter((demo) => demo.category === category)
-        if (group.length === 0) return null
-        return (
-          <div key={category} className="home-group">
-            <h2>{CATEGORY_LABEL[lang][category]}</h2>
-            <ul className="demo-list">
-              {group.map((demo) => (
-                <li key={demo.slug}>
-                  <a href={`#/${demo.slug}`}>
-                    <strong>{titleOf({ demo, lang })}</strong>
-                    <span>{descriptionOf({ demo, lang })}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )
-      })}
-      {visible.length === 0 && <p className="home-empty">{t.noMatch(query)}</p>}
-    </section>
+      <section className="home-patterns" aria-labelledby="home-patterns-title">
+        <h2 id="home-patterns-title" className="home-patterns-title">{t.patternsTitle(demos.length)}</h2>
+        <div className="home-search">
+          <input
+            type="search"
+            placeholder={t.searchPlaceholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label={t.searchLabel}
+          />
+          {keyword && <span className="home-search-count">{t.matches(visible.length)}</span>}
+        </div>
+        {CATEGORIES.map((category) => {
+          const group = visible.filter((demo) => demo.category === category)
+          if (group.length === 0) return null
+          return (
+            <div key={category} className="home-group">
+              <h3>{CATEGORY_LABEL[lang][category]}</h3>
+              <ul className="demo-list">
+                {group.map((demo) => (
+                  <li key={demo.slug}>
+                    <a href={`#/${demo.slug}`}>
+                      <strong>{titleOf({ demo, lang })}</strong>
+                      <span>{descriptionOf({ demo, lang })}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        })}
+        {visible.length === 0 && <p className="home-empty">{t.noMatch(query)}</p>}
+      </section>
+    </div>
   )
 }
 

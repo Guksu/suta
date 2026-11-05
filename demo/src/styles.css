@@ -272,9 +272,170 @@ button:hover {
   font-weight: var(--weight-semibold);
 }
 
+/* 무엇을 주는가 세 가지 — 상자 없이 굵은 머리말 줄과 설명 줄로. 넓은 화면은 세 열로 두어 대표 사례가 첫 화면에 들어오게 한다 */
+.home-values {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-4) var(--space-6);
+}
+
+.home-values li {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+}
+
+.home-values span {
+  color: var(--text-dim);
+  font-size: var(--text-small);
+}
+
+/* --- 대표 사례 — 같은 요청의 전후, 달라진 것, 직접 확인할 곳. 패턴 목록보다 먼저 둔다 --- */
+.home-case {
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border);
+}
+
+.home-case h2,
+.home-patterns-title {
+  margin: 0;
+  font-size: var(--text-heading);
+  line-height: var(--leading-tight);
+}
+
+.home-case h3 {
+  margin: 0;
+  font-size: var(--text-body);
+}
+
+.home-case-lead {
+  margin: var(--space-2) 0 0;
+  color: var(--text-dim);
+  max-width: var(--measure);
+}
+
+.home-case-request {
+  margin: var(--space-4) 0 0;
+  max-width: var(--measure);
+}
+
+.home-case-request figcaption {
+  font-size: var(--text-small);
+  color: var(--text-dim);
+}
+
+.home-case-request blockquote,
+.home-install-request blockquote {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border);
+}
+
+/* 사진 열 + 차이 열. 사진은 휴대폰 화면 둘을 나란히 둔 것이라 폭을 키우지 않는다 */
+.home-case-body {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: var(--space-8);
+  margin-top: var(--space-6);
+  align-items: start;
+}
+
+.home-case-shot {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.home-case-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-control);
+}
+
+.home-case-shot figcaption,
+.home-case-note {
+  font-size: var(--text-small);
+  color: var(--text-dim);
+}
+
+.home-case-diffs {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.home-case-diffs p {
+  margin: 0;
+}
+
+.home-case-diffs a,
+.home-case-try a {
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}
+
+.home-case-diffs ol {
+  margin: 0;
+  padding-left: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.home-case-diffs dl {
+  margin: var(--space-1) 0 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.home-case-diffs dl div {
+  display: grid;
+  grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.home-case-diffs dt {
+  color: var(--text-dim);
+  font-size: var(--text-small);
+  padding-top: var(--space-1);
+}
+
+.home-case-diffs dd {
+  margin: 0;
+}
+
+/* .home-case h3의 margin: 0보다 구체적으로 — 좁은 화면에서 위 링크와 붙지 않게 */
+.home-case .home-case-try-title {
+  margin-top: var(--space-8);
+}
+
+/* 직접 확인할 데모 — 링크 줄과 무엇을 해 보면 되는지 한 문단, 행 사이는 얇은 선 */
+.home-case-try {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  max-width: var(--measure);
+}
+
+.home-case-try li {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.home-case-try p {
+  margin: 0;
+  color: var(--text-dim);
+}
+
 /* 설치 명령 — 데모 페이지의 사용 예시와 같은 틀(.usage-head·.usage-code)을 쓴다 */
 .home-install {
-  margin-top: var(--space-6);
+  margin-top: var(--space-12);
   max-width: 560px;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -293,6 +454,34 @@ button:hover {
 .usage-code:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
+}
+
+.home-install-step {
+  margin: 0;
+  padding: var(--space-3) var(--space-4) 0;
+  font-size: var(--text-small);
+  color: var(--text-dim);
+  background: var(--surface);
+}
+
+.home-install-request {
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--space-4);
+}
+
+.home-install-request h3 {
+  margin: 0;
+  font-size: var(--text-body);
+}
+
+.home-install-request blockquote {
+  margin-inline: var(--space-4);
+}
+
+.home-patterns {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border);
 }
 
 .home-install-note {
@@ -333,7 +522,7 @@ button:hover {
   font-size: var(--text-small);
 }
 
-.home-group h2 {
+.home-group h3 {
   font-size: var(--text-small);
   font-weight: var(--weight-semibold);
   color: var(--text-dim);
@@ -639,6 +828,14 @@ button:hover {
 
   .content {
     padding: var(--space-8) var(--page-inline) var(--space-12);
+  }
+
+  .home-case-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-case-shot {
+    max-width: 360px;
   }
 }
 

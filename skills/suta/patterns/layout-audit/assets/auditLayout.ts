@@ -1269,7 +1269,7 @@ const auditCopy = ({ text, push }: { text: string; push: Push }) => {
   for (const item of items) {
     if (!META_COPY.test(item.text) || metaLines.has(item.line)) continue
     metaLines.add(item.line)
-    push({ line: item.line, rule: 'meta-copy', severity: 'warn', message: `개발·데모 문구가 화면에 남았다 — "${item.text.trim().slice(0, 40)}"`, fix: '사용자가 볼 문구만 남긴다. 지어낸 값이라는 안내가 필요하면 코드 주석이나 README에 (references/copy.md)' })
+    push({ line: item.line, rule: 'meta-copy', severity: 'warn', message: `개발·데모 문구가 화면에 남았다 — "${item.text.trim().slice(0, 40)}"`, fix: '실제 서비스 화면이면 지우고 사용자가 볼 문구만 둔다. 명시적 가상 목업에서 지어낸 실적(고객사·사용자 수·후기)을 알리는 표시라면 화면에 남기고, 이 줄에 예외 주석(layout-audit-ignore: meta-copy — 이유)을 단다 (SKILL.md 사실 정보·references/copy.md)' })
   }
   const haeyo: number[] = []
   const hapsyo: number[] = []

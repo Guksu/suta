@@ -15,7 +15,8 @@ metadata:
 
 ```
 skills/suta/
-├─ SKILL.md                      # 진입 스킬 — UI 요청에 자동으로 걸린다. 패턴 카탈로그는 생성 블록
+├─ SKILL.md                      # 진입 스킬 — UI 요청에 자동으로 걸린다. 패턴 색인은 생성 블록
+├─ references/catalog.md         # 패턴 카탈로그(한 줄 설명) — 생성 블록
 └─ patterns/{pattern-name}/
    ├─ PATTERN.md                 # 정본: 언제 쓰는가·사용 방법·핵심 패턴 (SKILL.md가 아니다)
    ├─ references/                # 상세(변형·엣지 케이스·접근성) — 필요할 때만 로드
@@ -56,7 +57,7 @@ demo/src/demos/{pattern-name}/   # assets/를 import해 렌더링하는 데모 �
 
 ### 3. 카탈로그·문서
 
-1. `npm run catalog` — 진입 스킬 `skills/suta/SKILL.md`의 패턴 카탈로그 블록을 다시 만든다. 손으로 고치지 않는다(검사 스크립트가 동기 여부를 본다).
+1. `npm run catalog` — 진입 스킬 `skills/suta/SKILL.md`의 패턴 색인 블록과 `skills/suta/references/catalog.md`의 카탈로그 블록을 다시 만든다. 손으로 고치지 않는다(검사 스크립트가 동기 여부를 본다). 색인에는 데모 레지스트리의 `title`이 실린다.
 2. 상세 안내 `docs/guide.md`와 `docs/guide.en.md`의 패턴 표에 한 행씩 더하고, `README.md`·`README.ko.md`의 배지 숫자(패턴 수·tests 수)를 갱신한다.
 3. 화면 비교 — 수정이면 고치기 전·후 데모를 같은 폭으로 찍어 한 장(줄 머리 AS-IS·TO-BE)으로, 새 패턴이면 데모 캡처를 `docs/worklog/assets/{날짜}-{주제}.jpg`로 두고 워크로그에 싣는다(`AGENTS.md` 규칙 12).
 

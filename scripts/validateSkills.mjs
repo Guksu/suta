@@ -9,7 +9,9 @@
  *    (Claude Code: .claude-plugin/plugin.json·marketplace.json, Codex: .codex-plugin/plugin.json·.agents/plugins/marketplace.json)
  *  - 매니페스트의 훅은 편집 후 검사 훅(skills/suta/scripts/post-edit-hook.mjs) 하나만 가리키고, 그 파일이 실재한다
  *  - description 1,024바이트 이하(도구에 따라 바이트로 센다)·": " 없음(YAML이 깨진다)·에이전트 명령문 없음
- *  - 본문 500줄 이하, 본문이 가리키는 patterns/·references/·scripts/ 경로 실재, 패턴 카탈로그가 PATTERN.md·데모 레지스트리와 동기
+ *  - 본문 500줄·30,000바이트 이하, 핵심 절(우선순위·사용 문제·사실 정보·읽을 문서·늘 지키는 선·끝내기 전에) 존재,
+ *    본문이 가리키는 patterns/·references/·scripts/ 경로 실재, 패턴 색인(SKILL.md)·카탈로그(references/catalog.md)가 PATTERN.md·데모 레지스트리와 동기
+ *  - 진입 스킬의 참조 문서(skills/suta/references/*.md): SKILL.md가 모두 가리키고(읽히지 않는 문서가 없게), 그 안의 경로·링크가 실재
  *  - 저장소 루트가 곧 플러그인(source "./")이라, 루트에 플러그인 구성 폴더(commands·agents·hooks 등)가 없어야 한다.
  *    훅은 매니페스트에 인라인으로만 둔다 — 루트 hooks/ 폴더를 허용하면 아무 훅이나 사용자 환경에 실릴 수 있다
  * 패턴 (skills/suta/patterns/{패턴}/PATTERN.md)
@@ -25,7 +27,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { expectedSkillDocument } from './buildCatalog.mjs'
+import { expectedDocuments } from './buildCatalog.mjs'
 
 const hash = (text) => createHash('sha256').update(text).digest('hex')
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
@@ -93,17 +95,44 @@ else {
   if (desc.includes(': ')) errors.push('SKILL.md: description에 ": "가 있음 — YAML 해석이 깨진다')
   if (/반드시 이 스킬을 사용할 것|이 스킬을 사용/.test(desc)) errors.push('SKILL.md: description에 에이전트 명령문이 있음 — 3인칭으로 무엇을·언제만 적는다')
 
-  const bodyLines = md.slice(md.indexOf('\n---', 3) + 4).split('\n').length
+  const body = md.slice(md.indexOf('\n---', 3) + 4)
+  const bodyLines = body.split('\n').length
   if (bodyLines > 500) errors.push(`SKILL.md: 본문 ${bodyLines}줄 (500줄 이하 — 매 UI 요청마다 통째로 읽힌다)`)
+  // 진입 문서는 UI 요청마다 읽힌다. 취향 기본값·화면 유형별 확인·패턴 설명은 references/로 나눴으니 다시 불어나지 않게 막는다
+  const bodyBytes = Buffer.byteLength(body, 'utf8')
+  if (bodyBytes > 30000) errors.push(`SKILL.md: 본문 ${bodyBytes}바이트 (30,000바이트 이하 — 특정 작업에서만 필요한 내용은 references/로)`)
+  // 나눈 뒤에도 늘 읽혀야 하는 절 — 이 절이 빠지면 사용 문제의 선·우선순위가 참조 문서로 밀려나 읽히지 않을 수 있다
+  for (const heading of ['## 우선순위', '### 사용 문제와 취향', '## 요청 범위와 사실 정보', '## 읽을 문서', '## 늘 지키는 선', '## 끝내기 전에', '## 패턴 색인']) {
+    if (!md.includes(`\n${heading}`)) errors.push(`SKILL.md: 핵심 절 "${heading}" 없음 — 늘 읽혀야 하는 내용은 진입 문서에 둔다`)
+  }
   const refs = [
     ...[...md.matchAll(/`((?:patterns|references|scripts)\/[^`*{}]+)`/g)].map((match) => match[1]),
     ...[...md.matchAll(/\]\(((?:patterns|references|scripts)\/[^)]+)\)/g)].map((match) => match[1]),
   ]
   for (const ref of new Set(refs)) if (!existsSync(join(skillDir, ref))) errors.push(`SKILL.md: 참조 경로 없음 — ${ref}`)
+
+  // 참조 문서 — 설치된 스킬 안에서 모든 경로가 풀려야 하고, 진입 문서가 가리키지 않는 문서는 읽힐 길이 없다
+  const referencesDir = join(skillDir, 'references')
+  const referenceDocs = existsSync(referencesDir) ? readdirSync(referencesDir).filter((file) => file.endsWith('.md')) : []
+  for (const file of referenceDocs) {
+    if (!md.includes(`references/${file}`)) errors.push(`SKILL.md: references/${file}을(를) 가리키지 않음 — "읽을 문서" 표에 언제 읽는지 적는다`)
+    const text = readFileSync(join(referencesDir, file), 'utf8')
+    // 본문 속 경로는 스킬 폴더 기준(SKILL.md와 같다), 마크다운 링크는 그 문서 기준
+    for (const [, ref] of text.matchAll(/`((?:patterns|references|scripts)\/[^`*{}<>]+)`/g)) {
+      if (!existsSync(join(skillDir, ref))) errors.push(`references/${file}: 참조 경로 없음 — ${ref}`)
+    }
+    for (const [, link] of text.matchAll(/\]\(([^)#\s]+)(?:#[^)]*)?\)/g)) {
+      if (/^[a-z]+:/i.test(link)) continue
+      if (!existsSync(join(referencesDir, link))) errors.push(`references/${file}: 링크 대상 없음 — ${link}`)
+    }
+    if (/(?:\]\(|`)(?:\.\.\/)+(?:demo|scripts\/benchmark|docs)\//.test(text)) errors.push(`references/${file}: 저장소 루트 경로를 가리킴 — 설치된 스킬에는 없다`)
+  }
   try {
-    if (md !== expectedSkillDocument()) errors.push('SKILL.md: 패턴 카탈로그가 PATTERN.md·데모 레지스트리와 어긋남 — npm run catalog로 다시 만든다')
+    for (const { path, document, label } of expectedDocuments()) {
+      if (readFileSync(path, 'utf8') !== document) errors.push(`${label}: 패턴 색인·카탈로그가 PATTERN.md·데모 레지스트리와 어긋남 — npm run catalog로 다시 만든다`)
+    }
   } catch (error) {
-    errors.push(`SKILL.md: 패턴 카탈로그를 만들 수 없음 — ${error.message}`)
+    errors.push(`패턴 색인·카탈로그를 만들 수 없음 — ${error.message}`)
   }
 }
 
