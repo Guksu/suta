@@ -6,9 +6,16 @@
  * 두 파일의 값이 어긋나면 검사기와 화면이 다른 척도를 쓰므로, 값을 바꿀 때는 둘 다 바꾼다(테스트가 비교한다).
  */
 
-/** 글꼴 — layout-tokens.css의 --font-sans. Pretendard(SIL OFL 1.1)를 먼저 찾고 운영체제 한국어 글꼴로 내려간다(파일은 프로젝트에 넣는다) */
+/**
+ * 글꼴 — layout-tokens.css의 --font-sans·--font-serif·--font-mono. UI는 sans 한 벌이고, serif·mono는 업종에 따라 일부 자리에만 쓴다(references/tone.md 5절).
+ * sans는 Pretendard(SIL OFL 1.1)를 먼저 찾고 운영체제 한국어 글꼴로 내려간다(파일은 프로젝트에 넣는다).
+ */
 export const FONT = {
   sans: '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
+  /** 명조 — 출판·매체의 제목과 긴 글, 공공·브랜드의 큰 제목. Noto Serif KR·나눔명조(SIL OFL 1.1)를 먼저 찾고, 없으면 운영체제 명조(맥 AppleMyungjo, 윈도 바탕)로 */
+  serif: '"Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, "Apple Myungjo", Batang, "Source Serif 4", Georgia, serif',
+  /** 고정폭 — 개발 도구의 코드·키·명령, 자릿수를 맞출 표. D2Coding(SIL OFL 1.1, 한글 포함)을 먼저 찾는다 */
+  mono: 'D2Coding, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
 } as const
 
 /** 간격 척도(px) — 키의 숫자 × 4 = px. --space-{키} */
