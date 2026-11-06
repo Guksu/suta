@@ -6,6 +6,43 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Different requests: book review, stay search filters, store sales report (suta 0.17)
+
+The section below measured suta with the same requests its conventions were fixed against. To check whether the gains are specific to those requests, we ran both conditions again on the same screen types with requests from other industries.
+
+- App book review: "Make a book-review writing screen for a reading-club app, mobile first. It needs book selection, a star rating, a title, a body, photo attachments (up to 5), a visibility setting and a post button. The rating and the body are required." (asked in Korean)
+- App stay filters: "Make a search results list for a lodging booking app, mobile first. It needs the list, sorting, and filters for price, lodging type and amenities, and the result count must change when filters are applied." (asked in Korean)
+- Web sales report: "Build a sales report screen for an online store admin, desktop first. It needs a left menu, a period picker, trend charts for metrics such as revenue, orders and average order value (in CSS or SVG), a sales-by-product table and an Excel export. Make it work on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: book review, lodging search results with filters, store sales report](assets/gap-other-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: book review and stay filters (first 390×844 screen) and the sales report (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | 2 app screens — without (6 runs) | 2 app screens — suta (6 runs) | Web report — without (3 runs) | Web report — suta (3 runs) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 21.83 | 0 | 39.67 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 1 | 0 | 0 | 0 |
+| Gradients, blurs, large shadows (per page) | 18.33 | 0 | 0.67 | 0 |
+| Generation time (median) | 160 · 185 s | 280 · 265 s | 323 s | 350 s |
+| Generation cost (per run) | $0.53–0.79 | $1.46–1.72 | $1.20–1.40 | $1.54–1.94 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Book review | 1 : 5 | 1 : 5 |
+| Stay filters | 5 : 1 | 5 : 1 |
+| Sales report | 2 : 4 | 1 : 5 |
+
+- **suta won the stay filters.** All three runs had one chip per condition, a result count and a thumbnail row list. The runs without suta used large gradient tiles with an icon on top, which the judges called template-like.
+- **suta lost the book review.** All 10 lost judgments said the body had no label and "required" sat only inside the placeholder, which disappears once you type. suta applied the unlabeled large inputs it saw in title-and-body composers to a form with many fields.
+- **suta lost the sales report.** suta kept every mobile table column and let the table scroll sideways, so the revenue column was off the first screen. 7 of the 9 lost judgments said so. The third run won 3 judgments.
+- Both losing reasons were usability problems. After this run we changed suta so that required marks stay visible and narrow-screen tables show the name and key value together on the first screen. These changes were not measured again.
+- Generation cost was $22.93 for 18 runs; the median cost per run was 1.4–2.6x higher with suta.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 10](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### After fixing the conventions, the same requests again: writing, product filters, SaaS report (suta 0.17)
 
 We fixed the conventions where suta lost in the 0.16 diagnosis below and reran only suta on the same requests: the composer (borderless large inputs, character counts, small photo slots), filters (one chip per condition, each opening a bottom sheet for that condition), dashboards and reports (metrics as tabs in one panel above a large line chart) and stand-in product art (matching the product name). The runs without suta are the ones from the 0.16 section.
