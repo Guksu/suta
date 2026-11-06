@@ -51,6 +51,6 @@ export const clippedTexts = ({ probes }: { probes: TextProbe[] }): TextProbe[] =
     return spills(probe.box, probe.clip) || spills(probe.box, probe.frame)
   })
 
-/** 표 첫 줄의 칸 상자들 중, 보이는 폭(가로 스크롤 칸이나 화면)을 넘어 다 보이지 않는 열의 수 */
+/** 표 한 줄(너비가 있는 칸이 가장 많은 줄)의 칸 상자들 중, 보이는 폭(가로 스크롤 칸이나 화면)을 넘어 다 보이지 않는 열의 수 */
 export const hiddenColumns = ({ cells, visible }: { cells: Box[]; visible: Box }): number =>
   cells.filter((cell) => cell.right > visible.right + TOLERANCE || cell.left < visible.left - TOLERANCE).length

@@ -359,6 +359,8 @@ const clipProbes = () => {
       if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return null
       const bordered = ['Left', 'Right'].some((side) => parseFloat(cs[`border${side}Width`]) > 0 && cs[`border${side}Style`] !== 'none' && painted(cs[`border${side}Color`]))
       if (bordered || painted(cs.backgroundColor)) return boxOf(node.getBoundingClientRect())
+      // 고정 요소는 화면에 따로 떠 있다 — 그 위 조상의 칸은 이 글자의 칸이 아니다
+      if (cs.position === 'fixed') return null
     }
     return null
   }
@@ -376,15 +378,14 @@ const clipProbes = () => {
     const { clip, ellipsis } = clipOf(el)
     texts.push({ text: text.slice(0, 40), box: boxOf(r), clip, frame: frameOf(el), ellipsis })
   }
-  // 표: 첫 줄 칸들의 상자와, 그 표를 보이는 폭(가장 가까운 가로 스크롤·잘라내는 칸과 화면의 겹침)
+  // 표: 칸이 가장 많은 줄의 칸 상자들과, 그 표를 보이는 폭(가장 가까운 가로 스크롤·잘라내는 칸과 화면의 겹침)
   const tables = []
   for (const table of document.querySelectorAll('table, [role="table"], [role="grid"]')) {
     if (!table.checkVisibility?.({ checkOpacity: true, checkVisibilityCSS: true })) continue
-    // 칸이 가장 많은 줄(앞의 다섯 줄 중)을 쓴다 — 첫 줄이 colspan 제목 줄이면 칸이 하나뿐이다
+    // 너비가 있는 칸이 가장 많은 줄(앞의 다섯 줄 중)을 쓴다 — 첫 줄이 colspan 제목 줄이거나 숨긴 thead면 칸이 모자라다
     const rows = [...table.querySelectorAll('tr, [role="row"]')].slice(0, 5)
-    const row = rows.sort((a, b) => b.children.length - a.children.length)[0]
-    if (!row) continue
-    const cells = [...row.children].map((cell) => boxOf(cell.getBoundingClientRect())).filter((b) => b.right - b.left > 0)
+    const cellsOf = (row) => [...row.children].map((cell) => boxOf(cell.getBoundingClientRect())).filter((b) => b.right - b.left > 0)
+    const cells = rows.map(cellsOf).sort((a, b) => b.length - a.length)[0] ?? []
     if (cells.length < 2) continue
     let visible = viewport
     for (let node = table.parentElement; node && node !== document.documentElement; node = node.parentElement) {
