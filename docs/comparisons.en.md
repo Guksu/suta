@@ -6,6 +6,45 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Screens without a convention: writing, product filters and a SaaS report (suta 0.16)
+
+We picked flows that suta has no screen convention for, from a fresh analysis of the original references ([reference re-analysis](research/2026-11-06-reference-gaps.md), Korean). This measures suta before any fix.
+
+- App post composer: "Build the post-writing screen of a neighborhood community app for mobile. It needs a topic choice, title, body, photo attachments (up to 10) and a post button. Title and body are required."
+- App product filters: "Build the product list screen of a pet supplies shopping app for mobile. It needs a product grid, sorting and filters for price range, brand and delivery type, and the product count must change when filters are applied."
+- Web report: "Build the report screen of a marketing analytics SaaS for desktop. It needs a left menu, a period selector, trend charts for metrics such as visitors and conversions (CSS or SVG), a table by channel and export. Make it work on mobile too."
+
+The requests were written in Korean; these are translations.
+
+![Top row without suta (AS-IS), bottom row with suta 0.16 (TO-BE). From left: post composer, product list filters, SaaS report](assets/gap-diagnosis-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.16.0. From left: composer and product filters (first 390×844 screen) and the SaaS report (first 1280×800 screen). Each is the first run of its condition. Each request ran three times per condition, 18 runs in all.
+
+| | Apps, without (6 runs) | Apps, suta (6 runs) | Web report, without (3) | Web report, suta (3) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 42.67 | 0 | 9 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 0 | 0 | 2 | 0 |
+| Card-like boxes (per page) | 0.33 | 0.67 | 3.67 | 3.33 |
+| Pages animating size or position directly | 0 | 0 | 0 | 1 |
+| Median generation time | 101 s, 197 s | 159 s, 287 s | 239 s | 343 s |
+| Generation cost per run | $0.41–0.79 | $0.96–1.62 | $0.97–1.07 | $1.65–2.34 |
+
+Two models compared each pair with the condition hidden, twice with the order reversed. Numbers are suta : without.
+
+| Request | Default model | Other model |
+|---|---|---|
+| Post composer | 0 : 6 | 2 : 4 |
+| Product filters | 2 : 4 | 1 : 5 |
+| SaaS report | 6 : 0 | 4 : 2 |
+
+- **suta lost the composer.** The judges called the suta version "a plain form of stacked gray boxes". The version without suta had borderless large inputs, character counts, a dashed photo slot and a community-rules note, which is what the reference composers do. suta applied its "inputs are gray filled boxes" default to a writing screen and left the textarea resize handle visible.
+- **Product filters split by run.** suta's first run put one chip per condition (price, brand, delivery), as the references do, and won. Its second and third runs hid the filters behind one button or a small text link and lost. The judges also called suta's stand-in product art "monotonous placeholders".
+- **suta won the SaaS report**, mostly on the other side's defects: overflow at 320px in 2 runs and a desktop metric-card row that ran off the page and cut off values. suta's second and third runs grouped the metrics as tabs in one panel above a large chart, as the reference report screens do. Its first run used a row of 4 metric cards. Two of suta's three runs picked a blue primary button although the request gave no brand basis.
+- suta took 1.4–1.6x the time and about 1.6–2.4x the cost. The cost of the 36 judge calls was not recorded.
+
+Only three runs per condition. One judge was also the generating model, and the judges saw still images only. Next we will fix the composer, filter and dashboard conventions and rerun the same requests. [Reference re-analysis and diagnosis](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Mobile app screens, 8 types (suta 0.15)
 
 Eight requests for app screens only. Each result was judged on one 390px screen.
