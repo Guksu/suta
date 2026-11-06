@@ -19,7 +19,7 @@ PR #62 리뷰에서 하나를 더 찾았다. 이 취소는 마운트할 때의 �
 - `segmented-control.css`: thumb의 `transition`을 `transform` 하나로 바꿨다. `width`는 인라인으로 바로 맞는다. `motion-audit-ignore: layout-animation` 주석을 지웠다. 칸 폭을 내용대로(`auto`) 바꾼 변형에서는 폭이 바로 맞고 위치만 미끄러진다. 둥근 모서리가 찌그러지므로 `scaleX`는 여전히 쓰지 않는다.
 - `moveSegmentThumb.ts`:
   - `immediate: true`는 thumb가 이미 그 자리(같은 `transform`·`width`)면 아무것도 하지 않는다. 그래서 크기 감시의 첫 알림이 진행 중인 슬라이드를 끊지 않는다. 칸 폭이 실제로 바뀌면 전처럼 즉시 다시 맞춘다.
-  - `immediate`는 `transition: none`을 건 뒤 `offsetWidth`를 읽어 스타일을 한 번 확정한다(리뷰 반영). 마운트할 때 미끄러져 들어오지 않는다.
+  - `immediate`는 `transition: none`을 건 뒤 `getBoundingClientRect()`로 스타일을 한 번 확정한다(리뷰 반영). `void el.offsetWidth` 같은 속성 읽기는 일부 압축기가 부작용 없는 식으로 보고 지우므로 메서드 호출로 읽는다. 마운트할 때 미끄러져 들어오지 않는다.
 - `PATTERN.md`: 기술 선택 문단(전이는 transform 하나), 커스터마이즈 표의 칸 폭 행에 `auto`의 대가(폭은 즉시, 이동 중 옆 칸 글자와 겹칠 수 있음, 되돌리는 방법), 주의사항에 `immediate`의 같은 자리 동작과 스타일 확정을 적었다.
 - 테스트 7개(TDD). 5개는 고치기 전에 Red였고, 2개는 회귀 방지다:
   - CSS(Red 2): thumb 전이에 `transform`이 있고 `width`가 없다. 무시 주석이 없다.

@@ -47,8 +47,9 @@ export const moveSegmentThumb = ({ thumb, target, immediate = false }: MoveSegme
   thumb.style.transform = transform
   thumb.style.width = width
   // 여기서 스타일을 한 번 확정한다. rAF 콜백은 다음 프레임의 스타일 계산보다 먼저 돌아서,
-  // 확정하지 않으면 브라우저가 none을 보지 못하고 첫 배치가 0에서 미끄러져 온다
-  void thumb.offsetWidth
+  // 확정하지 않으면 브라우저가 none을 보지 못하고 첫 배치가 0에서 미끄러져 온다.
+  // 속성 읽기(void el.offsetWidth)는 일부 압축기가 부작용 없는 식으로 보고 지우므로 메서드 호출로 읽는다
+  thumb.getBoundingClientRect()
   // 다음 프레임에 transition을 복원한다
   requestAnimationFrame(() => {
     thumb.style.transition = ''

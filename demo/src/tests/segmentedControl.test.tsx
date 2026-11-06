@@ -64,14 +64,14 @@ describe('moveSegmentThumb — thumb를 선택 칸 위치로 이동', () => {
   it('immediate면 transition을 끈 채로 스타일을 한 번 확정한다 (다음 프레임 복원 전에 브라우저가 none을 보게)', () => {
     // rAF 콜백은 다음 프레임의 스타일 계산보다 먼저 돈다. 그 사이에 스타일을 확정하지 않으면
     // 브라우저는 none을 보지 못하고 첫 배치가 0에서 미끄러져 온다(프로덕션 빌드에서 확인)
+    // 읽기는 getBoundingClientRect 호출로 한다 — 속성 읽기(void el.offsetWidth)는 일부 압축기가 지운다
     const thumb = document.createElement('span')
     const transitionsSeenOnRead: string[] = []
-    Object.defineProperty(thumb, 'offsetWidth', {
-      get: () => {
-        transitionsSeenOnRead.push(thumb.style.transition)
-        return 0
-      },
-    })
+    const measure = thumb.getBoundingClientRect.bind(thumb)
+    thumb.getBoundingClientRect = () => {
+      transitionsSeenOnRead.push(thumb.style.transition)
+      return measure()
+    }
     moveSegmentThumb({ thumb, target: makeSegment({ left: 40, width: 60 }), immediate: true })
     expect(transitionsSeenOnRead).toContain('none')
   })

@@ -89,7 +89,7 @@ inputs.forEach((input) => {
 
 - **thumb와 칸은 같은 offsetParent 안에 있어야 한다** — `.segmented`의 `position: relative`가 그 좌표계다. 트랙 패딩(2px)은 `offsetLeft`에 이미 포함되므로 thumb의 `left`는 0으로 둔다.
 - 라디오를 `display: none`으로 숨기면 안 된다 — 포커스·방향키를 받을 수 없게 된다. 제공된 클립 방식(시각만 숨김)을 유지한다.
-- 첫 배치는 `immediate: true`로 — 없으면 페이지 진입 시 thumb가 0에서 미끄러져 오는 가짜 이동이 보인다(React 훅은 내장 처리). 코어는 `transition: none`을 건 뒤 `offsetWidth`를 읽어 스타일을 한 번 확정한다. 확정하지 않으면 다음 프레임의 복원이 먼저 돌아, 선택값이 첫 칸이 아닌 컨트롤을 시트·탭 안에서 늦게 띄울 때 thumb가 미끄러져 들어온다.
+- 첫 배치는 `immediate: true`로 — 없으면 페이지 진입 시 thumb가 0에서 미끄러져 오는 가짜 이동이 보인다(React 훅은 내장 처리). 코어는 `transition: none`을 건 뒤 `getBoundingClientRect()`로 스타일을 한 번 확정한다(`void el.offsetWidth`는 일부 압축기가 지운다). 확정하지 않으면 다음 프레임의 복원이 먼저 돌아, 선택값이 첫 칸이 아닌 컨트롤을 시트·탭 안에서 늦게 띄울 때 thumb가 미끄러져 들어온다.
 - 칸 폭이 바뀌는 경우(폰트 로드·리사이즈·라벨 변경)는 재측정이 필요하다 — React 훅은 ResizeObserver로 내장 처리, 순수 JS는 resize 시 `immediate: true`로 다시 호출한다. `immediate: true`는 thumb가 이미 그 자리면 아무것도 하지 않는다. ResizeObserver는 `observe()` 직후 한 번 콜백을 부르는데, 그때 transition을 끄면 방금 시작한 슬라이드가 취소되고 thumb가 건너뛰기 때문이다.
 - 선택 칸의 글자는 진하게 유지한다(`.segment-input:checked + .segment-label`) — thumb 색만으로는 저대비·색약 환경에서 어느 칸이 선택됐는지 약하다.
 - **드래그로 thumb를 끌어 선택하는 동작은 범위 밖이다** — 클릭·탭·방향키만 지원한다. 드래그가 필요하면 포인터 이벤트로 가장 가까운 칸을 고르는 로직을 따로 얹어야 한다.
