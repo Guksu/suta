@@ -36,12 +36,29 @@ Blind judgments (suta : without):
 | Job posting | 5 : 1 | 2 : 4 |
 | Home tour article | 6 : 0 | 4 : 2 |
 
-- **With both judges combined, suta led on all three requests for the first time** (article 10 : 2, job posting 7 : 5, grooming 7 : 5). Job posting lost 2 : 4 with the other model.
-- **The article fix worked.** All three suta runs had a centered title block, a drop cap, numbered subheads, photo captions and a four-item site menu (a menu button on mobile). All three runs on the other side lost their menu on mobile. The two lost judgments chose the other side's paper-colored background and serif subtitle as "more like a magazine".
-- **Job posting split by judge.** The default model chose suta for its equal-width controls and the other side's mobile defects. All five lost judgments named the desktop layout: a wide gap between the input column and the panel (first run), and a body narrower than the header pushed to the left (third run).
-- **The sideways-row fix worked on grooming booking.** All three suta runs lined up the first date cell with the page margin; this time the other side's date strip touched the screen edge. The third suta run lost: its price section was a single line of help text, and its dog avatars read as "bear-shaped". The other side had an itemized price breakdown and a fixed bottom bar with the price.
-- Pages animating a width went from 3 of 6 suta web pages last time to 0 of 6. All three job-posting runs used the canonical segmented control, which now moves with `transform` only.
-- Fixed after this run, not measured again: on desktop forms, the input column and the panel form one centered block 24–32px apart, as wide as the header; a segmented control always has one option selected (a required choice with no sensible default uses outlined chips); booking forms with a price show an itemized breakdown and a fixed bottom bar with the price; small round avatars for a specific species, like dogs, use a first-letter circle.
+- **For the first time, the default judge chose suta on all three requests (15 : 3).** The default judge is also the model that generated the pages. The other judge was even at 9 : 9, and 3 : 3 if you count only pairs it judged the same way in both orders.
+- **The site-menu fix worked on the article.**
+  - All three suta runs had:
+    - a centered title block, a drop cap and numbered subheads
+    - photo captions
+    - a site menu of 4–5 items (a menu button on mobile)
+  - The 10 winning judgments named the menu 7 times and numbered subheads 4 times. None named the drop cap. All three runs on the other side lost their menu on mobile.
+  - The two lost judgments chose the other side's paper-colored background and serif subtitle for their "magazine-like hierarchy" and "editorial tone". Both times the judge picked whichever page it was shown second.
+- **Job posting split by judge.**
+  - The default judge chose suta for its equal-width controls and the other side's mobile defects.
+  - All five lost judgments named the desktop layout:
+    - first run: a wide gap between the input column and the panel
+    - third run: a body narrower than the header, pushed to the left
+- **The sideways-row fix worked on grooming booking.**
+  - All three suta runs lined up the first date cell with the page margin.
+  - This time the other side's date strip was out of line: it touched the screen edge in run 2 and the card edge in run 1.
+  - All three suta runs had a one-line price section. The third suta run lost, and its dog avatars read as "bear-shaped". The other side's third run had an itemized price breakdown and a fixed bottom bar with the price.
+- **Width animation:** 3 of 6 suta web pages last time, 0 of 6 now. Job-posting runs 2 and 3 copied the canonical segmented control, which now moves with `transform` only. Run 1 wrote its own.
+- **Fixed after this run, not measured again:**
+  - Desktop forms: the input column and the panel form one block 24–32px apart, with left and right edges lined up with the site header. Inputs inside a white panel on a gray page get a 1px border.
+  - Segmented controls: one option is always selected. A required choice with no sensible default uses outlined chips or radios.
+  - Booking forms with a price: show an itemized breakdown and a fixed bottom bar with the price. Unrequested shop info and durations are suggested, not added.
+  - Small round avatars for a specific species, like dogs: use a first-letter circle.
 
 Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 14](research/2026-11-06-reference-gaps.md) (Korean)
 

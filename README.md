@@ -41,12 +41,12 @@ For 0.17 we measured screen types suta had no convention for (filters, composers
 | Dog grooming booking · job posting · home tour article | 4:2·3:3 / 5:1·2:4 / 6:0·4:2 |
 
 - **Measurements:** accessibility violations (axe) were 0 on the suta side in the first five sets; in the sixth, one grooming run had 1 (text contrast). Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb; 0 on the sixth set's job posting after the fix), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
-- **Judgments:** across the 18 requests suta lost 48 : 60 with the default model and 42 : 66 with the other. The sixth set alone was the first where suta led on all three requests with both judges combined (24 : 12).
+- **Judgments:** across the 18 requests suta lost 48 : 60 with the default model and 42 : 66 with the other. In the sixth set the default judge chose suta on all three requests for the first time (15 : 3). The default judge is also the generating model; the other judge was even at 9 : 9.
   - suta won 4 requests with both models: stay filters, library statistics, clinic booking and the home tour article.
   - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and 3 article pages.
   - The other 5 were tied with at least one model (composer, complaint status, course creation, grooming booking) or split by judge (job posting, 5 : 1 and 2 : 4).
 - **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
-- **Not measured again:** the fixes made after the last set (desktop form layout as one centered block, a default for segmented controls, an itemized price on booking forms, dog avatars).
+- **Not measured again:** the fixes made after the last set: desktop form layout (input column and panel as one block, edges lined up with the header), bordered inputs on gray pages, a default for segmented controls, an itemized price on booking forms, dog avatars.
 - **Limits:** three runs per condition, and one judge model is also the generating model.
 
 [Results and screens for each set](docs/comparisons.en.md)
