@@ -13,7 +13,7 @@ description: iOS 스타일 세그먼트 컨트롤(segmented control) 컴포넌�
 
 기준: 옵션이 화면(콘텐츠 영역)을 바꾸면 탭(`tab-indicator`), 값(설정·필터·주문 옵션)을 바꾸면 세그먼트 컨트롤. 옵션이 6개 이상이거나 라벨이 길면 세그먼트가 아니라 셀렉트(`select`)나 라디오 목록이 맞다.
 
-**기술 선택:** 네이티브 `<input type="radio">` 그룹 + 측정(JS 한 줄) + CSS transition. 라디오를 시각적으로만 숨기고 라벨을 칸으로 쓰면 배타 선택·방향키 이동·포커스·폼 제출이 전부 브라우저 몫이다. thumb는 `translateX`(위치) + `width`(폭)로 옮긴다 — `tab-indicator`처럼 `scaleX`로 늘리면 알약의 둥근 모서리와 그림자가 가로로 찌그러진다. width 전이는 레이아웃을 돌리지만 thumb는 `position: absolute`(흐름 밖)라 형제에 영향이 없고 칸이 2~5개라 비용이 무시할 만하다.
+**기술 선택:** 네이티브 `<input type="radio">` 그룹 + 측정(JS 한 줄) + CSS transition. 라디오를 시각적으로만 숨기고 라벨을 칸으로 쓰면 배타 선택·방향키 이동·포커스·폼 제출이 전부 브라우저 몫이다. thumb는 `translateX`(위치) + `width`(폭)로 옮긴다 — `tab-indicator`처럼 `scaleX`로 늘리면 알약의 둥근 모서리와 그림자가 가로로 찌그러진다. 전이는 `transform` 하나다. 칸이 같은 폭(`grid-auto-columns: 1fr`, 기본값)이면 이동할 때 폭이 바뀌지 않으므로 위치만 미끄러지면 되고, `width`를 전이하면 매 프레임 레이아웃만 돌린다. 칸 폭을 내용대로(`auto`) 바꾼 변형에서는 폭이 바로 맞고 위치만 미끄러진다.
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
@@ -83,14 +83,14 @@ inputs.forEach((input) => {
 | 트랙 색 | `--segment-track-bg` (기본 반투명 회색 rgba(120,120,128,0.16)) |
 | 모서리 | `--segment-radius` (기본 999px 알약 — 8px 정도면 각진 iOS 최신형) |
 | 글자색 | `--segment-color`(비선택)·`--segment-active-color`(선택)·`--segment-focus-color`(포커스 링) |
-| 칸 폭 | 기본 균등(`grid-auto-columns: 1fr`). 내용 폭대로 두려면 `.segmented`에 `grid-auto-columns: auto` |
+| 칸 폭 | 기본 균등(`grid-auto-columns: 1fr`). 내용 폭대로 두려면 `.segmented`에 `grid-auto-columns: auto`. 이때 thumb 폭은 즉시 바뀌고 위치만 미끄러져, 이동하는 동안(약 200ms) 옆 칸 글자에 겹칠 수 있다. 폭도 부드럽게 바꾸려면 `.segment-thumb`의 `transition`에 `width`를 더하고 그 줄에 `/* motion-audit-ignore: layout-animation */` 주석으로 이유를 적는다(레이아웃 전이라 검사가 error로 막는다) |
 
 ## 주의사항
 
 - **thumb와 칸은 같은 offsetParent 안에 있어야 한다** — `.segmented`의 `position: relative`가 그 좌표계다. 트랙 패딩(2px)은 `offsetLeft`에 이미 포함되므로 thumb의 `left`는 0으로 둔다.
 - 라디오를 `display: none`으로 숨기면 안 된다 — 포커스·방향키를 받을 수 없게 된다. 제공된 클립 방식(시각만 숨김)을 유지한다.
-- 첫 배치는 `immediate: true`로 — 없으면 페이지 진입 시 thumb가 0에서 미끄러져 오는 가짜 이동이 보인다(React 훅은 내장 처리).
-- 칸 폭이 바뀌는 경우(폰트 로드·리사이즈·라벨 변경)는 재측정이 필요하다 — React 훅은 ResizeObserver로 내장 처리, 순수 JS는 resize 시 `immediate: true`로 다시 호출한다.
+- 첫 배치는 `immediate: true`로 — 없으면 페이지 진입 시 thumb가 0에서 미끄러져 오는 가짜 이동이 보인다(React 훅은 내장 처리). 코어는 `transition: none`을 건 뒤 `getBoundingClientRect()`로 스타일을 한 번 확정한다(`void el.offsetWidth`는 일부 압축기가 지운다). 확정하지 않으면 다음 프레임의 복원이 먼저 돌아, 선택값이 첫 칸이 아닌 컨트롤을 시트·탭 안에서 늦게 띄울 때 thumb가 미끄러져 들어온다.
+- 칸 폭이 바뀌는 경우(폰트 로드·리사이즈·라벨 변경)는 재측정이 필요하다 — React 훅은 ResizeObserver로 내장 처리, 순수 JS는 resize 시 `immediate: true`로 다시 호출한다. `immediate: true`는 thumb가 이미 그 자리면 아무것도 하지 않는다. ResizeObserver는 `observe()` 직후 한 번 콜백을 부르는데, 그때 transition을 끄면 방금 시작한 슬라이드가 취소되고 thumb가 건너뛰기 때문이다.
 - 선택 칸의 글자는 진하게 유지한다(`.segment-input:checked + .segment-label`) — thumb 색만으로는 저대비·색약 환경에서 어느 칸이 선택됐는지 약하다.
 - **드래그로 thumb를 끌어 선택하는 동작은 범위 밖이다** — 클릭·탭·방향키만 지원한다. 드래그가 필요하면 포인터 이벤트로 가장 가까운 칸을 고르는 로직을 따로 얹어야 한다.
 - 즉시 적용이 원칙이다 — 세그먼트를 고른 뒤 "적용" 버튼을 또 요구하지 않는다. 제출형 폼이면 일반 라디오(`checkbox-radio`)가 맞다.

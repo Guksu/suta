@@ -61,8 +61,9 @@
   border-radius: 4px;
 }
 
-/* thumb — 선택 칸 전체를 덮는 알약. 폭은 width로 준다:
- * scaleX로 늘리면 둥근 모서리·그림자가 찌그러지고, thumb는 흐름 밖(absolute)이라 width 전이가 형제 레이아웃을 건드리지 않는다. */
+/* thumb — 선택 칸 전체를 덮는 알약. 위치는 translateX로 미끄러지고, 폭은 width로 즉시 맞춘다:
+ * scaleX로 늘리면 둥근 모서리·그림자가 찌그러진다. 칸이 같은 폭(grid-auto-columns: 1fr)이면 이동할 때 폭이 바뀌지 않으므로
+ * 전이는 transform 하나로 충분하다 — width를 전이하면 매 프레임 레이아웃을 돌린다. 칸 폭이 다른 변형(auto)에서는 폭이 바로 바뀌고 위치만 미끄러진다. */
 .segment-thumb {
   position: absolute;
   top: var(--_pad);
@@ -75,10 +76,7 @@
     0 1px 3px rgba(15, 23, 42, 0.18),
     0 0 0 0.5px rgba(15, 23, 42, 0.04);
   transform-origin: left;
-  /* motion-audit-ignore: layout-animation — thumb는 absolute라 width 전이가 자기 자신만 레이아웃한다(위 주석) */
-  transition:
-    transform var(--_duration) var(--_ease-out),
-    width var(--_duration) var(--_ease-out);
+  transition: transform var(--_duration) var(--_ease-out);
   pointer-events: none;
 }
 
