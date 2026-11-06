@@ -1,0 +1,1153 @@
+{
+  "date": "2026-11-06",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "course-create",
+    "travel-article"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "clippedText",
+      "label": "칸 밖으로 잘리거나 삐져나온 글자가 있는 화면(390·1280)",
+      "en": "Pages with text cut off or spilling out of its box (390, 1280)",
+      "kind": "share"
+    },
+    {
+      "key": "hiddenTableColumns",
+      "label": "390px 첫 화면 폭 밖에 표 열이 남은 화면",
+      "en": "Pages with table columns left outside the first 390px screen",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 6
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 1,
+          "of": 6
+        },
+        "smallTargets": 3.33,
+        "boxes": 5.33,
+        "nestedBoxes": 1.33,
+        "strongEffects": 1.67,
+        "fontSizes": 10.33,
+        "centeredParagraphs": 0.17,
+        "transitionAll": {
+          "count": 1,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "axeSerious": 14.67,
+        "axeAll": 14.67,
+        "sutaErrors": 0.17,
+        "sutaWarns": 10.67
+      },
+      "tone": {
+        "bodySize": 15,
+        "smallTextShare": 42.5,
+        "toneSurfaces": 1.5,
+        "accentTextShare": 4.2,
+        "primaryBlue": {
+          "count": 3,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 148,
+        "meanTurns": 7.7,
+        "meanOutputTokens": 18153,
+        "meanInputTokens": 273733,
+        "skillRead": {
+          "count": 0,
+          "of": 6
+        },
+        "hookBlocks": 0,
+        "hookWarns": 0,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0,
+        "costUsd": {
+          "total": 4.01,
+          "median": 0.71,
+          "runs": 6
+        }
+      }
+    },
+    "suta": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 6
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 6
+        },
+        "smallTargets": 0.83,
+        "boxes": 1.17,
+        "nestedBoxes": 0.17,
+        "strongEffects": 0,
+        "fontSizes": 5.67,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 3,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 2.17
+      },
+      "tone": {
+        "bodySize": 15.5,
+        "smallTextShare": 30.5,
+        "toneSurfaces": 2,
+        "accentTextShare": 2.1,
+        "primaryBlue": {
+          "count": 0,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 233,
+        "meanTurns": 20.2,
+        "meanOutputTokens": 24327,
+        "meanInputTokens": 1247561,
+        "skillRead": {
+          "count": 6,
+          "of": 6
+        },
+        "hookBlocks": 0,
+        "hookWarns": 6,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0,
+        "costUsd": {
+          "total": 7.97,
+          "median": 1.29,
+          "runs": 6
+        }
+      }
+    }
+  },
+  "judge": {
+    "judgments": 12,
+    "suta": 3,
+    "baseline": 9,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline",
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "course-create": {
+        "suta": 3,
+        "baseline": 3,
+        "tie": 0
+      },
+      "travel-article": {
+        "suta": 0,
+        "baseline": 6,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "course-create-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 '기본 정보·강의 소개·대표 이미지·공개 설정'처럼 섹션 제목이 있는 카드로 정보의 위계가 분명하고, 입력 필드 폭과 간격이 일관됩니다. 데스크톱의 2단 구성과 모바일 하단 고정 버튼까지 완성도가 높습니다. 반면 B는 데스크톱에서 난이도·가격 컨트롤이 제목·카테고리 입력보다 좁아 폭과 정렬이 어긋나고, 섹션 구분이 약해 상대적으로 덜 다듬어 보입니다."
+      },
+      {
+        "pair": "course-create-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 기본 정보·강의 소개·대표 이미지·공개 설정으로 섹션을 나누고 브레드크럼, 필수 항목 안내, 입력 폭 정렬, 취소/등록 버튼 위계를 데스크톱과 모바일 양쪽에서 일관되게 갖춰 완성도가 높고, A는 데스크톱에서 난이도·가격 입력의 폭이 제목 입력과 맞지 않으며 섹션 구분 없이 한 카드에 몰아 넣어 위계가 약합니다."
+      },
+      {
+        "pair": "course-create-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 가격 선택에 기본값이 없고 카테고리와 난이도 사이 간격이 어긋나는 흠이 있지만, 카드 단위로 정보를 묶은 위계와 눈에 잘 띄는 등록 버튼, 데스크톱 사이드바와 모바일 하단 고정 바처럼 화면별 배치가 B보다 다듬어져 있습니다. B는 등록 버튼이 처음부터 비활성 회색이고 안내 문구 줄바꿈이 어색하며 모바일 아래쪽 섹션 구분도 약해서, 전체 완성도에서는 A가 앞섭니다."
+      },
+      {
+        "pair": "course-create-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B가 카드 구성과 브랜드 요소는 더 화려하지만, 카테고리와 난이도 사이 간격이 들쭉날쭉하고 '강의 소개' 제목이 두 번 나오며 가격은 무료·유료 중 아무것도 선택되지 않아 금액 입력란이 보이지 않는 반면, A는 세그먼트 컨트롤과 간격이 일관되고 가격 금액 입력과 필수 항목 안내가 있는 비활성 등록 버튼까지 갖춰 모바일과 데스크톱 모두 바로 내보낼 만한 완성도를 보인다."
+      },
+      {
+        "pair": "course-create-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 모바일 하단 고정 바에서 '강의 등록' 버튼 글자가 두 줄로 꺾이고 취소 버튼이 화면 오른쪽 밖으로 넘치며, 난이도 설명도 어색하게 줄바꿈되는 반면, B는 필수·선택 표시가 일관되고 모바일 배치가 깔끔하며 데스크톱에서도 등록 버튼과 필수 안내가 첫 화면에 보여 완성도가 더 높습니다."
+      },
+      {
+        "pair": "course-create-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 데스크톱 구성이 더 풍부하지만 모바일 하단 고정 바에서 '강의 등록' 버튼 글자가 두 줄로 꺾이고 '취소' 버튼이 화면 밖으로 넘치며 바가 공개 설정 내용을 가립니다. 난이도 버튼 설명도 어색하게 줄바꿈되고요. 반면 A는 데스크톱(2단 구성, 첫 화면에 등록 버튼 노출)과 모바일 모두 간격과 정렬이 일관되고 깨진 곳이 없어 바로 내보낼 만합니다."
+      },
+      {
+        "pair": "travel-article-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "두 안 모두 기본 구조와 정렬은 탄탄하지만, A가 더 완성도 높은 매거진 기사로 보인다. A는 드롭캡, 번호를 붙인 소제목, 강조색 인용 블록, 좌측 선이 있는 사진 설명으로 본문 위계가 분명하고, 데스크톱 내비게이션도 갖춰져 있으며, 모바일 간격도 일관되다."
+      },
+      {
+        "pair": "travel-article-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "둘 다 깔끔하지만, B가 번호를 붙인 소제목, 드롭캡, 강조선을 넣은 인용과 사진 설명, 완성된 내비게이션으로 매거진다운 정보 위계와 마감이 더 좋고, 모바일과 데스크톱 모두 간격과 정렬이 고르게 맞아 실제 서비스에 바로 내보내기에 더 적합하다."
+      },
+      {
+        "pair": "travel-article-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 모바일에서 메타 정보 줄이 어색하게 줄바꿈되는 작은 흠이 있지만, 가운데 정렬한 데스크톱 히어로와 드롭캡, 번호 붙은 소제목, 완성도 높은 대표 사진 덕분에 매거진다운 위계와 마감이 B보다 뚜렷하다. B는 데스크톱 상단 메뉴가 항목 하나뿐이고 오른쪽 공간이 비어 있어 덜 완성된 느낌이다."
+      },
+      {
+        "pair": "travel-article-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "모바일 메타 정보가 어색하게 줄바꿈되는 작은 흠은 있지만, B는 데스크톱에서 가운데 정렬한 제목부, 완성된 내비게이션, 분위기 있는 대표 사진으로 위계와 완성도가 더 높고, 모바일에서도 드롭캡·번호 소제목·사진 설명이 정돈되어 있어 A보다 실제 매거진 서비스에 더 가깝다."
+      },
+      {
+        "pair": "travel-article-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 브레드크럼, 카테고리, 중앙 정렬 제목, 바이라인으로 이어지는 위계가 분명하고, 드롭캡·사진 캡션·크레딧 같은 매거진다운 디테일이 데스크톱과 모바일 모두에서 일관되게 다듬어져 있어 B의 단출하고 다소 밋밋한 구성보다 완성도가 높습니다."
+      },
+      {
+        "pair": "travel-article-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "A도 깔끔하고 일관되지만, B는 내비게이션·브레드크럼·드롭캡·사진 출처 표기·중앙 정렬 헤더로 매거진다운 정보 위계와 완성도가 더 높고, 모바일에서도 읽기 흐름이 안정적이라 실제 서비스에 더 가깝습니다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 12,
+    "suta": 3,
+    "baseline": 9,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline",
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "course-create": {
+        "suta": 3,
+        "baseline": 3,
+        "tie": 0
+      },
+      "travel-article": {
+        "suta": 0,
+        "baseline": 6,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "course-create-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카드 구획, 라벨과 필수 표시, 도움말, 글자 수 표시, 선택 상태의 간격과 정렬이 데스크톱과 모바일 모두에서 일관되고 모바일 하단 고정 버튼도 갖춰 완성도가 높은 반면, B는 컨트롤 폭이 제각각이고 회색 입력란이 흐릿하며 가격이 '유료' 0원으로 미리 선택돼 있어 덜 다듬어졌다."
+      },
+      {
+        "pair": "course-create-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 섹션 카드와 안내 문구로 정보의 위계가 분명하고 입력창·난이도·가격 컨트롤 폭이 가지런하며 모바일 하단 고정 바(취소·등록)도 자연스러운 반면, A는 데스크톱에서 난이도·가격 컨트롤이 입력창보다 좁아 정렬이 어긋나고 모바일 간격도 들쭉날쭉해 완성도가 떨어진다."
+      },
+      {
+        "pair": "course-create-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 필수 표시·글자 수 카운터·세그먼트 컨트롤·비활성 등록 버튼과 안내 문구가 모바일과 데스크톱 양쪽에서 일관되고 간격도 고른 반면, A는 카테고리와 난이도 사이 및 카드 하단 여백이 불균일하고 유료 선택 시 금액 입력 상태가 보이지 않아 완성도가 떨어진다."
+      },
+      {
+        "pair": "course-create-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 카드 구획, 브레드크럼, 눈에 띄는 파란 주 버튼과 취소 버튼, 모바일 하단 고정 CTA로 위계와 완성도가 높고, 여백이 다소 들쭉날쭉한 점이 있어도 A의 평면적인 회색 톤과 비활성처럼 보이는 등록 버튼보다 실서비스에 가깝다."
+      },
+      {
+        "pair": "course-create-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 데스크톱 완성도는 높지만 모바일에서 하단 고정 바가 취소 버튼을 화면 밖으로 잘라 내고 공개 설정 카드를 가려 그대로 내보내기 어렵고, B는 데스크톱 간격에 아쉬움이 있어도 모바일·데스크톱 모두 깨지지 않고 필수 안내와 등록 버튼 흐름이 일관돼 B가 더 안전하다."
+      },
+      {
+        "pair": "course-create-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 데스크톱 완성도가 좋지만 모바일에서 하단 고정 바가 공개 설정을 가리고 취소 버튼이 화면 밖으로 잘리며 \"등록\"이 두 줄로 꺾이는 결함이 있는 반면, A는 모바일·데스크톱 모두 위계·간격·필수 표시·하단 등록 버튼이 깔끔하게 정리되어 바로 내보낼 만합니다."
+      },
+      {
+        "pair": "travel-article-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 제목·부제·글쓴이의 위계가 분명하고 번호 소제목, 굵은 인용문, 크레딧 있는 사진 설명으로 본문 리듬이 좋으며, 데스크톱의 여백·정렬과 모바일의 줄 간격·단락 간격이 안정적이라 B보다 더 완성도 높고 출시 가능한 수준입니다."
+      },
+      {
+        "pair": "travel-article-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 따뜻한 배경과 드롭캡, 번호 붙은 소제목, 굵은 인용문, 사진 라벨·캡션 처리로 매거진다운 위계와 완성도가 높고 데스크톱 내비게이션도 충실한 반면, A는 깔끔하지만 밋밋하고 데스크톱 내비게이션이 빈약하다."
+      },
+      {
+        "pair": "travel-article-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 가운데 정렬된 큰 제목·부제·글쓴이 메타와 전폭 대표 이미지, 드롭캡·번호 소제목·사진 설명이 만드는 위계와 모바일·데스크톱 모두에서 일관된 여백으로 매거진다운 완성도를 보이는 반면, B는 데스크톱 제목 영역이 왼쪽에 치우쳐 오른쪽이 비고 제목과 이미지의 정렬 폭이 어긋나며 전체적으로 밋밋하다."
+      },
+      {
+        "pair": "travel-article-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 가운데 정렬 제목·부제·글쓴이 메타와 전폭 대표 사진, 드롭캡·번호 소제목·따뜻한 색감으로 위계와 완성도가 뚜렷하고 모바일에서도 읽기 좋게 이어지는 반면, A는 데스크톱 헤더가 좌측에 쏠려 오른쪽이 비고 대표 사진이 밋밋해 상대적으로 덜 다듬어져 보인다."
+      },
+      {
+        "pair": "travel-article-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카테고리·제목·부제·글쓴이 순의 위계가 분명하고 중앙 정렬 헤더, 드롭캡, 번호 소제목, 캡션 처리와 따뜻한 색 톤으로 매거진다운 완성도를 보이며 모바일에서도 여백과 가독성이 좋은 반면, B는 깔끔하지만 밋밋하고 대표 사진 자리가 단조로우며 데스크톱 헤더 정렬(좌측 치우침)과 전체 완성도가 상대적으로 떨어진다."
+      },
+      {
+        "pair": "travel-article-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 브레드크럼·카테고리·중앙 정렬 제목·부제·저자 메타가 뚜렷한 위계를 이루고, 전체 내비게이션과 구독 버튼, 드롭캡·캡션·이미지 라벨까지 매거진다운 완성도를 갖췄으며 모바일에서도 본문 간격이 안정적인 반면, A는 깔끔하지만 데스크톱 첫 화면이 단조롭고 모바일 본문 줄바꿈이 부자연스러워 완성도가 한 단계 낮다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "course-create": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 2.7,
+        "strongEffects": 1,
+        "fontSizes": 7.7,
+        "axeSerious": 1.3,
+        "smallTextShare": 71,
+        "toneSurfaces": 3,
+        "seconds": 120
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0.3,
+        "strongEffects": 0,
+        "fontSizes": 5.3,
+        "axeSerious": 0,
+        "smallTextShare": 52,
+        "toneSurfaces": 2,
+        "seconds": 246
+      }
+    },
+    "travel-article": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 2.3,
+        "fontSizes": 13,
+        "axeSerious": 28,
+        "smallTextShare": 14,
+        "toneSurfaces": 1,
+        "seconds": 192
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 6,
+        "axeSerious": 0,
+        "smallTextShare": 14,
+        "toneSurfaces": 2,
+        "seconds": 217
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "course-create",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 124,
+      "costUsd": 0.76,
+      "turns": 4,
+      "outputTokens": 15865,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 2,
+      "boxes": 5,
+      "nestedBoxes": 1,
+      "strongEffects": 1,
+      "fontSizes": 8,
+      "bodySize": 13,
+      "smallTextShare": 71,
+      "accentTextShare": 7.6,
+      "toneSurfaces": 3,
+      "primaryHue": 228,
+      "centeredParagraphs": 0,
+      "moving": 18,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 4,
+        "all": 4,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 6
+      }
+    },
+    {
+      "prompt": "course-create",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 118,
+      "costUsd": 0.5,
+      "turns": 3,
+      "outputTokens": 15522,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 3,
+      "boxes": 9,
+      "nestedBoxes": 5,
+      "strongEffects": 1,
+      "fontSizes": 8,
+      "bodySize": 13,
+      "smallTextShare": 70,
+      "accentTextShare": 6.5,
+      "toneSurfaces": 3,
+      "primaryHue": 232,
+      "centeredParagraphs": 1,
+      "moving": 18,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 26
+      }
+    },
+    {
+      "prompt": "course-create",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 119,
+      "costUsd": 0.51,
+      "turns": 4,
+      "outputTokens": 15488,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 6,
+      "nestedBoxes": 2,
+      "strongEffects": 1,
+      "fontSizes": 7,
+      "bodySize": 13,
+      "smallTextShare": 73,
+      "accentTextShare": 7.9,
+      "toneSurfaces": 2,
+      "primaryHue": 229,
+      "centeredParagraphs": 0,
+      "moving": 16,
+      "transitionAll": 6,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 9
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 209,
+      "costUsd": 0.81,
+      "turns": 15,
+      "outputTokens": 22195,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 2,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 12,
+      "bodySize": 17,
+      "smallTextShare": 13,
+      "accentTextShare": 1.4,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 5,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 23,
+        "all": 23,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 7
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 196,
+      "costUsd": 0.77,
+      "turns": 11,
+      "outputTokens": 21109,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 5,
+      "smallTargets": 6,
+      "boxes": 7,
+      "nestedBoxes": 0,
+      "strongEffects": 5,
+      "fontSizes": 15,
+      "bodySize": 17,
+      "smallTextShare": 14,
+      "accentTextShare": 1.2,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 34,
+        "all": 34,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 11
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 172,
+      "costUsd": 0.66,
+      "turns": 9,
+      "outputTokens": 18739,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 7,
+      "boxes": 3,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 12,
+      "bodySize": 17,
+      "smallTextShare": 15,
+      "accentTextShare": 1.8,
+      "toneSurfaces": 0,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 27,
+        "all": 27,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 5
+      }
+    },
+    {
+      "prompt": "course-create",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 239,
+      "costUsd": 1.44,
+      "turns": 20,
+      "outputTokens": 26705,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles",
+        "segmented-control",
+        "switch"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 2,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 66,
+      "accentTextShare": 3.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 25,
+      "transitionAll": 0,
+      "layoutMotion": 3,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 3
+      }
+    },
+    {
+      "prompt": "course-create",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 267,
+      "costUsd": 1.57,
+      "turns": 18,
+      "outputTokens": 27363,
+      "skillRead": true,
+      "patterns": [
+        "file-upload",
+        "layout-principles",
+        "loading-button",
+        "motion-principles",
+        "segmented-control"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 46,
+      "accentTextShare": 3.2,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 30,
+      "transitionAll": 0,
+      "layoutMotion": 3,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 3
+      }
+    },
+    {
+      "prompt": "course-create",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 234,
+      "costUsd": 1.32,
+      "turns": 16,
+      "outputTokens": 26502,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 3,
+      "nestedBoxes": 1,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 52,
+      "accentTextShare": 3.2,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 26,
+      "transitionAll": 0,
+      "layoutMotion": 2,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 5
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 233,
+      "costUsd": 1.17,
+      "turns": 24,
+      "outputTokens": 22797,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 7,
+      "bodySize": 17,
+      "smallTextShare": 15,
+      "accentTextShare": 1.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 223,
+      "costUsd": 1.25,
+      "turns": 20,
+      "outputTokens": 22773,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 17,
+      "smallTextShare": 9,
+      "accentTextShare": 1,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 0,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": false,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "travel-article",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 193,
+      "costUsd": 1.22,
+      "turns": 23,
+      "outputTokens": 19823,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 18,
+      "smallTextShare": 14,
+      "accentTextShare": 1.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    }
+  ]
+}

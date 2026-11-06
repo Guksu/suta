@@ -6,6 +6,42 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Fifth set of requests: clinic booking, course creation, travel magazine article (suta 0.17)
+
+We measured again after the fixes from the section below (pick-type form fields by kind of value, the article and review convention) and the measurement update (clipped text, table columns outside the first screen).
+
+- App clinic booking: "Make the booking screen of a hospital booking app, mobile first. It needs a department, a doctor, date and time, number of visitors, first or return visit, a symptom note and a book button. Department, date and time, and first or return visit are required." (asked in Korean)
+- Web course creation: "Build the page where an instructor registers a new course on an online course platform, desktop first. It needs a course title, a category, a level (beginner, intermediate, advanced), a price (free, or paid with an amount), a description, a cover image, visibility and a submit button. Title, category and price are required. Make it work on mobile too." (asked in Korean)
+- Web travel article: "Build a travel story page for a travel magazine, desktop first. It needs the title and subtitle, author and date, a lead photo slot, the body (with subheads, quotes and photo captions), a trip summary and related articles. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: clinic booking, course creation, travel article](assets/gap-fifth-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: clinic booking (first 390×844 screen), course creation and the travel article (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Clinic — without (3) | Clinic — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 3 | 0 | 14.67 | 0 |
+| Pages with text under 12px | 3 | 0 | 1 | 0 |
+| Primary button blue, indigo or violet | 3 | 0 | 3 | 0 |
+| Generation time (median) | 135 s | 209 s | 119 · 196 s | 239 · 223 s |
+| Generation cost (per run) | $0.49–0.78 | $1.27–1.79 | $0.50–0.81 | $1.17–1.57 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Clinic booking | 4 : 2 | 4 : 2 |
+| Course creation | 3 : 3 | 3 : 3 |
+| Travel article | 0 : 6 | 0 : 6 |
+
+- **suta won clinic booking.** It used department chips, a date strip, a visitor stepper with a default value and a first/return segmented control. The reason it lost meetup creation (1 : 5, "every field is the same text box") did not come back. The run that lost had the first date cell stuck to the left edge of the screen, so it looked cut off.
+- **Course creation split by run.** The first run lost because its segmented controls were narrower than the inputs and the form had no sections; the third won because the other side's mobile bottom bar pushed a button off screen.
+- **suta lost all 12 judgments on the travel article.** All three suta runs had a site menu with a single item ("여행기"), following the earlier fix "do not invent menu items"; the judges called it unfinished and picked pages with a drop cap, numbered subheads and a centered title block.
+- The new measurements (clipped text, table columns outside the first screen) were 0 on both sides.
+- Fixed after this run, not measured again: the first item of a sideways-scrolling row lines up with the page margin; desktop forms keep one column with equal-width controls and split long forms into titled sections; the article convention adds a centered title block, numbered subheads and photo captions. The site menu goes to the next PR together with the request-scope rule.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 13](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Fourth set of requests: create a local meetup, city library statistics, music webzine album review (suta 0.17)
 
 We measured again on screens that use the fixes made after the section below: multi-field forms, consistent sample numbers, a site header on web pages, text size where industry and screen type overlap, and the serif fallback. The measurement script is the fixed one, and we checked the captures by eye before judging.
