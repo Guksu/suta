@@ -34,11 +34,12 @@ Blind judgments (suta : without):
 | Course creation | 3 : 3 | 3 : 3 |
 | Travel article | 0 : 6 | 0 : 6 |
 
-- **suta won clinic booking.** It used department chips, a date strip, a visitor stepper with a default value and a first/return segmented control. The reason it lost meetup creation (1 : 5, "every field is the same text box") did not come back. The run that lost had the first date cell stuck to the left edge of the screen, so it looked cut off.
+- **suta won clinic booking.** It used department chips (a button grid in the third run), a date strip, a visitor stepper with a default value and a first/return segmented control (radio buttons in the third run). The reason it lost meetup creation (1 : 5, "every field is the same text box") did not come back. Its second run lost because the first date cell stuck to the left edge of the screen and looked cut off.
 - **Course creation split by run.** The first run lost because its segmented controls were narrower than the inputs and the form had no sections; the third won because the other side's mobile bottom bar pushed a button off screen.
-- **suta lost all 12 judgments on the travel article.** All three suta runs had a site menu with a single item ("여행기"), following the earlier fix "do not invent menu items"; the judges called it unfinished and picked pages with a drop cap, numbered subheads and a centered title block.
+- **suta lost all 12 judgments on the travel article.** The lost judgments named a drop cap (11), numbered subheads (9), a centered title block (8) and a full site menu (7). All three suta runs had a site menu with a single item ("여행기"), following the earlier fix "do not invent menu items".
+- **One unfavorable metric:** 3 of 6 suta web pages animated a width (all three course-creation runs), because the canonical `segmented-control` thumb transitions `width`. The thumb is taken out of the flow (absolute), so other elements do not reflow, but the measurement counts it.
 - The new measurements (clipped text, table columns outside the first screen) were 0 on both sides.
-- Fixed after this run, not measured again: the first item of a sideways-scrolling row lines up with the page margin; desktop forms keep one column with equal-width controls and split long forms into titled sections; the article convention adds a centered title block, numbered subheads and photo captions. The site menu goes to the next PR together with the request-scope rule.
+- Fixed after this run, not measured again: the first item of a sideways-scrolling row lines up with the page margin; desktop forms use an input column plus an optional right-hand panel, with equal-width controls inside the column and titled sections for long forms; the article convention adds a centered title block, numbered subheads, a drop cap and photo captions. The site menu goes to the next PR together with the request-scope rule.
 
 Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 13](research/2026-11-06-reference-gaps.md) (Korean)
 
