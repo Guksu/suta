@@ -6,6 +6,39 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### After fixing the conventions, the same requests again: writing, product filters, SaaS report (suta 0.17)
+
+We fixed the conventions where suta lost in the 0.16 diagnosis below and reran only suta on the same requests: the composer (borderless large inputs, character counts, small photo slots), filters (one chip per condition, each opening a bottom sheet for that condition), dashboards and reports (metrics as tabs in one panel above a large line chart) and stand-in product art (matching the product name). The runs without suta are the ones from the 0.16 section.
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: composer, product list with filters, SaaS report](assets/gap-remeasure-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: composer and product filters (first 390×844 screen) and the SaaS report (first 1280×800 screen). Each is the first run of its condition. suta ran 3 times per request, 9 runs in all. The revenue figure in suta's first report run is cut off at the right edge of its cell, and the image shows it.
+
+| | 2 app screens — without (6 runs) | 2 app screens — suta 0.17 (6 runs) | Web report — without (3 runs) | Web report — suta 0.17 (3 runs) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 42.67 | 0 | 9 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 0 | 0 | 2 | 0 |
+| Primary button blue, indigo or violet | 0 | 0 | 3 | 1 |
+| Generation time (median) | 101 · 197 s | 163 · 258 s | 239 s | 289 s |
+| Generation cost (per run) | $0.41–0.79 | $1.00–1.61 | $0.97–1.07 | $1.48–1.71 |
+
+Blind judgments (suta : without; two models, each pair judged twice with the order swapped):
+
+| Request | 0.16 — default model | 0.16 — other model | 0.17 — default model | 0.17 — other model |
+|---|---|---|---|---|
+| Composer | 0 : 6 | 2 : 4 | 2 : 4 | 3 : 3 |
+| Product filters | 2 : 4 | 1 : 5 | 2 : 4 | 1 : 5 |
+| SaaS report | 6 : 0 | 4 : 2 | 2 : 4 | 2 : 4 |
+
+- **All three runs followed the fixed conventions.** Every composer had borderless inputs, character counts and photo slots; every filter screen had one chip per condition (0.16: 1 of 3). Product art matched the products, such as a food bag or a bone-shaped treat.
+- **The composer improved but still lost.** The third run won all 4 of its judgments. The first and second runs had no close or back button, and all 4 default-model judgments on them said so. The judges also preferred visible labels and required (*) marks; the reference composers use unlabeled inputs.
+- **Product filter judgments did not change.** All 9 lost judgments named elements the suta side did not have: a header with search and cart, category tabs, wishlist hearts, BEST/NEW badges. None of these were in the request, and suta suggests unrequested features instead of adding them.
+- **The SaaS report got worse.** In the first run, the revenue "758,071,300원" ran out of its metric cell at 1280px (all 4 judgments noted it). The third run dropped the conversion and revenue columns from the mobile table. The second run won all 4 of its judgments.
+- Fixed after the rerun: values clipped by their cell and table columns dropped on small screens are now usability problems, and sub-screens keep a back or close button even when the request does not mention one. These fixes were not measured again.
+
+The conventions were fixed against these requests and measured with the same requests, so the gain may be specific to them. Three runs per condition, and one judge is also the generating model. The measurement script did not catch the clipped cell or the dropped columns. [Reference re-analysis, section 9](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Screens without a convention: writing, product filters and a SaaS report (suta 0.16)
 
 We picked flows that suta has no screen convention for, from a fresh analysis of the original references ([reference re-analysis](research/2026-11-06-reference-gaps.md), Korean). This measures suta before any fix.
@@ -43,7 +76,7 @@ Two models compared each pair with the condition hidden, twice with the order re
 - **suta won the SaaS report**, mostly on the other side's defects: overflow at 320px in 2 runs and a desktop metric-card row that ran off the page and cut off values. suta's second and third runs grouped the metrics as tabs in one panel above a large chart, as the reference report screens do. Its first run used a row of 4 metric cards. Two of suta's three runs picked a blue primary button although the request gave no brand basis.
 - suta took 1.4–1.6x the time and about 1.6–2.4x the cost. The cost of the 36 judge calls was not recorded.
 
-Only three runs per condition. One judge was also the generating model, and the judges saw still images only. Next we will fix the composer, filter and dashboard conventions and rerun the same requests. [Reference re-analysis and diagnosis](research/2026-11-06-reference-gaps.md) (Korean)
+Only three runs per condition. One judge was also the generating model, and the judges saw still images only. We then fixed the composer, filter and dashboard conventions and reran the same requests (the section above). [Reference re-analysis and diagnosis](research/2026-11-06-reference-gaps.md) (Korean)
 
 ### Mobile app screens, 8 types (suta 0.15)
 
