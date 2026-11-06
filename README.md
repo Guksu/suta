@@ -29,7 +29,7 @@ Accessibility results and design preference are separate. The measured violation
 
 ### Screens without a convention (suta 0.17)
 
-For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, reports, articles) with five sets of requests from different industries. Each set has three requests, run 3 times per condition: 81 runs in all, 45 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without), with two judge models judging 6 times each.
+For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with five sets of requests from different industries. Each set has three requests, run 3 times per condition: 81 runs in all, 45 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
 
 | Requests | Judgments |
 |---|---|
@@ -39,9 +39,11 @@ For 0.17 we measured screen types suta had no convention for (filters, composers
 | Meetup creation · library statistics · album review | 1:5·1:5 / 6:0·6:0 / 2:4·2:4 |
 | Clinic booking · course creation · travel article | 4:2·4:2 / 3:3·3:3 / 0:6·0:6 |
 
-- **Measurements:** accessibility violations (axe) were 0 on the suta side in all five sets.
-- **Judgments:** they split by request. suta won the report (library statistics), filters (stays) and a multi-field form (clinic booking) with the fixed conventions, and lost all three article pages.
-- **Cost:** the median generation cost per run was 1.2–3.3 times higher with suta, depending on the request.
+- **Measurements:** accessibility violations (axe) were 0 on the suta side in all five sets. Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
+- **Judgments:** across the 15 requests suta lost 33 : 57 with both judge models.
+  - suta won 3 requests with both models: stay filters, library statistics and clinic booking.
+  - It lost 9 requests with both models: 3 of the 4 reports, 4 of the 5 writing screens (composer, book review, listing, meetup) and all 3 article pages.
+- **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
 - **Not measured again:** the fixes made after the last set (desktop forms, article presentation, the request-scope boundary).
 - **Limits:** three runs per condition, and one judge model is also the generating model.
 
