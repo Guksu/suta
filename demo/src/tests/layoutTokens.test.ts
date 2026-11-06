@@ -44,6 +44,21 @@ describe('layoutTokens — 글꼴과 무채색의 온도', () => {
     expect(families.at(-1)).toBe('sans-serif')
   })
 
+  it('명조·고정폭 글꼴 목록이 CSS와 같고, 파일이 없어도 운영체제 글꼴로 내려간다 — 업종에 따라 제목·긴 글(명조)과 코드·수치(고정폭)에만 쓴다', () => {
+    expect(cssVar('--font-serif')).toBe(FONT.serif)
+    expect(cssVar('--font-mono')).toBe(FONT.mono)
+    const serif = FONT.serif.split(',').map((name) => name.trim().replace(/"/g, ''))
+    for (const korean of ['Noto Serif KR', 'AppleMyungjo', 'Batang']) expect(serif).toContain(korean)
+    // 한국어 명조가 없는 기기에서 라틴 명조(Georgia·serif)로 내려가면 한글은 고딕, 숫자·영문만 명조로 섞여 그려진다
+    // (다른 요청 재측정의 판정이 짚었다) — 한국어 명조 다음은 고딕 목록으로 내려간다
+    for (const latinSerif of ['Georgia', 'Source Serif 4', 'serif']) expect(serif).not.toContain(latinSerif)
+    expect(serif.slice(serif.indexOf('Batang') + 1)).toEqual(FONT.sans.split(',').map((name) => name.trim().replace(/"/g, '')))
+    const mono = FONT.mono.split(',').map((name) => name.trim().replace(/"/g, ''))
+    expect(mono).toContain('D2Coding')
+    expect(mono).toContain('ui-monospace')
+    expect(mono.at(-1)).toBe('monospace')
+  })
+
   it('글자·선·면의 무채색은 순수 회색이다 — 잘 만든 앱 29곳 중 24곳(푸른 회색은 따뜻한 강조색 옆에서 차갑다)', () => {
     for (const tone of [COLOR.text, COLOR.textSecondary, COLOR.textTertiary, COLOR.line, COLOR.canvas]) expect(oklchOf(tone).c).toBeLessThan(0.002)
   })

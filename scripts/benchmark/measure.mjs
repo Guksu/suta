@@ -372,7 +372,15 @@ for (const dir of runDirs.sort()) {
       const cs = getComputedStyle(el)
       if (cs.position !== 'fixed' || !el.checkVisibility?.({ checkOpacity: true, checkVisibilityCSS: true })) continue
       const r = el.getBoundingClientRect()
-      if (r.width === 0 || r.height === 0 || r.height >= innerHeight * 0.9) continue
+      if (r.width === 0 || r.height === 0) continue
+      // 처음 화면 밖에 있는 고정 요소(translateY(100%)로 내려 둔 닫힌 시트 등)는 기기에서 보이지 않는다.
+      // 옮기면서 transform을 지우면 닫힌 시트가 페이지 끝에 찍혀 판정이 "깨진 화면"으로 본다 — 건드리지 않고 숨긴다.
+      // 높이 검사보다 먼저 한다 — 키 큰 닫힌 시트(92vh)도 화면 밖이면 숨겨야 한다
+      if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) {
+        el.style.setProperty('visibility', 'hidden', 'important')
+        continue
+      }
+      if (r.height >= innerHeight * 0.9) continue
       pinned.push({ el, r, nearBottom: r.top > innerHeight / 2 })
     }
     for (const { el, r, nearBottom } of pinned) {

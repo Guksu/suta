@@ -1,0 +1,699 @@
+{
+  "date": "2026-11-06",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "meetup-create"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 3,
+      "metrics": {
+        "overflow320": {
+          "count": 2,
+          "of": 3
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 3
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 3
+        },
+        "smallTargets": 0,
+        "boxes": 0.67,
+        "nestedBoxes": 0,
+        "strongEffects": 0.67,
+        "fontSizes": 5.67,
+        "centeredParagraphs": 0.33,
+        "transitionAll": {
+          "count": 2,
+          "of": 3
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "reducedMotion": {
+          "count": 2,
+          "of": 3
+        },
+        "axeSerious": 9,
+        "axeAll": 9,
+        "sutaErrors": 1.33,
+        "sutaWarns": 5.33
+      },
+      "tone": {
+        "bodySize": 14,
+        "smallTextShare": 69,
+        "toneSurfaces": 0,
+        "accentTextShare": 2,
+        "primaryBlue": {
+          "count": 0,
+          "of": 3
+        }
+      },
+      "process": {
+        "medianSeconds": 103,
+        "meanTurns": 3,
+        "meanOutputTokens": 14073,
+        "meanInputTokens": 135910,
+        "skillRead": {
+          "count": 0,
+          "of": 3
+        },
+        "hookBlocks": 0,
+        "hookWarns": 0,
+        "pageErrors": {
+          "count": 0,
+          "of": 3
+        },
+        "permissionDenials": 0
+      }
+    },
+    "suta": {
+      "pages": 3,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 3
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 3
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 3
+        },
+        "smallTargets": 0.67,
+        "boxes": 7,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 3
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 0
+      },
+      "tone": {
+        "bodySize": 13,
+        "smallTextShare": 63,
+        "toneSurfaces": 2,
+        "accentTextShare": 4.9,
+        "primaryBlue": {
+          "count": 0,
+          "of": 3
+        }
+      },
+      "process": {
+        "medianSeconds": 231,
+        "meanTurns": 20.7,
+        "meanOutputTokens": 26683,
+        "meanInputTokens": 1429799,
+        "skillRead": {
+          "count": 3,
+          "of": 3
+        },
+        "hookBlocks": 0,
+        "hookWarns": 2,
+        "pageErrors": {
+          "count": 0,
+          "of": 3
+        },
+        "permissionDenials": 0
+      }
+    }
+  },
+  "judge": {
+    "judgments": 6,
+    "suta": 1,
+    "baseline": 5,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "meetup-create": {
+        "suta": 1,
+        "baseline": 5,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "meetup-create-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카테고리 칩, 정원 스테퍼, 무료/유료 세그먼트, 필수(*)·선택 표기, 글자 수 카운터를 써서 입력 형태가 실제 동네 모임 앱처럼 직관적이고 정돈되어 있고, B는 깔끔하고 일관되지만 모든 항목이 같은 텍스트 필드와 드롭다운이라 단조롭고 입력하기도 덜 편합니다."
+      },
+      {
+        "pair": "meetup-create-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 카테고리 칩, 정원 스테퍼, 무료/유료 토글, 장소 아이콘처럼 모바일에 맞는 입력 방식을 쓰고, 필수·선택 표시와 글자 수 위치도 일관되어 A의 단조로운 입력칸 나열보다 실제 앱답고 완성도가 높다."
+      },
+      {
+        "pair": "meetup-create-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카테고리 칩, 정원 스테퍼, 무료/유료 세그먼트 같은 실제 앱다운 입력 방식에 일관된 주황 포인트와 고정 하단 버튼을 더해 위계와 완성도가 높습니다. B는 필수/선택 표기와 하단 안내가 꼼꼼하지만, 카테고리를 한 단계 더 들어가야 고를 수 있고 전반적으로 평범한 입력창만 이어져 덜 다듬어 보입니다."
+      },
+      {
+        "pair": "meetup-create-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B가 더 낫습니다. 카테고리는 칩으로, 정원은 기본값 4가 들어간 스테퍼로, 참가비는 무료/유료 토글로 바로 고를 수 있어서 실제 앱처럼 보입니다. 필수 항목은 별표로 깔끔하게 표시했습니다. 반면 A는 정원 스테퍼 안에 '인원'이라는 안내 문구만 덩그러니 있어 어색하고, 카테고리를 고르는 칸도 평범한 입력란에 그쳐 완성도가 떨어집니다."
+      },
+      {
+        "pair": "meetup-create-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 넓은 대표 사진 영역과 카테고리 칩, 꽉 찬 정원 스테퍼, 무료·유료 세그먼트 버튼으로 실제 모임 앱에 더 가까운 위계와 완성도를 갖췄지만, '정원을(를)'처럼 어색한 안내 문구와 최소 인원보다 작은 '0명' 기본값은 고쳐야 하고, B는 깔끔하고 일관되지만 드롭다운과 작은 사진 영역 때문에 평범한 폼처럼 보인다."
+      },
+      {
+        "pair": "meetup-create-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 라벨·필수/선택 표시·입력 높이·간격이 처음부터 끝까지 고르고 하단 안내와 버튼이 깔끔하지만, B는 사진 영역과 참가비 토글은 더 풍부해도 카테고리 칩이 한 줄에 두 개씩 들쭉날쭉하게 줄바꿈되고 하단 안내 문구가 '있어/요'로 어색하게 끊기는 등 마감이 거칠어 A가 실제 앱에 그대로 내보내기에 더 적합하다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 6,
+    "suta": 1,
+    "baseline": 5,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "meetup-create": {
+        "suta": 1,
+        "baseline": 5,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "meetup-create-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카테고리 칩, 정원 스테퍼, 무료/유료 세그먼트 같은 모바일 친화적 입력 방식과 뚜렷한 라벨 위계(필수 별표, 선택 표기)로 실제 앱다운 완성도가 높고, B는 깔끔하고 일관되지만 모든 항목이 같은 텍스트 필드와 드롭다운이라 밋밋하고 입력이 번거롭다."
+      },
+      {
+        "pair": "meetup-create-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 카테고리 칩, 정원 스테퍼, 무료/유료 토글, 필수(*)·선택 표기, 글자 수 카운터를 위쪽에 두는 등 실제 앱다운 입력 방식과 위계가 더 잘 갖춰져 있고 간격·정렬도 일관된 반면, A는 깔끔하지만 모든 항목이 같은 텍스트 입력 위주라 밋밋합니다."
+      },
+      {
+        "pair": "meetup-create-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카테고리 칩, 기본값이 있는 정원 스테퍼, 무료/유료 토글처럼 실제 앱다운 입력 방식과 일관된 간격·위계를 갖춘 반면, B는 정원 칸이 비어 있고 \"인원\"과 \"명\" 배치가 어색하며 카테고리 선택이 덜 직관적이어서 완성도가 떨어진다."
+      },
+      {
+        "pair": "meetup-create-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 카테고리 칩, 무료/유료 세그먼트, 기본값 4명이 들어간 스테퍼, 아이콘이 있는 장소 입력으로 실제 앱처럼 쓰기 쉽고 필수 표시와 간격도 일관된 반면, A는 정원이 빈 값이고 카테고리가 단순 셀렉트에 머물러 완성도와 앱다운 느낌이 떨어진다."
+      },
+      {
+        "pair": "meetup-create-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 대표 사진 영역, 카테고리 칩, 무료/유료 세그먼트, 붙어 있는 정원 스테퍼, 필수 항목 안내 문구가 갖춰져 있어 실제 앱처럼 위계와 완성도가 높고, B는 깔끔하지만 사진 칸이 작고 정원 스테퍼가 따로 떨어져 정렬이 어색하며 카테고리가 드롭다운이라 밋밋합니다."
+      },
+      {
+        "pair": "meetup-create-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 라벨·필수 표시·안내 문구·입력창 간격이 일관되고 하단 고정 버튼과 비활성 상태가 명확해 바로 내보낼 만한 반면, B는 카테고리 이모지 칩이 원 안에 또 들어가 어색하고 큰 사진 영역이 공간을 많이 차지하며 하단 안내 문구가 \"요\" 한 글자만 남아 줄바꿈되고 버튼 색도 비활성인지 구분하기 어렵다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "meetup-create": {
+      "baseline": {
+        "overflow320": 2,
+        "nestedBoxes": 0,
+        "strongEffects": 0.7,
+        "fontSizes": 5.7,
+        "axeSerious": 9,
+        "smallTextShare": 69,
+        "toneSurfaces": 0,
+        "seconds": 109
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4,
+        "axeSerious": 0,
+        "smallTextShare": 63,
+        "toneSurfaces": 2,
+        "seconds": 250
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "meetup-create",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 103,
+      "turns": 3,
+      "outputTokens": 13185,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 68,
+      "accentTextShare": 2,
+      "toneSurfaces": 0,
+      "primaryHue": 24,
+      "centeredParagraphs": 0,
+      "moving": 22,
+      "transitionAll": 12,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": false,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 11,
+        "all": 11,
+        "rules": [
+          "aria-hidden-focus",
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 6
+      }
+    },
+    {
+      "prompt": "meetup-create",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 99,
+      "turns": 3,
+      "outputTokens": 12699,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": true,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 69,
+      "accentTextShare": 2.1,
+      "toneSurfaces": 0,
+      "primaryHue": 24,
+      "centeredParagraphs": 0,
+      "moving": 19,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": false,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 8,
+        "all": 8,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 5
+      }
+    },
+    {
+      "prompt": "meetup-create",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 125,
+      "turns": 3,
+      "outputTokens": 16336,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": true,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 5,
+      "bodySize": 12,
+      "smallTextShare": 72,
+      "accentTextShare": 1.5,
+      "toneSurfaces": 0,
+      "primaryHue": 24,
+      "centeredParagraphs": 1,
+      "moving": 29,
+      "transitionAll": 18,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 8,
+        "all": 8,
+        "rules": [
+          "aria-hidden-focus",
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 2,
+        "warns": 5
+      }
+    },
+    {
+      "prompt": "meetup-create",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 227,
+      "turns": 18,
+      "outputTokens": 25543,
+      "skillRead": true,
+      "patterns": [
+        "bottom-sheet",
+        "file-upload",
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 7,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 13,
+      "smallTextShare": 59,
+      "accentTextShare": 5.4,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 12,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "meetup-create",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 231,
+      "turns": 21,
+      "outputTokens": 25867,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 7,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 13,
+      "smallTextShare": 64,
+      "accentTextShare": 4.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 39,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "meetup-create",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 292,
+      "turns": 23,
+      "outputTokens": 28639,
+      "skillRead": true,
+      "patterns": [
+        "bottom-sheet",
+        "file-upload",
+        "layout-principles",
+        "modal-dialog"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 7,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 13,
+      "smallTextShare": 63,
+      "accentTextShare": 4.9,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 27,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    }
+  ]
+}

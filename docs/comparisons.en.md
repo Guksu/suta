@@ -6,6 +6,187 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Fourth set of requests: create a local meetup, city library statistics, music webzine album review (suta 0.17)
+
+We measured again on screens that use the fixes made after the section below: multi-field forms, consistent sample numbers, a site header on web pages, text size where industry and screen type overlap, and the serif fallback. The measurement script is the fixed one, and we checked the captures by eye before judging.
+
+- App meetup creation: "Make the create-a-meetup screen of a neighborhood meetup app, mobile first. It needs a cover photo, a meetup name, a category, date and time, a place, capacity, a fee, a description and a create button. Name, date and time, and capacity are required." (asked in Korean)
+- Web library statistics: "Build a usage statistics page for a city library, desktop first. It needs a period picker, monthly trend charts for loans, returns and visitors (in CSS or SVG), a usage table by branch, a most-borrowed books ranking and a data download. Make it work on mobile too." (asked in Korean)
+- Web album review: "Build an album review page for a music webzine, desktop first. It needs the album and artist, a rating, author and date, an album cover slot, the review body (with subheads and quotes), a track list and a list of other reviews. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: meetup creation, library statistics, album review](assets/gap-fourth-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: meetup creation (first 390×844 screen), library statistics and album review (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Meetup — without (3) | Meetup — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 9 | 0 | 15 | 0 |
+| Pages that scroll sideways at 320px | 2 | 0 | 1 | 1 |
+| Pages with text under 12px | 0 | 0 | 4 | 0 |
+| Primary button blue, indigo or violet | 0 | 0 | 3 | 0 |
+| Generation time (median) | 103 s | 231 s | 132 · 308 s | 184 · 291 s |
+| Generation cost (per run) | $0.42–0.53 | $1.40–1.58 | $0.52–1.37 | $1.06–1.84 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Meetup creation | 1 : 5 | 1 : 5 |
+| Library statistics | 6 : 0 | 6 : 0 |
+| Album review | 2 : 4 | 2 : 4 |
+
+- **All 12 judgments on library statistics went to suta.** All three suta runs grouped the metric tabs with one large chart and turned the branch table into a card list on mobile. All three runs without suta cut off table columns on mobile. Across three different requests the report type went 2 : 4 / 1 : 5 → 2 : 4 / 3 : 3 → 6 : 0 / 6 : 0.
+- **suta lost meetup creation.** It used bold labels, required marks and one input style, but a dropdown for the category, an empty capacity field and a plain number field for the fee. All 10 lost judgments called it "monotonous and tedious to fill in" and picked the side with category chips, a capacity stepper with a default value and a free/paid toggle.
+- **suta lost the album review.** Its first run won 3 of 4 judgments; the second and third lost to pages with a rating bar, release details, a drop cap and numbered subheads. In the third run the mobile site menu was cut off mid-word.
+- Fixed after this run, not measured again: pick-type fields in forms now get a control by kind of value (2–3 options: segmented control, 4–8: chips, small numbers: a stepper with a default, long lists and dates: a sheet), and a new "article and review detail" convention (site header → title block → wide lead image → 640–720px body column; review ratings as one number plus one graphic). The article convention comes from what the judges picked, not from the references.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 12](research/2026-11-06-reference-gaps.md) (Korean)
+
+### Third set of requests: secondhand listing, district complaint status, magazine article (suta 0.17)
+
+We fixed the losing reasons from the section below (required marks only inside placeholders, the revenue column off the first mobile screen), added type guidance by industry, and measured again on screens that use those fixes.
+
+- App secondhand listing: "Make the listing-writing screen of a secondhand marketplace app, mobile first. It needs photos (up to 10), a title, a category, a price, a description, a preferred meeting place and a post button. Photos, title and price are required." (asked in Korean)
+- Web complaint status: "Build a district office page showing the status of civil complaints, desktop first. It needs a left menu, a period picker, a trend chart of received and resolved complaints (in CSS or SVG), a status table by department and a download button. Make it work on mobile too." (asked in Korean)
+- Web magazine article: "Build an article page for an online magazine about cities and architecture, desktop first. It needs the title and subtitle, author and date, a lead image slot, the body (with subheads and quotes) and a list of related articles. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: secondhand listing, complaint status page, magazine article](assets/gap-third-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: the listing screen (first 390×844 screen), the complaint status page and the magazine article (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Listing — without (3) | Listing — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 10.67 | 0 | 12.67 | 0 |
+| Touch targets under 24px (per page) | 0.33 | 0.33 | 5.67 | 0.33 |
+| Primary button blue, indigo or violet | 1 | 0 | 3 | 0 |
+| Generation time (median) | 112 s | 214 s | 175 · 238 s | 192 · 351 s |
+| Generation cost (per run) | $0.44–0.51 | $1.30–1.64 | $0.70–1.12 | $1.06–1.90 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Secondhand listing | 0 : 6 | 1 : 5 |
+| Complaint status | 2 : 4 | 3 : 3 |
+| Magazine article | 1 : 5 | 0 : 6 |
+
+- **We fixed the measurement script.** The first judgments gave suta 4 : 2 and 4 : 2 on the listing screen, but all three runs whose closed bottom sheet showed up at the end of the capture lost as "broken". Those sheets are never visible on a device; the script pulled them in while moving fixed elements for the full-page capture. The table above uses the fixed captures and new judgments. Re-capturing all 72 runs so far showed that only these three were affected.
+- **suta lost the listing screen.** The required marks sat next to the labels in all three runs. 10 of the 11 lost judgments said the input styles were mixed: a borderless title, a gray filled price and a borderless description.
+- **The complaint status page split by run.** The second run turned the department table into a card list on mobile and won all 4 judgments. In the third run the numbers did not agree (more resolved than received complaints).
+- **suta lost the magazine article.** It followed the industry values (serif title, 18px body), but so did the side without suta. The lost judgments called suta's page "clean but bare" (no site menu, breadcrumb, author photo or share buttons). The capture machine has no Korean serif font, so the titles rendered in sans.
+- Fixed after this run, not measured again: one input style and bold labels in multi-field forms, sample numbers computed from one data set so they agree, a site header counted as part of a web page's frame, tables at 15–16 and paragraphs at 17+ on public status pages, and the serif token falling back to sans when no Korean serif is installed.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 11](research/2026-11-06-reference-gaps.md) (Korean)
+
+### Different requests: book review, stay search filters, store sales report (suta 0.17)
+
+The section below measured suta with the same requests its conventions were fixed against. To check whether the gains are specific to those requests, we ran both conditions again on the same screen types with requests from other industries.
+
+- App book review: "Make a book-review writing screen for a reading-club app, mobile first. It needs book selection, a star rating, a title, a body, photo attachments (up to 5), a visibility setting and a post button. The rating and the body are required." (asked in Korean)
+- App stay filters: "Make a search results list for a lodging booking app, mobile first. It needs the list, sorting, and filters for price, lodging type and amenities, and the result count must change when filters are applied." (asked in Korean)
+- Web sales report: "Build a sales report screen for an online store admin, desktop first. It needs a left menu, a period picker, trend charts for metrics such as revenue, orders and average order value (in CSS or SVG), a sales-by-product table and an Excel export. Make it work on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: book review, lodging search results with filters, store sales report](assets/gap-other-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: book review and stay filters (first 390×844 screen) and the sales report (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | 2 app screens — without (6 runs) | 2 app screens — suta (6 runs) | Web report — without (3 runs) | Web report — suta (3 runs) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 21.83 | 0 | 39.67 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 1 | 0 | 0 | 0 |
+| Gradients, blurs, large shadows (per page) | 18.33 | 0 | 0.67 | 0 |
+| Generation time (median) | 160 · 185 s | 280 · 265 s | 323 s | 350 s |
+| Generation cost (per run) | $0.53–0.79 | $1.46–1.72 | $1.20–1.40 | $1.54–1.94 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Book review | 1 : 5 | 1 : 5 |
+| Stay filters | 5 : 1 | 5 : 1 |
+| Sales report | 2 : 4 | 1 : 5 |
+
+- **suta won the stay filters.** All three runs had one chip per condition, a result count and a thumbnail row list. The runs without suta used large gradient tiles with an icon on top, which the judges called template-like.
+- **suta lost the book review.** All 10 lost judgments said the body had no label and "required" sat only inside the placeholder, which disappears once you type. suta applied the unlabeled large inputs it saw in title-and-body composers to a form with many fields.
+- **suta lost the sales report.** suta kept every mobile table column and let the table scroll sideways, so the revenue column was off the first screen. 7 of the 9 lost judgments said so. The third run won 3 judgments.
+- Both losing reasons were usability problems. After this run we changed suta so that required marks stay visible and narrow-screen tables show the name and key value together on the first screen. These changes were not measured again.
+- Generation cost was $22.93 for 18 runs; the median cost per run was 1.4–2.6x higher with suta.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 10](research/2026-11-06-reference-gaps.md) (Korean)
+
+### After fixing the conventions, the same requests again: writing, product filters, SaaS report (suta 0.17)
+
+We fixed the conventions where suta lost in the 0.16 diagnosis below and reran only suta on the same requests: the composer (borderless large inputs, character counts, small photo slots), filters (one chip per condition, each opening a bottom sheet for that condition), dashboards and reports (metrics as tabs in one panel above a large line chart) and stand-in product art (matching the product name). The runs without suta are the ones from the 0.16 section.
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: composer, product list with filters, SaaS report](assets/gap-remeasure-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: composer and product filters (first 390×844 screen) and the SaaS report (first 1280×800 screen). Each is the first run of its condition. suta ran 3 times per request, 9 runs in all. The revenue figure in suta's first report run is cut off at the right edge of its cell, and the image shows it.
+
+| | 2 app screens — without (6 runs) | 2 app screens — suta 0.17 (6 runs) | Web report — without (3 runs) | Web report — suta 0.17 (3 runs) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 42.67 | 0 | 9 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 0 | 0 | 2 | 0 |
+| Primary button blue, indigo or violet | 0 | 0 | 3 | 1 |
+| Generation time (median) | 101 · 197 s | 163 · 258 s | 239 s | 289 s |
+| Generation cost (per run) | $0.41–0.79 | $1.00–1.61 | $0.97–1.07 | $1.48–1.71 |
+
+Blind judgments (suta : without; two models, each pair judged twice with the order swapped):
+
+| Request | 0.16 — default model | 0.16 — other model | 0.17 — default model | 0.17 — other model |
+|---|---|---|---|---|
+| Composer | 0 : 6 | 2 : 4 | 2 : 4 | 3 : 3 |
+| Product filters | 2 : 4 | 1 : 5 | 2 : 4 | 1 : 5 |
+| SaaS report | 6 : 0 | 4 : 2 | 2 : 4 | 2 : 4 |
+
+- **All three runs followed the fixed conventions.** Every composer had borderless inputs, character counts and photo slots; every filter screen had one chip per condition (0.16: 1 of 3). Product art matched the products, such as a food bag or a bone-shaped treat.
+- **The composer improved but still lost.** The third run won all 4 of its judgments. The first and second runs had no close or back button, and all 4 default-model judgments on them said so. The judges also preferred visible labels and required (*) marks; the reference composers use unlabeled inputs.
+- **Product filter judgments did not change.** All 9 lost judgments named elements the suta side did not have: a header with search and cart, category tabs, wishlist hearts, BEST/NEW badges. None of these were in the request, and suta suggests unrequested features instead of adding them.
+- **The SaaS report got worse.** In the first run, the revenue "758,071,300원" ran out of its metric cell at 1280px (all 4 judgments noted it). The third run dropped the conversion and revenue columns from the mobile table. The second run won all 4 of its judgments.
+- Fixed after the rerun: values clipped by their cell and table columns dropped on small screens are now usability problems, and sub-screens keep a back or close button even when the request does not mention one. These fixes were not measured again.
+
+The conventions were fixed against these requests and measured with the same requests, so the gain may be specific to them. Three runs per condition, and one judge is also the generating model. The measurement script did not catch the clipped cell or the dropped columns. [Reference re-analysis, section 9](research/2026-11-06-reference-gaps.md) (Korean)
+
+### Screens without a convention: writing, product filters and a SaaS report (suta 0.16)
+
+We picked flows that suta has no screen convention for, from a fresh analysis of the original references ([reference re-analysis](research/2026-11-06-reference-gaps.md), Korean). This measures suta before any fix.
+
+- App post composer: "Build the post-writing screen of a neighborhood community app for mobile. It needs a topic choice, title, body, photo attachments (up to 10) and a post button. Title and body are required."
+- App product filters: "Build the product list screen of a pet supplies shopping app for mobile. It needs a product grid, sorting and filters for price range, brand and delivery type, and the product count must change when filters are applied."
+- Web report: "Build the report screen of a marketing analytics SaaS for desktop. It needs a left menu, a period selector, trend charts for metrics such as visitors and conversions (CSS or SVG), a table by channel and export. Make it work on mobile too."
+
+The requests were written in Korean; these are translations.
+
+![Top row without suta (AS-IS), bottom row with suta 0.16 (TO-BE). From left: post composer, product list filters, SaaS report](assets/gap-diagnosis-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.16.0. From left: composer and product filters (first 390×844 screen) and the SaaS report (first 1280×800 screen). Each is the first run of its condition. Each request ran three times per condition, 18 runs in all.
+
+| | Apps, without (6 runs) | Apps, suta (6 runs) | Web report, without (3) | Web report, suta (3) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 42.67 | 0 | 9 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 320px | 0 | 0 | 2 | 0 |
+| Card-like boxes (per page) | 0.33 | 0.67 | 3.67 | 3.33 |
+| Pages animating size or position directly | 0 | 0 | 0 | 1 |
+| Median generation time | 101 s, 197 s | 159 s, 287 s | 239 s | 343 s |
+| Generation cost per run | $0.41–0.79 | $0.96–1.62 | $0.97–1.07 | $1.65–2.34 |
+
+Two models compared each pair with the condition hidden, twice with the order reversed. Numbers are suta : without.
+
+| Request | Default model | Other model |
+|---|---|---|
+| Post composer | 0 : 6 | 2 : 4 |
+| Product filters | 2 : 4 | 1 : 5 |
+| SaaS report | 6 : 0 | 4 : 2 |
+
+- **suta lost the composer.** The judges called the suta version "a plain form of stacked gray boxes". The version without suta had borderless large inputs, character counts, a dashed photo slot and a community-rules note, which is what the reference composers do. suta applied its "inputs are gray filled boxes" default to a writing screen and left the textarea resize handle visible.
+- **Product filters split by run.** suta's first run put one chip per condition (price, brand, delivery), as the references do, and won. Its second and third runs hid the filters behind one button or a small text link and lost. The judges also called suta's stand-in product art "monotonous placeholders".
+- **suta won the SaaS report**, mostly on the other side's defects: overflow at 320px in 2 runs and a desktop metric-card row that ran off the page and cut off values. suta's second and third runs grouped the metrics as tabs in one panel above a large chart, as the reference report screens do. Its first run used a row of 4 metric cards. Two of suta's three runs picked a blue primary button although the request gave no brand basis.
+- suta took 1.4–1.6x the time and about 1.6–2.4x the cost. The cost of the 36 judge calls was not recorded.
+
+Only three runs per condition. One judge was also the generating model, and the judges saw still images only. We then fixed the composer, filter and dashboard conventions and reran the same requests (the section above). [Reference re-analysis and diagnosis](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Mobile app screens, 8 types (suta 0.15)
 
 Eight requests for app screens only. Each result was judged on one 390px screen.

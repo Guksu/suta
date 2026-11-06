@@ -1,0 +1,699 @@
+{
+  "date": "2026-11-06",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "menu-detail",
+    "login",
+    "settings",
+    "dashboard",
+    "landing",
+    "cart",
+    "search-results",
+    "option-sheet"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 3,
+      "metrics": {
+        "overflow320": {
+          "count": 2,
+          "of": 3
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 3
+        },
+        "tinyText": {
+          "count": 3,
+          "of": 3
+        },
+        "smallTargets": 6,
+        "boxes": 3.67,
+        "nestedBoxes": 1,
+        "strongEffects": 5.33,
+        "fontSizes": 6.67,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 3,
+          "of": 3
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "axeSerious": 9,
+        "axeAll": 9,
+        "sutaErrors": 1.33,
+        "sutaWarns": 17.33
+      },
+      "tone": {
+        "bodySize": 13,
+        "smallTextShare": 93,
+        "toneSurfaces": 2,
+        "accentTextShare": 12.3,
+        "primaryBlue": {
+          "count": 3,
+          "of": 3
+        }
+      },
+      "process": {
+        "medianSeconds": 239,
+        "meanTurns": 10.3,
+        "meanOutputTokens": 29722,
+        "meanInputTokens": 448755,
+        "skillRead": {
+          "count": 0,
+          "of": 3
+        },
+        "hookBlocks": 0,
+        "hookWarns": 0,
+        "pageErrors": {
+          "count": 0,
+          "of": 3
+        },
+        "permissionDenials": 0
+      }
+    },
+    "suta": {
+      "pages": 3,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 3
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 3
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 3
+        },
+        "smallTargets": 0,
+        "boxes": 4,
+        "nestedBoxes": 1.33,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 3
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 3
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 1
+      },
+      "tone": {
+        "bodySize": 14,
+        "smallTextShare": 93,
+        "toneSurfaces": 3,
+        "accentTextShare": 11.6,
+        "primaryBlue": {
+          "count": 1,
+          "of": 3
+        }
+      },
+      "process": {
+        "medianSeconds": 289,
+        "meanTurns": 26.7,
+        "meanOutputTokens": 35157,
+        "meanInputTokens": 1216402,
+        "skillRead": {
+          "count": 3,
+          "of": 3
+        },
+        "hookBlocks": 1,
+        "hookWarns": 13,
+        "pageErrors": {
+          "count": 0,
+          "of": 3
+        },
+        "permissionDenials": 0
+      }
+    }
+  },
+  "judge": {
+    "judgments": 6,
+    "suta": 2,
+    "baseline": 4,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline"
+    ],
+    "byPrompt": {
+      "saas-report": {
+        "suta": 2,
+        "baseline": 4,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "saas-report-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "B는 데스크톱 매출 수치(758,071,300원)가 카드 밖으로 넘쳐 잘리고 모바일 표 오른쪽도 가장자리에 붙어 다듬어지지 않은 반면, A는 필터·KPI·차트·표의 간격과 정렬이 두 화면 모두 고르고 비교 배지·범례·라벨이 깔끔해 그대로 내보내기에 더 완성도가 높다."
+      },
+      {
+        "pair": "saas-report-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "A는 데스크톱에서 매출 수치 '758,071,300원'이 카드 밖으로 넘쳐 잘리는 결함이 있지만, B는 데스크톱과 모바일 모두에서 지표 카드, 차트, 표의 위계와 간격이 고르고 증감 배지도 정돈되어 있어 실제 서비스에 내보낼 만큼 완성도가 더 높다."
+      },
+      {
+        "pair": "saas-report-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 지표 카드와 차트 등 기능은 풍부하지만, 데스크톱에서 다섯 번째 매출 카드가 화면 오른쪽 밖으로 넘쳐 금액이 잘리는 배치 결함이 있습니다. B는 모바일에서 증감 수치가 줄바꿈되고 표를 가로로 스크롤해야 하는 아쉬움이 있으나, 데스크톱의 정렬과 간격이 일관되고 위계가 깔끔해 그대로 내보내기에 더 적합합니다."
+      },
+      {
+        "pair": "saas-report-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 기능이 더 풍부하고 모바일 채널 카드도 좋지만, 데스크톱에서 KPI 카드가 화면 오른쪽 밖으로 넘쳐 매출 값이 잘리는 결함이 있습니다. A는 모바일 표가 가로 스크롤로 잘려 보이는 아쉬움이 있어도 데스크톱 위계와 정렬이 깔끔하고 전반적으로 안정적이라 그대로 내보내기에 더 적합합니다."
+      },
+      {
+        "pair": "saas-report-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 비교 기간이 함께 표시된 KPI, 채널 필터, 차트·표 전환, 정돈된 사이드바 덕분에 데스크톱에서 정보 위계와 완성도가 더 높고, 모바일에서도 고정 열이 있는 가로 스크롤 표로 정보를 빠짐없이 유지하므로, 모바일에서 홀로 남는 KPI 카드가 있다는 작은 흠을 감안해도 B보다 실제 서비스에 내보내기에 적합하다."
+      },
+      {
+        "pair": "saas-report-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "A는 깔끔하고 정돈되어 있지만 모바일 표에서 전환·매출 열을 빼서 정보가 줄어듭니다. B는 아이콘이 들어간 사이드바, 이동 경로, 이전 기간 수치까지 보여 주는 지표 카드, 차트/표 전환과 정렬 가능한 표로 데스크톱 위계와 완성도가 확실히 높고, 모바일에서도 첫 열을 고정한 가로 스크롤 표로 모든 정보를 담고 있어서 매출 카드 하나만 남는 배치 같은 작은 흠이 있어도 B가 더 실서비스 수준입니다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 6,
+    "suta": 2,
+    "baseline": 4,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline"
+    ],
+    "byPrompt": {
+      "saas-report": {
+        "suta": 2,
+        "baseline": 4,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "saas-report-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 데스크톱에서 사이드바·기간 선택·5개 지표 카드·큰 추이 차트가 일관된 간격과 위계로 정돈됐고 모바일도 지표 카드 그리드와 읽기 쉬운 표로 완성도가 높은 반면, B는 데스크톱 매출 수치(758,071,300원)가 카드 밖으로 넘치고 모바일 차트 축이 빽빽해 마감이 덜 다듬어졌다."
+      },
+      {
+        "pair": "saas-report-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "A는 모바일 표가 깔끔하지만 데스크톱 첫 화면에서 매출 \"758,071,300원\"이 카드 밖으로 넘쳐 잘리는 결함이 있고, B는 데스크톱의 사이드바·필터·지표 카드·차트 위계와 정렬이 일관되며 모바일 표의 가로 스크롤은 감수할 만한 수준이라 그대로 내보내기에 더 적합하다."
+      },
+      {
+        "pair": "saas-report-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 모바일 카드 배치는 좋지만 데스크톱에서 KPI 카드(매출 값 잘림)와 차트가 오른쪽으로 넘쳐 완성도가 떨어지고, B는 데스크톱의 간격·정렬·위계가 깔끔하며 모바일 표의 가로 스크롤 잘림만 약간 아쉬울 뿐 전체적으로 그대로 출시할 만합니다."
+      },
+      {
+        "pair": "saas-report-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 데스크톱에서 위계와 간격·정렬이 깔끔하고 눈에 띄는 깨짐이 없으며 모바일 표의 오른쪽 잘림도 가로 스크롤 수준인 반면, B는 모바일 구성은 좋지만 데스크톱 첫 화면에서 매출 카드와 차트 카드가 오른쪽 끝에서 잘리는 레이아웃 결함이 있어 그대로 내보내기 어렵다."
+      },
+      {
+        "pair": "saas-report-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 다섯 개 지표 카드와 증감 배지, 정돈된 사이드바·브레드크럼, 정렬 가능한 채널 표(세션·전환·증감 열 포함)로 실서비스 수준의 정보 위계와 완성도를 보여주고, 모바일에서도 지표 그리드와 표 가로 스크롤로 정보를 유지하는 반면, B는 깔끔하지만 모바일 표에서 전환·매출 열이 빠지고 데스크톱 사이드바가 단조로워 정보 밀도와 완성도가 한 단계 낮다."
+      },
+      {
+        "pair": "saas-report-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 아이콘과 워크스페이스·사용자 영역을 갖춘 사이드바, 증감 칩이 붙은 5개 KPI, 차트/표 전환, 정렬 가능한 표 등 실서비스에 가까운 완성도와 위계를 보이고 모바일도 첫 열 고정 가로 스크롤로 대응한 반면, A는 깔끔하고 모바일 표가 한 화면에 들어오지만 사이드바와 KPI가 단순하고 정보 밀도·마감이 한 단계 낮다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "saas-report": {
+      "baseline": {
+        "overflow320": 2,
+        "nestedBoxes": 1,
+        "strongEffects": 5.3,
+        "fontSizes": 6.7,
+        "axeSerious": 9,
+        "smallTextShare": 93,
+        "toneSurfaces": 2,
+        "seconds": 241
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 1.3,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "axeSerious": 0,
+        "smallTextShare": 93,
+        "toneSurfaces": 3,
+        "seconds": 300
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "saas-report",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 253,
+      "turns": 10,
+      "outputTokens": 31147,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": true,
+      "overflow390": true,
+      "coveredByBar": false,
+      "tinyText": 3,
+      "smallTargets": 9,
+      "boxes": 4,
+      "nestedBoxes": 1,
+      "strongEffects": 10,
+      "fontSizes": 7,
+      "bodySize": 14,
+      "smallTextShare": 93,
+      "accentTextShare": 12.3,
+      "toneSurfaces": 2,
+      "primaryHue": 213,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 1,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 1,
+        "all": 1,
+        "rules": [
+          "button-name"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 12
+      }
+    },
+    {
+      "prompt": "saas-report",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 239,
+      "turns": 11,
+      "outputTokens": 29939,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 4,
+      "smallTargets": 1,
+      "boxes": 4,
+      "nestedBoxes": 1,
+      "strongEffects": 1,
+      "fontSizes": 8,
+      "bodySize": 13,
+      "smallTextShare": 92,
+      "accentTextShare": 12.1,
+      "toneSurfaces": 1,
+      "primaryHue": 213,
+      "centeredParagraphs": 0,
+      "moving": 9,
+      "transitionAll": 1,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 10,
+        "all": 10,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 2,
+        "warns": 18
+      }
+    },
+    {
+      "prompt": "saas-report",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 232,
+      "turns": 10,
+      "outputTokens": 28080,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": true,
+      "overflow390": true,
+      "coveredByBar": false,
+      "tinyText": 7,
+      "smallTargets": 8,
+      "boxes": 3,
+      "nestedBoxes": 1,
+      "strongEffects": 5,
+      "fontSizes": 5,
+      "bodySize": 13,
+      "smallTextShare": 94,
+      "accentTextShare": 19.8,
+      "toneSurfaces": 2,
+      "primaryHue": 213,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 1,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 16,
+        "all": 16,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 22
+      }
+    },
+    {
+      "prompt": "saas-report",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 325,
+      "turns": 42,
+      "outputTokens": 38018,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 12,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 5,
+      "nestedBoxes": 2,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 93,
+      "accentTextShare": 11.4,
+      "toneSurfaces": 3,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 28,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "saas-report",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 285,
+      "turns": 19,
+      "outputTokens": 33544,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 1,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 5,
+      "nestedBoxes": 2,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 93,
+      "accentTextShare": 15.3,
+      "toneSurfaces": 3,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 25,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "saas-report",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 289,
+      "turns": 19,
+      "outputTokens": 33908,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 2,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 88,
+      "accentTextShare": 11.6,
+      "toneSurfaces": 2,
+      "primaryHue": 228,
+      "centeredParagraphs": 0,
+      "moving": 31,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    }
+  ]
+}
