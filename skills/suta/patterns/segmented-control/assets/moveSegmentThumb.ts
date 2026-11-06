@@ -46,7 +46,10 @@ export const moveSegmentThumb = ({ thumb, target, immediate = false }: MoveSegme
   thumb.style.transition = 'none'
   thumb.style.transform = transform
   thumb.style.width = width
-  // 브라우저가 무전환 배치를 그린 다음 프레임에 transition을 복원한다
+  // 여기서 스타일을 한 번 확정한다. rAF 콜백은 다음 프레임의 스타일 계산보다 먼저 돌아서,
+  // 확정하지 않으면 브라우저가 none을 보지 못하고 첫 배치가 0에서 미끄러져 온다
+  void thumb.offsetWidth
+  // 다음 프레임에 transition을 복원한다
   requestAnimationFrame(() => {
     thumb.style.transition = ''
   })

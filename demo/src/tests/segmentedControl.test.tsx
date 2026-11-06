@@ -61,6 +61,21 @@ describe('moveSegmentThumb — thumb를 선택 칸 위치로 이동', () => {
     expect(thumb.style.transition).toBe('')
   })
 
+  it('immediate면 transition을 끈 채로 스타일을 한 번 확정한다 (다음 프레임 복원 전에 브라우저가 none을 보게)', () => {
+    // rAF 콜백은 다음 프레임의 스타일 계산보다 먼저 돈다. 그 사이에 스타일을 확정하지 않으면
+    // 브라우저는 none을 보지 못하고 첫 배치가 0에서 미끄러져 온다(프로덕션 빌드에서 확인)
+    const thumb = document.createElement('span')
+    const transitionsSeenOnRead: string[] = []
+    Object.defineProperty(thumb, 'offsetWidth', {
+      get: () => {
+        transitionsSeenOnRead.push(thumb.style.transition)
+        return 0
+      },
+    })
+    moveSegmentThumb({ thumb, target: makeSegment({ left: 40, width: 60 }), immediate: true })
+    expect(transitionsSeenOnRead).toContain('none')
+  })
+
   it('immediate가 아니면 transition을 건드리지 않는다', () => {
     const thumb = document.createElement('span')
     moveSegmentThumb({ thumb, target: makeSegment({ left: 0, width: 50 }) })
