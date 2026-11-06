@@ -1,0 +1,1064 @@
+{
+  "date": "2026-11-06",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "menu-detail",
+    "login",
+    "settings",
+    "dashboard",
+    "landing",
+    "cart",
+    "search-results",
+    "option-sheet"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 1,
+          "of": 6
+        },
+        "smallTargets": 5.67,
+        "boxes": 6.17,
+        "nestedBoxes": 2.5,
+        "strongEffects": 0.5,
+        "fontSizes": 9.33,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 1,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "axeSerious": 12.67,
+        "axeAll": 12.67,
+        "sutaErrors": 0.5,
+        "sutaWarns": 9.17
+      },
+      "tone": {
+        "bodySize": 15.5,
+        "smallTextShare": 50,
+        "toneSurfaces": 2,
+        "accentTextShare": 3.3,
+        "primaryBlue": {
+          "count": 3,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 207,
+        "meanTurns": 12.8,
+        "meanOutputTokens": 25005,
+        "meanInputTokens": 503296,
+        "skillRead": {
+          "count": 0,
+          "of": 6
+        },
+        "hookBlocks": 0,
+        "hookWarns": 0,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0
+      }
+    },
+    "suta": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 6
+        },
+        "smallTargets": 0.33,
+        "boxes": 1.83,
+        "nestedBoxes": 0.33,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 0.33
+      },
+      "tone": {
+        "bodySize": 15.5,
+        "smallTextShare": 39,
+        "toneSurfaces": 2,
+        "accentTextShare": 0.8,
+        "primaryBlue": {
+          "count": 0,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 266,
+        "meanTurns": 25.8,
+        "meanOutputTokens": 26665,
+        "meanInputTokens": 1609740,
+        "skillRead": {
+          "count": 6,
+          "of": 6
+        },
+        "hookBlocks": 1,
+        "hookWarns": 9,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0
+      }
+    }
+  },
+  "judge": {
+    "judgments": 12,
+    "suta": 3,
+    "baseline": 9,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline",
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "civil-report": {
+        "suta": 2,
+        "baseline": 4,
+        "tie": 0
+      },
+      "magazine-article": {
+        "suta": 1,
+        "baseline": 5,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "civil-report-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 필터, 요약 지표 카드, 차트, 부서별 표로 이어지는 위계가 분명하고, 데스크톱과 모바일 모두 간격과 정렬이 일관되어 완성도가 높다. B는 깔끔하지만 모바일에서 내려받기 버튼 정렬이 어긋나 있고, 부서별 수치 줄이 어색하게 줄바꿈되어 상대적으로 덜 다듬어졌다."
+      },
+      {
+        "pair": "civil-report-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B가 더 나아요. 데스크톱에서는 헤더, 아이콘 달린 사이드 메뉴, 조회 필터, 핵심 지표 카드, 막대와 선을 겹친 차트가 분명한 위계로 정돈되어 있고, 모바일에서도 카드형 표와 처리율 막대 덕분에 읽기 쉬워서 A보다 실서비스 완성도가 높습니다."
+      },
+      {
+        "pair": "civil-report-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 데스크톱 구성이 풍부하지만 모바일에서 표가 잘려 가로 스크롤이 생기고, KPI 증감 문구가 어색하게 줄바꿈되고, 날짜 입력칸도 비좁습니다. B는 데스크톱과 모바일 모두 위계가 분명하고 간격이 일관되며, 특히 모바일에서 표를 카드 목록으로 바꿔 읽기가 훨씬 쉬워 완성도가 더 높습니다."
+      },
+      {
+        "pair": "civil-report-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 데스크톱 구성이 더 풍부하지만, 모바일에서 KPI 증감 수치가 어색하게 줄바꿈되고 표가 가로로 잘려 다듬어지지 않은 느낌이고, A는 데스크톱과 모바일 모두 위계와 간격이 일관되며 모바일에서 표를 목록형으로 바꿔 더 바로 내보낼 수 있는 완성도를 보입니다."
+      },
+      {
+        "pair": "civil-report-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 핵심 지표 카드, 기간·부서 필터, 범례와 단위가 있는 추이 차트를 데스크톱과 모바일에서 일관된 간격으로 짜임새 있게 배치해 위계와 완성도가 높고, B는 화면이 깔끔하지만 차트의 처리 6,179건이 표 합계의 완료 5,254건과 맞지 않고 x축 라벨 간격도 고르지 않아 그대로 내보내기에는 신뢰도가 떨어집니다."
+      },
+      {
+        "pair": "civil-report-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 모바일 부서 카드가 길게 늘어지는 아쉬움이 있지만, 핵심 지표 카드, 기간·부서 필터, 상태 배지, 아이콘이 있는 메뉴로 정보의 위계와 완성도가 더 높고 수치도 서로 맞습니다. A는 깔끔하지만 데스크톱 화면이 허전하고 처리 건수가 접수 건수보다 많게 나오는 등 수치가 맞지 않습니다."
+      },
+      {
+        "pair": "magazine-article-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 내비게이션, 드롭캡, 공유 버튼까지 갖춰 구성이 풍부하지만 제목과 본문의 숫자(10년, 2015년, 2020년대)가 세리프 폰트로 바뀌어 글꼴이 섞여 보이는 완성도 문제가 있고, B는 데스크톱과 모바일 모두 서체·위계·간격이 일관되고 깔끔해 그대로 서비스에 내보내기에 더 안정적이다."
+      },
+      {
+        "pair": "magazine-article-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "A도 깔끔하고 일관되지만, B가 더 완성도 있는 매거진 화면입니다. 카테고리 내비게이션과 구독 버튼, 가운데 정렬한 제목부, 아바타·사진 크레딧·읽는 시간이 들어간 바이라인, 드롭캡과 번호 붙은 소제목, 공유 버튼까지 갖춰 정보의 위계가 분명하고, 모바일과 데스크톱 모두 실제 서비스에 가까운 수준으로 정돈되어 있습니다."
+      },
+      {
+        "pair": "magazine-article-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A가 더 낫습니다. A는 내비게이션, 경로 표시, 번호 붙은 소제목, 드롭캡, 사진 출처, 공유 버튼까지 갖춰 정보의 위계와 매거진다운 완성도가 높고, 데스크톱에서도 로고와 본문의 왼쪽 정렬이 맞습니다. 반면 B는 깔끔하지만 데스크톱에서 로고(144px), 본문(300px), 이미지(120px)의 정렬 기준선이 서로 어긋나고 헤더 내비게이션 같은 요소가 빠져 있어 상대적으로 덜 다듬어져 보입니다."
+      },
+      {
+        "pair": "magazine-article-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B가 더 낫습니다. 내비게이션·브레드크럼·카테고리부터 제목·부제·글쓴이 메타 정보와 공유 버튼, 번호가 붙은 소제목까지 위계가 뚜렷합니다. 데스크톱 정렬과 모바일 본문 간격도 일관되고 매거진다운 완성도가 높습니다. A는 깔끔하지만 너무 단출해서 실제 서비스 수준에는 못 미칩니다."
+      },
+      {
+        "pair": "magazine-article-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 내비게이션·브레드크럼·카테고리·저자 아바타·읽는 시간·번호 붙은 소제목·드롭캡·공유 버튼까지 갖춰 매거진다운 정보 위계와 완성도가 높고 데스크톱·모바일 모두 간격과 정렬이 일관되지만, B는 깔끔해도 구성이 단순해 실서비스 수준의 완성도에서 A에 못 미친다."
+      },
+      {
+        "pair": "magazine-article-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B가 더 낫다. 내비게이션·브레드크럼·카테고리·바이라인으로 이어지는 정보 위계가 분명하고, 번호 붙은 소제목과 드롭캡, 인용 처리, 공유 도구까지 갖춰 매거진다운 완성도가 높다. 모바일과 데스크톱 모두 간격과 정렬도 일관되다. A는 깔끔하지만 구성이 단조롭고 서비스 수준의 디테일이 부족하다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 12,
+    "suta": 3,
+    "baseline": 9,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "baseline",
+      "baseline",
+      "baseline"
+    ],
+    "byPrompt": {
+      "civil-report": {
+        "suta": 3,
+        "baseline": 3,
+        "tie": 0
+      },
+      "magazine-article": {
+        "suta": 0,
+        "baseline": 6,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "civil-report-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 사이드 메뉴·필터 패널·KPI 카드·막대·선 차트로 정보의 위계와 간격·정렬이 일관되고, 모바일에서도 부서별 현황을 정돈된 카드와 처리율 막대로 보여 주어 완성도가 높은 반면, B는 깔끔하지만 모바일 부서 목록에서 \"기한 초과\" 문구가 어색하게 줄바꿈되고 수치가 한 줄에 빽빽하게 몰려 읽기 어렵다."
+      },
+      {
+        "pair": "civil-report-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 헤더·브레드크럼·요약 카드·기간/유형 필터·차트·표가 위계 있게 정돈된 실제 서비스 수준의 화면이고 모바일에서도 필터, 카드, 부서별 카드 목록이 일관되게 재배치된 반면, A는 단순하고 깔끔하지만 모바일 표가 밀집된 텍스트 줄글로 읽기 어렵고 데스크톱 메뉴와 구성이 빈약하다."
+      },
+      {
+        "pair": "civil-report-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 모바일에서 표를 부서별 카드 목록으로 재구성해 가로 스크롤 없이 읽히고, 데스크톱에서도 기간 선택·내려받기·차트로 이어지는 위계가 간결하고 간격이 일관된 반면, A는 데스크톱은 탄탄하지만 모바일 표의 열이 잘리고 KPI·필터 영역이 과밀합니다."
+      },
+      {
+        "pair": "civil-report-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 기간 선택·내려받기·추이 차트·부서별 표가 요청 범위 안에서 위계가 분명하고 간격과 정렬이 일관되며, 모바일에서도 표를 잘리는 열 없이 부서별 목록으로 재배치해 한눈에 읽히는 반면, B는 데스크톱이 화려하고 완성도가 높지만 모바일 표의 오른쪽 열이 잘리고 요청에 없던 요소(인쇄·다크모드·KPI 카드 등)로 화면이 길고 복잡해졌다."
+      },
+      {
+        "pair": "civil-report-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 제목·다운로드·기간 선택·추이 차트·부서 표의 위계가 단순명료하고 모바일에서도 부서별 현황이 두 줄로 압축되어 합계 행까지 한눈에 읽히는 반면, A는 데스크톱은 탄탄하지만 요청에 없던 KPI 카드와 조회 폼이 늘어나고 모바일 부서 표가 부서당 6줄 카드로 풀려 지나치게 길고 반복적이다."
+      },
+      {
+        "pair": "civil-report-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 데스크톱에서 아이콘 사이드바, 기간·부서 필터 바, KPI 카드, 차트가 위계 있게 정돈되어 바로 서비스에 쓸 만한 완성도이고, 모바일에서도 필터와 KPI를 2열로 재배치하고 표를 카드로 바꿔 상태 배지까지 갖췄으며, A는 깔끔하지만 데스크톱 첫 화면이 차트 하나에 치우치고 KPI·상태 표시가 없어 정보 밀도와 완성도에서 B에 못 미친다."
+      },
+      {
+        "pair": "magazine-article-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 데스크톱에서 내비게이션, 중앙 정렬 제목과 부제, 글쓴이 정보, 큰 대표 이미지가 잡힌 매거진다운 위계를 갖췄고, 모바일에서도 드롭캡, 번호 소제목, 인용, 공유 버튼, 이미지 캡션이 일관된 간격으로 정리되어 완성도가 높습니다. B도 깔끔하고 읽기 좋지만 데스크톱 헤더가 단순하고 왼쪽 정렬 위주이며 모바일 구성도 A보다 덜 풍부합니다."
+      },
+      {
+        "pair": "magazine-article-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 메뉴·구독 버튼이 있는 헤더, 중앙 정렬 제목·부제, 작성자 아바타·날짜·읽는 시간, 드롭캡·본문·소제목 번호·인용이 있어 매거진 기사 페이지로서 위계와 완성도가 높고 모바일에서도 여백과 가독성이 안정적인 반면, A는 무난하지만 데스크톱 첫 화면이 왼쪽에 치우쳐 밋밋하고 단조롭다."
+      },
+      {
+        "pair": "magazine-article-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 내비게이션·브레드크럼·카테고리·큰 제목·부제·글쓴이/날짜/공유 버튼으로 이어지는 위계가 뚜렷하고, 번호 달린 소제목·드롭캡·인용·각주 등 매거진다운 완성도가 높으며 모바일에서도 간격과 정렬이 일관되고 읽기 편해서, 내비게이션이 빈약하고 글쓴이 정보가 단출하며 장식이 적은 B보다 실서비스에 가깝다."
+      },
+      {
+        "pair": "magazine-article-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 내비게이션·브레드크럼·카테고리 라벨, 큰 제목과 부제, 작성자 아바타와 공유 버튼이 있는 메타 영역, 캡션 달린 대표 이미지, 드롭캡·번호 소제목·각주로 매거진다운 위계와 완성도를 갖췄고 모바일에서도 햄버거 메뉴와 일관된 간격으로 잘 정리된 반면, A는 깔끔하지만 헤더가 로고뿐이고 구성이 단순하며 데스크톱 첫 화면의 여백이 커서 완성도가 떨어진다."
+      },
+      {
+        "pair": "magazine-article-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 중앙 정렬 히어로, 번호가 붙은 소제목, 큰 인용구, 공유 아이콘으로 매거진다운 위계와 간격 리듬이 데스크톱과 모바일 모두에서 일관되어 완성도가 더 높은 반면, B는 깔끔하지만 평이하고 서비스 정체성이 약합니다."
+      },
+      {
+        "pair": "magazine-article-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 내비게이션·브레드크럼·가운데 정렬 제목 블록·번호 소제목·강조 인용·공유 버튼으로 위계와 완성도가 높고 모바일에서도 일관된 반면, A는 깔끔하지만 데스크톱에서 헤더·본문·이미지의 정렬 기준이 어긋나고 상대적으로 밋밋하다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "civil-report": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 5,
+        "strongEffects": 0,
+        "fontSizes": 8,
+        "axeSerious": 3.7,
+        "smallTextShare": 88,
+        "toneSurfaces": 2,
+        "seconds": 243
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0.7,
+        "strongEffects": 0,
+        "fontSizes": 4.7,
+        "axeSerious": 0,
+        "smallTextShare": 70,
+        "toneSurfaces": 3,
+        "seconds": 358
+      }
+    },
+    "magazine-article": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 1,
+        "fontSizes": 10.7,
+        "axeSerious": 21.7,
+        "smallTextShare": 11,
+        "toneSurfaces": 2,
+        "seconds": 177
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 5.3,
+        "axeSerious": 0,
+        "smallTextShare": 12,
+        "toneSurfaces": 2,
+        "seconds": 178
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "civil-report",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 263,
+      "turns": 13,
+      "outputTokens": 32237,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 7,
+      "boxes": 8,
+      "nestedBoxes": 1,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 88,
+      "accentTextShare": 5.4,
+      "toneSurfaces": 2,
+      "primaryHue": 217,
+      "centeredParagraphs": 0,
+      "moving": 1,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 3,
+        "all": 3,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 12
+      }
+    },
+    {
+      "prompt": "civil-report",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 238,
+      "turns": 14,
+      "outputTokens": 29765,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 7,
+      "boxes": 8,
+      "nestedBoxes": 1,
+      "strongEffects": 0,
+      "fontSizes": 9,
+      "bodySize": 14,
+      "smallTextShare": 95,
+      "accentTextShare": 5.6,
+      "toneSurfaces": 2,
+      "primaryHue": 214,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 1,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 17
+      }
+    },
+    {
+      "prompt": "civil-report",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 227,
+      "turns": 13,
+      "outputTokens": 28307,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 20,
+      "nestedBoxes": 13,
+      "strongEffects": 0,
+      "fontSizes": 9,
+      "bodySize": 14,
+      "smallTextShare": 87,
+      "accentTextShare": 5,
+      "toneSurfaces": 2,
+      "primaryHue": 218,
+      "centeredParagraphs": 0,
+      "moving": 1,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 8,
+        "all": 8,
+        "rules": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 2,
+        "warns": 14
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 168,
+      "turns": 13,
+      "outputTokens": 18850,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 3,
+      "smallTargets": 2,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 13,
+      "bodySize": 17,
+      "smallTextShare": 13,
+      "accentTextShare": 1.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 6,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 22,
+        "all": 22,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 5
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 175,
+      "turns": 9,
+      "outputTokens": 19904,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 10,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 9,
+      "bodySize": 17,
+      "smallTextShare": 11,
+      "accentTextShare": 1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 29,
+        "all": 29,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 3
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 187,
+      "turns": 15,
+      "outputTokens": 20964,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 8,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 10,
+      "bodySize": 17,
+      "smallTextShare": 10,
+      "accentTextShare": 1.6,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 5,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 14,
+        "all": 14,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 4
+      }
+    },
+    {
+      "prompt": "civil-report",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 351,
+      "turns": 36,
+      "outputTokens": 35370,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 1,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 4,
+      "nestedBoxes": 1,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 75,
+      "accentTextShare": 1.2,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 19,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "civil-report",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 338,
+      "turns": 20,
+      "outputTokens": 33559,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 4,
+      "nestedBoxes": 1,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 70,
+      "accentTextShare": 2.9,
+      "toneSurfaces": 3,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 24,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "civil-report",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 385,
+      "turns": 26,
+      "outputTokens": 37866,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 3,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 64,
+      "accentTextShare": 0,
+      "toneSurfaces": 3,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 18,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 194,
+      "turns": 23,
+      "outputTokens": 19364,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 17,
+      "smallTextShare": 14,
+      "accentTextShare": 0.4,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 148,
+      "turns": 20,
+      "outputTokens": 14493,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 18,
+      "smallTextShare": 11,
+      "accentTextShare": 0,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "magazine-article",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 192,
+      "turns": 30,
+      "outputTokens": 19335,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 5,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "tinyText": 0,
+      "smallTargets": 1,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 17,
+      "smallTextShare": 12,
+      "accentTextShare": 1.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    }
+  ]
+}

@@ -49,7 +49,10 @@ describe('layoutTokens — 글꼴과 무채색의 온도', () => {
     expect(cssVar('--font-mono')).toBe(FONT.mono)
     const serif = FONT.serif.split(',').map((name) => name.trim().replace(/"/g, ''))
     for (const korean of ['Noto Serif KR', 'AppleMyungjo', 'Batang']) expect(serif).toContain(korean)
-    expect(serif.at(-1)).toBe('serif')
+    // 한국어 명조가 없는 기기에서 라틴 명조(Georgia·serif)로 내려가면 한글은 고딕, 숫자·영문만 명조로 섞여 그려진다
+    // (다른 요청 재측정의 판정이 짚었다) — 한국어 명조 다음은 고딕 목록으로 내려간다
+    for (const latinSerif of ['Georgia', 'Source Serif 4', 'serif']) expect(serif).not.toContain(latinSerif)
+    expect(serif.slice(serif.indexOf('Batang') + 1)).toEqual(FONT.sans.split(',').map((name) => name.trim().replace(/"/g, '')))
     const mono = FONT.mono.split(',').map((name) => name.trim().replace(/"/g, ''))
     expect(mono).toContain('D2Coding')
     expect(mono).toContain('ui-monospace')

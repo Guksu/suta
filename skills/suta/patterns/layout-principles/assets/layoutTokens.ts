@@ -12,8 +12,9 @@
  */
 export const FONT = {
   sans: '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
-  /** 명조 — 출판·매체의 제목과 긴 글, 공공·브랜드의 큰 제목. Noto Serif KR·나눔명조(SIL OFL 1.1)를 먼저 찾고, 없으면 운영체제 명조(맥 AppleMyungjo, 윈도 바탕)로 */
-  serif: '"Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, "Apple Myungjo", Batang, "Source Serif 4", Georgia, serif',
+  /** 명조 — 출판·매체의 제목과 긴 글, 공공·브랜드의 큰 제목. Noto Serif KR·나눔명조(SIL OFL 1.1)를 먼저 찾고, 없으면 운영체제 명조(맥 AppleMyungjo, 윈도 바탕)로.
+   *  한국어 명조가 없는 기기에서는 라틴 명조가 아니라 고딕 목록으로 내려간다 — 라틴 명조로 내려가면 한글은 고딕, 숫자·영문만 명조로 섞여 그려진다 */
+  serif: '"Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, "Apple Myungjo", Batang, "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
   /** 고정폭 — 개발 도구의 코드·키·명령, 자릿수를 맞출 표. D2Coding(SIL OFL 1.1, 한글 포함)을 먼저 찾는다 */
   mono: 'D2Coding, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
 } as const

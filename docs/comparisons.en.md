@@ -6,6 +6,42 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Third set of requests: secondhand listing, district complaint status, magazine article (suta 0.17)
+
+We fixed the losing reasons from the section below (required marks only inside placeholders, the revenue column off the first mobile screen), added type guidance by industry, and measured again on screens that use those fixes.
+
+- App secondhand listing: "Make the listing-writing screen of a secondhand marketplace app, mobile first. It needs photos (up to 10), a title, a category, a price, a description, a preferred meeting place and a post button. Photos, title and price are required." (asked in Korean)
+- Web complaint status: "Build a district office page showing the status of civil complaints, desktop first. It needs a left menu, a period picker, a trend chart of received and resolved complaints (in CSS or SVG), a status table by department and a download button. Make it work on mobile too." (asked in Korean)
+- Web magazine article: "Build an article page for an online magazine about cities and architecture, desktop first. It needs the title and subtitle, author and date, a lead image slot, the body (with subheads and quotes) and a list of related articles. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: secondhand listing, complaint status page, magazine article](assets/gap-third-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: the listing screen (first 390×844 screen), the complaint status page and the magazine article (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Listing — without (3) | Listing — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 10.67 | 0 | 12.67 | 0 |
+| Touch targets under 24px (per page) | 0.33 | 0.33 | 5.67 | 0.33 |
+| Primary button blue, indigo or violet | 1 | 0 | 3 | 0 |
+| Generation time (median) | 112 s | 214 s | 175 · 238 s | 192 · 351 s |
+| Generation cost (per run) | $0.44–0.51 | $1.30–1.64 | $0.70–1.12 | $1.06–1.90 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Secondhand listing | 0 : 6 | 1 : 5 |
+| Complaint status | 2 : 4 | 3 : 3 |
+| Magazine article | 1 : 5 | 0 : 6 |
+
+- **We fixed the measurement script.** The first judgments gave suta 4 : 2 and 4 : 2 on the listing screen, but all three runs whose closed bottom sheet showed up at the end of the capture lost as "broken". Those sheets are never visible on a device; the script pulled them in while moving fixed elements for the full-page capture. The table above uses the fixed captures and new judgments. Re-capturing all 72 runs so far showed that only these three were affected.
+- **suta lost the listing screen.** The required marks sat next to the labels in all three runs. 10 of the 11 lost judgments said the input styles were mixed: a borderless title, a gray filled price and a borderless description.
+- **The complaint status page split by run.** The second run turned the department table into a card list on mobile and won all 4 judgments. In the third run the numbers did not agree (more resolved than received complaints).
+- **suta lost the magazine article.** It followed the industry values (serif title, 18px body), but so did the side without suta. The lost judgments called suta's page "clean but bare" (no site menu, breadcrumb, author photo or share buttons). The capture machine has no Korean serif font, so the titles rendered in sans.
+- Fixed after this run, not measured again: one input style and bold labels in multi-field forms, sample numbers computed from one data set so they agree, a site header counted as part of a web page's frame, tables at 15–16 and paragraphs at 17+ on public status pages, and the serif token falling back to sans when no Korean serif is installed.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 11](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Different requests: book review, stay search filters, store sales report (suta 0.17)
 
 The section below measured suta with the same requests its conventions were fixed against. To check whether the gains are specific to those requests, we ran both conditions again on the same screen types with requests from other industries.
