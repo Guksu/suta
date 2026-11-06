@@ -42,7 +42,8 @@ For 0.17 we measured screen types suta had no convention for (filters, composers
 - **Measurements:** accessibility violations (axe) were 0 on the suta side in all five sets. Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
 - **Judgments:** across the 15 requests suta lost 33 : 57 with both judge models.
   - suta won 3 requests with both models: stay filters, library statistics and clinic booking.
-  - It lost 9 requests with both models: 3 of the 4 reports, 4 of the 5 writing screens (composer, book review, listing, meetup) and all 3 article pages.
+  - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and all 3 article pages.
+  - The other 3 (composer, complaint status, course creation) were tied with at least one model.
 - **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
 - **Not measured again:** the fixes made after the last set (desktop forms, article presentation, the request-scope boundary).
 - **Limits:** three runs per condition, and one judge model is also the generating model.
