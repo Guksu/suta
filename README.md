@@ -6,7 +6,7 @@ A skill for Claude Code and Codex that helps them build React UI that works with
 
 ## What you get
 
-- **Rules for layout and interaction problems.** Keyboard access, focus moving into and back out of dialogs, overflow at 320–390px, text contrast and reduced motion. These apply even when the project has its own design system. suta's visual defaults (color, cards, screen structure) apply only to projects without a design standard; existing tokens and components are kept.
+- **Rules for layout and interaction problems.** Keyboard access, focus moving into and back out of dialogs, overflow at 320–390px, text contrast and reduced motion. These apply even when the project has its own design system. suta's visual defaults (color, cards, screen structure) apply only to projects without a design standard; existing tokens and components are kept. New screens without a standard get conventions for 24 screen types and type sizes and fonts chosen by industry.
 - **57 patterns.** Modal, bottom sheet, toast, dropdown, select, form inputs, gestures and more. Each is a dependency-free TypeScript core, a React wrapper and CSS, with keyboard and screen-reader handling. [Try them in the demo](https://guksu.github.io/suta/).
 - **A post-edit check.** As a Claude Code or Codex plugin, suta checks each edited file. Errors such as text under 11px, a button inside a decorative picture, a grid shell wider than the screen, layout-property animation or a missing reduced-motion block go back to the agent with file:line. Style warnings are only reported.
 
@@ -25,7 +25,30 @@ Same requests, model and settings in Claude Code: a scheduling SaaS landing page
 | Picked in blind comparison (two judge models, 16 each) | 7 and 9 | 9 and 7 |
 | Median generation time and cost | 65 s, $0.18 | 185 s, $0.60 |
 
-Accessibility results and design preference are separate. The measured violations went down, but the judges' preference was split: the version without suta won settings in 8 of 8 comparisons and login in 6 of 8. One judge model was also the generating model. These numbers are from suta 0.14 and have not been re-measured with later versions. A judge also noted that a 0.14 landing page added customer logos and statistics that were not requested; current suta leaves such sections out unless you provide the material. [Method, all results and limitations](docs/comparisons.en.md)
+Accessibility results and design preference are separate. The measured violations went down, but the judges' preference was split: the version without suta won settings in 8 of 8 comparisons and login in 6 of 8. One judge model was also the generating model. These four requests were measured with suta 0.14 and have not been re-measured with later versions. A judge also noted that a 0.14 landing page added customer logos and statistics that were not requested; current suta leaves such sections out unless you provide the material. [Method, all results and limitations](docs/comparisons.en.md)
+
+### Screens without a convention (suta 0.17)
+
+For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with five sets of requests from different industries. Each set has three requests, run 3 times per condition: 81 runs in all, 45 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
+
+| Requests | Judgments |
+|---|---|
+| Composer · product filters · SaaS report | 2:4·3:3 / 2:4·1:5 / 2:4·2:4 |
+| Book review · stay filters · store sales report | 1:5·1:5 / 5:1·5:1 / 2:4·1:5 |
+| Secondhand listing · complaint status · magazine article | 0:6·1:5 / 2:4·3:3 / 1:5·0:6 |
+| Meetup creation · library statistics · album review | 1:5·1:5 / 6:0·6:0 / 2:4·2:4 |
+| Clinic booking · course creation · travel article | 4:2·4:2 / 3:3·3:3 / 0:6·0:6 |
+
+- **Measurements:** accessibility violations (axe) were 0 on the suta side in all five sets. Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
+- **Judgments:** across the 15 requests suta lost 33 : 57 with both judge models.
+  - suta won 3 requests with both models: stay filters, library statistics and clinic booking.
+  - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and all 3 article pages.
+  - The other 3 (composer, complaint status, course creation) were tied with at least one model.
+- **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
+- **Not measured again:** the fixes made after the last set (desktop forms, article presentation, the request-scope boundary).
+- **Limits:** three runs per condition, and one judge model is also the generating model.
+
+[Results and screens for each set](docs/comparisons.en.md)
 
 For a keyboard example, the [demo home page](https://guksu.github.io/suta/) shows a walking-rewards app built with and without suta 0.11.0: with suta, the goal-celebration dialog moved focus to its button instead of leaving it at the top of the page, in both runs.
 

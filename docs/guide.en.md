@@ -18,7 +18,7 @@ The name comes from the Korean *suta* (手打), as in noodles made by hand.
 
 When guidance conflicts, suta follows this order.
 
-1. What the user explicitly asked for. Requested features and states are never dropped, and features or sections nobody asked for are not added.
+1. What the user explicitly asked for. Requested features and states are never dropped, and features, sections or data fields nobody asked for are suggested instead of added. Presenting what was asked for (a rating bar, required marks, chips and steppers) and screen chrome (back and close, a site header on web pages) are within scope.
 2. The project's existing design system. Tokens, components, brand colors, fonts and screen structure are used as they are.
 3. Real usability problems. Keyboard access, focus, text contrast, overflow on narrow screens and reduced motion are fixed even in existing styles, and the agent reports what it changed and how far.
 4. suta's defaults. The color, card and screen-structure rules in the table below apply only to projects with no design standard.
@@ -271,13 +271,13 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 The layout principles pattern contains these parts.
 
 - 12 principles for order, hierarchy, grouping, alignment and emphasis.
-- Conventions for 20 screen types, including chat rooms, notifications, AI chat, shopping apps, banking, stock trading and gamification, plus conventions for bottom tab bars, mobile webviews and content art.
+- Conventions for 24 screen types, including filters and sorting, composers and multi-field forms, dashboards and reports, articles and reviews, chat rooms, notifications, AI chat, shopping apps, banking, stock trading and gamification, plus conventions for bottom tab bars, mobile webviews, content art and sideways-scrolling rows.
 - One set of line icons for the frame (tab bars, headers, buttons).
 - One set of 57 illustrated icons (`illustrations.ts`) for large content slots such as category shortcuts, benefits, banners and stand-in store photos (Microsoft Fluent Emoji Flat, MIT). List rows use line icons.
 - Content art (`content-art.css`): 14 simple scenes (including a plate on a table for menu photos), a logo mark and a shortcut tile in 7 palettes that fill photo, banner, shortcut and logo slots before real images exist.
 - Guidance on type, color and surfaces: neutrals, one accent and an error red, plus a separate rise/fall pair for market data and gold, silver and bronze for reward graphics.
 - Color pairing guidance and a tool: a clear accent (the lightness and chroma range of 31 well-made apps), neutrals that match it, and `scripts/palette.mjs '<accent>'`, which prints a full set that keeps 4.5:1 contrast.
-- Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles.
+- Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles, plus body size, display weight and tracking, serif (`--font-serif`) and monospace (`--font-mono`) chosen by industry and reading conditions (measured on 48 websites in 9 industries).
 - Copy guidance (Korean): one voice (해요체) and the shapes of buttons, dialogs, errors, empty states and toasts, drawn from 7,539 UI strings in well-made apps.
 - One token set for spacing, type, weight, radius, color and font.
 - Before and after versions of ten typical AI-made screens.
