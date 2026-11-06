@@ -106,6 +106,6 @@
 |---|---|
 | [`motion-principles`](../patterns/motion-principles/PATTERN.md) | 앱 전체의 애니메이션 시간·이징·스태거·reduced-motion 기준을 한 벌의 토큰(motion tokens)으로 정하고, 어떤 움직임에 어느 값을 쓰는지 고르는 원칙을 제공한다. |
 | [`motion-audit`](../patterns/motion-audit/PATTERN.md) | 프로젝트의 CSS·JS를 훑어 애니메이션 문제(크기·위치 속성 transition, transition: all, reduced-motion 누락, 시간 범위 밖, 이동에 linear, 퇴장에 ease-in, 무한 반복, setInterval 애니메이션)를 file:line으로 찾아 고치는 방법까지 알려주는 검사 도구(motion audit)다. |
-| [`layout-principles`](../patterns/layout-principles/PATTERN.md) | 화면의 순서·위계·묶음·정렬·강조를 정하는 레이아웃 원칙 12개, 화면 유형별 관례 21종(홈·목록·채팅·알림·프로필·폼·설정·대시보드·쇼핑·은행·증권, 하단 탭 바·웹뷰), 간격·글자·색·반경 토큰(layout tokens)·선 아이콘·사진 대역 그림을 제공한다. |
+| [`layout-principles`](../patterns/layout-principles/PATTERN.md) | 화면의 순서·위계·묶음·정렬·강조를 정하는 레이아웃 원칙 12개, 화면 유형별 관례 23종(홈·목록·필터·채팅·알림·프로필·폼·글쓰기·설정·대시보드·쇼핑·은행·증권), 간격·글자·색·반경 토큰(layout tokens)·선 아이콘·사진 대역 그림을 제공한다. |
 | [`layout-audit`](../patterns/layout-audit/PATTERN.md) | CSS·JSX·HTML에서 AI가 흔히 만드는 레이아웃 문제를 file:line으로 찾는 정적 검사 도구(layout audit)다. |
 <!-- catalog:end -->
