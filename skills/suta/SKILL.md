@@ -84,7 +84,7 @@ AI에게 UI를 맡기면 어디서 본 듯한 결과가 나온다. 모든 구역
 | 모든 UI 작업 | 이 문서 전체 — 우선순위, 사용 문제, 사실 정보, 늘 지키는 선, 끝내기 전에 |
 | 프로젝트에 디자인 기준이 없다 · 새 화면의 여백·색·글꼴·문구를 정한다 · "AI 티 안 나게", "밋밋해", "색이 많아" | `references/defaults.md` — AI가 흔히 만드는 틀과 기본 대안, 레이아웃·모션 값 |
 | 기존 화면을 다듬는다 | `references/defaults.md`의 1절 "덜어내기"(요청한 범위 안에서) |
-| 유형이 있는 화면 — 홈·목록·상세·검색·필터·채팅방·알림·프로필·폼·글쓰기·설정·장바구니·대시보드·리포트·랜딩·AI 채팅·쇼핑·은행·증권·게이미피케이션·시작 안내 | `patterns/layout-principles/references/screen-conventions.md`의 그 유형 절과 "모든 화면에 공통". 앱이면 "하단 탭 바(GNB)"·"콘텐츠 그림", 웹뷰면 "모바일 웹뷰·웹앱"도 |
+| 유형이 있는 화면 — 홈·목록·상세·검색·필터·채팅방·알림·프로필·폼·글쓰기·설정·장바구니·대시보드·리포트·기사·랜딩·AI 채팅·쇼핑·은행·증권·게이미피케이션·시작 안내 | `patterns/layout-principles/references/screen-conventions.md`의 그 유형 절과 "모든 화면에 공통". 앱이면 "하단 탭 바(GNB)"·"콘텐츠 그림", 웹뷰면 "모바일 웹뷰·웹앱"도 |
 | 랜딩·서비스 소개 | 위 문서의 "랜딩" 절과 이 문서의 "사실 정보" |
 | 색·글꼴 | `patterns/layout-principles/references/tone.md` |
 | 화면 문구 | `patterns/layout-principles/references/copy.md` |

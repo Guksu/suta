@@ -6,6 +6,42 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Fourth set of requests: create a local meetup, city library statistics, music webzine album review (suta 0.17)
+
+We measured again on screens that use the fixes made after the section below: multi-field forms, consistent sample numbers, a site header on web pages, text size where industry and screen type overlap, and the serif fallback. The measurement script is the fixed one, and we checked the captures by eye before judging.
+
+- App meetup creation: "Make the create-a-meetup screen of a neighborhood meetup app, mobile first. It needs a cover photo, a meetup name, a category, date and time, a place, capacity, a fee, a description and a create button. Name, date and time, and capacity are required." (asked in Korean)
+- Web library statistics: "Build a usage statistics page for a city library, desktop first. It needs a period picker, monthly trend charts for loans, returns and visitors (in CSS or SVG), a usage table by branch, a most-borrowed books ranking and a data download. Make it work on mobile too." (asked in Korean)
+- Web album review: "Build an album review page for a music webzine, desktop first. It needs the album and artist, a rating, author and date, an album cover slot, the review body (with subheads and quotes), a track list and a list of other reviews. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: meetup creation, library statistics, album review](assets/gap-fourth-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17.0. From the left: meetup creation (first 390×844 screen), library statistics and album review (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Meetup — without (3) | Meetup — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 9 | 0 | 15 | 0 |
+| Pages that scroll sideways at 320px | 2 | 0 | 1 | 1 |
+| Pages with text under 12px | 0 | 0 | 4 | 0 |
+| Primary button blue, indigo or violet | 0 | 0 | 3 | 0 |
+| Generation time (median) | 103 s | 231 s | 132 · 308 s | 184 · 291 s |
+| Generation cost (per run) | $0.42–0.53 | $1.40–1.58 | $0.52–1.37 | $1.06–1.84 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Meetup creation | 1 : 5 | 1 : 5 |
+| Library statistics | 6 : 0 | 6 : 0 |
+| Album review | 2 : 4 | 2 : 4 |
+
+- **All 12 judgments on library statistics went to suta.** All three suta runs grouped the metric tabs with one large chart and turned the branch table into a card list on mobile. All three runs without suta cut off table columns on mobile. Across three different requests the report type went 2 : 4 / 1 : 5 → 2 : 4 / 3 : 3 → 6 : 0 / 6 : 0.
+- **suta lost meetup creation.** It used bold labels, required marks and one input style, but a dropdown for the category, an empty capacity field and a plain number field for the fee. All 10 lost judgments called it "monotonous and tedious to fill in" and picked the side with category chips, a capacity stepper with a default value and a free/paid toggle.
+- **suta lost the album review.** Its first run won 3 of 4 judgments; the second and third lost to pages with a rating bar, release details, a drop cap and numbered subheads. In the third run the mobile site menu was cut off mid-word.
+- Fixed after this run, not measured again: pick-type fields in forms now get a control by kind of value (2–3 options: segmented control, 4–8: chips, small numbers: a stepper with a default, long lists and dates: a sheet), and a new "article and review detail" convention (site header → title block → wide lead image → 640–720px body column; review ratings as one number plus one graphic). The article convention comes from what the judges picked, not from the references.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 12](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Third set of requests: secondhand listing, district complaint status, magazine article (suta 0.17)
 
 We fixed the losing reasons from the section below (required marks only inside placeholders, the revenue column off the first mobile screen), added type guidance by industry, and measured again on screens that use those fixes.
