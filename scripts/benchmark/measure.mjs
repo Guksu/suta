@@ -22,6 +22,7 @@ import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { auditAll } from '../../skills/suta/scripts/auditAll.ts'
+import { clippedTexts, hiddenColumns } from '../lib/clipCheck.ts'
 
 const root = new URL('../..', import.meta.url).pathname
 const i = process.argv.indexOf('--out')
@@ -322,6 +323,80 @@ const coveredByFixedBar = () => {
   })
 }
 
+// 칸 밖으로 잘린 글자와 첫 화면 폭 밖의 표 열 — 브라우저에서는 상자 좌표만 모으고 판정은 scripts/lib/clipCheck.ts가 한다
+const clipProbes = () => {
+  const boxOf = (r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom })
+  const intersect = (a, b) => ({ left: Math.max(a.left, b.left), right: Math.min(a.right, b.right), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) })
+  const viewport = { left: 0, right: innerWidth, top: -Infinity, bottom: Infinity }
+  // 화면 낭독용으로 숨긴 칸 — clip: rect(0 0 0 0)이나 clip-path: inset(50%)·inset(100%). 둥근 카드의 inset(0 round 12px)은 아니다
+  const srHidden = (cs) => /rect\(\s*0(px)?[\s,]+0(px)?/.test(cs.clip ?? '') || /^inset\((50|100)%\)$/.test(cs.clipPath ?? '')
+  // 글자를 잘라낼 수 있는 조상(overflow-x: hidden·clip)의 상자를 겹쳐 구한다.
+  // 스크롤 칸(overflow auto·scroll — overflow-y: auto만 줘도 x가 auto로 계산된다)을 만나면 그 위는 보지 않는다:
+  // 그 안에서 이미 찾은 잘림 칸은 그대로 쓰고, 스크롤 칸 바깥의 칸은 넘겨서 볼 수 있는 글자를 자르지 않는다.
+  // position: fixed 요소는 위 조상의 칸에 잘리지 않으므로 거기서 멈춘다
+  const clipOf = (el) => {
+    let clip = null
+    let ellipsis = getComputedStyle(el).textOverflow === 'ellipsis'
+    for (let node = el; node && node !== document.documentElement; node = node.parentElement) {
+      const cs = getComputedStyle(node)
+      if (cs.textOverflow === 'ellipsis') ellipsis = true
+      if (srHidden(cs)) return { clip: { left: 0, right: 1, top: 0, bottom: 1 }, ellipsis }
+      if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return { clip, ellipsis }
+      if (cs.overflowX === 'hidden' || cs.overflowX === 'clip') {
+        const r = boxOf(node.getBoundingClientRect())
+        clip = clip ? intersect(clip, r) : r
+      }
+      if (cs.position === 'fixed') return { clip, ellipsis }
+    }
+    return { clip, ellipsis }
+  }
+  // 테두리나 바탕으로 눈에 보이는 가장 가까운 칸 — 그 밖으로 삐져나온 글자는 잘리지 않아도 칸을 넘은 것으로 보인다
+  const painted = (color) => color && color !== 'transparent' && !/rgba\([^)]*,\s*0\)$/.test(color)
+  const frameOf = (el) => {
+    for (let node = el; node && node !== document.body && node !== document.documentElement; node = node.parentElement) {
+      const cs = getComputedStyle(node)
+      // 스크롤 칸 안의 글자는 넘겨서 본다 — 스크롤 칸 자신을 넘은 것은 삐져나온 것이 아니다(숨은 표 열은 따로 센다)
+      if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return null
+      const bordered = ['Left', 'Right'].some((side) => parseFloat(cs[`border${side}Width`]) > 0 && cs[`border${side}Style`] !== 'none' && painted(cs[`border${side}Color`]))
+      if (bordered || painted(cs.backgroundColor)) return boxOf(node.getBoundingClientRect())
+      // 고정 요소는 화면에 따로 떠 있다 — 그 위 조상의 칸은 이 글자의 칸이 아니다
+      if (cs.position === 'fixed') return null
+    }
+    return null
+  }
+  const texts = []
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    const text = n.textContent.trim()
+    const el = n.parentElement
+    if (!text || !el || ['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE'].includes(el.tagName)) continue
+    if (!el.checkVisibility?.({ checkOpacity: true, checkVisibilityCSS: true })) continue
+    const range = document.createRange()
+    range.selectNodeContents(n)
+    const r = range.getBoundingClientRect()
+    if (r.width === 0 || r.height === 0) continue
+    const { clip, ellipsis } = clipOf(el)
+    texts.push({ text: text.slice(0, 40), box: boxOf(r), clip, frame: frameOf(el), ellipsis })
+  }
+  // 표: 칸이 가장 많은 줄의 칸 상자들과, 그 표를 보이는 폭(가장 가까운 가로 스크롤·잘라내는 칸과 화면의 겹침)
+  const tables = []
+  for (const table of document.querySelectorAll('table, [role="table"], [role="grid"]')) {
+    if (!table.checkVisibility?.({ checkOpacity: true, checkVisibilityCSS: true })) continue
+    // 너비가 있는 칸이 가장 많은 줄(앞의 다섯 줄 중)을 쓴다 — 첫 줄이 colspan 제목 줄이거나 숨긴 thead면 칸이 모자라다
+    const rows = [...table.querySelectorAll('tr, [role="row"]')].slice(0, 5)
+    const cellsOf = (row) => [...row.children].map((cell) => boxOf(cell.getBoundingClientRect())).filter((b) => b.right - b.left > 0)
+    const cells = rows.map(cellsOf).sort((a, b) => b.length - a.length)[0] ?? []
+    if (cells.length < 2) continue
+    let visible = viewport
+    for (let node = table.parentElement; node && node !== document.documentElement; node = node.parentElement) {
+      const ox = getComputedStyle(node).overflowX
+      if (ox !== 'visible') visible = intersect(visible, boxOf(node.getBoundingClientRect()))
+    }
+    tables.push({ cells, visible })
+  }
+  return { texts, tables }
+}
+
 const overflowOf = async ({ browser, url, width }) => {
   const page = await browser.newPage({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true, locale: LOCALE })
   await page.goto(url, { waitUntil: 'load' })
@@ -361,6 +436,7 @@ for (const dir of runDirs.sort()) {
     const result = await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }, resultTypes: ['violations'] })
     return result.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length }))
   })
+  const mobileClip = await page.evaluate(clipProbes)
   // 화면 전체를 찍되 너무 긴 페이지는 2,400px에서 자른다 — 판정(judge.mjs)과 사람이 보는 용도.
   // 전체 화면 캡처는 position: fixed 요소를 처음 화면의 자리(예: 위에서 771px)에 그대로 두어, 하단 고정 바가 페이지
   // 한가운데에 찍히고 그 아래 내용을 가린 것처럼 보인다. 사람이 스크롤하며 보는 자리로 옮겨 찍는다 —
@@ -410,6 +486,7 @@ for (const dir of runDirs.sort()) {
   await wide.goto(url, { waitUntil: 'load' })
   await wide.waitForTimeout(300)
   await wide.screenshot({ path: join(dir, 'shot-1280.png') })
+  const desktopClip = await wide.evaluate(clipProbes)
   const coveredDesktop = await wide.evaluate(coveredByFixedBar)
   await wide.close()
 
@@ -426,6 +503,10 @@ for (const dir of runDirs.sort()) {
     overflow390: await overflowOf({ browser, url, width: 390 }),
     pageErrors: pageErrors.length,
     coveredByBar: coveredMobile || coveredDesktop,
+    // 칸 밖으로 잘린 글자(390·1280)와 390 첫 화면 폭 밖의 표 열 — 캡처를 눈으로 봐야 알던 결함
+    clippedText390: clippedTexts({ probes: mobileClip.texts }).map((t) => t.text),
+    clippedText1280: clippedTexts({ probes: desktopClip.texts }).map((t) => t.text),
+    hiddenTableColumns: Math.max(0, ...mobileClip.tables.map((t) => hiddenColumns(t))),
     ...render,
     axe: {
       rules: axe.length,

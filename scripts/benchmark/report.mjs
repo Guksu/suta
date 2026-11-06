@@ -31,8 +31,11 @@ const round = (n, digits = 1) => Math.round(n * 10 ** digits) / 10 ** digits
 const share = (list, test) => ({ count: list.filter(test).length, of: list.length })
 
 /** 지표 정의 — 표와 results.json이 같은 목록을 쓴다. better: 낮을수록 좋은 지표는 'low' */
-const METRICS = [
+const ALL_METRICS = [
   { key: 'overflow320', label: '320px에서 가로로 넘친 화면', en: 'Pages that scroll sideways at 320px', kind: 'share', test: (r) => r.overflow320 },
+  // 캡처를 눈으로 봐야 알던 결함 — 이 측정을 하지 않은 예전 metrics.json에는 값이 없어 표에서 뺀다(아래 METRICS의 needs 필터)
+  { key: 'clippedText', label: '칸 밖으로 잘리거나 삐져나온 글자가 있는 화면(390·1280)', en: 'Pages with text cut off or spilling out of its box (390, 1280)', kind: 'share', test: (r) => r.clippedText390.length + r.clippedText1280.length > 0, needs: 'clippedText390' },
+  { key: 'hiddenTableColumns', label: '390px 첫 화면 폭 밖에 표 열이 남은 화면', en: 'Pages with table columns left outside the first 390px screen', kind: 'share', test: (r) => r.hiddenTableColumns > 0, needs: 'hiddenTableColumns' },
   { key: 'coveredByBar', label: '끝까지 내려도 하단 고정 바가 본문을 가리는 화면', en: 'Pages where a fixed bottom bar still covers content at the end', kind: 'share', test: (r) => r.coveredByBar },
   { key: 'tinyText', label: '12px 미만 글자가 있는 화면', en: 'Pages with text under 12px', kind: 'share', test: (r) => r.tinyText > 0 },
   { key: 'smallTargets', label: '24px 미만 터치 영역 (화면당)', en: 'Touch targets under 24px (per page)', kind: 'mean', value: (r) => r.smallTargets },
@@ -59,6 +62,8 @@ const TONE = [
   { key: 'accentTextShare', label: '강조색 글자의 비율(%, 중앙값)', en: 'Share of text in an accent color (%, median)', ref: '0.5 (0~6.4)', value: (r) => r.accentTextShare },
   { key: 'primaryBlue', label: '주 버튼이 파랑·남색·보라 계열인 화면', en: 'Pages whose primary button is blue, indigo or violet', ref: '—', kind: 'share', test: (r) => r.primaryHue !== null && r.primaryHue !== undefined && r.primaryHue >= 200 && r.primaryHue <= 290 },
 ]
+// needs가 있는 지표는 그 값을 잰 metrics.json에서만 싣는다 — 예전 측정에 0/n으로 찍히면 결함이 없었던 것처럼 읽힌다
+const METRICS = ALL_METRICS.filter((metric) => !metric.needs || rows.every((r) => r[metric.needs] !== undefined))
 const hasTone = rows.some((r) => r.smallTextShare !== undefined)
 
 const summary = {}
@@ -83,6 +88,9 @@ for (const condition of conditions) {
       hookWarns: list.reduce((sum, r) => sum + r.hookWarns, 0),
       pageErrors: share(list, (r) => r.pageErrors > 0),
       permissionDenials: list.reduce((sum, r) => sum + (r.permissionDenials ?? 0), 0),
+      // 생성 비용 — claude CLI가 실행마다 보고한 costUsd. 판정 비용은 judge.mjs가 따로 남기지 않는다
+      // 비용이 없는 실행(costUsd: null)은 0으로 넣지 않는다 — 잰 실행만 더하고, 하나도 없으면 null
+      costUsd: (() => { const costs = list.map((r) => r.costUsd).filter((c) => typeof c === 'number'); return costs.length ? { total: round(costs.reduce((a, b) => a + b, 0), 2), median: round(median(costs), 2), runs: costs.length } : null })(),
     },
   }
 }
@@ -164,6 +172,7 @@ const results = {
     condition: r.condition,
     rep: r.rep,
     seconds: Math.round((r.durationMs ?? r.wallMs) / 1000),
+    costUsd: typeof r.costUsd === 'number' ? round(r.costUsd, 2) : null,
     turns: r.turns,
     outputTokens: r.tokens.output,
     skillRead: r.skillRead,
@@ -173,6 +182,9 @@ const results = {
     overflow320: r.overflow320,
     overflow390: r.overflow390,
     coveredByBar: r.coveredByBar,
+    clippedText390: r.clippedText390,
+    clippedText1280: r.clippedText1280,
+    hiddenTableColumns: r.hiddenTableColumns,
     tinyText: r.tinyText,
     smallTargets: r.smallTargets,
     boxes: r.boxes,
