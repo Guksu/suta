@@ -219,6 +219,8 @@ Each output (`index.html`) was opened in Chromium and measured from rendered val
 | Metric | How it is measured |
 |---|---|
 | Sideways scroll at 320px | Whether the document scrolls horizontally at 320px wide |
+| Text cut off or spilling out of its box (from 2026-11) | At 390 and 1280px, whether text runs past the left or right edge of the box that clips it (`overflow-x: hidden`) or of the nearest box with a border or background. Ellipsis truncation, screen-reader-only text, text inside a sideways-scrolling box and text entirely outside its box (the next carousel slide) are excluded. The logic is in `scripts/lib/clipCheck.ts` |
+| Table columns outside the first 390px screen (from 2026-11) | At 390px, whether any cell in a table's first row extends past the visible width (the overlap of its sideways-scrolling box and the screen). A table left to scroll sideways keeps key columns off the first screen |
 | Text under 12px | Computed font size of elements that hold text directly, at 390px |
 | Touch targets under 24px | Links, buttons and inputs whose shorter side is under 24px (links inside sentences excluded; checkboxes and radios include their label) |
 | Card-like boxes | Elements with rounded corners plus a border, a background different from their surroundings, or a shadow. Exclusions are listed below the table |
