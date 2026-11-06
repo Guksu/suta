@@ -29,7 +29,7 @@ Accessibility results and design preference are separate. The measured violation
 
 ### Screens without a convention (suta 0.17)
 
-For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with five sets of requests from different industries. Each set has three requests, run 3 times per condition: 81 runs in all, 45 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
+For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with six sets of requests from different industries. Each set has three requests, run 3 times per condition: 99 runs in all, 54 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
 
 | Requests | Judgments |
 |---|---|
@@ -38,14 +38,15 @@ For 0.17 we measured screen types suta had no convention for (filters, composers
 | Secondhand listing · complaint status · magazine article | 0:6·1:5 / 2:4·3:3 / 1:5·0:6 |
 | Meetup creation · library statistics · album review | 1:5·1:5 / 6:0·6:0 / 2:4·2:4 |
 | Clinic booking · course creation · travel article | 4:2·4:2 / 3:3·3:3 / 0:6·0:6 |
+| Dog grooming booking · job posting · home tour article | 4:2·3:3 / 5:1·2:4 / 6:0·4:2 |
 
-- **Measurements:** accessibility violations (axe) were 0 on the suta side in all five sets. Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
-- **Judgments:** across the 15 requests suta lost 33 : 57 with both judge models.
-  - suta won 3 requests with both models: stay filters, library statistics and clinic booking.
-  - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and all 3 article pages.
-  - The other 3 (composer, complaint status, course creation) were tied with at least one model.
+- **Measurements:** accessibility violations (axe) were 0 on the suta side in the first five sets; in the sixth, one grooming run had 1 (text contrast). Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb; 0 on the sixth set's job posting after the fix), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
+- **Judgments:** across the 18 requests suta lost 48 : 60 with the default model and 42 : 66 with the other. In the sixth set the default judge chose suta on all three requests for the first time (15 : 3). The default judge is also the generating model; the other judge was even at 9 : 9.
+  - suta won 4 requests with both models: stay filters, library statistics, clinic booking and the home tour article.
+  - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and 3 article pages.
+  - The other 5 were tied with at least one model (composer, complaint status, course creation, grooming booking) or split by judge (job posting, 5 : 1 and 2 : 4).
 - **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
-- **Not measured again:** the fixes made after the last set (desktop forms, article presentation, the request-scope boundary).
+- **Not measured again:** the fixes made after the last set: desktop form layout (input column and panel as one block, edges lined up with the header), bordered inputs on gray pages, a default for segmented controls, an itemized price on booking forms, dog avatars.
 - **Limits:** three runs per condition, and one judge model is also the generating model.
 
 [Results and screens for each set](docs/comparisons.en.md)

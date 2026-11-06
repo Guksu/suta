@@ -6,6 +6,62 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Sixth set of requests: dog grooming booking, job posting, interior magazine home tour (suta 0.17)
+
+We measured again after the fixes from the section below (the first item of a sideways row, desktop forms, article presentation, the request-scope boundary and site menu names) and the `segmented-control` fix (its selection indicator now moves with `transform` only). We checked the captures by eye before judging.
+
+- App dog grooming booking: "Make the booking screen of a pet grooming app, mobile first. It needs one of the registered dogs, the grooming type (bath, partial trim, full grooming), a groomer, date and time, an extra request note, the estimated price and a book button. Dog, grooming type, and date and time are required." (asked in Korean)
+- Web job posting: "Build the page where a company recruiter posts a job on a hiring platform, desktop first. It needs a job title, a job category, the employment type (full-time, contract, intern), experience (new grad, experienced, any), the location, the salary (company policy or a range), a description, a closing date and a submit button. Title, category, employment type and closing date are required. Make it work on mobile too." (asked in Korean)
+- Web home tour article: "Build a home tour article page for an interior magazine, desktop first. It needs the title and subtitle, writer, photographer and date, a lead photo slot, the body (with subheads, quotes and photo captions), a home summary (location, floor area, who lives there) and related articles. Make it comfortable to read on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: dog grooming booking, job posting, home tour article](assets/gap-sixth-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17 (main `147413e`). From the left: grooming booking (first 390×844 screen), job posting and the home tour article (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | Grooming — without (3) | Grooming — suta (3) | 2 web pages — without (6) | 2 web pages — suta (6) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 19.33 | 0.33 | 10.5 | 0 |
+| Pages with text under 12px | 3 | 0 | 3 | 0 |
+| Pages that scroll sideways at 390px | 1 | 0 | 1 | 0 |
+| Primary button blue, indigo or violet | 0 | 0 | 3 | 0 |
+| Pages that animate a layout property (width etc.) | 0 | 0 | 3 | 0 |
+| Generation time (median) | 184 s | 237 s | 126 · 143 s | 247 · 264 s |
+| Generation cost (per run) | $0.80–0.98 | $1.38–1.59 | $0.41–0.77 | $1.38–1.98 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Grooming booking | 4 : 2 | 3 : 3 |
+| Job posting | 5 : 1 | 2 : 4 |
+| Home tour article | 6 : 0 | 4 : 2 |
+
+- **For the first time, the default judge chose suta on all three requests (15 : 3).** The default judge is also the model that generated the pages. The other judge was even at 9 : 9, and 3 : 3 if you count only pairs it judged the same way in both orders.
+- **The site-menu fix worked on the article.**
+  - All three suta runs had:
+    - a centered title block, a drop cap and numbered subheads
+    - photo captions
+    - a site menu of 4–5 items (a menu button on mobile)
+  - The 10 winning judgments named the menu 7 times and numbered subheads 4 times. None named the drop cap. All three runs on the other side lost their menu on mobile.
+  - The two lost judgments chose the other side's paper-colored background and serif subtitle for their "magazine-like hierarchy" and "editorial tone". Both times the judge picked whichever page it was shown second.
+- **Job posting split by judge.**
+  - The default judge chose suta for its equal-width controls and the other side's mobile defects.
+  - All five lost judgments named the desktop layout:
+    - first run: a wide gap between the input column and the panel
+    - third run: a body narrower than the header, pushed to the left
+- **The sideways-row fix worked on grooming booking.**
+  - All three suta runs lined up the first date cell with the page margin.
+  - This time the other side's date strip was out of line: it touched the screen edge in run 2 and the card edge in run 1.
+  - All three suta runs had a one-line price section. The third suta run lost, and its dog avatars read as "bear-shaped". The other side's third run had an itemized price breakdown and a fixed bottom bar with the price.
+- **Width animation:** 3 of 6 suta web pages last time, 0 of 6 now. Job-posting runs 2 and 3 copied the canonical segmented control, which now moves with `transform` only. Run 1 wrote its own.
+- **Fixed after this run, not measured again:**
+  - Desktop forms: the input column and the panel form one block 24–32px apart, with left and right edges lined up with the site header. Inputs inside a white panel on a gray page get a 1px border.
+  - Segmented controls: one option is always selected. A required choice with no sensible default uses outlined chips or radios.
+  - Booking forms with a price: show an itemized breakdown and a fixed bottom bar with the price. Unrequested shop info and durations are suggested, not added.
+  - Small round avatars for a specific species, like dogs: use a first-letter circle.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 14](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Fifth set of requests: clinic booking, course creation, travel magazine article (suta 0.17)
 
 We measured again after the fixes from the section below (pick-type form fields by kind of value, the article and review convention) and the measurement update (clipped text, table columns outside the first screen).
