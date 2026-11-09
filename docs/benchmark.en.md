@@ -237,7 +237,7 @@ Each output (`index.html`) was opened in Chromium and measured from rendered val
 
 Card-like boxes leave out buttons, inputs, images, anything smaller than 48×32px, circles and pills, and elements named as controls (avatars, chips, toggles, segments and so on). More or fewer card-like boxes is not better or worse by itself, so this metric is descriptive only.
 
-The tone metrics look at text within the first six screen heights at 390px wide. Each piece of text is weighted by its character count, not counting spaces. The reference websites were measured the same way. The five metrics are:
+The tone metrics look at text within the first six screen heights (844 × 6) at 390px wide. The screen stays 390×844 even when a page overflows sideways (from 2026-11-09). Each piece of text is weighted by its character count, not counting spaces. The reference websites were measured the same way. The five metrics are:
 
 - the size of the most-used text
 - the share of text under 15px

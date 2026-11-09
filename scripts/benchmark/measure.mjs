@@ -102,8 +102,12 @@ const renderMetrics = () => {
   let smallChars = 0
   let accentChars = 0
   const charsBySize = new Map()
-  // 레퍼런스 측정과 같게 — 화면 여섯 장 높이 안의 글자만, 반투명(알파 0.5 이하) 글자는 뺀다
-  const reach = innerHeight * 6
+  // 레퍼런스 측정과 같게 — 화면 여섯 장 높이 안의 글자만, 반투명(알파 0.5 이하) 글자는 뺀다.
+  // 화면은 clientWidth·clientHeight(390×844)다. 페이지가 가로로 넘치면 모바일 에뮬레이션의 innerWidth·innerHeight가
+  // 같은 비율로 늘어나(844 → 1,911 등) 여섯 장의 범위가 넓어진다
+  const screenWidth = document.documentElement.clientWidth
+  const screenHeight = document.documentElement.clientHeight
+  const reach = screenHeight * 6
   for (const el of textEls) {
     if (el.getBoundingClientRect().top + scrollY >= reach) continue
     const cs = getComputedStyle(el)
@@ -178,7 +182,7 @@ const renderMetrics = () => {
     if (!color || color.a < 0.5) continue
     const r = el.getBoundingClientRect()
     if (r.top + scrollY >= reach) continue
-    const area = Math.min(r.width, innerWidth) * Math.min(r.height, innerHeight * 6)
+    const area = Math.min(r.width, screenWidth) * Math.min(r.height, screenHeight * 6)
     if (area < 2000) continue
     paintedArea += area
     if (cs.backgroundColor !== canvasColor && achromatic(color)) toneArea.set(cs.backgroundColor, (toneArea.get(cs.backgroundColor) ?? 0) + area)
@@ -299,6 +303,7 @@ const renderMetrics = () => {
 /** 끝까지 내렸을 때 화면 아래에 고정된 바가 본문 글자를 가리는가 — 고정 바만큼 본문 끝에 여백을 두지 않으면 생긴다 */
 const coveredByFixedBar = () => {
   window.scrollTo(0, document.documentElement.scrollHeight)
+  // 고정 요소는 넘친 페이지에서 늘어난 화면(innerHeight)에 배치된다 — 여기는 innerHeight가 맞다(clientHeight로 바꾸면 바를 못 찾는다)
   const vh = window.innerHeight
   const bars = [...document.body.querySelectorAll('*')].filter((el) => {
     const cs = getComputedStyle(el)
@@ -328,7 +333,7 @@ const clipProbes = () => {
   const boxOf = (r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom })
   const intersect = (a, b) => ({ left: Math.max(a.left, b.left), right: Math.min(a.right, b.right), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) })
   // 화면 폭은 innerWidth가 아니라 clientWidth다. 모바일 에뮬레이션에서 페이지가 가로로 넘치면 innerWidth가 콘텐츠 폭(예: 521)까지
-  // 늘어나, 페이지 밖으로 나간 표 열을 "보인다"고 셌다. clientWidth는 넘쳐도 390이다
+  // 늘어나, 페이지 밖으로 나간 표 열을 "보인다"고 셌다. clientWidth는 넘쳐도 390이다(viewport가 width=device-width일 때)
   const viewport = { left: 0, right: document.documentElement.clientWidth, top: -Infinity, bottom: Infinity }
   // 화면 낭독용으로 숨긴 칸 — clip: rect(0 0 0 0)이나 clip-path: inset(50%)·inset(100%). 둥근 카드의 inset(0 round 12px)은 아니다
   const srHidden = (cs) => /rect\(\s*0(px)?[\s,]+0(px)?/.test(cs.clip ?? '') || /^inset\((50|100)%\)$/.test(cs.clipPath ?? '')
@@ -444,6 +449,8 @@ for (const dir of runDirs.sort()) {
   // 한가운데에 찍히고 그 아래 내용을 가린 것처럼 보인다. 사람이 스크롤하며 보는 자리로 옮겨 찍는다 —
   // 아래쪽에 붙은 것은 문서 끝에, 위쪽에 붙은 것은 문서 처음에. 지표는 이미 위에서 다 쟀다
   await page.evaluate(() => {
+    // 고정 요소의 화면 판정은 innerWidth·innerHeight다 — 넘친 페이지에서는 고정 요소가 늘어난 화면에 놓인다(예: 하단 바 top 1,838 / innerHeight 1,911).
+    // clientHeight(844)로 보면 그 바를 화면 밖으로 보고 캡처에서 숨긴다
     const total = document.documentElement.scrollHeight
     const pinned = []
     for (const el of document.body.querySelectorAll('*')) {
