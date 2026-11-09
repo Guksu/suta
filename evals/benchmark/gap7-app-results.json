@@ -1,0 +1,1152 @@
+{
+  "date": "2026-11-09",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "vet-booking",
+    "car-wash"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "clippedText",
+      "label": "칸 밖으로 잘리거나 삐져나온 글자가 있는 화면(390·1280)",
+      "en": "Pages with text cut off or spilling out of its box (390, 1280)",
+      "kind": "share"
+    },
+    {
+      "key": "hiddenTableColumns",
+      "label": "390px 첫 화면 폭 밖에 표 열이 남은 화면",
+      "en": "Pages with table columns left outside the first 390px screen",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 6
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 4,
+          "of": 6
+        },
+        "smallTargets": 0,
+        "boxes": 25,
+        "nestedBoxes": 16.17,
+        "strongEffects": 0.67,
+        "fontSizes": 9.67,
+        "centeredParagraphs": 0.17,
+        "transitionAll": {
+          "count": 1,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 2,
+          "of": 6
+        },
+        "axeSerious": 10.5,
+        "axeAll": 10.5,
+        "sutaErrors": 0.67,
+        "sutaWarns": 14
+      },
+      "tone": {
+        "bodySize": 13,
+        "smallTextShare": 74.5,
+        "toneSurfaces": 1.5,
+        "accentTextShare": 7.1,
+        "primaryBlue": {
+          "count": 1,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 126,
+        "meanTurns": 4,
+        "meanOutputTokens": 18282,
+        "meanInputTokens": 194457,
+        "skillRead": {
+          "count": 0,
+          "of": 6
+        },
+        "hookBlocks": 0,
+        "hookWarns": 0,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0,
+        "costUsd": {
+          "total": 4.03,
+          "median": 0.75,
+          "runs": 6
+        }
+      }
+    },
+    "suta": {
+      "pages": 6,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 6
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 6
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 6
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 6
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 6
+        },
+        "smallTargets": 0,
+        "boxes": 14.33,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.67,
+        "centeredParagraphs": 0.17,
+        "transitionAll": {
+          "count": 0,
+          "of": 6
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 6
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 0
+      },
+      "tone": {
+        "bodySize": 14,
+        "smallTextShare": 56,
+        "toneSurfaces": 2,
+        "accentTextShare": 2.1,
+        "primaryBlue": {
+          "count": 0,
+          "of": 6
+        }
+      },
+      "process": {
+        "medianSeconds": 230,
+        "meanTurns": 19.3,
+        "meanOutputTokens": 24883,
+        "meanInputTokens": 1243123,
+        "skillRead": {
+          "count": 6,
+          "of": 6
+        },
+        "hookBlocks": 0,
+        "hookWarns": 5,
+        "pageErrors": {
+          "count": 0,
+          "of": 6
+        },
+        "permissionDenials": 0,
+        "costUsd": {
+          "total": 8.34,
+          "median": 1.41,
+          "runs": 6
+        }
+      }
+    }
+  },
+  "judge": {
+    "judgments": 12,
+    "suta": 9,
+    "baseline": 3,
+    "tie": 0,
+    "consistentPairs": [
+      "suta",
+      "suta",
+      "suta",
+      "baseline",
+      "suta"
+    ],
+    "byPrompt": {
+      "car-wash": {
+        "suta": 5,
+        "baseline": 1,
+        "tie": 0
+      },
+      "vet-booking": {
+        "suta": 4,
+        "baseline": 2,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "car-wash-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 섹션 제목이 카드 경계에 걸쳐 어색하게 놓였고, 옵션명과 설명이 띄어쓰기 없이 붙어 있으며(예: '유리막 코팅광택 유지'), 날짜 칩의 왼쪽 정렬도 다른 요소와 어긋나 완성도가 떨어지는 반면, B는 정렬과 간격이 일관되고 금액 내역과 하단 고정 예약 바까지 정리되어 있어 실제 앱에 바로 내보낼 수 있는 수준이다."
+      },
+      {
+        "pair": "car-wash-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 섹션 구분과 여백, 정렬이 일관되고 필수/선택 표시와 금액 요약도 깔끔한 반면, B는 섹션 제목이 카드 경계에 걸쳐 있고 옵션명과 설명이 띄어쓰기 없이 붙어 있으며 날짜 칩이 카드 여백을 벗어나는 등 정렬 결함이 보여 그대로 출시하기 어렵습니다."
+      },
+      {
+        "pair": "car-wash-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 카드 단위 구획과 필수·선택 배지, 하단에 고정된 금액·예약 버튼이 고르게 정리돼 있고, B는 차종 설명과 시간 슬롯 같은 정보가 더 많지만 시간 그리드의 칸 폭이 서로 달라 정렬이 어긋나고 예약 버튼이 회색으로만 처리돼 마감이 A보다 떨어져서 A를 골랐다."
+      },
+      {
+        "pair": "car-wash-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 차종 카드에 대표 차량 예시를 넣고 세차 종류마다 설명과 가격을 붙여 위계가 분명하고 읽기 쉬우며, 시간 선택이 바로 보이고 하단 바가 남은 필수 항목을 안내해 B보다 완성도가 높습니다. B는 카드형으로 깔끔하지만 아무것도 고르지 않았는데도 0원을 크게 보여 주고, 예상 금액도 두 번 반복합니다."
+      },
+      {
+        "pair": "car-wash-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 섹션 제목이 상단 헤더와 위쪽 구분선에 붙어 잘린 것처럼 보이고, 날짜 칩이 화면 왼쪽 끝에 붙어 여백과 정렬이 맞지 않습니다. 반면 B는 좌우 여백과 섹션 간격이 고르고, 하단에 남은 필수 항목까지 안내해 정보 위계와 완성도가 더 높습니다."
+      },
+      {
+        "pair": "car-wash-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 섹션 여백과 좌우 정렬이 일관되고 필수 항목 안내와 하단 금액·예약 바가 명확한 반면, B는 섹션 제목이 위쪽 경계에 붙어 있고 날짜 칩이 화면 왼쪽 끝에 닿는 등 간격과 정렬이 어긋나 완성도가 떨어집니다."
+      },
+      {
+        "pair": "vet-booking-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 아이콘과 증상 칩이 있어 내용은 더 풍부하지만, 반려동물 정보와 진료 설명이 '5/살', '약 20/분'처럼 어색하게 줄바꿈되고, 아직 아무것도 고르지 않았는데 하단에 빨간 오류 문구가 떠 있어 다듬어지지 않은 느낌이 듭니다. 반면 B는 간격과 정렬이 일관되고, 위계가 깔끔하며, 예상 진료비 합계도 정리된 형태로 보여 줘서 실제 앱에 그대로 내보내기에 더 완성도가 높습니다."
+      },
+      {
+        "pair": "vet-booking-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 아이콘과 증상 칩 등 정보가 더 많지만 '5 살', '약 20 분', 병원 정보 줄의 '진'처럼 어색한 줄바꿈과 '(을)를' 같은 다듬어지지 않은 문구가 있고, A는 위계·간격·정렬이 고르고 깔끔해서 실제 앱에 그대로 내보내기에 더 완성도가 높습니다."
+      },
+      {
+        "pair": "vet-booking-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 진료 항목 설명 줄바꿈이 조금 어색하지만, 카드 섹션 구분과 아이콘·필수 배지, 증상 칩, 하단 고정 요약 바 덕분에 위계와 완성도가 더 실제 앱답습니다. B는 깔끔하지만 반려동물 카드 높이가 서로 다르고 구성이 밋밋합니다."
+      },
+      {
+        "pair": "vet-booking-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 카드 단위 섹션 구분과 병원 정보 배너, 아이콘이 들어간 진료 항목, 수의사 프로필 카드, 증상 칩, 예상 진료비를 함께 보여 주는 고정 하단 바까지 갖춰 실제 앱처럼 완성도가 높고, A는 깔끔하지만 반려동물 카드 높이가 서로 다르고 '2026년 11월'이 오른쪽에서 잘리며 날짜 아래 여백도 어색해 마감이 덜 됐습니다."
+      },
+      {
+        "pair": "vet-booking-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 정렬과 간격이 일정하고, 수의사 선택을 칩으로 짧게 묶었으며, 예상 진료비 요약과 필수 항목을 안내하는 비활성 예약 버튼까지 갖춰 실제 앱처럼 깔끔하게 마무리되었고, A는 구성은 더 풍부하지만 진료 항목 설명이 어색하게 줄바꿈되고 카드 안의 섹션 제목 정렬이 흐트러져 있으며 수의사 목록이 길어 화면이 산만합니다."
+      },
+      {
+        "pair": "vet-booking-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 정보가 더 많지만 섹션 제목이 카드 윗변에 걸쳐 어긋나 있고, 날짜 칩이 카드 밖으로 잘려 나가며, 진료 항목 설명도 어색하게 줄바꿈되는 등 정렬과 완성도에 흠이 있습니다. A는 위계가 분명하고 간격과 정렬이 일관되어 바로 출시해도 될 만큼 깔끔합니다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 12,
+    "suta": 9,
+    "baseline": 3,
+    "tie": 0,
+    "consistentPairs": [
+      "suta",
+      "suta",
+      "suta",
+      "suta",
+      "baseline"
+    ],
+    "byPrompt": {
+      "car-wash": {
+        "suta": 6,
+        "baseline": 0,
+        "tie": 0
+      },
+      "vet-booking": {
+        "suta": 3,
+        "baseline": 3,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "car-wash-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 좌우 여백과 섹션 구분이 일관되고 항목명·설명·가격 위계가 명확하며 하단 고정 바에 필수 안내와 금액이 깔끔하게 정리된 반면, A는 날짜 칩이 카드 안쪽 여백과 어긋나고 추가 옵션의 제목과 설명이 붙어 보이며 카드가 중첩돼 답답해서 B가 더 완성도 높습니다."
+      },
+      {
+        "pair": "car-wash-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 섹션 구분과 좌우 여백·정렬이 일관되고 가격이 오른쪽에 깔끔히 정리돼 위계가 또렷한 반면, B는 카드 스타일은 좋지만 추가 옵션의 제목과 설명이 붙어 보이고 설명이 어색하게 줄바꿈되며 날짜 칩이 카드 여백을 벗어나는 등 마감이 거칠다."
+      },
+      {
+        "pair": "car-wash-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 차종 예시와 세차 종류 설명, 바로 보이는 시간 슬롯, 가로 스크롤 날짜, 고정 하단 바의 필수 입력 안내까지 갖춰 위계와 실제 앱다운 완성도가 높은 반면, A는 깔끔하지만 시간이 숨겨져 있고 예상 금액 \"0원\"이 중복되어 정보가 덜 유용하다."
+      },
+      {
+        "pair": "car-wash-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 차종별로 서로 다른 아이콘과 대표 차종 예시를 보여 주고, 세차 종류를 가격이 오른쪽에 정렬된 행으로 보여 주어 위계와 정렬이 분명하며, 시간 슬롯이 바로 보이고 하단 고정 바에 필수 항목 안내가 있어 실제 앱에 더 가깝고, B는 카드 스타일은 깔끔하지만 차종 아이콘이 모두 같고 작으며 시간이 날짜 선택 전에는 비어 있고 금액이 \"0원\"으로 표시되어 덜 완성돼 보입니다."
+      },
+      {
+        "pair": "car-wash-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 좌우 여백과 섹션 간격이 일관되고 필수 표시·남은 필수 항목 안내·하단 금액 바가 실제 앱답게 정리된 반면, A는 첫 섹션 제목이 헤더에 붙어 있고 날짜 칩이 왼쪽 화면 끝에 잘리며 섹션 내부 여백이 들쭉날쭉해 완성도가 떨어진다."
+      },
+      {
+        "pair": "car-wash-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 섹션 간격과 좌우 여백이 일정하고 필수·선택 표시와 하단 고정 바의 위계가 깔끔해 바로 출시할 만한 반면, B는 섹션 제목이 카드 상단에 붙어 있고 날짜 칩이 왼쪽 끝에서 잘리며 여백이 들쭉날쭉해 완성도가 떨어진다."
+      },
+      {
+        "pair": "vet-booking-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 간격·정렬이 일관되고 섹션 구분이 깔끔하며 화면이 간결해 실제 앱답고, A는 카드·칩·설명이 과해 길고 복잡하며 병원 안내 줄바꿈(\"휴/진\")과 날짜 카드 좌측 잘림 같은 마감 문제가 눈에 띈다."
+      },
+      {
+        "pair": "vet-booking-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 섹션 구분과 간격·정렬이 일관되고 텍스트가 깔끔하게 한 줄로 읽혀 위계가 명확한 반면, B는 정보는 풍부하지만 \"휴진\", \"약 20분\", \"5살\" 등이 어색하게 줄바꿈되고 진입 시점부터 빨간 오류 문구가 떠 완성도가 떨어진다."
+      },
+      {
+        "pair": "vet-booking-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 섹션 카드 구분, 반려동물·수의사 카드의 일관된 구성, 증상 칩, 병원 운영 정보, 하단 고정 예약 바(예상 비용 포함)로 실제 앱다운 완성도와 위계가 높은 반면, B는 반려동물 카드 높이가 어긋나고 전체적으로 밋밋하며 밀도가 낮습니다."
+      },
+      {
+        "pair": "vet-booking-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 병원 정보 배너, 카드형 섹션, 증상 빠른 선택 칩, 예상 진료비와 남은 필수 항목을 보여주는 하단 고정 예약 바까지 갖춰 위계·정렬·실제 앱다운 완성도가 높고, A는 반려동물 카드 높이가 어긋나고 전반적으로 밋밋합니다."
+      },
+      {
+        "pair": "vet-booking-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 섹션 간격·정렬이 일관되고 필수/선택 표기, 요약된 진료비, 비활성 예약 버튼과 안내문까지 깔끔하게 정돈돼 그대로 출시할 만한 반면, A는 카드가 중첩되고 섹션 제목이 카드 상단 경계에 걸려 어색하며 수의사 목록이 길어 화면이 산만하다."
+      },
+      {
+        "pair": "vet-booking-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 병원 정보, 아이콘과 라디오 선택 표시, 수의사 프로필과 휴진 정보, 하단 고정 CTA(예상 진료비 포함)까지 실제 앱처럼 위계와 완성도가 높고, 반려동물 섹션 제목이 카드 테두리에 걸리는 작은 흠이 있어도 A의 단조롭고 정보가 부족한 구성보다 낫다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "car-wash": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 14.7,
+        "strongEffects": 1,
+        "fontSizes": 8,
+        "axeSerious": 14,
+        "smallTextShare": 67,
+        "toneSurfaces": 1,
+        "seconds": 112
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "axeSerious": 0,
+        "smallTextShare": 44,
+        "toneSurfaces": 1,
+        "seconds": 225
+      }
+    },
+    "vet-booking": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 17.7,
+        "strongEffects": 0.3,
+        "fontSizes": 11.3,
+        "axeSerious": 7,
+        "smallTextShare": 79,
+        "toneSurfaces": 2,
+        "seconds": 186
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.3,
+        "axeSerious": 0,
+        "smallTextShare": 62,
+        "toneSurfaces": 2,
+        "seconds": 223
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "car-wash",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 123,
+      "costUsd": 0.75,
+      "turns": 3,
+      "outputTokens": 16031,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 10,
+      "smallTargets": 0,
+      "boxes": 29,
+      "nestedBoxes": 23,
+      "strongEffects": 1,
+      "fontSizes": 9,
+      "bodySize": 13,
+      "smallTextShare": 57,
+      "accentTextShare": 11.2,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 25,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 14,
+        "all": 14,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 13
+      }
+    },
+    {
+      "prompt": "car-wash",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 105,
+      "costUsd": 0.45,
+      "turns": 3,
+      "outputTokens": 13528,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 27,
+      "nestedBoxes": 21,
+      "strongEffects": 1,
+      "fontSizes": 7,
+      "bodySize": 12,
+      "smallTextShare": 75,
+      "accentTextShare": 7.5,
+      "toneSurfaces": 1,
+      "primaryHue": 219,
+      "centeredParagraphs": 0,
+      "moving": 27,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": false,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 10,
+        "all": 10,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 17
+      }
+    },
+    {
+      "prompt": "car-wash",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 108,
+      "costUsd": 0.45,
+      "turns": 3,
+      "outputTokens": 13627,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 22,
+      "nestedBoxes": 0,
+      "strongEffects": 1,
+      "fontSizes": 8,
+      "bodySize": 12,
+      "smallTextShare": 67,
+      "accentTextShare": 3.6,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 24,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 18,
+        "all": 18,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 9
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 128,
+      "costUsd": 0.75,
+      "turns": 3,
+      "outputTokens": 16086,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 11,
+      "smallTargets": 0,
+      "boxes": 38,
+      "nestedBoxes": 32,
+      "strongEffects": 0,
+      "fontSizes": 10,
+      "bodySize": 13,
+      "smallTextShare": 79,
+      "accentTextShare": 6.6,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 32,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": false,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 18
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 225,
+      "costUsd": 0.86,
+      "turns": 7,
+      "outputTokens": 26548,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 12,
+      "smallTargets": 0,
+      "boxes": 18,
+      "nestedBoxes": 11,
+      "strongEffects": 0,
+      "fontSizes": 12,
+      "bodySize": 13,
+      "smallTextShare": 80,
+      "accentTextShare": 15.2,
+      "toneSurfaces": 1,
+      "primaryHue": 163,
+      "centeredParagraphs": 1,
+      "moving": 32,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 11,
+        "all": 11,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 2,
+        "warns": 13
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 204,
+      "costUsd": 0.77,
+      "turns": 5,
+      "outputTokens": 23874,
+      "skillRead": false,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 11,
+      "smallTargets": 0,
+      "boxes": 16,
+      "nestedBoxes": 10,
+      "strongEffects": 1,
+      "fontSizes": 12,
+      "bodySize": 13,
+      "smallTextShare": 74,
+      "accentTextShare": 2,
+      "toneSurfaces": 2,
+      "primaryHue": 168,
+      "centeredParagraphs": 0,
+      "moving": 41,
+      "transitionAll": 23,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 10,
+        "all": 10,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 1,
+        "warns": 14
+      }
+    },
+    {
+      "prompt": "car-wash",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 228,
+      "costUsd": 1.38,
+      "turns": 16,
+      "outputTokens": 25303,
+      "skillRead": true,
+      "patterns": [
+        "checkbox-radio",
+        "loading-button",
+        "press-feedback"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 44,
+      "accentTextShare": 2.3,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 35,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "car-wash",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 245,
+      "costUsd": 1.54,
+      "turns": 25,
+      "outputTokens": 26596,
+      "skillRead": true,
+      "patterns": [
+        "checkbox-radio",
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 31,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 28,
+      "accentTextShare": 1.3,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 41,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "car-wash",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 201,
+      "costUsd": 1.3,
+      "turns": 19,
+      "outputTokens": 23238,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 53,
+      "accentTextShare": 1.9,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 30,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 271,
+      "costUsd": 1.66,
+      "turns": 21,
+      "outputTokens": 27772,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 23,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 59,
+      "accentTextShare": 2.5,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 1,
+      "moving": 35,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 232,
+      "costUsd": 1.44,
+      "turns": 19,
+      "outputTokens": 26791,
+      "skillRead": true,
+      "patterns": [
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 11,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 62,
+      "accentTextShare": 3.9,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 37,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "vet-booking",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 168,
+      "costUsd": 1.02,
+      "turns": 16,
+      "outputTokens": 19600,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 21,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 72,
+      "accentTextShare": 0,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 26,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    }
+  ]
+}

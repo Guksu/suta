@@ -413,6 +413,9 @@ const overflowOf = async ({ browser, url, width }) => {
   return over > 1
 }
 
+// 390 전체 캡처의 최대 높이 — 판정에 넘기는 그림이 너무 길지 않게
+const CAPTURE_MAX = 2400
+
 const runDirs = []
 for (const condition of readdirSync(join(out, 'runs'))) {
   for (const name of readdirSync(join(out, 'runs', condition))) runDirs.push(join(out, 'runs', condition, name))
@@ -447,11 +450,13 @@ for (const dir of runDirs.sort()) {
   // 화면 전체를 찍되 너무 긴 페이지는 2,400px에서 자른다 — 판정(judge.mjs)과 사람이 보는 용도.
   // 전체 화면 캡처는 position: fixed 요소를 처음 화면의 자리(예: 위에서 771px)에 그대로 두어, 하단 고정 바가 페이지
   // 한가운데에 찍히고 그 아래 내용을 가린 것처럼 보인다. 사람이 스크롤하며 보는 자리로 옮겨 찍는다 —
-  // 아래쪽에 붙은 것은 문서 끝에, 위쪽에 붙은 것은 문서 처음에. 지표는 이미 위에서 다 쟀다
-  await page.evaluate(() => {
+  // 아래쪽에 붙은 것은 찍히는 영역의 끝에, 위쪽에 붙은 것은 문서 처음에. 지표는 이미 위에서 다 쟀다
+  await page.evaluate((CAPTURE_MAX) => {
     // 고정 요소의 화면 판정은 innerWidth·innerHeight다 — 넘친 페이지에서는 고정 요소가 늘어난 화면에 놓인다(예: 하단 바 top 1,838 / innerHeight 1,911).
     // clientHeight(844)로 보면 그 바를 화면 밖으로 보고 캡처에서 숨긴다
-    const total = document.documentElement.scrollHeight
+    // 아래쪽 고정 요소는 찍히는 영역의 끝에 둔다. 캡처는 2,400px에서 자르므로, 문서가 그보다 길면 문서 끝에 둔 바가 잘려 나간다
+    // (휴대폰에서는 화면 아래에 늘 보이는 등록 바가 캡처에서 사라졌다 — 2026-11-09 숙소 등록 6개 중 5개)
+    const total = Math.min(document.documentElement.scrollHeight, CAPTURE_MAX)
     const pinned = []
     for (const el of document.body.querySelectorAll('*')) {
       const cs = getComputedStyle(el)
@@ -487,8 +492,8 @@ for (const dir of runDirs.sort()) {
       const r = el.getBoundingClientRect()
       if (r.height > 0 && r.height < innerHeight * 0.4 && r.top > innerHeight / 2) el.style.setProperty('position', 'static', 'important')
     }
-  })
-  const height = await page.evaluate(() => Math.min(document.documentElement.scrollHeight, 2400))
+  }, CAPTURE_MAX)
+  const height = await page.evaluate((max) => Math.min(document.documentElement.scrollHeight, max), CAPTURE_MAX)
   await page.screenshot({ path: join(dir, 'shot-390.png'), fullPage: true, clip: { x: 0, y: 0, width: 390, height }, timeout: 30000 }).catch(() => {})
   await page.close()
   const wide = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: LOCALE })

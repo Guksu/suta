@@ -6,6 +6,44 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Seventh set of requests: vet clinic booking, mobile car wash booking, stay listing (suta 0.17)
+
+We measured again after the fixes from the section below (desktop form layout, a default for segmented controls, prices on booking forms, pet avatars), plus the measurement update and the glass-nav fix. We checked the captures by eye before judging.
+
+- App vet clinic booking: "Make the booking screen of a vet clinic app, mobile first. It needs one of the registered pets (one dog, one cat), the visit type (general checkup, vaccination, health screening), a vet, date and time, a symptom note, the estimated fee and a book button. Pet, visit type, and date and time are required." (asked in Korean)
+- App mobile car wash booking: "Make the booking screen of a mobile car wash app, mobile first. It needs the car size (compact, mid-size, large, SUV), the wash type (exterior, interior, both), add-ons (glass coating +20,000 won, seat cleaning +15,000 won), date and time of the visit, a parking note, the estimated price and a book button. Car size, wash type, and date and time are required." (asked in Korean)
+- Web stay listing: "Build the page where a host lists a new stay on a lodging platform, desktop first. It needs the stay name, the type (apartment, house, guesthouse, hanok), max guests, bedrooms, the nightly rate, amenities (multiple choice), check-in method (self check-in or meet the host), a description, a cover photo, visibility and a submit button. Name, type, max guests and nightly rate are required. Make it work on mobile too." (asked in Korean)
+
+![Top row: without suta (AS-IS). Bottom row: suta 0.17 (TO-BE). From the left: vet clinic booking, car wash booking, stay listing](assets/gap-seventh-requests-as-is-to-be.jpg)
+
+Top: without suta. Bottom: suta 0.17 (main `19699b0`). From the left: vet booking and car wash booking (first 390×844 screen), stay listing (first 1280×800 screen). Each is the first run of its condition. 3 runs per condition per request, 18 runs in all.
+
+| | 2 app screens — without (6) | 2 app screens — suta (6) | Stay listing — without (3) | Stay listing — suta (3) |
+|---|---|---|---|---|
+| Accessibility violations (axe, per page) | 10.5 | 0 | 2.67 | 0 |
+| Pages with text under 12px | 4 | 0 | 0 | 0 |
+| Pages that scroll sideways at 390px | 0 | 0 | 2 | 0 |
+| Pages that animate a layout property (width etc.) | 0 | 0 | 3 | 0 |
+| Generation time (median) | 204 · 108 s | 232 · 228 s | 193 s | 350 s |
+| Generation cost (per run) | $0.45–0.86 | $1.02–1.66 | $0.93–1.01 | $1.53–1.96 |
+
+Blind judgments (suta : without):
+
+| Request | Default model | Other model |
+|---|---|---|
+| Vet booking | 4 : 2 | 3 : 3 |
+| Car wash booking | 5 : 1 | 6 : 0 |
+| Stay listing | 5 : 1 | 3 : 3 |
+| Total | 14 : 4 | 12 : 6 |
+
+- **For the first time, neither judge had suta lose a request.** The default judge is also the generating model. Pairs judged the same way in both orders: 7 of 9 for each judge (default 6 : 1, other 5 : 2).
+- **We found and fixed a measurement defect.** The capture is cut at 2,400px, but bottom fixed bars were placed at the end of the document, so on long pages the bar was cut off: 5 of the 6 stay-listing pages. After the fix we re-judged only the stay listing; the table shows the fixed values (before the fix: 4 : 2, 4 : 2).
+- **The earlier fixes were used.** All three vet runs used a first-letter circle for each pet; all three stay-listing runs used one block of input column plus panel and a default check-in method. The bottom bar carried the price in all three car wash runs and in none of the vet runs.
+- **9 of the 10 lost judgments** named sections the other side added that the request did not ask for (clinic info banner, vet profiles, a preview card, a progress indicator). The usability issues named alongside were uneven pet card heights, the gap between a label and its buttons, bottom-bar text touching the screen edge (the bar also carried a card class by mistake), and uneven time-slot widths.
+- Fixed after this run, not measured again: in forms, choice cards in one row get equal heights, time and date grids get equal-width columns, and the gap between a label and its control is the same for every field.
+
+Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 15](research/2026-11-06-reference-gaps.md) (Korean)
+
 ### Sixth set of requests: dog grooming booking, job posting, interior magazine home tour (suta 0.17)
 
 We measured again after the fixes from the section below (the first item of a sideways row, desktop forms, article presentation, the request-scope boundary and site menu names) and the `segmented-control` fix (its selection indicator now moves with `transform` only). We checked the captures by eye before judging.

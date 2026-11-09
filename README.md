@@ -29,7 +29,7 @@ Accessibility results and design preference are separate. The measured violation
 
 ### Screens without a convention (suta 0.17)
 
-For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with six sets of requests from different industries. Each set has three requests, run 3 times per condition: 99 runs in all, 54 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
+For 0.17 we measured screen types suta had no convention for (filters, composers, multi-field forms, articles) and the rewritten report convention with seven sets of requests from different industries. Each set has three requests, run 3 times per condition: 117 runs in all, 63 of them with suta 0.17 (the first set reused the no-suta runs from the 0.16 diagnosis). The table shows blind judgments (suta : without); each cell lists the requests in order as "default model·other model", with 6 judgments per model.
 
 | Requests | Judgments |
 |---|---|
@@ -39,14 +39,15 @@ For 0.17 we measured screen types suta had no convention for (filters, composers
 | Meetup creation · library statistics · album review | 1:5·1:5 / 6:0·6:0 / 2:4·2:4 |
 | Clinic booking · course creation · travel article | 4:2·4:2 / 3:3·3:3 / 0:6·0:6 |
 | Dog grooming booking · job posting · home tour article | 4:2·3:3 / 5:1·2:4 / 6:0·4:2 |
+| Vet clinic booking · car wash booking · stay listing | 4:2·3:3 / 5:1·6:0 / 5:1·3:3 |
 
-- **Measurements:** accessibility violations (axe) were 0 on the suta side in the first five sets; in the sixth, one grooming run had 1 (text contrast). Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb; 0 on the sixth set's job posting after the fix), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
-- **Judgments:** across the 18 requests suta lost 48 : 60 with the default model and 42 : 66 with the other. In the sixth set the default judge chose suta on all three requests for the first time (15 : 3). The default judge is also the generating model; the other judge was even at 9 : 9.
-  - suta won 4 requests with both models: stay filters, library statistics, clinic booking and the home tour article.
+- **Measurements:** accessibility violations (axe) were 0 on the suta side in the first five sets; in the sixth, one grooming run had 1 (text contrast); in the seventh, 0. Some measurements went against suta: all three course-creation runs animated a width (the canonical `segmented-control` thumb; 0 on the sixth set's job posting after the fix), meetup creation had 0.67 touch targets under 24px per page (0 without suta), and the SaaS report had 1.33 nested boxes per page (1 without suta). One library-statistics run scrolled sideways at 320px, as did one run without suta.
+- **Judgments:** across the 21 requests suta lost 62 : 64 with the default model and 54 : 72 with the other. The default judge is also the generating model. In the sixth set the default judge chose suta on all three requests for the first time (15 : 3); in the seventh, for the first time neither judge had suta lose a request (14 : 4, 12 : 6). The seventh set's stay listing was re-judged after fixing a capture defect (a bottom fixed bar cut off on long pages).
+  - suta won 5 requests with both models: stay filters, library statistics, clinic booking, the home tour article and car wash booking.
   - It lost 9 requests with both models: product filters, 2 reports (SaaS, store sales), 3 writing screens (book review, listing, meetup) and 3 article pages.
-  - The other 5 were tied with at least one model (composer, complaint status, course creation, grooming booking) or split by judge (job posting, 5 : 1 and 2 : 4).
+  - The other 7 were tied with at least one model (composer, complaint status, course creation, grooming booking, vet booking, stay listing) or split by judge (job posting, 5 : 1 and 2 : 4).
 - **Time and cost:** per request, the median generation time was 0.95–2.2 times and the median cost 1.2–3.3 times that of the runs without suta.
-- **Not measured again:** the fixes made after the last set: desktop form layout (input column and panel as one block, edges lined up with the header), bordered inputs on gray pages, a default for segmented controls, an itemized price on booking forms, dog avatars.
+- **Not measured again:** the fixes made after the last set: in forms, choice cards in one row get equal heights, time and date grids get equal-width columns, and the label-to-control gap is the same for every field.
 - **Limits:** three runs per condition, and one judge model is also the generating model.
 
 [Results and screens for each set](docs/comparisons.en.md)
