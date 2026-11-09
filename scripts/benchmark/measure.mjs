@@ -413,6 +413,9 @@ const overflowOf = async ({ browser, url, width }) => {
   return over > 1
 }
 
+// 390 전체 캡처의 최대 높이 — 판정에 넘기는 그림이 너무 길지 않게
+const CAPTURE_MAX = 2400
+
 const runDirs = []
 for (const condition of readdirSync(join(out, 'runs'))) {
   for (const name of readdirSync(join(out, 'runs', condition))) runDirs.push(join(out, 'runs', condition, name))
@@ -447,11 +450,18 @@ for (const dir of runDirs.sort()) {
   // 화면 전체를 찍되 너무 긴 페이지는 2,400px에서 자른다 — 판정(judge.mjs)과 사람이 보는 용도.
   // 전체 화면 캡처는 position: fixed 요소를 처음 화면의 자리(예: 위에서 771px)에 그대로 두어, 하단 고정 바가 페이지
   // 한가운데에 찍히고 그 아래 내용을 가린 것처럼 보인다. 사람이 스크롤하며 보는 자리로 옮겨 찍는다 —
-  // 아래쪽에 붙은 것은 문서 끝에, 위쪽에 붙은 것은 문서 처음에. 지표는 이미 위에서 다 쟀다
-  await page.evaluate(() => {
+  // 아래쪽에 붙은 것은 찍히는 영역의 끝에, 위쪽에 붙은 것은 문서 처음에. 지표는 이미 위에서 다 쟀다
+  await page.evaluate((CAPTURE_MAX) => {
     // 고정 요소의 화면 판정은 innerWidth·innerHeight다 — 넘친 페이지에서는 고정 요소가 늘어난 화면에 놓인다(예: 하단 바 top 1,838 / innerHeight 1,911).
     // clientHeight(844)로 보면 그 바를 화면 밖으로 보고 캡처에서 숨긴다
-    const total = document.documentElement.scrollHeight
+    // 아래쪽 고정 요소는 찍히는 영역의 끝에 둔다. 캡처는 2,400px에서 자르므로, 문서가 그보다 길면 문서 끝에 둔 바가 잘려 나간다
+    // (휴대폰에서는 화면 아래에 늘 보이는 등록 바가 캡처에서 사라졌다 — 2026-11-09 숙소 등록 6개 중 5개)
+    const total = Math.min(document.documentElement.scrollHeight, CAPTURE_MAX)
+    // 화면 크기는 스타일을 바꾸기 전에 한 번 읽는다. 화면보다 넓은 고정 바를 absolute로 바꾸면 문서가 옆으로 넘쳐
+    // 모바일 에뮬레이션의 innerHeight가 그 자리에서 늘어난다(844 → 888). 늘어난 값으로 자리를 셈하면 바가 그만큼 위에 찍혔다
+    // (2026-11-09 숙소 등록 suta 1번째 44px, 다섯 번째 묶음 강의 등록 suta 없이 3번째 143px)
+    const vw = innerWidth
+    const vh = innerHeight
     const pinned = []
     for (const el of document.body.querySelectorAll('*')) {
       const cs = getComputedStyle(el)
@@ -461,16 +471,16 @@ for (const dir of runDirs.sort()) {
       // 처음 화면 밖에 있는 고정 요소(translateY(100%)로 내려 둔 닫힌 시트 등)는 기기에서 보이지 않는다.
       // 옮기면서 transform을 지우면 닫힌 시트가 페이지 끝에 찍혀 판정이 "깨진 화면"으로 본다 — 건드리지 않고 숨긴다.
       // 높이 검사보다 먼저 한다 — 키 큰 닫힌 시트(92vh)도 화면 밖이면 숨겨야 한다
-      if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) {
+      if (r.bottom <= 0 || r.top >= vh || r.right <= 0 || r.left >= vw) {
         el.style.setProperty('visibility', 'hidden', 'important')
         continue
       }
-      if (r.height >= innerHeight * 0.9) continue
-      pinned.push({ el, r, nearBottom: r.top > innerHeight / 2 })
+      if (r.height >= vh * 0.9) continue
+      pinned.push({ el, r, nearBottom: r.top > vh / 2 })
     }
     for (const { el, r, nearBottom } of pinned) {
       el.style.setProperty('position', 'absolute', 'important')
-      el.style.setProperty('top', `${nearBottom ? total - (innerHeight - r.top) : r.top}px`, 'important')
+      el.style.setProperty('top', `${nearBottom ? total - (vh - r.top) : r.top}px`, 'important')
       el.style.setProperty('bottom', 'auto', 'important')
       el.style.setProperty('left', `${r.left}px`, 'important')
       el.style.setProperty('right', 'auto', 'important')
@@ -485,10 +495,10 @@ for (const dir of runDirs.sort()) {
       const cs = getComputedStyle(el)
       if (cs.position !== 'sticky') continue
       const r = el.getBoundingClientRect()
-      if (r.height > 0 && r.height < innerHeight * 0.4 && r.top > innerHeight / 2) el.style.setProperty('position', 'static', 'important')
+      if (r.height > 0 && r.height < vh * 0.4 && r.top > vh / 2) el.style.setProperty('position', 'static', 'important')
     }
-  })
-  const height = await page.evaluate(() => Math.min(document.documentElement.scrollHeight, 2400))
+  }, CAPTURE_MAX)
+  const height = await page.evaluate((max) => Math.min(document.documentElement.scrollHeight, max), CAPTURE_MAX)
   await page.screenshot({ path: join(dir, 'shot-390.png'), fullPage: true, clip: { x: 0, y: 0, width: 390, height }, timeout: 30000 }).catch(() => {})
   await page.close()
   const wide = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: LOCALE })
