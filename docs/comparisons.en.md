@@ -33,14 +33,23 @@ Blind judgments (suta : without):
 |---|---|---|
 | Vet booking | 4 : 2 | 3 : 3 |
 | Car wash booking | 5 : 1 | 6 : 0 |
-| Stay listing | 5 : 1 | 3 : 3 |
-| Total | 14 : 4 | 12 : 6 |
+| Stay listing | 6 : 0 | 2 : 4 |
+| Total | 15 : 3 | 11 : 7 |
 
-- **For the first time, neither judge had suta lose a request.** The default judge is also the generating model. Pairs judged the same way in both orders: 7 of 9 for each judge (default 6 : 1, other 5 : 2).
-- **We found and fixed a measurement defect.** The capture is cut at 2,400px, but bottom fixed bars were placed at the end of the document, so on long pages the bar was cut off: 5 of the 6 stay-listing pages. After the fix we re-judged only the stay listing; the table shows the fixed values (before the fix: 4 : 2, 4 : 2).
-- **The earlier fixes were used.** All three vet runs used a first-letter circle for each pet; all three stay-listing runs used one block of input column plus panel and a default check-in method. The bottom bar carried the price in all three car wash runs and in none of the vet runs.
-- **9 of the 10 lost judgments** named sections the other side added that the request did not ask for (clinic info banner, vet profiles, a preview card, a progress indicator). The usability issues named alongside were uneven pet card heights, the gap between a label and its buttons, bottom-bar text touching the screen edge (the bar also carried a card class by mistake), and uneven time-slot widths.
-- Fixed after this run, not measured again: in forms, choice cards in one row get equal heights, time and date grids get equal-width columns, and the gap between a label and its control is the same for every field.
+- **The default judge chose suta on all three requests (15 : 3),** the second time after the sixth set. The default judge is also the model that generated the pages. The other judge went 11 : 7 and lost the stay listing 2 : 4. Pairs judged the same way in both orders: 8 of 9 for each judge (default 7 : 1, other 5 : 3).
+- **We found and fixed two capture defects** and re-measured and re-judged only the stay listing; the table shows the values after both fixes.
+  - The capture is cut at 2,400px, but bottom fixed bars were placed at the end of the document, so on long pages the bar was cut off: 5 of the 6 stay-listing pages.
+  - Moving a bar wider than the screen made the emulated viewport height grow, so the bar was drawn too high: 44px in suta's first run, where it covered the last field.
+- **The other judge's stay-listing verdict swung from 4 : 2 to 3 : 3 to 2 : 4 on nearly identical captures.** These are, in order, before the fixes, after the first fix and after both fixes. The default judge went 4 : 2, 5 : 1, 6 : 0.
+- **The earlier fixes were used.**
+  - All three vet runs used a first-letter circle for each pet.
+  - All three stay-listing runs used one block of input column plus panel, bordered inputs and a default check-in method.
+  - The bottom bar carried the price in all three car wash runs and in none of the vet runs.
+- **9 of the 10 lost judgments named the other side's richer composition.**
+  - Sections the request didn't ask for: a clinic info banner, symptom quick-pick chips, a preview card. suta doesn't add these.
+  - Ways of showing requested content: vet profile cards, a required-fields progress indicator. These are in scope.
+  - Usability issues named alongside: uneven pet card heights, the gap between a label and its buttons, and bottom-bar text touching the screen edge (the bar also carried a card class by mistake).
+- Fixed after this run, not measured again: in forms, choice cards in one row match in height down to the visible box, and the label-to-control gap is the same for every field.
 
 Three runs per condition, and one judge is also the generating model. [Reference re-analysis, section 15](research/2026-11-06-reference-gaps.md) (Korean)
 

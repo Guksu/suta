@@ -457,6 +457,11 @@ for (const dir of runDirs.sort()) {
     // 아래쪽 고정 요소는 찍히는 영역의 끝에 둔다. 캡처는 2,400px에서 자르므로, 문서가 그보다 길면 문서 끝에 둔 바가 잘려 나간다
     // (휴대폰에서는 화면 아래에 늘 보이는 등록 바가 캡처에서 사라졌다 — 2026-11-09 숙소 등록 6개 중 5개)
     const total = Math.min(document.documentElement.scrollHeight, CAPTURE_MAX)
+    // 화면 크기는 스타일을 바꾸기 전에 한 번 읽는다. 화면보다 넓은 고정 바를 absolute로 바꾸면 문서가 옆으로 넘쳐
+    // 모바일 에뮬레이션의 innerHeight가 그 자리에서 늘어난다(844 → 888). 늘어난 값으로 자리를 셈하면 바가 그만큼 위에 찍혔다
+    // (2026-11-09 숙소 등록 suta 1번째 44px, 다섯 번째 묶음 강의 등록 suta 없이 3번째 143px)
+    const vw = innerWidth
+    const vh = innerHeight
     const pinned = []
     for (const el of document.body.querySelectorAll('*')) {
       const cs = getComputedStyle(el)
@@ -466,16 +471,16 @@ for (const dir of runDirs.sort()) {
       // 처음 화면 밖에 있는 고정 요소(translateY(100%)로 내려 둔 닫힌 시트 등)는 기기에서 보이지 않는다.
       // 옮기면서 transform을 지우면 닫힌 시트가 페이지 끝에 찍혀 판정이 "깨진 화면"으로 본다 — 건드리지 않고 숨긴다.
       // 높이 검사보다 먼저 한다 — 키 큰 닫힌 시트(92vh)도 화면 밖이면 숨겨야 한다
-      if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) {
+      if (r.bottom <= 0 || r.top >= vh || r.right <= 0 || r.left >= vw) {
         el.style.setProperty('visibility', 'hidden', 'important')
         continue
       }
-      if (r.height >= innerHeight * 0.9) continue
-      pinned.push({ el, r, nearBottom: r.top > innerHeight / 2 })
+      if (r.height >= vh * 0.9) continue
+      pinned.push({ el, r, nearBottom: r.top > vh / 2 })
     }
     for (const { el, r, nearBottom } of pinned) {
       el.style.setProperty('position', 'absolute', 'important')
-      el.style.setProperty('top', `${nearBottom ? total - (innerHeight - r.top) : r.top}px`, 'important')
+      el.style.setProperty('top', `${nearBottom ? total - (vh - r.top) : r.top}px`, 'important')
       el.style.setProperty('bottom', 'auto', 'important')
       el.style.setProperty('left', `${r.left}px`, 'important')
       el.style.setProperty('right', 'auto', 'important')
@@ -490,7 +495,7 @@ for (const dir of runDirs.sort()) {
       const cs = getComputedStyle(el)
       if (cs.position !== 'sticky') continue
       const r = el.getBoundingClientRect()
-      if (r.height > 0 && r.height < innerHeight * 0.4 && r.top > innerHeight / 2) el.style.setProperty('position', 'static', 'important')
+      if (r.height > 0 && r.height < vh * 0.4 && r.top > vh / 2) el.style.setProperty('position', 'static', 'important')
     }
   }, CAPTURE_MAX)
   const height = await page.evaluate((max) => Math.min(document.documentElement.scrollHeight, max), CAPTURE_MAX)
