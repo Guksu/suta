@@ -1,5 +1,5 @@
 import { INITIAL_NAV_STATE, reduceNavState, type NavOptions, type NavState } from './navScrollCore'
-import { activeSectionFor, pillFrame, scrollTargetFor, type SectionOffset } from './navSpyCore'
+import { activeSectionFor, pillFrame, pillTrack, scrollTargetFor, type SectionOffset } from './navSpyCore'
 
 /**
  * 프레임워크 무관 GNB 스크롤 반응 코어 (의존성 0).
@@ -86,13 +86,29 @@ export const createGlassNav = ({ container = document, nav, onChange, spy, ...op
     return pairs.map(({ id, section }) => ({ id, top: section.getBoundingClientRect().top - originTop + scrollTop }))
   }
 
+  let pillPlaced = false
   const placePill = () => {
     if (!pill) return
     const active = pairs.find((pair) => pair.id === activeId)?.link
-    if (!active) return
-    const frameStyle = pillFrame({ offsetLeft: active.offsetLeft, offsetWidth: active.offsetWidth })
-    pill.style.transform = frameStyle.transform
-    pill.style.width = frameStyle.width
+    // 숨긴 채(display: none) 마운트되면 폭이 0이다 — 놓지 않고, 보일 때(refresh·resize)의 첫 배치를 전이 없이 놓는다
+    if (!active || active.offsetWidth === 0) return
+    const { clipPath } = pillFrame({ offsetLeft: active.offsetLeft, offsetWidth: active.offsetWidth })
+    // 바탕 폭은 전이하지 않는다 — 배치·창 크기·글꼴 로드 때만 바뀐다
+    pill.style.setProperty('--_pill-track', pillTrack({ links: pairs.map(({ link }) => link) }))
+    if (pillPlaced) {
+      pill.style.clipPath = clipPath
+      return
+    }
+    // 첫 배치는 전이 없이 — CSS 기본값(왼쪽 끝 폭 0)에서 자라나는 가짜 움직임을 막는다.
+    // transition: none을 건 채로 배치를 한 번 읽어 스타일을 확정한다. 확정하지 않으면 다음 프레임의 복원이 먼저 돌아 전이가 그대로 일어난다.
+    // 속성 읽기(void el.offsetWidth)는 일부 압축기가 지우므로 메서드 호출로 읽는다
+    pillPlaced = true
+    pill.style.transition = 'none'
+    pill.style.clipPath = clipPath
+    pill.getBoundingClientRect()
+    requestAnimationFrame(() => {
+      pill.style.transition = ''
+    })
   }
 
   const setActive = (id: string | null) => {
