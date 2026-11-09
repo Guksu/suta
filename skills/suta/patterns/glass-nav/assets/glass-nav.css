@@ -116,21 +116,17 @@
   background: var(--_active-bg);
 }
 
-/* 활성 알약 — spy가 활성 링크의 위치·너비를 transform·width로 준다. 링크 사이를 미끄러진다(segmented-control의 thumb과 같은 기법).
+/* 활성 알약 — 링크 줄 전체에 깔고, spy가 활성 링크 부분만 clip-path inset(… round 999px)으로 남긴다. 링크 사이를 미끄러진다.
+ * 링크마다 폭이 달라 transform만으로는 이동 중 폭이 어긋나고, scaleX는 둥근 끝을 찌그러뜨리고, width 전이는 매 프레임 레이아웃을 돌린다.
+ * clip-path 전이는 그리기만 다시 한다. 기본값은 왼쪽 끝 폭 0(안 보임)이고, 첫 배치는 코어가 전이 없이 놓는다.
  * 알약이 있으면 활성 링크 자체의 배경은 끈다(두 겹 방지) */
 .gnav-pill {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  border-radius: 999px;
+  inset: 0;
   background: var(--_active-bg);
+  clip-path: inset(0 100% 0 0 round 999px);
   pointer-events: none;
-  /* motion-audit-ignore: layout-animation — 알약은 absolute·pointer-events:none이라 width 전이가 자기 자신만 다시 그린다 */
-  transition:
-    transform var(--_duration) var(--_ease),
-    width var(--_duration) var(--_ease);
+  transition: clip-path var(--_duration) var(--_ease);
 }
 
 .gnav-links:has(.gnav-pill) a[aria-current='page'] {

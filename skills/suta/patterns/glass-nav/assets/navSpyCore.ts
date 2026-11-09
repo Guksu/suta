@@ -41,8 +41,11 @@ export const activeSectionFor = ({
 export const scrollTargetFor = ({ sectionTop, navHeight, offsetPx = 8 }: { sectionTop: number; navHeight: number; offsetPx?: number }) =>
   Math.max(0, Math.ceil(sectionTop - navHeight - offsetPx))
 
-/** 알약(활성 표시)을 활성 링크 위치로 — translateX + width. 링크는 흐름 안에 있고 알약은 absolute라 자기만 레이아웃한다 */
+/**
+ * 알약(활성 표시)을 활성 링크 위치로 — 링크 줄 전체에 깐 알약에서 활성 링크 부분만 clip-path inset으로 남긴다.
+ * 링크마다 폭이 달라 transform만으로는 이동 중 폭이 어긋나고, scaleX는 둥근 끝을 찌그러뜨리며, width 전이는 매 프레임 레이아웃을 돌린다.
+ * clip-path는 그리기만 다시 하고, round 999px로 어느 폭에서도 알약 모양이다. 오른쪽은 calc(100% - 끝)이라 줄 폭을 따로 재지 않는다.
+ */
 export const pillFrame = ({ offsetLeft, offsetWidth }: { offsetLeft: number; offsetWidth: number }) => ({
-  transform: `translateX(${offsetLeft}px)`,
-  width: `${offsetWidth}px`,
+  clipPath: `inset(0 calc(100% - ${offsetLeft + offsetWidth}px) 0 ${offsetLeft}px round 999px)`,
 })
