@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { activeSectionFor, pillFrame, scrollTargetFor } from '@skills/glass-nav/assets/navSpyCore'
+import { activeSectionFor, pillFrame, pillTrack, scrollTargetFor } from '@skills/glass-nav/assets/navSpyCore'
 import { createGlassNav } from '@skills/glass-nav/assets/createGlassNav'
 
 const SECTIONS = [
@@ -35,7 +35,13 @@ describe('navSpyCore — 스크롤 위치로 활성 섹션을 정한다', () => 
   })
 
   it('알약은 활성 링크의 왼쪽·오른쪽 끝을 clip-path inset으로 받는다 (링크 폭이 달라도 알약 모양 그대로, 레이아웃 전이 없이)', () => {
-    expect(pillFrame({ offsetLeft: 72, offsetWidth: 48 })).toEqual({ clipPath: 'inset(0 calc(100% - 120px) 0 72px round 999px)' })
+    expect(pillFrame({ offsetLeft: 72, offsetWidth: 48 })).toEqual({ clipPath: 'inset(0 calc(100% - 120px) 0 72px round var(--gnav-pill-radius, 999px))' })
+  })
+
+  it('알약의 바탕 폭은 링크 줄의 보이는 폭이 아니라 마지막 링크의 끝까지다 (줄이 옆으로 스크롤돼도 알약이 링크를 덮게)', () => {
+    const links = [{ offsetLeft: 0, offsetWidth: 62 }, { offsetLeft: 66, offsetWidth: 68 }, { offsetLeft: 138, offsetWidth: 70 }]
+    expect(pillTrack({ links })).toBe('208px')
+    expect(pillTrack({ links: [] })).toBe('')
   })
 })
 
@@ -67,8 +73,8 @@ describe('createGlassNav spy — 링크 클릭 → 섹션 스크롤, 스크롤 �
     container.append(nav)
     const links = Array.from(nav.querySelectorAll('a'))
     links.forEach((link, i) => {
-      Object.defineProperty(link, 'offsetLeft', { value: 60 * i })
-      Object.defineProperty(link, 'offsetWidth', { value: 50 })
+      Object.defineProperty(link, 'offsetLeft', { value: 60 * i, configurable: true })
+      Object.defineProperty(link, 'offsetWidth', { value: 50, configurable: true })
     })
     for (const { id, top } of SECTIONS) {
       const section = document.createElement('section')
@@ -92,7 +98,9 @@ describe('createGlassNav spy — 링크 클릭 → 섹션 스크롤, 스크롤 �
     expect(links[0].getAttribute('aria-current')).toBe('page')
     expect(links[1].hasAttribute('aria-current')).toBe(false)
     const pill = nav.querySelector<HTMLElement>('.gnav-pill')!
-    expect(pill.style.clipPath).toBe('inset(0 calc(100% - 50px) 0 0px round 999px)')
+    expect(pill.style.clipPath).toBe('inset(0 calc(100% - 50px) 0 0px round var(--gnav-pill-radius, 999px))')
+    // 링크 셋(0·60·120, 폭 50)의 끝까지 — 줄이 좁아 옆으로 스크롤돼도 알약 바탕이 마지막 링크를 덮는다
+    expect(pill.style.getPropertyValue('--_pill-track')).toBe('170px')
     ctl.destroy()
   })
 
@@ -115,6 +123,44 @@ describe('createGlassNav spy — 링크 클릭 → 섹션 스크롤, 스크롤 �
     ctl.destroy()
   })
 
+  it('두 번째 배치부터는 전이를 건드리지 않고 스타일 확정도 하지 않는다 — 그래야 CSS 전이로 미끄러진다', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    const { container, nav, links } = build()
+    const pill = nav.querySelector<HTMLElement>('.gnav-pill')!
+    let reads = 0
+    const measure = pill.getBoundingClientRect.bind(pill)
+    pill.getBoundingClientRect = () => {
+      reads += 1
+      return measure()
+    }
+    const ctl = createGlassNav({ container, nav, spy: true })
+    vi.advanceTimersByTime(50)
+    const readsAfterFirst = reads
+    links[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    expect(pill.style.transition).toBe('')
+    expect(reads).toBe(readsAfterFirst)
+    ctl.destroy()
+  })
+
+  it('숨긴 채 마운트돼 링크 폭이 0이면 놓지 않고, 보일 때의 첫 배치를 전이 없이 놓는다', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    const { container, nav, links } = build()
+    let width = 0
+    links.forEach((link, i) => {
+      Object.defineProperty(link, 'offsetLeft', { get: () => (width ? 60 * i : 0) })
+      Object.defineProperty(link, 'offsetWidth', { get: () => width })
+    })
+    const pill = nav.querySelector<HTMLElement>('.gnav-pill')!
+    const ctl = createGlassNav({ container, nav, spy: true })
+    expect(pill.style.clipPath).toBe('')
+    vi.advanceTimersByTime(50)
+    width = 50
+    ctl.refresh()
+    expect(pill.style.transition).toBe('none')
+    expect(pill.style.clipPath).toBe('inset(0 calc(100% - 50px) 0 0px round var(--gnav-pill-radius, 999px))')
+    ctl.destroy()
+  })
+
   it('링크를 누르면 기본 이동을 막고 섹션 시작이 GNB 아래에 오도록 scrollTo를 부른다', () => {
     const { container, nav, links, scrollTo } = build()
     const onActive = vi.fn()
@@ -128,7 +174,7 @@ describe('createGlassNav spy — 링크 클릭 → 섹션 스크롤, 스크롤 �
     expect(links[0].hasAttribute('aria-current')).toBe(false)
     expect(nav.querySelector('.gnav-current')!.textContent).toBe('매장')
     // 두 번째부터는 전이를 건드리지 않아 CSS의 clip-path 전이로 미끄러진다
-    expect(nav.querySelector<HTMLElement>('.gnav-pill')!.style.clipPath).toBe('inset(0 calc(100% - 110px) 0 60px round 999px)')
+    expect(nav.querySelector<HTMLElement>('.gnav-pill')!.style.clipPath).toBe('inset(0 calc(100% - 110px) 0 60px round var(--gnav-pill-radius, 999px))')
     expect(onActive).toHaveBeenLastCalledWith('stores')
     ctl.destroy()
   })

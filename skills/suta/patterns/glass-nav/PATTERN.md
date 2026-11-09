@@ -24,7 +24,7 @@ description: 스크롤에 반응하는 유리 GNB(상단 내비게이션 바)를
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
 | `assets/navScrollCore.ts` | 순수 판정 — `reduceNavState` (위치·방향 → 세 상태) | 모든 프로젝트 |
-| `assets/navSpyCore.ts` | 순수 계산 — `activeSectionFor`(스크롤 위치 → 활성 섹션)·`scrollTargetFor`(링크 → 스크롤 목표)·`pillFrame`(활성 링크 → 알약의 clip-path) | 모든 프로젝트 |
+| `assets/navSpyCore.ts` | 순수 계산 — `activeSectionFor`(스크롤 위치 → 활성 섹션)·`scrollTargetFor`(링크 → 스크롤 목표)·`pillFrame`(활성 링크 → 알약의 clip-path)·`pillTrack`(알약 바탕 폭) | 모든 프로젝트 |
 | `assets/createGlassNav.ts` | 코어 — scroll 리스너·rAF·data 속성·`spy`(링크 클릭 → 섹션 스크롤, 활성 추적)·`setOptions`·`destroy` | 모든 프로젝트 |
 | `assets/glass-nav.css` | 투명→유리·숨김·축소 전이, 알약 모양 | 모든 프로젝트 |
 | `assets/useGlassNav.ts` | React 훅 (`navRef`, `state`) | React 프로젝트만 |
@@ -81,11 +81,11 @@ const { navRef, activeId } = useGlassNav({ mode: 'hide', spy: true }) // activeI
 | 링크 클릭 | 기본 이동(해시 변경)을 막고, 섹션 시작이 GNB 바로 아래(`offsetPx`, 기본 8) 오도록 `scrollTo({ behavior: 'smooth' })`. reduced-motion이면 즉시 이동 |
 | 클릭 스크롤 중 | `lockMs`(기본 900) 동안 바를 숨기거나 줄이지 않고, 활성도 목표 섹션에 고정한다 — 지나가는 섹션마다 알약이 튀지 않게 |
 | 사용자 스크롤 | 프레임당 한 번, 시작점이 GNB 아래로 들어온 마지막 섹션을 활성으로. 끝에 닿으면 마지막 섹션 |
-| 활성 표시 | 활성 링크에 `aria-current="page"`, `.gnav-current` 텍스트 교체, 링크 줄 전체에 깐 `.gnav-pill`에서 그 링크 부분만 `clip-path: inset(… round 999px)`로 남긴다. 첫 배치는 전이 없이 |
+| 활성 표시 | 활성 링크에 `aria-current="page"`, `.gnav-current` 텍스트 교체, 링크 전체 폭에 깐 `.gnav-pill`에서 그 링크 부분만 `clip-path: inset(… round var(--gnav-pill-radius, 999px))`로 남긴다. 첫 배치는 전이 없이(숨긴 채 마운트되면 보일 때의 첫 배치) |
 
 `aria-current`는 코어가 붙이므로 마크업에 직접 쓰지 않는다. 알약(`gnav-pill`)이 있으면 활성 링크 자체의 배경은 꺼지고 알약만 미끄러진다. 알약을 빼면 활성 링크의 배경이 즉시 바뀐다(미끄러짐 없음).
 
-알약은 `clip-path` 하나만 전이한다. 링크마다 폭이 달라 segmented-control처럼 `transform`만 전이하면 이동하는 동안 폭이 어긋나고, `scaleX`로 늘리면 둥근 끝이 찌그러지며, `width` 전이는 매 프레임 레이아웃을 돌린다. `clip-path`는 그리기만 다시 하고 어느 폭에서도 알약 모양이다. 오른쪽 끝은 `calc(100% - 끝)`이라 링크 줄의 폭을 따로 재지 않는다.
+알약은 `clip-path` 하나만 전이한다. 링크마다 폭이 달라 segmented-control처럼 `transform`만 전이하면 이동하는 동안 폭이 어긋나고, `scaleX`로 늘리면 둥근 끝이 찌그러지며, `width` 전이는 매 프레임 레이아웃을 돌린다. `clip-path`는 그리기만 다시 하고 어느 폭에서도 알약 모양이다. 알약 바탕의 폭(`--_pill-track`)은 코어가 마지막 링크의 끝으로 준다(`pillTrack`). 줄의 보이는 폭(100%)으로 두면 좁은 화면에서 줄이 옆으로 스크롤될 때(Tab으로 뒤쪽 링크에 가면 브라우저가 스크롤한다) 뒤쪽 링크의 알약이 사라지거나 잘린다. 이 폭은 배치·창 크기·글꼴 로드 때만 바뀌고 전이하지 않는다.
 
 반박: 페이지가 여러 라우트라면 spy가 아니라 라우터의 활성 상태로 `aria-current`를 직접 준다(위 React 예시). spy는 "한 화면 안의 섹션"일 때만 켠다.
 
@@ -112,6 +112,7 @@ const control = createGlassNav({ nav, mode: 'compact', hideAfterPx: 120, spy: { 
 | 속도 | `--gnav-duration` (250ms — 컴포넌트 전환 단계) |
 | 유리 색·흐림 | `--gnav-tint`·`--gnav-border`·`--gnav-blur`(16px) |
 | 알약 모서리 | `--gnav-radius` (999px — 각진 바를 원하면 8px) |
+| 활성 알약 모서리 | `--gnav-pill-radius` (999px) — 활성 링크 아래 알약. 바를 각지게 했으면 같은 값으로 |
 | 글자·활성 배경 | `--gnav-color`·`--gnav-active-bg` |
 
 ## 주의사항

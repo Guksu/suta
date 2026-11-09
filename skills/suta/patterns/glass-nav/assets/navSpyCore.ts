@@ -41,11 +41,21 @@ export const activeSectionFor = ({
 export const scrollTargetFor = ({ sectionTop, navHeight, offsetPx = 8 }: { sectionTop: number; navHeight: number; offsetPx?: number }) =>
   Math.max(0, Math.ceil(sectionTop - navHeight - offsetPx))
 
+type LinkBox = { offsetLeft: number; offsetWidth: number }
+
 /**
- * 알약(활성 표시)을 활성 링크 위치로 — 링크 줄 전체에 깐 알약에서 활성 링크 부분만 clip-path inset으로 남긴다.
+ * 알약(활성 표시)을 활성 링크 위치로 — 링크 전체 폭에 깐 알약에서 활성 링크 부분만 clip-path inset으로 남긴다.
  * 링크마다 폭이 달라 transform만으로는 이동 중 폭이 어긋나고, scaleX는 둥근 끝을 찌그러뜨리며, width 전이는 매 프레임 레이아웃을 돌린다.
- * clip-path는 그리기만 다시 하고, round 999px로 어느 폭에서도 알약 모양이다. 오른쪽은 calc(100% - 끝)이라 줄 폭을 따로 재지 않는다.
+ * clip-path는 그리기만 다시 하고 어느 폭에서도 알약 모양이다. 오른쪽은 알약 폭(= pillTrack) 기준 calc(100% - 끝)이다.
+ * 모서리는 --gnav-pill-radius(기본 999px)로 바꿀 수 있다.
  */
-export const pillFrame = ({ offsetLeft, offsetWidth }: { offsetLeft: number; offsetWidth: number }) => ({
-  clipPath: `inset(0 calc(100% - ${offsetLeft + offsetWidth}px) 0 ${offsetLeft}px round 999px)`,
+export const pillFrame = ({ offsetLeft, offsetWidth }: LinkBox) => ({
+  clipPath: `inset(0 calc(100% - ${offsetLeft + offsetWidth}px) 0 ${offsetLeft}px round var(--gnav-pill-radius, 999px))`,
 })
+
+/**
+ * 알약 바탕의 폭 — 마지막 링크의 끝까지. 링크 줄(overflow: hidden)이 좁아 옆으로 스크롤되면 줄의 보이는 폭(100%)은 뒤쪽 링크에 닿지 않는다.
+ * 그러면 그 링크의 clip-path가 바탕 밖이라 알약이 사라지거나 잘린다. 링크가 없으면 빈 문자열(CSS 기본값 100%)
+ */
+export const pillTrack = ({ links }: { links: LinkBox[] }) =>
+  links.length ? `${Math.max(...links.map((link) => link.offsetLeft + link.offsetWidth))}px` : ''

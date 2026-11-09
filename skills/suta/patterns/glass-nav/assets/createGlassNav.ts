@@ -1,5 +1,5 @@
 import { INITIAL_NAV_STATE, reduceNavState, type NavOptions, type NavState } from './navScrollCore'
-import { activeSectionFor, pillFrame, scrollTargetFor, type SectionOffset } from './navSpyCore'
+import { activeSectionFor, pillFrame, pillTrack, scrollTargetFor, type SectionOffset } from './navSpyCore'
 
 /**
  * 프레임워크 무관 GNB 스크롤 반응 코어 (의존성 0).
@@ -90,8 +90,11 @@ export const createGlassNav = ({ container = document, nav, onChange, spy, ...op
   const placePill = () => {
     if (!pill) return
     const active = pairs.find((pair) => pair.id === activeId)?.link
-    if (!active) return
+    // 숨긴 채(display: none) 마운트되면 폭이 0이다 — 놓지 않고, 보일 때(refresh·resize)의 첫 배치를 전이 없이 놓는다
+    if (!active || active.offsetWidth === 0) return
     const { clipPath } = pillFrame({ offsetLeft: active.offsetLeft, offsetWidth: active.offsetWidth })
+    // 바탕 폭은 전이하지 않는다 — 배치·창 크기·글꼴 로드 때만 바뀐다
+    pill.style.setProperty('--_pill-track', pillTrack({ links: pairs.map(({ link }) => link) }))
     if (pillPlaced) {
       pill.style.clipPath = clipPath
       return
