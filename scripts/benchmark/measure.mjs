@@ -327,7 +327,9 @@ const coveredByFixedBar = () => {
 const clipProbes = () => {
   const boxOf = (r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom })
   const intersect = (a, b) => ({ left: Math.max(a.left, b.left), right: Math.min(a.right, b.right), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) })
-  const viewport = { left: 0, right: innerWidth, top: -Infinity, bottom: Infinity }
+  // 화면 폭은 innerWidth가 아니라 clientWidth다. 모바일 에뮬레이션에서 페이지가 가로로 넘치면 innerWidth가 콘텐츠 폭(예: 521)까지
+  // 늘어나, 페이지 밖으로 나간 표 열을 "보인다"고 셌다. clientWidth는 넘쳐도 390이다
+  const viewport = { left: 0, right: document.documentElement.clientWidth, top: -Infinity, bottom: Infinity }
   // 화면 낭독용으로 숨긴 칸 — clip: rect(0 0 0 0)이나 clip-path: inset(50%)·inset(100%). 둥근 카드의 inset(0 round 12px)은 아니다
   const srHidden = (cs) => /rect\(\s*0(px)?[\s,]+0(px)?/.test(cs.clip ?? '') || /^inset\((50|100)%\)$/.test(cs.clipPath ?? '')
   // 글자를 잘라낼 수 있는 조상(overflow-x: hidden·clip)의 상자를 겹쳐 구한다.
