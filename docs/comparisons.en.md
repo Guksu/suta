@@ -6,6 +6,38 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Depth: parcel tracking, waitlist sign-up, leave request (suta 0.17 vs 0.18)
+
+This section is not a comparison against plain Claude Code. The same requests went to suta 0.17 and 0.18. Version 0.18 adds the design order (`references/design.md`), the detail standard (`references/detail.md`) and the elevation standard (`elevation.md`). The requests were chosen from screens that have no convention in the skill.
+
+- App, parcel tracking: carrier and tracking number, current status, five delivery steps with time and place, courier contact, recipient address, and the delivery note with a button to change it.
+- App, waitlist sign-up: restaurant name, teams waiting and estimated wait, party size (adults, infants), seating (hall, room, no preference), notes, consent, a submit button that opens a confirmation dialog.
+- Web, leave request: remaining leave (15 total, 6.5 used, 8.5 left), leave type, date range, reason, approver, request history with statuses, a submit button. Desktop first, usable on mobile.
+
+![Depth comparison: AS-IS (0.17) on top, TO-BE (0.18) below](assets/depth-as-is-to-be.jpg)
+
+The top row is suta 0.17 and the bottom row is 0.18, each from the first run. App screens show the full 390px page and the web screen shows the first 1280px view. Each condition ran twice, 12 runs in all.
+
+| | 0.17 | 0.18 |
+|---|---|---|
+| Blind judgments, parcel tracking (default model, other model) | 0, 0 | 4, 4 |
+| Blind judgments, waitlist sign-up | 2, 3 | 2, 1 |
+| Blind judgments, leave request | 2, 0 | 2, 4 |
+| Judgment totals | 4, 3 | 8, 9 |
+| 320px overflow, clipped text, text under 12px, touch targets under 24px | 0 | 0 |
+| Accessibility violations (axe, per app page) | 0 | 0.25 (one contrast issue in one parcel-tracking run) |
+| Accessibility violations (axe, per web page) | 2.5 | 2.5 (definition-list markup in the second run of both versions) |
+| Boxes nested in boxes (per web page) | 2 | 2 |
+| Share of text under 15px (web, median) | 50% | 80% |
+| Generation cost (median per run, app and web) | $2.01, $2.04 | $1.61, $2.31 |
+
+- **Judgments:** four per request. Those that picked 0.18 pointed to context next to values: the "current" badge, the "step 4 of 5" count, the full-width change button with a note, the rejection reason and the weekend-excluded note. Those that picked 0.17 pointed to the check mark on the selected seat and to leave-type buttons with borders (the gray filled chips in 0.18 read as disabled).
+- **The measured values are almost the same.** Overflow, clipping and small text were zero on both sides. Some 0.18 values are worse: one contrast violation appeared in a parcel-tracking run, and the share of small text grew on the leave request.
+- **The new documents were rarely read.** Across the six 0.18 runs, `design.md` was opened 0 times, `detail.md` once and `elevation.md` 0 times. The difference in judgments most likely comes from the sentence added to the always-read `SKILL.md` procedure (units and context next to values, a response after pressing). After the measurement, steps 4 and 7 were changed to say "read" explicitly. This was not measured again.
+- **Limits:** two runs per condition is a small sample. One judge model is the model that built the screens. The second 0.17 waitlist run exited with code 1 after producing its page (the file was intact, so it is included).
+
+[Diagnosis and elevation measurements](research/2026-11-10-depth.md) (Korean)
+
 ### Seventh set of requests: vet clinic booking, mobile car wash booking, stay listing (suta 0.17)
 
 We measured again after the fixes from the section below (desktop form layout, a default for segmented controls, prices on booking forms, pet avatars), plus the measurement update and the glass-nav fix. We checked the captures by eye before judging.

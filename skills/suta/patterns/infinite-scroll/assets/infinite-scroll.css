@@ -14,9 +14,23 @@
   align-items: center;
   gap: 0.5rem;
   padding: var(--infinite-scroll-gap, 1.25rem) 0;
-  color: var(--infinite-scroll-dim, #6b7280);
+  color: var(--infinite-scroll-dim, var(--color-text-tertiary, #686868));
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* 낭독 영역(role="status") — 로딩·실패·끝 문구만 담는다. 버튼은 이 밖(푸터 바로 아래)에 둔다:
+ * 낭독 영역 안의 버튼은 상태가 바뀔 때마다 "더 보기"까지 읽힌다 */
+.infinite-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 비어 있어도 DOM에 남겨야 다음 문구가 읽힌다 — 숨기지 않고 푸터의 gap만 되돌린다 */
+.infinite-status:empty {
+  margin-bottom: -0.5rem;
 }
 
 .infinite-spinner {
@@ -31,11 +45,13 @@
 
 /* 새로 붙은 항목은 살짝 떠오르며 들어온다 — 어디까지가 새로 온 것인지 눈에 남는다.
  * 한 페이지가 통째로 같은 순간에 뜨면 "화면이 한 번 바뀐 것"으로 보인다 —
- * 항목마다 --infinite-item-order(그 페이지 안에서의 순번)를 주면 40ms씩 차례로 들어온다.
+ * 항목마다 --infinite-item-order(그 페이지 안에서의 순번)를 주면 40ms씩 차례로 들어온다(최대 240ms).
  * 순번을 주지 않으면 0이 되어 다 같이 뜬다(동작은 한다). */
 .infinite-item-new {
   animation: infinite-item-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--infinite-item-order, 0) * 40ms);
+  /* 순번은 6에서 멈춘다 — 한 페이지가 20개·50개여도 마지막 항목이 1~2초 뒤에야 뜨지 않게.
+   * 일곱 번째부터는 함께 들어온다(대개 화면 아래라 보이지도 않는다) */
+  animation-delay: calc(min(var(--infinite-item-order, 0), 6) * 40ms);
 }
 
 @keyframes infinite-spin {
@@ -59,5 +75,15 @@
 
   .infinite-spinner {
     animation-duration: 1400ms;
+  }
+}
+
+/* 고대비 모드: 테두리 색이 모두 시스템 글자색으로 바뀌어 빈 한 칸이 메워진다(도는 것이 안 보인다) —
+ * 고리는 글자색, 빈 칸은 바탕색으로 다시 나눈다 */
+@media (forced-colors: active) {
+  .infinite-spinner {
+    border-color: CanvasText;
+    border-top-color: Canvas;
+    opacity: 1;
   }
 }

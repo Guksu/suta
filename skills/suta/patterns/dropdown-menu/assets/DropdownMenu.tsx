@@ -17,7 +17,7 @@ type DropdownMenuProps = {
   items: MenuItem[]
   /** 트리거 안에 그릴 것 — 없으면 ⋯ */
   children?: ReactNode
-  /** start = 트리거 왼쪽 맞춤, end = 오른쪽 맞춤 (기본 start) */
+  /** start = 글이 시작하는 쪽 맞춤(왼쪽, dir="rtl"이면 오른쪽), end = 반대쪽 (기본 start) */
   align?: 'start' | 'end'
   className?: string
 }
@@ -25,8 +25,8 @@ type DropdownMenuProps = {
 /**
  * 드롭다운 메뉴 — 위치 계산·키보드·닫기 규칙은 createMenu가, 모양은 CSS가 담당한다.
  *
- * 메뉴는 `position: fixed`로 띄운다. 부모의 overflow:hidden이나 transform 안에 갇히면
- * 잘리거나 엉뚱한 곳에 뜨는데, fixed면 그 영향을 받지 않는다.
+ * 메뉴는 `position: fixed`로, 가능하면 popover로 맨 위 층에 띄운다(코어가 한다).
+ * 부모의 overflow:hidden이나 transform 안에 갇혀 잘리거나 엉뚱한 곳에 뜨지 않는다.
  */
 export const DropdownMenu = ({ label, items, children, align = 'start', className }: DropdownMenuProps) => {
   const triggerRef = useRef<HTMLButtonElement>(null)

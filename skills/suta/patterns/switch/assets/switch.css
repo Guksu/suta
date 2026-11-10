@@ -1,16 +1,23 @@
 /* switch — 네이티브 체크박스 위에 얹는 토글 스위치. 썸 슬라이드 + 트랙 색 전환 + 누름 스퀴시.
  * 커스터마이즈: --switch-width, --switch-height, --switch-duration, --switch-on-bg, --switch-off-bg, --switch-off-border.
  * 색 기준: 국내 앱 설정 화면 레퍼런스에서 켜진 스위치는 18곳 중 16곳이 서비스 강조색, 꺼진 트랙은 89%가 옅은 회색이었다.
- * 켜짐은 강조색 토큰(--color-accent)을 따르고, 꺼짐은 옅은 트랙 + 1px 테두리로 흰 바탕 대비 3:1(비텍스트)을 지킨다.  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
+ * 켜짐은 강조색 토큰(--color-accent)을 따르고, 꺼짐은 옅은 트랙 + 1px 테두리로 흰 바탕 대비 3:1(비텍스트)을 지킨다.
+ * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .switch {
   --_w: var(--switch-width, 44px);
   --_h: var(--switch-height, 26px);
   --_pad: 3px;
   --_duration: var(--switch-duration, 200ms);
+  --_dir: 1; /* 썸이 켜질 때 가는 방향 — 오른쪽에서 왼쪽으로 쓰는 글에서는 -1 */
+  /* 누르는 영역 — 트랙은 26px라 손가락에는 낮다. 위아래 안쪽 여백으로 44px까지 넓히고, 같은 크기의 음수 바깥 여백으로
+   * 자리는 그대로 둔다(레이아웃이 밀리지 않는다). 여백도 label이라 눌러도 같은 입력이 토글된다 */
+  --_hit: max(0px, (44px - var(--_h)) / 2);
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding-block: var(--_hit);
+  margin-block: calc(var(--_hit) * -1);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -46,7 +53,7 @@
   height: calc(var(--_h) - var(--_pad) * 2);
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.35);
+  box-shadow: var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2));
   transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -56,7 +63,7 @@
 }
 
 .switch-input:checked + .switch-track .switch-thumb {
-  transform: translateX(calc(var(--_w) - var(--_h)));
+  transform: translateX(calc((var(--_w) - var(--_h)) * var(--_dir)));
 }
 
 /* 누르는 동안 썸이 살짝 눌린다(iOS 관례) — width가 아니라 scaleX라 레이아웃 애니메이션이 없다 */
@@ -65,7 +72,7 @@
 }
 
 .switch:active .switch-input:checked:not(:disabled) + .switch-track .switch-thumb {
-  transform: translateX(calc(var(--_w) - var(--_h))) scaleX(1.12);
+  transform: translateX(calc((var(--_w) - var(--_h)) * var(--_dir))) scaleX(1.12);
 }
 
 .switch-input:focus-visible + .switch-track {
@@ -76,6 +83,84 @@
 .switch:has(.switch-input:disabled) {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 오른쪽에서 왼쪽으로 쓰는 글(dir="rtl")에서는 스위치도 거울처럼 뒤집힌다 — 꺼짐이 오른쪽, 켜짐이 왼쪽.
+ * 속성 선택자와 :dir()를 따로 적는다: :dir()를 모르는 브라우저가 규칙 전체를 버려도 속성 쪽은 남는다 */
+[dir='rtl'] .switch {
+  --_dir: -1;
+}
+
+.switch:dir(rtl) {
+  --_dir: -1;
+}
+
+[dir='rtl'] .switch-thumb {
+  left: auto;
+  right: var(--_pad);
+}
+
+.switch:dir(rtl) .switch-thumb {
+  left: auto;
+  right: var(--_pad);
+}
+
+/* 고대비(forced-colors)에서는 배경색·그림자가 지워져 트랙도 썸도 보이지 않는다 — 시스템 색으로 다시 그린다.
+ * 꺼짐은 테두리만 있는 트랙 + 채운 썸, 켜짐은 Highlight로 채운 트랙 + 반대색 썸 */
+@media (forced-colors: active) {
+  .switch-track {
+    box-sizing: border-box; /* 테두리가 생겨도 트랙 크기는 그대로 */
+    border: 1px solid ButtonText;
+    background: Canvas;
+  }
+
+  .switch-thumb {
+    /* 테두리 1px만큼 안쪽 기준점이 밀린다 — 여백을 그만큼 줄여 가운데를 지킨다 */
+    top: calc(var(--_pad) - 1px);
+    left: calc(var(--_pad) - 1px);
+    background: ButtonText;
+  }
+
+  [dir='rtl'] .switch-thumb {
+    left: auto;
+    right: calc(var(--_pad) - 1px);
+  }
+
+  .switch:dir(rtl) .switch-thumb {
+    left: auto;
+    right: calc(var(--_pad) - 1px);
+  }
+
+  .switch-input:checked + .switch-track {
+    border-color: Highlight;
+    background: Highlight;
+  }
+
+  .switch-input:checked + .switch-track .switch-thumb {
+    background: HighlightText;
+  }
+
+  .switch-input:focus-visible + .switch-track {
+    outline-color: Highlight;
+  }
+
+  .switch:has(.switch-input:disabled) {
+    opacity: 1; /* 고대비에서는 흐리게 대신 시스템의 "꺼진 항목" 색으로 */
+    color: GrayText;
+  }
+
+  .switch-input:disabled + .switch-track {
+    border-color: GrayText;
+  }
+
+  .switch-input:disabled + .switch-track .switch-thumb,
+  .switch-input:disabled:checked + .switch-track {
+    background: GrayText;
+  }
+
+  .switch-input:disabled:checked + .switch-track .switch-thumb {
+    background: Canvas;
+  }
 }
 
 /* 모션 민감 사용자: 썸 이동을 즉시 점프로 — 트랙 색 전환(상태 표시)은 유지한다 */

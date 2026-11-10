@@ -7,9 +7,9 @@
 
 export type TabBadge = number | 'dot' | undefined
 
-/** 쿼리·해시·끝 슬래시를 뗀 경로 — '/my/?tab=orders#top' → '/my' */
+/** 쿼리·해시·끝 슬래시를 뗀 경로 — '/my/?tab=orders#top' → '/my'. 해시 라우터의 '#/my'는 앞의 #만 떼고 같은 규칙으로 본다 */
 const normalize = (path: string) => {
-  const bare = path.split(/[?#]/)[0] || '/'
+  const bare = path.replace(/^#(?=\/)/, '').split(/[?#]/)[0] || '/'
   return bare.length > 1 ? bare.replace(/\/+$/, '') || '/' : bare
 }
 
@@ -35,11 +35,19 @@ export const shouldShowBottomNav = ({ path, tabs, alsoOn = [] }: { path: string;
   })
 }
 
+/** 그릴 개수 — 없음·0 이하·숫자가 아닌 값(NaN)은 null, 소수는 내림한다. 서버 값이 비어 Number(undefined)가 들어와도 "NaN" 배지가 뜨지 않는다 */
+const badgeCount = (badge: number | undefined): number | null => {
+  if (badge == null || Number.isNaN(badge)) return null
+  const count = Math.floor(badge)
+  return count > 0 ? count : null
+}
+
 /** 배지에 그릴 글자 — 없으면 null, 점은 빈 글자, 99를 넘으면 99+ */
 export const formatBadge = (badge: TabBadge): string | null => {
   if (badge === 'dot') return ''
-  if (badge == null || badge <= 0) return null
-  return badge > 99 ? '99+' : String(badge)
+  const count = badgeCount(badge)
+  if (count === null) return null
+  return count > 99 ? '99+' : String(count)
 }
 
 export type BadgeLabels = {
@@ -60,19 +68,22 @@ export const DEFAULT_BADGE_LABELS: BadgeLabels = {
 /** 화면 낭독기에 읽힐 배지 문구 — 숫자만 읽으면 무슨 수인지 모른다. 다른 언어면 labels를 넘긴다 */
 export const badgeLabel = ({ badge, labels = DEFAULT_BADGE_LABELS }: { badge: TabBadge; labels?: BadgeLabels }): string | null => {
   if (badge === 'dot') return labels.dot
-  if (badge == null || badge <= 0) return null
-  return badge > 99 ? labels.overflow : labels.count(badge)
+  const count = badgeCount(badge)
+  if (count === null) return null
+  return count > 99 ? labels.overflow : labels.count(count)
 }
 
 // 글자를 받지 않는 입력 — 초점이 가도 화면 키보드가 올라오지 않는다
 const NON_TEXT_INPUT = /^(?:checkbox|radio|range|color|file|submit|button|reset|image|hidden)$/i
 
-/** 화면 키보드를 올리는 요소인가 */
+/** 화면 키보드를 올리는 요소인가 — 읽기 전용·비활성 칸과 inputmode="none"(직접 만든 숫자판)은 초점이 가도 키보드가 올라오지 않는다 */
 export const isEditable = (element: Element | null) => {
   if (!element) return false
+  if (element.hasAttribute('disabled') || element.getAttribute('inputmode') === 'none') return false
   const tag = element.tagName.toLowerCase()
-  if (tag === 'textarea' || tag === 'select') return true
-  if (tag === 'input') return !NON_TEXT_INPUT.test(element.getAttribute('type') ?? 'text')
+  if (tag === 'select') return true
+  if (tag === 'textarea') return !element.hasAttribute('readonly')
+  if (tag === 'input') return !element.hasAttribute('readonly') && !NON_TEXT_INPUT.test(element.getAttribute('type') ?? 'text')
   const editable = element.getAttribute('contenteditable')
   return editable === '' || editable === 'true' || editable === 'plaintext-only'
 }
@@ -95,6 +106,9 @@ export const watchKeyboard = ({ onChange, root = document }: { onChange: (open: 
   const handleOut = (event: Event) => update(isEditable((event as FocusEvent).relatedTarget as Element | null))
   root.addEventListener('focusin', handleIn)
   root.addEventListener('focusout', handleOut)
+  // 시작할 때 이미 입력칸에 초점이 있으면(autofocus 검색칸) 바로 알린다 — focusin은 감시를 걸기 전에 지나갔다
+  const active = ('activeElement' in root ? root : root.ownerDocument).activeElement
+  if (active && root.contains(active)) update(isEditable(active))
   return () => {
     root.removeEventListener('focusin', handleIn)
     root.removeEventListener('focusout', handleOut)

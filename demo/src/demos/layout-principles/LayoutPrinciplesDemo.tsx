@@ -39,7 +39,7 @@ type Spice = (typeof SPICE)[number]
 
 const NOTICES = ['cook', 'event'] as const
 
-type ExampleId = 'order' | 'intro' | 'pay' | 'menu' | 'photo' | 'detail' | 'settings' | 'login' | 'chat' | 'feed'
+type ExampleId = 'order' | 'intro' | 'pay' | 'menu' | 'photo' | 'detail' | 'settings' | 'login' | 'chat' | 'feed' | 'layer'
 
 // ⑩ 피드 — 장면은 글의 내용에서, 색 한 벌은 행마다 돌린다. 사진이 없는 글은 null
 const FEED = [
@@ -61,6 +61,7 @@ const SHORTCUTS: Array<{ id: 'noodle' | 'dumpling' | 'rice' | 'cafe' | 'dessert'
 ]
 type ShortcutId = (typeof SHORTCUTS)[number]['id']
 type FeedCopy = { title: string; meta: string; alt?: string }
+type LayerSort = 'recommend' | 'price' | 'review'
 type ExampleCopy = { title: string; principle: string; before: string; after: string }
 
 const COPY = defineCopy({
@@ -172,6 +173,11 @@ const COPY = defineCopy({
     chatPlaceholder: '무엇을 드시고 싶으세요?',
     attach: '자료 첨부',
     send: '보내기',
+    layerTitle: '메뉴',
+    layerSortLabel: '정렬 방식',
+    layerSorts: { recommend: '추천순', price: '가격 낮은순', review: '후기 많은순' } as Record<LayerSort, string>,
+    layerToast: '장바구니에 담았어요',
+    layerOrder: '주문하기',
     examples: {
       order: {
         title: '① 주문 내역',
@@ -232,6 +238,12 @@ const COPY = defineCopy({
         principle: 'P9 사진 · 콘텐츠 그림 — 색은 콘텐츠가 맡고 틀은 무채색',
         before: '분류 바로가기가 회색 원 안의 같은 선 아이콘이고, 사진 자리는 회색 칸 + 사진 아이콘이다. 사진이 없는 글에도 "사진 없음" 칸을 둔다. 글자·면은 깔끔해도 디자인 시안처럼 비어 보인다.',
         after: '분류 바로가기는 색이 든 그림 아이콘(시중 앱 16곳 중 12곳이 이 자리를 그렇게 그렸다), 사진 자리는 글 내용에 맞는 콘텐츠 그림(국수 그릇·고양이·가게 안·포장 용기)이다. 탭·글자·선 같은 틀은 무채색 그대로다. 사진이 없는 글은 그 자리만 비운다.',
+      },
+      layer: {
+        title: '⑪ 층 — 놓인 것과 떠 있는 것',
+        principle: 'P3 강한 수단은 한두 곳 · P5 그림자는 떠 있는 것에만 · 층 기준(elevation.md)',
+        before: '행마다 파란 빛이 번지는 그림자 카드이고 머리와 하단 바에도 늘 그림자가 있다. 정작 열린 정렬 메뉴는 테두리만 두른 평평한 상자라 카드와 같은 면에 있다. 토스트에도 파란 빛이 번진다. 모든 것이 떠 있어서 무엇이 위인지 알 수 없다.',
+        after: '놓인 것(메뉴 행)은 그림자 없이 흰 면과 선으로 둔다. 붙은 것(머리·하단 바)은 1px 선 하나다. 닫히는 것만 뜬다 — 정렬 메뉴와 토스트가 무채색 그림자(--shadow-raised) 한 단계로 떠 있다. 그림자는 두 곳뿐이라 무엇이 위인지 바로 보인다.',
       },
     } as Record<ExampleId, ExampleCopy>,
     paneBefore: '고치기 전',
@@ -362,6 +374,11 @@ const COPY = defineCopy({
     chatPlaceholder: 'What would you like to eat?',
     attach: 'Attach file',
     send: 'Send',
+    layerTitle: 'Menu',
+    layerSortLabel: 'Sort by',
+    layerSorts: { recommend: 'Recommended', price: 'Lowest price', review: 'Most reviewed' } as Record<LayerSort, string>,
+    layerToast: 'Added to your cart',
+    layerOrder: 'Order',
     examples: {
       order: {
         title: '① Your order',
@@ -422,6 +439,12 @@ const COPY = defineCopy({
         principle: 'P9 Photos · Content art: content carries the color, the frame stays neutral',
         before: 'Category shortcuts are the same line icon in gray circles, and each photo slot is a gray box with a photo icon. Posts without photos get a “No photo” box too. The type and surfaces are tidy, yet it looks like an empty mockup.',
         after: 'Category shortcuts use colored illustrated icons (12 of 16 popular apps draw this slot that way), and photo slots get content art that matches the post (a noodle bowl, a cat, the shop inside, a takeout box). Tabs, text and lines stay neutral. Posts without photos simply leave the slot empty.',
+      },
+      layer: {
+        title: '⑪ Layers: what rests and what floats',
+        principle: 'P3 Strong effects in one or two places · P5 Shadows only on floating things · Elevation (elevation.md)',
+        before: 'Every row is a card with a blue glow, and the header and bottom bar always cast shadows. Yet the open sort menu is a flat box with only a border, on the same plane as the cards. The toast glows blue too. Everything floats, so nothing reads as on top.',
+        after: 'Things that rest (menu rows) get no shadow, just a white surface and lines. Things that stick (header, bottom bar) get a single 1px line. Only things that close float: the sort menu and the toast share one neutral shadow step (--shadow-raised). With shadows in two places, what is on top is obvious.',
       },
     },
     paneBefore: 'Before',
@@ -1115,6 +1138,52 @@ const FeedAfter = () => {
   )
 }
 
+/* ---- ⑪ 층 — 놓인 것·붙은 것·뜬 것(P3·P5, elevation.md) ---- */
+
+const LAYER_SORTS: LayerSort[] = ['recommend', 'price', 'review']
+
+// 전과 후는 마크업이 같고 CSS만 다르다 — 같은 내용에서 층을 어떻게 나누는지만 비교한다.
+// 정렬 메뉴가 열리고 토스트가 뜬 순간을 그린 그림이라 조작은 받지 않는다
+const LayerScreen = ({ tone }: { tone: 'b' | 'a' }) => {
+  const t = useCopy()
+  const c = (name: string) => `lp-${tone}-layer-${name}`
+  return (
+    <div className={`lp-${tone}-layer`}>
+      <div className={c('head')}>
+        <span className={c('title')}>{t.layerTitle}</span>
+        <span className={c('sort')}>
+          {t.layerSorts.recommend}
+          <LineIcon name="chevron-down" size={16} />
+        </span>
+      </div>
+      <ul className={c('menu')} aria-label={t.layerSortLabel}>
+        {LAYER_SORTS.map((sort) => (
+          <li key={sort} data-current={sort === 'recommend' || undefined}>
+            {t.layerSorts[sort]}
+          </li>
+        ))}
+      </ul>
+      <ul className={c('list')}>
+        {ORDER.map((item) => (
+          <li key={item.id} className={c('row')}>
+            <span className={c('name')}>{t.order[item.id].name}</span>
+            <span className={c('price')}>{t.won(item.price)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className={c('toast')}>{t.layerToast}</p>
+      <div className={c('bar')}>
+        <span className={c('cta')}>
+          {t.won(ORDER_TOTAL)} {t.layerOrder}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const LayerBefore = () => <LayerScreen tone="b" />
+const LayerAfter = () => <LayerScreen tone="a" />
+
 type Example = { id: ExampleId; Before: () => ReactNode; After: () => ReactNode; flush?: boolean; light?: boolean }
 
 const EXAMPLES: Example[] = [
@@ -1128,6 +1197,7 @@ const EXAMPLES: Example[] = [
   { id: 'login', Before: LoginBefore, After: LoginAfter, flush: true, light: true },
   { id: 'chat', Before: ChatBefore, After: ChatAfter, flush: true, light: true },
   { id: 'feed', Before: FeedBefore, After: FeedAfter, flush: true, light: true },
+  { id: 'layer', Before: LayerBefore, After: LayerAfter, flush: true, light: true },
 ]
 
 const Pane = ({ label, note, tone, flush = false, light = false, children }: { label: string; note: string; tone: 'before' | 'after'; flush?: boolean; light?: boolean; children: ReactNode }) => (

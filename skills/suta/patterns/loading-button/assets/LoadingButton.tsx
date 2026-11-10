@@ -29,6 +29,9 @@ const CheckIcon = () => (
  *  - 상태 레이어(진행·완료·실패)는 항상 aria-hidden — 버튼 이름은 언제나 "주문하기"로 고정된다.
  *    상태에 따라 이름이 "전송 중"으로 바뀌면 무슨 버튼이었는지 알 수 없게 된다.
  *  - 그 대신 role=status 영역이 상태 변화를 소리로 전한다(진행 중·완료·실패)
+ *
+ * disabled prop은 그대로 버튼에 전달된다 — 폼이 덜 채워졌을 때처럼 "아직 누를 수 없다"에 쓴다.
+ * 진행 중 잠금은 이 컴포넌트가 aria-disabled로 따로 한다(포커스를 지키려고).
  */
 export const LoadingButton = ({
   children,
@@ -44,6 +47,9 @@ export const LoadingButton = ({
 }: LoadingButtonProps) => {
   const action = useAsyncAction({ minLoadingMs, successHoldMs, errorHoldMs })
 
+  // 진행 중과 완료 표시 중에는 눌러도 실행되지 않는다. 실패 표시 중에는 다시 누를 수 있다(재시도)
+  const isLocked = action.status === 'loading' || action.status === 'success'
+
   const announcement =
     action.status === 'loading' ? loadingLabel : action.status === 'success' ? successLabel : action.status === 'error' ? errorLabel : ''
 
@@ -54,8 +60,11 @@ export const LoadingButton = ({
         {...buttonProps}
         className={className ? `loading-button ${className}` : 'loading-button'}
         data-status={action.status}
-        aria-disabled={action.isBusy}
-        onClick={() => {
+        aria-disabled={isLocked}
+        aria-busy={action.isBusy}
+        onClick={(event) => {
+          // type="submit"으로 쓰였을 때 잠긴 버튼의 클릭이 폼을 한 번 더 제출하지 않게 한다
+          if (isLocked) event.preventDefault()
           void action.run(onAction)
         }}
       >

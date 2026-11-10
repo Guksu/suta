@@ -11,6 +11,7 @@
   --field-border: var(--border);
   --field-accent: var(--accent);
   --field-label-color: var(--text-dim);
+  --field-error: #f87171; /* 어두운 면 위에서 읽히는 밝은 빨강 — 기본 오류 색은 밝은 바탕 기준이다 */
 }
 
 .field-stage-title {

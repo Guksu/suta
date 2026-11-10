@@ -146,6 +146,72 @@ describe('createSuggestSearch — 디바운스와 늦은 응답 차단', () => {
     expect(controller.current().items).toEqual([])
   })
 
+  it('끊긴 요청이 AbortError가 아닌 예외로 끝나도 실패로 보지 않는다 (axios처럼 자기 오류를 던지는 클라이언트)', async () => {
+    const controller = register({
+      debounceMs: 200,
+      fetchSuggestions: ({ signal }) =>
+        new Promise<string[]>((_, reject) => {
+          signal.addEventListener('abort', () => reject(new Error('canceled')))
+        }),
+    })
+
+    controller.setQuery('국')
+    await advance(200)
+    controller.setQuery('국수') // 앞 요청을 끊는다 — 새 요청은 아직 디바운스 중이다
+    await advance(50)
+
+    expect(states.some((state) => state.status === 'error')).toBe(false)
+  })
+
+  it('signal을 무시한 옛 요청이 디바운스 중에 도착해도 목록을 덮지 않는다', async () => {
+    const resolvers: Array<(items: string[]) => void> = []
+    const controller = register({
+      debounceMs: 200,
+      fetchSuggestions: () => new Promise<string[]>((resolve) => resolvers.push(resolve)),
+    })
+
+    controller.setQuery('국')
+    await advance(200)
+    controller.setQuery('국수')
+    resolvers[0](['국 결과']) // 새 요청이 나가기 전에 옛 응답이 도착
+    await advance(50)
+
+    expect(controller.current().items).toEqual([])
+  })
+
+  it('기다리는 중에 cancel하면 loading에 머물지 않는다', async () => {
+    const controller = register({
+      debounceMs: 0,
+      fetchSuggestions: () => new Promise<string[]>(() => {}),
+    })
+
+    controller.setQuery('국수')
+    await advance(0)
+    expect(controller.current().status).toBe('loading')
+
+    controller.cancel()
+    expect(controller.current().status).toBe('idle')
+  })
+
+  it('목록이 있는 채로 다음 요청을 cancel하면 ready로 돌아간다 (목록은 그대로)', async () => {
+    let pending = false
+    const controller = register({
+      debounceMs: 0,
+      fetchSuggestions: () => (pending ? new Promise<string[]>(() => {}) : Promise.resolve(['멸치국수'])),
+    })
+
+    controller.setQuery('국')
+    await advance(0)
+    pending = true
+    controller.setQuery('국수')
+    await advance(0)
+    expect(controller.current().status).toBe('loading')
+
+    controller.cancel()
+    expect(controller.current().status).toBe('ready')
+    expect(controller.current().items).toEqual(['멸치국수'])
+  })
+
   it('destroy 뒤에는 상태를 바꾸지 않는다', async () => {
     let resolveFetch: (items: string[]) => void = () => {}
     const controller = register({

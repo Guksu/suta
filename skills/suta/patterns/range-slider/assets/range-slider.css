@@ -63,7 +63,7 @@
   border: 2px solid var(--range-thumb-border, var(--range-accent, #1c1c1c));
   border-radius: 50%;
   background: var(--range-thumb, #fff);
-  box-shadow: var(--range-thumb-shadow, 0 1px 4px rgb(0 0 0 / 0.2));
+  box-shadow: var(--range-thumb-shadow, var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2)));
   cursor: grab;
   pointer-events: auto;
   transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -75,7 +75,7 @@
   border: 2px solid var(--range-thumb-border, var(--range-accent, #1c1c1c));
   border-radius: 50%;
   background: var(--range-thumb, #fff);
-  box-shadow: var(--range-thumb-shadow, 0 1px 4px rgb(0 0 0 / 0.2));
+  box-shadow: var(--range-thumb-shadow, var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2)));
   cursor: grab;
   pointer-events: auto;
   transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);

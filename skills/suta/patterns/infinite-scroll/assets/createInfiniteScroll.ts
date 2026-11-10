@@ -10,6 +10,7 @@
  *  - 연쇄 로딩: 한 페이지를 붙여도 sentinel이 여전히 보이면 다음 페이지를 이어서 부른다
  *    (IntersectionObserver는 "계속 보이는 중"을 다시 알려주지 않기 때문에 관찰을 새로 건다)
  *  - 실패 폭주: 실패하면 멈춘다. 자동 재시도는 하지 않고 retry()를 기다린다
+ *  - 끝난 뒤의 되살리기: done은 관찰을 끊는다. 목록을 새로 채우면 reset()으로 다시 건다
  */
 
 export type InfiniteScrollStatus = 'idle' | 'loading' | 'error' | 'done'
@@ -42,6 +43,8 @@ export const createInfiniteScroll = ({
   let status: InfiniteScrollStatus = 'idle'
   let destroyed = false
   let observer: IntersectionObserver | null = null
+  // 목록을 새로 채울 때(reset)마다 올린다 — 그 전에 떠난 요청의 응답을 가려낸다
+  let generation = 0
 
   const setStatus = (next: InfiniteScrollStatus) => {
     if (destroyed || next === status) return
@@ -54,18 +57,22 @@ export const createInfiniteScroll = ({
     observer = null
   }
 
-  const load = async () => {
-    if (destroyed || status !== 'idle') return
+  /** retry만 error에서 출발할 수 있다 — 교차 알림이나 loadNow가 실패한 요청을 저절로 다시 보내지 않게 */
+  const load = async ({ fromError = false }: { fromError?: boolean } = {}) => {
+    if (destroyed) return
+    if (status !== 'idle' && !(fromError && status === 'error')) return
     if (!hasMore()) {
       setStatus('done')
       stopObserving()
       return
     }
 
+    const startedIn = generation
     setStatus('loading')
     try {
       await loadMore()
-      if (destroyed) return
+      // 기다리는 사이 목록이 새로 채워졌으면(reset) 이 응답은 지난 목록의 것이다 — 상태를 건드리지 않는다
+      if (destroyed || startedIn !== generation) return
       if (!hasMore()) {
         setStatus('done')
         stopObserving()
@@ -76,7 +83,7 @@ export const createInfiniteScroll = ({
       // 관찰을 새로 걸면 브라우저가 현재 교차 상태를 처음부터 다시 통지한다.
       rearm()
     } catch (error) {
-      if (destroyed) return
+      if (destroyed || startedIn !== generation) return
       setStatus('error')
       stopObserving()
       onError?.(error)
@@ -99,14 +106,27 @@ export const createInfiniteScroll = ({
 
   return {
     current: () => status,
-    /** 실패 후 다시 시도 — 버튼에 연결한다(자동 재시도는 하지 않는다) */
+    /**
+     * 실패 후 다시 시도 — 버튼에 연결한다(자동 재시도는 하지 않는다).
+     * 감시 요소가 다시 교차하기를 기다리지 않고 바로 부른다. 누른 사람은 지금 다시 보내길 원한다
+     */
     retry: () => {
       if (status !== 'error') return
-      setStatus('idle')
-      rearm()
+      void load({ fromError: true })
     },
     /** 버튼("더 보기")이나 초기 로딩에서 직접 부를 때 — IntersectionObserver가 없는 환경의 유일한 경로 */
     loadNow: () => load(),
+    /**
+     * 목록을 처음부터 새로 채울 때 부른다(필터·정렬·검색어 변경, 당겨서 새로고침).
+     * 끝남(done)·실패(error)를 걷고 다시 감시한다. 진행 중이던 요청의 응답은 상태를 바꾸지 못한다 —
+     * 다만 그 응답이 목록에 항목을 붙이는 것까지는 막지 못하므로, loadMore 안에서 지난 요청을 가려내야 한다
+     */
+    reset: () => {
+      if (destroyed) return
+      generation += 1
+      setStatus('idle')
+      rearm()
+    },
     destroy: () => {
       destroyed = true
       stopObserving()

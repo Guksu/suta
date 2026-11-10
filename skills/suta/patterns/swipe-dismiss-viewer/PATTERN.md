@@ -86,7 +86,7 @@ viewer.querySelector('.viewer-close').addEventListener('click', swipe.close)
 | 닫기 판정 | `thresholdPx`(120) · `velocityThreshold`(800px/s — 짧게 튕겨도 닫힘) |
 | 작아지는 정도 | `minScale`(0.65) · `progressDistance`(240px에서 진행도 1) |
 | 복귀 느낌 | `spring`(260/28 — 크리스프. 더 통통하게는 damping 20) |
-| 배경·쌓임 | `--viewer-bg`(#000), `--viewer-z`(100) |
+| 배경·쌓임 | `--viewer-bg`(#000), `--viewer-z`(층 토큰 `--z-viewer`, 없으면 90. 토스트 100보다 아래다) |
 | 크롬 페이드 속도 | `.viewer-chrome`의 `× 3.3` — 진행도 0.3에서 완전 투명 |
 | 닫기 버튼 이름 | `closeLabel` (기본 "닫기") |
 

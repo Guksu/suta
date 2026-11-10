@@ -181,4 +181,96 @@ describe('createInfiniteScroll — 감시 요소 기반 다음 페이지 로딩'
     record.callback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
     expect(loadMore).not.toHaveBeenCalled()
   })
+
+  it('retry는 감시 요소가 다시 교차하기를 기다리지 않고 바로 다시 부른다', async () => {
+    let attempts = 0
+    const controller = register({
+      loadMore: async () => {
+        attempts += 1
+        if (attempts === 1) throw new Error('네트워크 오류')
+      },
+    })
+
+    enterViewport()
+    await vi.waitFor(() => expect(statuses).toEqual(['loading', 'error']))
+
+    controller.retry() // 교차 알림 없이
+    expect(statuses).toEqual(['loading', 'error', 'loading'])
+    await vi.waitFor(() => expect(attempts).toBe(2))
+  })
+
+  it('로딩 중 destroy되면 늦게 온 응답이 상태를 바꾸지 않는다', async () => {
+    let release: () => void = () => {}
+    const controller = register({ loadMore: () => new Promise<void>((resolve) => (release = resolve)) })
+
+    enterViewport()
+    controller.destroy()
+    release()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(statuses).toEqual(['loading'])
+  })
+
+  it('reset은 끝난(done) 목록을 되살려 다시 감시한다 — 필터·정렬을 바꿔 목록을 새로 채울 때', async () => {
+    let more = false
+    const controller = register({ hasMore: () => more, loadMore: async () => {} })
+
+    enterViewport()
+    await vi.waitFor(() => expect(statuses).toEqual(['done']))
+    const before = observers.length
+
+    more = true
+    controller.reset()
+
+    expect(controller.current()).toBe('idle')
+    expect(observers.length).toBe(before + 1)
+    expect(latest().observed).toEqual([sentinel])
+    expect(latest().disconnected).toBe(false)
+  })
+
+  it('reset은 실패(error) 상태도 걷어 낸다', async () => {
+    const controller = register({
+      loadMore: async () => {
+        throw new Error('네트워크 오류')
+      },
+    })
+
+    enterViewport()
+    await vi.waitFor(() => expect(statuses).toEqual(['loading', 'error']))
+
+    controller.reset()
+    expect(controller.current()).toBe('idle')
+  })
+
+  it('로딩 중 reset하면 앞선 요청의 응답은 버려진다 — 새 목록의 상태를 건드리지 않는다', async () => {
+    const releases: Array<() => void> = []
+    const fails: Array<(error: Error) => void> = []
+    const loadMore = vi.fn(
+      () =>
+        new Promise<void>((resolve, reject) => {
+          releases.push(resolve)
+          fails.push(reject)
+        }),
+    )
+    const onError = vi.fn()
+    const controller = register({ loadMore, onError })
+
+    enterViewport() // 앞 목록의 요청
+    controller.reset()
+    expect(controller.current()).toBe('idle')
+
+    enterViewport() // 새 목록의 요청
+    expect(loadMore).toHaveBeenCalledTimes(2)
+    expect(controller.current()).toBe('loading')
+
+    fails[0](new Error('앞 목록의 늦은 실패'))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(controller.current()).toBe('loading')
+    expect(onError).not.toHaveBeenCalled()
+
+    releases[1]()
+    await vi.waitFor(() => expect(controller.current()).toBe('idle'))
+  })
 })

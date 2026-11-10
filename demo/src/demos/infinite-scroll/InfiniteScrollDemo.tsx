@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useInfiniteScroll } from '@skills/infinite-scroll/assets/useInfiniteScroll'
 import '@skills/infinite-scroll/assets/infinite-scroll.css'
 import { defineCopy, useDemoLang } from '../../demoLang'
@@ -98,24 +98,55 @@ export const InfiniteScrollDemo = () => {
   const [willFail, setWillFail] = useState(false)
   const [requests, setRequests] = useState(0)
   const boxRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
+  // 목록을 처음부터 다시 채울 때마다 올린다 — 그 전에 떠난 요청의 응답을 가려낸다
+  const runRef = useRef(0)
+  // 버튼으로 불러왔을 때, 새로 붙을 첫 항목의 순번 — 붙으면 그 항목으로 포커스를 옮긴다
+  const focusFromRef = useRef<number | null>(null)
 
   const feed = useInfiniteScroll({
     hasMore: nextPage < TOTAL_PAGES,
     rootMarginPx,
     rootRef: boxRef,
     loadMore: async () => {
+      const run = runRef.current
       setRequests((prev) => prev + 1)
       await delay(latencyMs)
+      // 기다리는 사이 "처음부터 다시"를 눌렀다 — 지난 목록의 응답을 새 목록에 붙이지 않는다
+      if (run !== runRef.current) return
       if (willFail) throw new Error(t.networkError)
       setReviews((prev) => [...prev, ...makePage(nextPage)])
       setNextPage((prev) => prev + 1)
     },
   })
 
+  useEffect(
+    function focusFirstNewItem() {
+      const from = focusFromRef.current
+      if (from === null || reviews.length <= from) return
+      focusFromRef.current = null
+      const firstNew = listRef.current?.children[from]
+      if (firstNew instanceof HTMLElement) firstNew.focus()
+    },
+    [reviews.length],
+  )
+
+  /** 버튼으로 불러올 때 — 버튼은 곧 사라지므로 포커스를 낭독 영역에 맡겨 두었다가, 새 항목이 붙으면 그리로 옮긴다 */
+  const loadByButton = (start: () => void) => {
+    focusFromRef.current = reviews.length
+    statusRef.current?.focus()
+    start()
+  }
+
   const reset = () => {
+    runRef.current += 1
+    focusFromRef.current = null
     setReviews(makePage(0))
     setNextPage(1)
     setRequests(0)
+    // 끝남·실패 상태를 걷고 다시 감시한다 — 진행 중이던 요청의 응답은 상태를 바꾸지 못한다
+    feed.reset()
     boxRef.current?.scrollTo({ top: 0 })
   }
 
@@ -153,12 +184,13 @@ export const InfiniteScrollDemo = () => {
 
         {/* 스크롤 상자는 키보드로도 닿아야 한다 — 초점을 받으면 방향키·Page Down으로 내려 볼 수 있다 */}
         <div className="is-box" ref={boxRef} tabIndex={0} role="region" aria-label={t.boxLabel}>
-          <ul className="is-list">
+          <ul className="is-list" ref={listRef}>
             {reviews.map((review, index) => (
               <li
                 key={review.id}
                 className={review.page > 0 ? 'is-review infinite-item-new' : 'is-review'}
                 style={{ '--infinite-item-order': index % PAGE_SIZE } as CSSProperties}
+                tabIndex={-1}
               >
                 <div className="is-review-head">
                   <strong>
@@ -177,24 +209,25 @@ export const InfiniteScrollDemo = () => {
 
           <div ref={feed.sentinelRef} className="infinite-sentinel" aria-hidden="true" />
 
-          <div className="infinite-footer" role="status" aria-live="polite">
-            {feed.status === 'loading' && (
-              <>
-                <span className="infinite-spinner" aria-hidden="true" />
-                {t.loading}
-              </>
-            )}
+          <div className="infinite-footer">
+            {/* 낭독 영역에는 문구만 둔다 — 버튼을 넣으면 상태가 바뀔 때마다 버튼 이름까지 읽힌다 */}
+            <div ref={statusRef} className="infinite-status" role="status" tabIndex={-1}>
+              {feed.status === 'loading' && (
+                <>
+                  <span className="infinite-spinner" aria-hidden="true" />
+                  {t.loading}
+                </>
+              )}
+              {feed.status === 'error' && t.failed}
+              {feed.status === 'done' && t.done}
+            </div>
             {feed.status === 'error' && (
-              <>
-                <span>{t.failed}</span>
-                <button type="button" onClick={feed.retry}>
-                  {t.retry}
-                </button>
-              </>
+              <button type="button" onClick={() => loadByButton(feed.retry)}>
+                {t.retry}
+              </button>
             )}
-            {feed.status === 'done' && <span>{t.done}</span>}
             {feed.status === 'idle' && (
-              <button type="button" onClick={feed.loadNow}>
+              <button type="button" onClick={() => loadByButton(feed.loadNow)}>
                 {t.more}
               </button>
             )}

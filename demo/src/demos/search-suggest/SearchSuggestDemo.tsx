@@ -37,6 +37,7 @@ const COPY = defineCopy({
     searchLabel: '메뉴 검색',
     loading: '찾는 중…',
     error: '불러오지 못했어요',
+    empty: '맞는 메뉴가 없어요',
     requests: (n: number) => `서버 요청 ${n}회`,
     picked: (name: string) => `선택: ${name}`,
     notPicked: '아직 고르지 않았어요',
@@ -57,6 +58,7 @@ const COPY = defineCopy({
     searchLabel: 'Search the menu',
     loading: 'Searching…',
     error: 'Could not load results',
+    empty: 'No matching menu items',
     requests: (n: number) => `Server requests: ${n}`,
     picked: (name: string) => `Selected: ${name}`,
     notPicked: 'Nothing selected yet',
@@ -136,7 +138,7 @@ export const SearchSuggestDemo = () => {
 
           {search.isOpen && (
             <ul {...search.listProps} className="suggest-panel">
-              {search.status === 'loading' && <li className="suggest-message">{t.loading}</li>}
+              {search.showLoading && <li className="suggest-message">{t.loading}</li>}
               {search.status === 'error' && <li className="suggest-message">{t.error}</li>}
               {search.items.map((menu, index) => (
                 <li key={menu.id} {...search.getOptionProps(index)} className="suggest-option">
@@ -146,6 +148,12 @@ export const SearchSuggestDemo = () => {
                 </li>
               ))}
             </ul>
+          )}
+          {/* 결과 0개 — listbox에는 option만 들어가므로 목록 밖 status 영역에 둔다 */}
+          {search.isEmpty && (
+            <p className="suggest-panel suggest-message" role="status">
+              {t.empty}
+            </p>
           )}
         </div>
 

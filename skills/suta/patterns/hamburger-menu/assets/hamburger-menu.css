@@ -61,7 +61,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--drawer-duration, 300ms) ease;
-  z-index: 40;
+  z-index: var(--z-overlay, 40);
 }
 
 .drawer-backdrop[data-open='true'] {
@@ -84,7 +84,7 @@
   transition:
     transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1),
     visibility 0s var(--_duration); /* 닫힘 애니메이션이 끝난 뒤에 숨긴다 */
-  z-index: 41;
+  z-index: calc(var(--z-overlay, 40) + 1);
 }
 
 .drawer[data-side='right'] {

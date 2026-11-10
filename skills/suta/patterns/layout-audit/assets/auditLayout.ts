@@ -11,6 +11,8 @@
  *  interactive-in-picture error — role="img" 그림이나 aria-hidden 영역 안의 키보드가 닿는 컨트롤(버튼·링크·입력칸)   접근성
  *  effect-overuse      warn — 색 그라데이션·backdrop-filter·큰 그림자가 한 파일에 3곳 이상(blur(0)·투명 그림자 같은 시작 상태는 뺀다)   P3
  *  gradient-text       warn — background-clip: text·bg-clip-text                                            P3
+ *  glow-shadow         warn — 유채색이 번지는 바깥 그림자(흐림 8px 이상) — 빛나는 효과로 읽힌다. 포커스 링·안쪽 그림자는 뺀다   층
+ *  shadow-variety      warn — 한 파일의 바깥 그림자 값 4종 이상(링·안쪽·투명·토큰 참조는 뺀다)                       층·P10
  *  font-size-variety   warn — 한 파일의 글자 크기 7종 이상                                                  P2·P10
  *  font-weight-variety warn — 굵기 4종 이상                                                                 P2
  *  radius-variety      warn — 모서리 반경 4종 이상(0·원·알약 제외)                                          P10
@@ -61,6 +63,10 @@ const WEIGHT_VARIETY = 4
 const RADIUS_VARIETY = 4
 const EFFECT_LIMIT = 3
 const HUE_LIMIT = 3
+const SHADOW_VARIETY = 4
+const GLOW_BLUR_PX = 8
+/** 번지는 그림자를 '색이 들었다'고 보는 채도(OKLCH) — 푸른 회색 그림자(rgba(99, 109, 131)은 0.03 안팎)는 무채색으로 본다 */
+const GLOW_CHROMA = 0.08
 const LARGE_SHADOW_BLUR_PX = 16
 const LONG_TEXT_CHARS = 40
 // iOS 사파리·WKWebView는 글자가 16px 미만인 입력칸에 초점이 가면 화면을 확대한다
@@ -337,12 +343,58 @@ const isLargeShadow = (value: string) =>
   splitTopLevel(value).some((shadow) => {
     if (CLEAR_SHADOW.test(shadow)) return false
     const lengths = shadow
-      .replace(/(?:rgba?|hsla?|var|color-mix|oklch|oklab)\([^)]*\)/gi, ' ')
+      // 괄호 한 겹까지 함께 지운다 — var(--a, var(--b, 0 24px 64px rgb(…)))처럼 토큰으로 이은 값은 토큰 참조다
+      .replace(/(?:var)\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)/gi, ' ')
+      .replace(/(?:rgba?|hsla?|color-mix|oklch|oklab)\([^)]*\)/gi, ' ')
       .split(/\s+/)
       .filter((token) => /^-?\d*\.?\d+(px|rem|em)?$/i.test(token))
     const blur = lengths[2] == null ? 0 : (toPx(/^-?\d*\.?\d+$/.test(lengths[2]) ? `${lengths[2]}px` : lengths[2]) ?? 0)
     return blur >= LARGE_SHADOW_BLUR_PX
   })
+
+/* ---------------- 층 — 그림자 ---------------- */
+
+type ShadowLayer = { text: string; inset: boolean; clear: boolean; x: number; y: number; blur: number; colors: Rgba[] }
+
+/** 그림자 값 → 층 목록. `var(--menu-shadow, 0 12px 32px …)`는 대체값으로 읽고, 값이 변수뿐이면 빈 목록이다(토큰 참조) */
+const shadowLayersOf = (value: string): ShadowLayer[] => {
+  const raw = unwrapVar(value)
+  if (/^(none|inherit|initial|unset|revert)$/i.test(raw)) return []
+  return splitTopLevel(raw).flatMap((layer) => {
+    const text = layer.trim().replace(/\s+/g, ' ').toLowerCase()
+    if (text === '' || /^var\(/.test(text)) return []
+    const lengths = text
+      .replace(/(?:rgba?|hsla?|color-mix|oklch|oklab|lch|lab|var)\((?:[^()]|\([^()]*\))*\)/g, ' ')
+      .split(' ')
+      .filter((token) => /^-?\d*\.?\d+(px|rem|em)?$/.test(token))
+      .map((token) => toPx(/^-?\d*\.?\d+$/.test(token) ? `${token}px` : token) ?? 0)
+    if (lengths.length < 2) return []
+    return [{ text, inset: /\binset\b/.test(text), clear: CLEAR_SHADOW.test(text), x: lengths[0], y: lengths[1], blur: lengths[2] ?? 0, colors: colorsIn(text) }]
+  })
+}
+
+/** 높이를 보이는 층 — 안쪽 그림자, 완전히 투명한 시작 상태, 번지지도 옮겨지지도 않는 링(포커스 링·1px 선)은 뺀다 */
+const isDepthLayer = (layer: ShadowLayer) => !layer.inset && !layer.clear && (layer.blur > 0 || layer.x !== 0 || layer.y !== 0)
+
+/** 색이 든 번지는 그림자 — 버튼 아래 파란 빛처럼 빛나는 효과로 읽힌다. 푸른 회색처럼 채도가 낮은 그림자는 무채색으로 본다 */
+const isGlowLayer = (layer: ShadowLayer) => isDepthLayer(layer) && layer.blur >= GLOW_BLUR_PX && layer.colors.some((color) => color.a >= 0.1 && oklchOf(color).C >= GLOW_CHROMA)
+
+const glowFinding = (line: number): Omit<Finding, 'file'> => ({
+  line,
+  rule: 'glow-shadow',
+  severity: 'warn',
+  message: '색이 든 번지는 그림자 — 높이가 아니라 빛나는 효과로 읽힌다',
+  fix: '그림자는 무채색으로(--shadow-raised·--shadow-overlay), 떠 있는 것에만 쓴다. 강조는 채운 면 하나로 한다 (elevation.md)',
+})
+
+/** 그림자 값의 종류 키 — 높이를 보이는 층만 모아 띄어쓰기를 정규화한다. 그런 층이 없으면 null */
+const shadowKeyOf = (value: string) => {
+  const layers = shadowLayersOf(value).filter(isDepthLayer)
+  return layers.length === 0 ? null : layers.map((layer) => layer.text).join(', ')
+}
+
+const SHADOW_VAR = /^--[\w-]*shadow[\w-]*$/
+const DROP_SHADOW = /drop-shadow\(((?:[^()]|\([^()]*\))*)\)/gi
 
 const WEIGHT_NAMES: Record<string, number> = { normal: 400, bold: 700, thin: 100, extralight: 200, light: 300, medium: 500, semibold: 600, extrabold: 800, black: 900 }
 const RESET_VALUES = /^(inherit|initial|unset|revert|revert-layer|1em|100%|smaller|larger)$/i
@@ -507,6 +559,8 @@ type Tally = {
   radii: Map<string, number[]>
   offScale: Array<{ line: number; px: number }>
   effects: number[]
+  /** 바깥 그림자 값의 종류 — 값마다 나온 줄 */
+  shadows: Map<string, number[]>
   tints: number[]
   hues: Map<string, number[]>
   emoji: Map<string, number[]>
@@ -516,7 +570,7 @@ type Tally = {
   coolNeutrals: number[]
 }
 
-const newTally = (): Tally => ({ sizes: new Map(), weights: new Map(), radii: new Map(), offScale: [], effects: [], tints: [], hues: new Map(), emoji: new Map(), warmAccent: null, coolNeutrals: [] })
+const newTally = (): Tally => ({ sizes: new Map(), weights: new Map(), radii: new Map(), offScale: [], effects: [], shadows: new Map(), tints: [], hues: new Map(), emoji: new Map(), warmAccent: null, coolNeutrals: [] })
 
 /** 등락 색 짝을 정의하는 변수 — 시세·손익의 상승·하락 색은 강조색·오류 빨강과 따로 센다(tone.md 2절) */
 const TREND_VAR = /^--(?:[\w-]*-)?(rise|fall|up|down|gain|loss|bull|bear)(?:-[\w-]*)?$/
@@ -689,6 +743,14 @@ const auditCssFacts = ({ facts, boxKeys, tally, push, remBase }: { facts: BlockF
         backdropCounted = true
       }
       if (prop === 'box-shadow' && isLargeShadow(value)) tally.effects.push(line)
+      // 층 — 색이 든 번지는 그림자와 그림자 값의 종류. 그림자 변수 정의(--shadow-*)도 단계 하나다
+      if (prop === 'box-shadow' || SHADOW_VAR.test(prop)) {
+        if (shadowLayersOf(value).some(isGlowLayer)) push(glowFinding(line))
+        const key = shadowKeyOf(value)
+        if (key != null) remember({ map: tally.shadows, key, line })
+      } else if (prop === 'filter' || prop === '-webkit-filter') {
+        if ([...value.matchAll(DROP_SHADOW)].some((match) => shadowLayersOf(match[1]).some(isGlowLayer))) push(glowFinding(line))
+      }
       tallyColors({ prop, value, line, tally })
     }
 
@@ -786,6 +848,10 @@ const auditMarkup = ({ markup, boxKeys, tally, push, remBase }: { markup: string
       }
       if (/^bg-(gradient-to-|linear-|radial|conic)/.test(base) || (/^backdrop-blur(-|$)/.test(base) && base !== 'backdrop-blur-none') || /^(drop-)?shadow-(lg|xl|2xl)$/.test(base)) tally.effects.push(line)
       if (base === 'bg-clip-text') push({ line, rule: 'gradient-text', severity: 'warn', message: '그라데이션 글자 — 강조가 아니라 장식으로 읽힌다', fix: '단색 글자에 크기·굵기로 위계를 준다. 강조색은 주 버튼 한 곳에 (P3)' })
+      // 색 그림자 — shadow-blue-500/50, shadow-[0_4px_14px_rgba(37,99,235,0.4)]
+      const twShadowHue = base.match(/^shadow-([a-z]+)-\d{2,3}(?:\/\d+)?$/)
+      const twShadowValue = base.match(/^shadow-\[([^\]]+)\]$/)
+      if ((twShadowHue && TW_HUES[twShadowHue[1]]) || (twShadowValue && shadowLayersOf(twShadowValue[1].replace(/_/g, ' ')).some(isGlowLayer))) push(glowFinding(line))
       const twColor = base.match(TW_COLOR)
       if (twColor && TW_HUES[twColor[2]]) {
         remember({ map: tally.hues, key: TW_HUES[twColor[2]], line })
@@ -1090,6 +1156,9 @@ const summarizeTally = ({ tally, push }: { tally: Tally; push: Push }) => {
     const count = [...tally.emoji.values()].flat().length
     push({ line: lines[0], lines, rule: 'emoji-icon', severity: 'warn', message: `이모지 ${count}개(${lines.length}줄, ${[...tally.emoji.keys()].slice(0, 5).join(' ')}) — 아이콘·사진 자리의 이모지는 기기마다 모양이 다르고 AI가 만든 화면의 표시다`, fix: '같은 크기·같은 선 굵기의 선 아이콘 한 벌(layout-principles/assets/icons.ts)로. 사진·카테고리 그림 자리는 실제 사진, 없으면 콘텐츠 그림(layout-principles/assets/content-art.css) (tone.md)' })
   }
+  if (tally.shadows.size >= SHADOW_VARIETY) {
+    push({ line: firstLine(tally.shadows), lines: linesOf(tally.shadows), rule: 'shadow-variety', severity: 'warn', message: `그림자 ${tally.shadows.size}종(${linesOf(tally.shadows).slice(0, 8).join('·')}줄) — 높이가 그만큼 여러 단계로 보인다`, fix: '3단계로 줄인다 — 손잡이(--shadow-low)·뜬 것(--shadow-raised)·덮는 것(--shadow-overlay). 놓인 카드는 그림자 없이 톤 차이로 (elevation.md)' })
+  }
   if (tally.effects.length >= EFFECT_LIMIT) {
     const lines = [...tally.effects].sort((a, b) => a - b)
     push({ line: lines[0], lines: [...new Set(lines)], rule: 'effect-overuse', severity: 'warn', message: `강한 효과 ${lines.length}곳(${lines.slice(0, 8).join('·')}줄) — 그라데이션·유리·큰 그림자는 화면마다 한두 곳`, fix: '1순위 요소 한 곳에만 남기고 나머지는 단색 면·얇은 선·간격으로 (P3)' })
@@ -1313,6 +1382,7 @@ const withoutIgnored = ({ tally, ignored }: { tally: Tally; ignored: Set<number>
     radii: keepMap(tally.radii),
     offScale: tally.offScale.filter((o) => !ignored.has(o.line)),
     effects: keep(tally.effects),
+    shadows: keepMap(tally.shadows),
     tints: keep(tally.tints),
     hues: keepMap(tally.hues),
     emoji: keepMap(tally.emoji),

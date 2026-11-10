@@ -9,9 +9,9 @@
   --_duration: var(--swipe-duration, 260ms);
   --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   /* tone별 배경 — 마지막 액션이 danger(삭제)인 기존 사용법은 --swipe-action-bg 하나로 그대로 바꿀 수 있다 */
-  --_tone-danger: var(--swipe-action-bg, #dc2626);
+  --_tone-danger: var(--swipe-action-bg, var(--color-danger, #c8341f));
   --_tone-accent: var(--swipe-action-accent-bg, #1c1c1c);
-  --_tone-default: var(--swipe-action-default-bg, #6b7280);
+  --_tone-default: var(--swipe-action-default-bg, var(--color-text-tertiary, #686868));
   position: relative;
   overflow: hidden;
   /* 삭제 후 접힘 — 행을 1행 grid로 두고 grid-template-rows를 1fr→0fr로 전이한다(accordion과 같은 기법).

@@ -35,7 +35,12 @@ export const useAsyncAction = (options: UseAsyncActionOptions = {}) => {
   return {
     status,
     isBusy: status === 'loading',
-    run: <T,>(task: () => Promise<T>): Promise<AsyncActionResult<T>> => controller().run(task),
+    run: <T,>(task: () => Promise<T>): Promise<AsyncActionResult<T>> => {
+      const current = controller()
+      // 코어는 처음 쓸 때 한 번 만들어지므로, 그 뒤 바뀐 시간 값은 실행 직전에 넘긴다
+      current.setOptions(optionsRef.current)
+      return current.run(task)
+    },
     reset: () => controller().reset(),
   }
 }

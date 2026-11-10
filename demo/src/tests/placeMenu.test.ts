@@ -23,7 +23,7 @@ describe('placeMenu — 화면 안에 들어오도록 뒤집고 밀어 넣기', 
     expect(place.top).toBe(534) // 700 - 6 - 160
   })
 
-  it('위아래 모두 좁으면 아래로 둔다 — 아래는 스크롤로 볼 수 있지만 위로 넘치면 잘린다', () => {
+  it('위아래 모두 좁으면 아래로 둔다 — 어느 쪽이든 트리거를 덮으니 읽는 방향을 따른다', () => {
     const place = placeMenu({ ...base, menu: { width: 200, height: 700 }, anchor: { ...base.anchor, top: 100 } })
 
     expect(place.side).toBe('bottom')

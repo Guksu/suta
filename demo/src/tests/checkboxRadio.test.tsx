@@ -53,4 +53,21 @@ describe('Checkbox / Radio — 네이티브 input 기반 선택 입력', () => {
     expect(input).toHaveAttribute('name', 'refill')
     expect(input).toHaveAttribute('value', 'yes')
   })
+
+  it('indeterminate를 주면 input의 부분 선택 상태가 켜지고, 빼면 꺼진다 ("전체 동의"에서 일부만 고른 상태)', () => {
+    const { rerender } = render(<Checkbox label="전체 동의" indeterminate checked={false} onChange={() => {}} />)
+    const input = screen.getByRole('checkbox', { name: '전체 동의' }) as HTMLInputElement
+    expect(input.indeterminate).toBe(true)
+    rerender(<Checkbox label="전체 동의" checked onChange={() => {}} />)
+    expect(input.indeterminate).toBe(false)
+  })
+
+  it('부분 선택인 체크박스를 눌러도 상태가 그대로면 부분 선택 표시가 남는다 — 브라우저는 클릭 때 indeterminate를 끈다', () => {
+    const onChange = vi.fn()
+    render(<Checkbox label="전체 동의" indeterminate checked={false} onChange={onChange} />)
+    const input = screen.getByRole('checkbox', { name: '전체 동의' }) as HTMLInputElement
+    fireEvent.click(input)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(input.indeterminate).toBe(true)
+  })
 })

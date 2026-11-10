@@ -18,6 +18,11 @@ describe('createToastStack — 토스트 쌓기·자동 소멸·재배치', () =
 
   const toasts = () => [...document.querySelectorAll('.toast-item')] as HTMLElement[]
 
+  /** 브라우저는 전이가 끝난 속성마다 transitionend를 따로 보낸다 — 어느 속성인지 실어 보낸다 */
+  const endTransition = ({ toast, propertyName }: { toast: HTMLElement; propertyName: string }) => {
+    toast.dispatchEvent(Object.assign(new Event('transitionend'), { propertyName }))
+  }
+
   it('show()는 폴라이트 라이브 영역에 토스트를 띄우고 entering→entered로 전환한다', () => {
     stack.show('저장되었습니다')
     const region = document.querySelector('.toast-region')!
@@ -55,8 +60,60 @@ describe('createToastStack — 토스트 쌓기·자동 소멸·재배치', () =
     vi.advanceTimersByTime(3100)
     const toast = toasts()[0]
     expect(toast.dataset.state).toBe('exiting')
-    toast.dispatchEvent(new Event('transitionend'))
+    endTransition({ toast, propertyName: 'opacity' })
     expect(toasts()).toHaveLength(0)
+  })
+
+  it('퇴장 중에 스택 이동(transform) 전이가 먼저 끝나도 지우지 않는다 — 페이드가 끝나야 지운다', () => {
+    stack.show('밀려 올라가던 토스트')
+    const toast = toasts()[0]
+    vi.advanceTimersByTime(3100)
+    expect(toast.dataset.state).toBe('exiting')
+
+    endTransition({ toast, propertyName: 'transform' })
+    expect(toasts()).toHaveLength(1)
+
+    endTransition({ toast, propertyName: 'opacity' })
+    expect(toasts()).toHaveLength(0)
+  })
+
+  it('라이브 영역은 새로 온 토스트만 읽게 한다 (aria-atomic="false")', () => {
+    // role="status"는 aria-atomic이 기본 true라, 토스트가 쌓일 때마다 떠 있는 것 전부를 다시 읽는다
+    expect(document.querySelector('.toast-region')).toHaveAttribute('aria-atomic', 'false')
+  })
+
+  it('show()의 durationMs는 그 토스트 하나의 표시 시간만 바꾼다', () => {
+    stack.show('짧은 알림')
+    stack.show('포장 주문은 15분쯤 걸려요. 준비되면 알려 드릴게요', { durationMs: 6000 })
+    const [short, long] = toasts()
+
+    vi.advanceTimersByTime(3100)
+    expect(short.dataset.state).toBe('exiting')
+    expect(long.dataset.state).toBe('entered')
+
+    vi.advanceTimersByTime(3000)
+    expect(long.dataset.state).toBe('exiting')
+  })
+
+  it('창 크기가 바뀌어 토스트 높이가 달라지면 쌓인 간격을 다시 잰다 (긴 문구의 줄바꿈)', () => {
+    stack.show('첫 번째')
+    stack.show('두 번째')
+    const [first] = toasts()
+    expect(first.style.transform).toBe('translateY(-50px)')
+
+    // 화면이 좁아져 문구가 두 줄로 꺾였다
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { value: 64, configurable: true })
+    window.dispatchEvent(new Event('resize'))
+
+    expect(first.style.transform).toBe('translateY(-74px)') // 64 + 10
+  })
+
+  it('destroy() 뒤에는 창 크기 변화를 더 듣지 않는다', () => {
+    const removed = vi.spyOn(window, 'removeEventListener')
+    const temp = createToastStack()
+    temp.destroy()
+    expect(removed).toHaveBeenCalledWith('resize', expect.any(Function))
+    removed.mockRestore()
   })
 
   it('maxVisible을 넘으면 가장 오래된 토스트부터 밀려난다', () => {

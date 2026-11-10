@@ -8,7 +8,7 @@
   border-radius: var(--radius-card);
   background: var(--surface);
   /* 닫힌 말풍선(보이지 않아도 자리는 있다)이 좁은 화면에서 페이지를 옆으로 밀지 않게 가로만 자른다.
-   * 이 패턴은 자동 플립이 없다 — 화면 가장자리 앵커는 place를 반대쪽으로 정한다(PATTERN.md 주의사항) */
+   * 코어가 열 때 화면 안으로 뒤집고 밀어 넣지만, 닫혀 있는 동안의 자리는 이 한 줄이 막는다(PATTERN.md 주의사항) */
   overflow-x: clip;
 }
 

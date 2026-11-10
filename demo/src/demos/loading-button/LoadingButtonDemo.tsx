@@ -14,6 +14,7 @@ const COPY = defineCopy({
     latency: '서버 응답 지연',
     minLoading: '최소 로딩 유지',
     willFail: '서버가 실패로 응답',
+    locked: '버튼 잠금',
     noteBefore: '지연을 90ms로 두고 최소 로딩을 0으로 내려 보세요 — 스피너가 깜빡이고 지나가 눌린 건지 알 수 없습니다. 400ms로 올리면 같은 응답이 "전송 중"으로 읽힙니다. 버튼을 연타해도 아래',
     noteStrong: '실제 전송',
     noteAfter: '수는 늘지 않습니다.',
@@ -34,6 +35,7 @@ const COPY = defineCopy({
     latency: 'Server delay',
     minLoading: 'Minimum loading time',
     willFail: 'Server responds with an error',
+    locked: 'Lock the button',
     noteBefore: 'Set the delay to 90ms and drop the minimum loading time to 0. The spinner flickers past and you cannot tell whether the tap landed. Raise it to 400ms and the same response reads as "sending". Tap the button as fast as you like: the',
     noteStrong: 'Actually sent',
     noteAfter: 'count below does not go up.',
@@ -55,6 +57,7 @@ export const LoadingButtonDemo = () => {
   const [latencyMs, setLatencyMs] = useState(90)
   const [minLoadingMs, setMinLoadingMs] = useState(400)
   const [willFail, setWillFail] = useState(false)
+  const [locked, setLocked] = useState(false)
   const [sentCount, setSentCount] = useState(0)
   const [clickCount, setClickCount] = useState(0)
 
@@ -86,6 +89,12 @@ export const LoadingButtonDemo = () => {
           <input type="checkbox" checked={willFail} onChange={(e) => setWillFail(e.target.checked)} />
           <span>{t.willFail}</span>
         </label>
+        <label className="controls-inline">
+          <input type="checkbox" checked={locked} onChange={(e) => setLocked(e.target.checked)} />
+          <span>
+            {t.locked} <code>disabled</code>
+          </span>
+        </label>
         <p className="controls-note">
           {t.noteBefore} <b>{t.noteStrong}</b> {t.noteAfter}
         </p>
@@ -99,6 +108,7 @@ export const LoadingButtonDemo = () => {
           <LoadingButton
             onAction={placeOrder}
             minLoadingMs={minLoadingMs}
+            disabled={locked}
             loadingLabel={t.loadingLabel}
             successLabel={t.successLabel}
             errorLabel={t.errorLabel}

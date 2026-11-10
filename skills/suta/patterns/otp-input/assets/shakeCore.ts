@@ -14,10 +14,11 @@
 /** animationend가 오지 않는 환경을 위한 상한 — 흔들림 자체보다 넉넉하게 */
 const FALLBACK_MS = 600
 
-const timers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>()
+/** 요소마다 진행 중인 흔들림의 뒷정리(상한 타이머·리스너 해제) — 다시 흔들거나 끝날 때 부른다 */
+const pending = new WeakMap<HTMLElement, () => void>()
 
 export const shake = (element: HTMLElement) => {
-  clearTimeout(timers.get(element)) // 다시 흔들 때 앞선 상한이 새 흔들림을 지우지 못하게
+  pending.get(element)?.() // 다시 흔들 때 앞선 상한·리스너가 새 흔들림을 지우지 못하게
 
   if (element.hasAttribute('data-shake')) {
     element.removeAttribute('data-shake')
@@ -26,10 +27,20 @@ export const shake = (element: HTMLElement) => {
   element.setAttribute('data-shake', '')
 
   const done = () => {
-    clearTimeout(timers.get(element))
-    timers.delete(element)
+    cancel()
     element.removeAttribute('data-shake')
   }
-  element.addEventListener('animationend', done, { once: true })
-  timers.set(element, setTimeout(done, FALLBACK_MS))
+  // animationend는 위로 올라온다 — 폼 전체를 흔들 때 안쪽 스피너 같은 자식의 애니메이션이 끝나도 여기서 들린다.
+  // 자기 것만 듣지 않으면 흔들림이 중간에 끊긴다
+  const onAnimationEnd = (event: Event) => {
+    if (event.target === element) done()
+  }
+  const timer = setTimeout(done, FALLBACK_MS)
+  const cancel = () => {
+    clearTimeout(timer)
+    element.removeEventListener('animationend', onAnimationEnd)
+    pending.delete(element)
+  }
+  element.addEventListener('animationend', onAnimationEnd)
+  pending.set(element, cancel)
 }

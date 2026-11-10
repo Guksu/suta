@@ -58,12 +58,37 @@
   text-align: right;
 }
 
+/* 좁은 화면: 한 줄에 사진·이름·스테퍼·합계가 다 들어가지 않는다 — 스테퍼는 줄어들지 않으므로(줄면 + 버튼이 잘린다)
+ * 스테퍼와 합계를 이름 아래 둘째 줄로 내린다. 스테퍼는 왼쪽, 합계는 오른쪽 끝이다 */
+@media (max-width: 520px) {
+  .qs-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .qs-body {
+    flex-basis: calc(100% - 48px - var(--space-4));
+  }
+
+  .qs-sum {
+    width: auto;
+    margin-inline-start: auto;
+  }
+}
+
 /* 데모 전역 button 스타일이 스테퍼 버튼에 묻지 않게 되돌린다 — 스킬 assets는 건드리지 않는다 */
 .qs-stage .qty-button,
 .qs-stage .qty-button:hover {
   align-self: auto;
   border: none;
   border-radius: 0;
+}
+
+/* 터치 화면: 데모 전역 button:hover 배경이 누른 뒤에도 남는다 — 패턴은 hover를 (hover: hover)에서만 주므로 여기서 되돌린다 */
+@media (hover: none) {
+  .qs-stage .qty-button:hover:not(:active) {
+    background: none;
+  }
 }
 
 .qs-empty {

@@ -1,22 +1,24 @@
-import { type ReactNode } from 'react'
+import { type InputHTMLAttributes, type ReactNode } from 'react'
 import './switch.css'
 
 type SwitchProps = {
   checked: boolean
   onChange: (checked: boolean) => void
-  /** 스위치 옆에 보일 라벨 — label 요소로 감싸 클릭 영역이 함께 넓어진다 */
+  /** 스위치 옆에 보일 라벨 — label 요소로 감싸 클릭 영역이 함께 넓어진다. 없으면 aria-label이나 aria-labelledby로 이름을 준다 */
   label?: ReactNode
   disabled?: boolean
   className?: string
-}
+} & Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'role' | 'checked' | 'onChange' | 'disabled' | 'className'>
 
 /**
  * 네이티브 체크박스 + role="switch" — 포커스·Space 토글·폼 연동은 브라우저가 담당하고,
  * CSS는 트랙/썸의 시각만 그린다. 접근성을 직접 재구현하지 않는 것이 핵심이다.
+ * 나머지 props(name·value·id·aria-label·aria-describedby 등)는 input으로 간다 — type·role은 뒤에 적어 덮이지 않는다.
  */
-export const Switch = ({ checked, onChange, label, disabled, className }: SwitchProps) => (
+export const Switch = ({ checked, onChange, label, disabled, className, ...inputProps }: SwitchProps) => (
   <label className={className ? `switch ${className}` : 'switch'}>
     <input
+      {...inputProps}
       type="checkbox"
       role="switch"
       className="switch-input"

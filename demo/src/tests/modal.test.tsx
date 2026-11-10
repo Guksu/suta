@@ -10,7 +10,18 @@ const close = vi.fn(function (this: HTMLDialogElement) {
   this.removeAttribute('open')
 })
 
-const Harness = ({ onClose = () => {}, dismissOnBackdrop }: { onClose?: () => void; dismissOnBackdrop?: boolean }) => {
+const Harness = ({
+  onClose = () => {},
+  dismissOnBackdrop,
+  refuseClose = false,
+  closeOnBack,
+}: {
+  onClose?: () => void
+  dismissOnBackdrop?: boolean
+  /** 닫기 요청을 받아도 open을 내리지 않는다 — "저장 중에는 닫지 않는다" 같은 부모 */
+  refuseClose?: boolean
+  closeOnBack?: boolean
+}) => {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -20,11 +31,12 @@ const Harness = ({ onClose = () => {}, dismissOnBackdrop }: { onClose?: () => vo
       <Modal
         open={open}
         onClose={() => {
-          setOpen(false)
+          if (!refuseClose) setOpen(false)
           onClose()
         }}
         labelledBy="title"
         dismissOnBackdrop={dismissOnBackdrop}
+        closeOnBack={closeOnBack}
       >
         <h2 id="title">주문을 취소할까요?</h2>
         <button type="button">돌아가기</button>
@@ -108,5 +120,65 @@ describe('Modal — 네이티브 dialog 기반 열림·닫힘 지연·Esc·백�
     fireEvent.click(screen.getByText('열기'))
     fireEvent.click(dialogEl())
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  /** 브라우저가 스스로 닫는 상황을 흉내 낸다 — open 속성이 사라지고 close 이벤트가 온다 */
+  const closeNatively = () => {
+    act(() => {
+      dialogEl().removeAttribute('open')
+      dialogEl().dispatchEvent(new Event('close'))
+    })
+  }
+
+  it('브라우저가 스스로 닫으면(막을 수 없는 두 번째 Esc, <form method="dialog">) onClose로 알린다 — open 상태가 어긋나지 않는다', () => {
+    const onClose = vi.fn()
+    render(<Harness onClose={onClose} />)
+    fireEvent.click(screen.getByText('열기'))
+
+    closeNatively()
+    expect(onClose).toHaveBeenCalledTimes(1)
+
+    // 부모의 open이 내려갔으므로 다시 열 수 있다
+    fireEvent.click(screen.getByText('열기'))
+    expect(showModal).toHaveBeenCalledTimes(2)
+  })
+
+  it('부모가 닫기를 거부하면(open을 그대로 두면) 다시 연다 — open이 true인데 창이 없는 상태로 남지 않는다', () => {
+    const onClose = vi.fn()
+    render(<Harness onClose={onClose} refuseClose />)
+    fireEvent.click(screen.getByText('열기'))
+
+    closeNatively()
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(showModal).toHaveBeenCalledTimes(2)
+    expect(dialogEl()).toHaveAttribute('open')
+  })
+
+  it('우리가 닫아서 온 close 이벤트에는 onClose를 다시 부르지 않는다', () => {
+    const onClose = vi.fn()
+    render(<Harness onClose={onClose} />)
+    fireEvent.click(screen.getByText('열기'))
+    fireEvent.click(dialogEl()) // 백드롭 → onClose 1회 → 닫힘 애니메이션
+    fireEvent.animationEnd(dialogEl())
+    act(() => {
+      dialogEl().dispatchEvent(new Event('close'))
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('closeOnBack을 켜면 열려 있는 동안 history에 항목을 쌓고, 뒤로 가기가 모달을 닫는다', async () => {
+    vi.useRealTimers()
+    const onClose = vi.fn()
+    render(<Harness onClose={onClose} closeOnBack />)
+    const before = history.length
+    fireEvent.click(screen.getByText('열기'))
+    expect(history.length).toBe(before + 1)
+
+    await act(async () => {
+      history.back()
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(dialogEl()).toHaveAttribute('data-closing')
   })
 })

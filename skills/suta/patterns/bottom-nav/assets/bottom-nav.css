@@ -14,12 +14,15 @@
   position: fixed;
   inset-inline: 0;
   bottom: 0;
-  z-index: var(--bottom-nav-z, 50);
+  z-index: var(--bottom-nav-z, var(--z-sticky, 30));
   max-width: var(--bottom-nav-max-width, none);
   margin-inline: auto;
   padding-bottom: env(safe-area-inset-bottom);
+  /* 가로로 눕히면 노치·둥근 모서리가 좌우에 온다 — 끝 탭이 그 아래로 들어가지 않게 */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: var(--bottom-nav-bg, #fff);
-  border-top: 1px solid var(--bottom-nav-line, #e3e5e9);
+  border-top: 1px solid var(--bottom-nav-line, var(--color-line, #e6e6e6));
   transition:
     transform var(--_duration) var(--_ease),
     visibility 0s;
@@ -51,6 +54,8 @@
   justify-content: center;
   gap: 2px;
   height: 100%;
+  /* 말줄임된 긴 라벨이 옆 칸 라벨과 붙어 보이지 않게 */
+  padding-inline: 2px;
   color: var(--_color);
   font-size: 12px;
   line-height: 1.2;
@@ -93,7 +98,8 @@
 .bottom-nav-badge {
   position: absolute;
   top: -4px;
-  left: calc(100% - 8px);
+  /* 글이 끝나는 쪽 위 — rtl에서는 왼쪽 위로 간다 */
+  inset-inline-start: calc(100% - 8px);
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
@@ -110,7 +116,7 @@
 
 .bottom-nav-badge[data-dot='true'] {
   top: -2px;
-  left: calc(100% - 4px);
+  inset-inline-start: calc(100% - 4px);
   min-width: 8px;
   width: 8px;
   height: 8px;
@@ -130,6 +136,14 @@
 @media (hover: hover) {
   .bottom-nav-link:hover {
     color: var(--_current);
+  }
+}
+
+/* 고대비(forced-colors): 배경색이 바탕색으로 바뀌어 점 배지가 사라진다 — 점은 시스템 색으로 그린다.
+ * 숫자 배지는 그대로 둔다. 브라우저가 글자 뒤에 바탕색 판을 깔아 숫자가 읽히고, 배경을 칠하면 그 판과 겹쳐 오히려 가린다 */
+@media (forced-colors: active) {
+  .bottom-nav-badge[data-dot='true'] {
+    background: Highlight;
   }
 }
 

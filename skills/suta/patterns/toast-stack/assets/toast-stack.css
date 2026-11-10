@@ -6,16 +6,21 @@
 .toast-region {
   position: fixed;
   left: 50%;
-  bottom: 24px;
+  /* 홈 인디케이터·노치가 있는 기기에서는 안전 영역만큼 더 띄운다(없으면 0) */
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   translate: -50%;
-  z-index: 80;
+  z-index: var(--z-toast, 100);
   pointer-events: none;
   display: grid;
+  /* 가장 긴 토스트만큼만 넓어지되 화면 양옆 16px는 남긴다 — 그보다 긴 문구는 줄이 꺾인다.
+   * left: 50%인 고정 요소는 폭을 안 주면 화면 절반에서 줄이 꺾이므로 max-content를 준다 */
+  width: max-content;
+  max-width: min(calc(100% - 32px), 28rem);
 }
 
 /* 상단 배너 — 코어가 data-position="top"을 붙이면 위에 고정되고 최신이 맨 위에 온다 */
 .toast-region[data-position='top'] {
-  top: 24px;
+  top: calc(24px + env(safe-area-inset-top, 0px));
   bottom: auto;
 }
 
@@ -23,18 +28,28 @@
   --_duration: var(--toast-duration, 300ms);
   grid-area: 1 / 1; /* 전부 같은 칸에 겹치고, 코어의 translateY로 층을 만든다 */
   justify-self: center;
+  /* 줄 수가 다른 토스트가 섞여도 각자 제 높이를 갖고 기준선(하단)에 붙는다 — 기본값 stretch면 가장 긴 것만큼 다 늘어난다 */
+  align-self: end;
   padding: 0.75rem 1.25rem;
-  border-radius: 999px;
-  background: var(--toast-bg, rgba(30, 32, 40, 0.95));
+  /* 한 줄이면 알약, 줄이 꺾이면 둥근 사각형 — 999px는 두세 줄에서 양 끝이 반원으로 부푼다 */
+  border-radius: 1.5rem;
+  background: var(--toast-bg, rgb(28 28 28 / 0.95));
   color: var(--toast-color, #fff);
   font-size: 0.9rem;
-  white-space: nowrap;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  /* 한글은 낱말 단위로 꺾고, 띄어쓰기 없는 긴 주소·번호는 어디서든 꺾어 화면 밖으로 나가지 않게 한다 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  box-shadow: var(--shadow-raised, 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12));
   transition:
     transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
     opacity var(--_duration) ease,
     scale var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
     translate var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 상단 배너는 기준선이 위다 */
+.toast-region[data-position='top'] .toast-item {
+  align-self: start;
 }
 
 .toast-item[data-state='entering'] {
@@ -59,5 +74,12 @@
     transition: opacity var(--_duration) linear;
     scale: none;
     translate: none;
+  }
+}
+
+/* 고대비 모드: 배경색과 그림자가 사라져 토스트의 경계가 바탕에 묻힌다 — 테두리로 경계를 그린다 */
+@media (forced-colors: active) {
+  .toast-item {
+    border: 1px solid CanvasText;
   }
 }

@@ -1,5 +1,6 @@
 /* dropdown-menu — ⋯ 버튼을 누르면 아래(또는 위)로 펼쳐지는 액션 메뉴.
- * 커스터마이즈: --menu-bg, --menu-border, --menu-radius, --menu-duration, --menu-min-width, --menu-danger.
+ * 커스터마이즈: --menu-bg, --menu-border, --menu-radius, --menu-duration, --menu-min-width, --menu-max-width,
+ * --menu-max-height, --menu-danger.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 위치(top·left)는 코어가 인라인으로 쓴다. 여기 있는 것은 모양과 등장 방향이다. */
 
@@ -13,19 +14,31 @@
   cursor: pointer;
 }
 
-/* fixed인 이유: 부모의 overflow:hidden이나 transform 안에 갇히면 메뉴가 잘린다.
- * 대신 좌표는 코어가 화면 기준으로 계산해 넣는다. */
+/* fixed인 이유: 부모의 overflow:hidden 안에 갇히면 메뉴가 잘린다. 좌표는 코어가 화면 기준으로 계산해 넣는다.
+ * transform이 걸린 조상 안에서는 fixed도 그 조상 기준이 된다 — 그래서 코어가 popover로 맨 위 층에 올린다. */
 .menu-panel {
   --_duration: var(--menu-duration, 140ms);
   --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   position: fixed;
-  z-index: 50;
+  /* popover의 브라우저 기본값(inset: 0 + margin: auto = 화면 가운데)을 걷는다. top·left는 코어가 인라인으로 쓴다 */
+  inset: auto;
+  margin: 0;
+  z-index: var(--z-popover, 50);
+  /* 폭은 내용이 정한다. 정해 두지 않으면 fixed의 폭이 "놓인 자리에서 화면 끝까지"에 눌려,
+   * 화면 오른쪽 끝 버튼의 메뉴가 열 때마다 좁게 꺾인다 */
+  width: max-content;
   min-width: var(--menu-min-width, 11rem);
+  max-width: var(--menu-max-width, calc(100vw - 16px));
+  /* 항목이 많아도 화면을 넘지 않는다 — 넘는 만큼은 메뉴 안에서 스크롤한다(fixed라 페이지 스크롤로는 닿지 않는다) */
+  max-height: var(--menu-max-height, calc(100dvh - 16px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.25rem;
   border: 1px solid var(--menu-border, #e5e7eb);
   border-radius: var(--menu-radius, 12px);
   background: var(--menu-bg, #fff);
-  box-shadow: var(--menu-shadow, 0 12px 32px rgb(0 0 0 / 0.16));
+  color: var(--menu-color, var(--color-text, #1c1c1c));
+  box-shadow: var(--menu-shadow, var(--shadow-raised, 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12)));
 }
 
 /* 열린 방향에서 자라 나온다 — 위로 열렸는데 위에서 내려오면 어디서 나왔는지 알 수 없다 */
@@ -48,17 +61,24 @@
   border: none;
   border-radius: 8px;
   background: none;
-  color: var(--menu-color, #111827);
+  color: var(--menu-color, var(--color-text, #1c1c1c));
   font: inherit;
-  text-align: left;
+  text-align: start;
+  overflow-wrap: anywhere; /* 최대 폭에 닿은 긴 이름이 패널 밖으로 나가지 않게 */
   cursor: pointer;
 }
 
 /* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다 */
-.menu-item:hover,
 .menu-item:focus {
   outline: none;
   background: var(--menu-active-bg, #f3f4f6);
+}
+
+/* hover는 가리킬 수 있는 포인터에서만 — 터치에서는 누른 항목에 hover가 남는다 */
+@media (hover: hover) {
+  .menu-item:hover {
+    background: var(--menu-active-bg, #f3f4f6);
+  }
 }
 
 .menu-item:focus-visible {
@@ -67,17 +87,37 @@
 }
 
 .menu-item[data-danger='true'] {
-  color: var(--menu-danger, #dc2626);
+  color: var(--menu-danger, var(--color-danger, #c8341f));
 }
 
-/* 비활성은 흐리게 하되 포커스는 받는다 — 닿을 수 없으면 왜 못 누르는지 알 수 없다 */
+/* 비활성은 흐리게 하되 요소는 남긴다(disabled가 아니라 aria-disabled) — 스크린 리더가 존재와 이유를 읽는다.
+ * 방향키는 건너뛴다 */
 .menu-item[aria-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.menu-item[aria-disabled='true']:hover {
+.menu-item[aria-disabled='true']:hover,
+.menu-item[aria-disabled='true']:focus {
   background: none;
+}
+
+/* 고대비: 배경색이 지워져 지금 가리키는 항목이 보이지 않는다 — 시스템 강조색으로 다시 칠한다 */
+@media (forced-colors: active) {
+  .menu-item:focus,
+  .menu-item:hover {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .menu-item[aria-disabled='true'],
+  .menu-item[aria-disabled='true']:hover,
+  .menu-item[aria-disabled='true']:focus {
+    opacity: 1;
+    background: Canvas;
+    color: GrayText;
+  }
 }
 
 @keyframes menu-in-from-top {

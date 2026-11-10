@@ -8,6 +8,10 @@
  *
  * 담당하는 것: 열기·닫기, 위치 적용(placeMenu), 로빙 포커스, 첫 글자 점프,
  * 바깥 누름·Esc·Tab으로 닫기, 닫힐 때 트리거로 포커스 되돌리기.
+ *
+ * 메뉴는 popover="manual"로 맨 위 층(top layer)에 띄운다. `position: fixed`만으로는 transform·filter가 걸린
+ * 조상(바텀시트·움직이는 카드) 안에서 좌표 기준이 그 조상으로 바뀌어 엉뚱한 곳에 뜨고 조상의 overflow에 잘린다.
+ * popover를 모르는 환경에서는 예전처럼 fixed + hidden으로 동작한다.
  */
 
 import { placeMenu } from './placeMenu'
@@ -17,7 +21,7 @@ type CreateMenuOptions = {
   trigger: HTMLElement
   /** role="menu" 요소 — 열려 있지 않을 때는 hidden으로 감춘다 */
   menu: HTMLElement
-  /** start = 트리거 왼쪽 맞춤, end = 오른쪽 맞춤 (기본 start) */
+  /** start = 글이 시작하는 쪽 맞춤(왼쪽, dir="rtl"이면 오른쪽), end = 반대쪽 (기본 start) */
   align?: 'start' | 'end'
   gap?: number
   onOpenChange?: (open: boolean) => void
@@ -27,18 +31,36 @@ type CreateMenuOptions = {
 const itemsOf = (menu: HTMLElement) =>
   Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]')).filter((item) => item.getAttribute('aria-disabled') !== 'true')
 
+const INITIALS = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'
+
+/**
+ * 한글 음절을 초성으로 바꾼다("삭제하기" → "ㅅㅈㅎㄱ").
+ * 버튼에 포커스가 있을 때는 글자가 조합되지 않아 한글 자판의 키가 낱자(ㅅ)로 들어온다 — 음절과는 맞출 수 없다
+ */
+const toInitials = (text: string) =>
+  Array.from(text, (char) => {
+    const index = char.charCodeAt(0) - 0xac00
+    return index >= 0 && index <= 11171 ? INITIALS[Math.floor(index / 588)] : char
+  }).join('')
+
 export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }: CreateMenuOptions) => {
   let open = false
   let typed = ''
   let typedTimer: ReturnType<typeof setTimeout> | undefined
 
+  // 맨 위 층에 띄울 수 있는가 — 한 번만 확인하고 속성을 걸어 둔다(닫힌 popover는 브라우저가 감춘다)
+  const useTopLayer = typeof menu.showPopover === 'function' && typeof menu.hidePopover === 'function'
+  if (useTopLayer) menu.setAttribute('popover', 'manual')
+
   const position = () => {
     const anchor = trigger.getBoundingClientRect()
+    // 오른쪽에서 왼쪽으로 쓰는 화면에서는 "시작"이 오른쪽이다 — placeMenu는 왼쪽·오른쪽만 안다
+    const rtl = getComputedStyle(trigger).direction === 'rtl'
     const { top, left, side } = placeMenu({
       anchor: { top: anchor.top, left: anchor.left, width: anchor.width, height: anchor.height },
       menu: { width: menu.offsetWidth, height: menu.offsetHeight },
       viewport: { width: window.innerWidth, height: window.innerHeight },
-      align,
+      align: rtl ? (align === 'start' ? 'end' : 'start') : align,
       gap,
     })
     menu.style.top = `${top}px`
@@ -48,26 +70,47 @@ export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }
 
   const focusItem = (index: number) => {
     const items = itemsOf(menu)
-    if (items.length === 0) return
+    if (items.length === 0) {
+      // 실행할 항목이 없어도 포커스는 메뉴 안으로 옮긴다 — 트리거에 남으면 Escape·Tab을 메뉴가 듣지 못한다
+      menu.tabIndex = -1
+      menu.focus()
+      return
+    }
     // 끝에서 반대편으로 감는다 — 메뉴 관례다(리스트박스와 다른 점)
     items[(index + items.length) % items.length].focus()
   }
 
   const currentIndex = () => itemsOf(menu).indexOf(document.activeElement as HTMLElement)
 
-  const setOpen = (next: boolean, options: { restoreFocus?: boolean } = {}) => {
+  /** 맨 위 층에 올리고 내린다. 이미 그 상태이거나 문서에서 떨어진 요소면 브라우저가 예외를 던진다 — 삼킨다 */
+  const toggleTopLayer = (show: boolean) => {
+    if (!useTopLayer) return
+    try {
+      if (show) menu.showPopover()
+      else menu.hidePopover()
+    } catch {
+      // 열림·닫힘 상태는 hidden이 계속 맡는다
+    }
+  }
+
+  const setOpen = (next: boolean, options: { restoreFocus?: boolean; preventScroll?: boolean } = {}) => {
     if (next === open) return
     open = next
     trigger.setAttribute('aria-expanded', String(next))
+    // CSS의 등장 모션이 이 값에 걸려 있다 — React 없이 코어만 써도 모션이 돈다
+    menu.dataset.open = next ? 'true' : 'false'
 
     if (next) {
       menu.hidden = false
+      toggleTopLayer(true)
       position() // 크기를 알아야 위치를 정할 수 있으므로 보이게 한 뒤에 잰다
       focusItem(0)
     } else {
+      toggleTopLayer(false)
       menu.hidden = true
+      typed = ''
       // 메뉴 안에 있던 포커스가 body로 떨어지면 키보드 사용자는 처음부터 다시 찾아야 한다
-      if (options.restoreFocus !== false) trigger.focus()
+      if (options.restoreFocus !== false) trigger.focus(options.preventScroll ? { preventScroll: true } : undefined)
     }
     onOpenChange?.(next)
   }
@@ -101,7 +144,9 @@ export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }
     }
     if (event.key === 'ArrowUp') {
       event.preventDefault()
-      focusItem(currentIndex() - 1)
+      // 포커스가 실행 가능한 항목 밖(마우스로 누른 비활성 항목·메뉴 자신)에 있으면 마지막 항목부터
+      const index = currentIndex()
+      focusItem(index === -1 ? -1 : index - 1)
       return
     }
     if (event.key === 'Home') {
@@ -117,11 +162,16 @@ export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }
 
     // 첫 글자 점프 — 항목이 많을 때 방향키만으로는 느리다
     if (event.key.length !== 1 || event.metaKey || event.ctrlKey || event.altKey) return
+    // 찾는 중이 아닐 때의 스페이스는 항목을 누르는 키다 — 찾을 글자에 넣으면 다음 글자가 맞지 않는다
+    if (event.key === ' ' && typed === '') return
     clearTimeout(typedTimer)
     typed += event.key.toLowerCase()
     typedTimer = setTimeout(() => (typed = ''), 600)
     const items = itemsOf(menu)
-    const match = items.findIndex((item) => (item.textContent ?? '').trim().toLowerCase().startsWith(typed))
+    const match = items.findIndex((item) => {
+      const label = (item.textContent ?? '').trim().toLowerCase()
+      return label.startsWith(typed) || toInitials(label).startsWith(typed)
+    })
     if (match !== -1) items[match].focus()
   }
 
@@ -136,7 +186,17 @@ export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }
   }
 
   const onReposition = () => {
-    if (open) position()
+    if (!open) return
+    const anchor = trigger.getBoundingClientRect()
+    const gone =
+      anchor.bottom < 0 || anchor.top > window.innerHeight || anchor.right < 0 || anchor.left > window.innerWidth
+    if (gone) {
+      // 트리거가 화면 밖으로 나가면 메뉴만 가장자리에 붙어 남는다 — 닫는다.
+      // 포커스는 트리거로 돌리되 스크롤은 건드리지 않는다(되돌리면 사용자가 굴린 화면이 튄다)
+      setOpen(false, { preventScroll: true })
+      return
+    }
+    position()
   }
 
   menu.hidden = true
@@ -158,6 +218,8 @@ export const createMenu = ({ trigger, menu, align = 'start', gap, onOpenChange }
     close: () => setOpen(false),
     destroy: () => {
       clearTimeout(typedTimer)
+      // 열린 채 해제되면 맨 위 층에 남지 않게 내린다 (요소가 곧 사라지더라도 다시 붙을 때 상태가 맞는다)
+      if (open) toggleTopLayer(false)
       trigger.removeEventListener('click', onTriggerClick)
       trigger.removeEventListener('keydown', onTriggerKeyDown)
       menu.removeEventListener('keydown', onMenuKeyDown)

@@ -12,7 +12,7 @@
 /* data-zooming: active(손가락 추종 중) → settling(복귀 중) → 제거. 둘 다 형제 카드 위로 올라온다
  * — 조상에 overflow:hidden·transform이 있으면 잘리거나 묻힌다 */
 .pinch[data-zooming] {
-  z-index: var(--pinch-z, 50);
+  z-index: var(--pinch-z, var(--z-popover, 50));
 }
 
 .pinch-target {

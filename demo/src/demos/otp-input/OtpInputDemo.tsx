@@ -108,7 +108,20 @@ export const OtpInputDemo = () => {
         <p className="otp-stage-hint">{t.hint(length)}</p>
 
         {/* key로 칸 수가 바뀔 때 입력을 새로 만든다 — 남은 값이 새 칸 수와 어긋나지 않게 */}
-        <OtpInput key={length} ref={otp} length={length} onComplete={verify} autoFocus={false} label={t.otpLabel} digitLabel={t.digitLabel} />
+        <OtpInput
+          key={length}
+          ref={otp}
+          length={length}
+          onComplete={verify}
+          // 틀린 표시는 다시 입력을 시작할 때 내린다 — 비우기(clear)가 보내는 빈 값에는 남긴다
+          onChange={(code) => {
+            if (code !== '' && status === 'error') setStatus('idle')
+          }}
+          invalid={status === 'error'}
+          autoFocus={false}
+          label={t.otpLabel}
+          digitLabel={t.digitLabel}
+        />
 
         <p className="otp-message" role="alert" data-status={status}>
           {status === 'error' && t.error}

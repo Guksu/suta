@@ -98,4 +98,105 @@ describe('LoadingButton — 제출 버튼 진행 표시', () => {
 
     expect(screen.getByRole('button', { name: '주문하기' })).toHaveAttribute('data-status', 'loading')
   })
+
+  it('실패 표시 중에 다시 누르면 기다리지 않고 다시 실행한다', async () => {
+    let attempts = 0
+    const onAction = vi.fn(async () => {
+      attempts += 1
+      if (attempts === 1) throw new Error('품절')
+    })
+    render(
+      <LoadingButton onAction={onAction} minLoadingMs={0} errorHoldMs={1800}>
+        주문하기
+      </LoadingButton>,
+    )
+    const button = screen.getByRole('button', { name: '주문하기' })
+
+    fireEvent.click(button)
+    await advance(0)
+    expect(button).toHaveAttribute('data-status', 'error')
+    expect(button).toHaveAttribute('aria-disabled', 'false') // 실패한 버튼은 다시 누를 수 있다
+
+    fireEvent.click(button)
+    await advance(0)
+    expect(onAction).toHaveBeenCalledTimes(2)
+    expect(button).toHaveAttribute('data-status', 'success')
+  })
+
+  it('완료 표시 중에는 눌러도 다시 실행하지 않고, 그 사실을 aria-disabled로 알린다', async () => {
+    const onAction = vi.fn(async () => 'ok')
+    render(
+      <LoadingButton onAction={onAction} minLoadingMs={0} successHoldMs={1200}>
+        주문하기
+      </LoadingButton>,
+    )
+    const button = screen.getByRole('button', { name: '주문하기' })
+
+    fireEvent.click(button)
+    await advance(0)
+    expect(button).toHaveAttribute('data-status', 'success')
+    expect(button).toHaveAttribute('aria-disabled', 'true')
+
+    fireEvent.click(button)
+    await advance(0)
+    expect(onAction).toHaveBeenCalledTimes(1)
+  })
+
+  it('진행 중에만 aria-busy가 붙는다', async () => {
+    render(
+      <LoadingButton onAction={async () => 'ok'} minLoadingMs={400}>
+        주문하기
+      </LoadingButton>,
+    )
+    const button = screen.getByRole('button', { name: '주문하기' })
+    expect(button).toHaveAttribute('aria-busy', 'false')
+
+    fireEvent.click(button)
+    await advance(0)
+    expect(button).toHaveAttribute('aria-busy', 'true')
+
+    await advance(400)
+    expect(button).toHaveAttribute('aria-busy', 'false')
+  })
+
+  it('한 번 실행한 뒤 바꾼 minLoadingMs도 다음 실행에 반영된다', async () => {
+    const { rerender } = render(
+      <LoadingButton onAction={async () => 'ok'} minLoadingMs={0} successHoldMs={0}>
+        주문하기
+      </LoadingButton>,
+    )
+    const button = screen.getByRole('button', { name: '주문하기' })
+    fireEvent.click(button)
+    await advance(0)
+    await advance(0)
+    expect(button).toHaveAttribute('data-status', 'idle')
+
+    rerender(
+      <LoadingButton onAction={async () => 'ok'} minLoadingMs={400} successHoldMs={0}>
+        주문하기
+      </LoadingButton>,
+    )
+    fireEvent.click(button)
+    await advance(200)
+    expect(button).toHaveAttribute('data-status', 'loading')
+  })
+
+  it('type="submit"으로 폼 안에 두어도 진행 중 클릭은 폼을 다시 제출하지 않는다', async () => {
+    const onSubmit = vi.fn((event: { preventDefault: () => void }) => event.preventDefault())
+    render(
+      <form onSubmit={onSubmit}>
+        <LoadingButton type="submit" onAction={() => new Promise(() => {})}>
+          주문하기
+        </LoadingButton>
+      </form>,
+    )
+    const button = screen.getByRole('button', { name: '주문하기' })
+
+    fireEvent.click(button)
+    await advance(0)
+    fireEvent.click(button)
+    fireEvent.click(button)
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
 })

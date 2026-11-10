@@ -77,3 +77,10 @@
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
+
+/* "더 보기"로 불러온 뒤 포커스가 옮겨 오는 자리(새로 붙은 첫 리뷰·낭독 영역) — 키보드일 때만 선이 보인다 */
+.is-review:focus-visible,
+.is-box .infinite-status:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}

@@ -11,7 +11,7 @@
 
 .upload-zone {
   position: relative;
-  border: 2px dashed var(--upload-border, #d1d5db);
+  border: 2px dashed var(--upload-border, #d4d4d4);
   border-radius: var(--upload-radius, 12px);
   background: var(--upload-bg, transparent);
   transition:
@@ -67,7 +67,7 @@
 }
 
 .upload-limits {
-  color: var(--upload-dim, #6b7280);
+  color: var(--upload-dim, var(--color-text-tertiary, #686868));
   font-size: 0.82rem;
 }
 
@@ -85,13 +85,13 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem;
-  border: 1px solid var(--upload-border, #d1d5db);
+  border: 1px solid var(--upload-border, #d4d4d4);
   border-radius: 12px; /* 끌어 놓는 칸과 같은 카드 반경 — 파일 행도 카드다 */
   animation: upload-item-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .upload-item[data-error='true'] {
-  border-color: var(--upload-error, #dc2626);
+  border-color: var(--upload-error, var(--color-danger, #c8341f));
 }
 
 .upload-thumb {
@@ -124,12 +124,12 @@
 }
 
 .upload-size {
-  color: var(--upload-dim, #6b7280);
+  color: var(--upload-dim, var(--color-text-tertiary, #686868));
   font-size: 0.8rem;
 }
 
 .upload-item[data-error='true'] .upload-size {
-  color: var(--upload-error, #dc2626);
+  color: var(--upload-error, var(--color-danger, #c8341f));
 }
 
 .upload-progress {
@@ -160,7 +160,7 @@
   border: none;
   border-radius: 50%;
   background: none;
-  color: var(--upload-dim, #6b7280);
+  color: var(--upload-dim, var(--color-text-tertiary, #686868));
   font: inherit;
   cursor: pointer;
 }

@@ -1,5 +1,5 @@
 /* checkbox-radio — 네이티브 input 위에 얹는 체크박스·라디오. 체크마크는 stroke-dashoffset으로 그려지고, 라디오 도트는 스케일로 맺힌다.
- * 커스터마이즈: --check-size, --check-duration, --check-accent, --check-border.
+ * 커스터마이즈: --check-size, --check-duration, --check-accent, --check-border, --check-mark, --check-error.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 입력은 숨기되 DOM에 남긴다 — 포커스·Space·화살표 이동·폼 제출은 네이티브가 담당한다. */
 
@@ -7,12 +7,18 @@
   --_size: var(--check-size, 22px);
   --_duration: var(--check-duration, 200ms);
   --_accent: var(--check-accent, #1c1c1c);
-  --_border: var(--check-border, #868b94);
+  --_border: var(--check-border, #8a8a8a);
   --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* 누르는 영역 — 박스(22px)와 한 줄 라벨은 손가락에 낮다. 위아래 안쪽 여백으로 44px까지 넓히고, 같은 크기의 음수 바깥 여백으로
+   * 자리는 그대로 둔다(레이아웃이 밀리지 않는다). 여백도 label이라 눌러도 같은 입력이 토글된다 */
+  --_hit: max(0px, (44px - var(--_size)) / 2);
   position: relative;
   display: inline-flex;
-  align-items: center;
+  /* 라벨이 두 줄 이상으로 꺾이면 박스는 첫 줄 옆에 남는다 — 가운데 정렬이면 긴 약관 문구에서 박스가 문단 중간에 뜬다 */
+  align-items: flex-start;
   gap: 8px;
+  padding-block: var(--_hit);
+  margin-block: calc(var(--_hit) * -1);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -29,11 +35,14 @@
 
 /* 박스/원 — 색 채움은 background, 누름은 scale (레이아웃 애니메이션 없음) */
 .check-box {
+  position: relative; /* 부분 선택 가로줄(::after)의 기준 */
   flex: none;
   display: grid;
   place-items: center;
   width: var(--_size);
   height: var(--_size);
+  /* 첫 줄의 가운데에 맞춘다(1lh = 한 줄 높이). lh를 모르는 브라우저에서는 줄 위에 붙는다 — 한 줄 24px에서 1px 차이 */
+  margin-top: calc((1lh - var(--_size)) / 2);
   border: 2px solid var(--_border);
   border-radius: 6px;
   background: transparent;
@@ -52,7 +61,7 @@
   width: 70%;
   height: 70%;
   fill: none;
-  stroke: #fff;
+  stroke: var(--check-mark, #fff);
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -66,7 +75,7 @@
   width: 50%;
   height: 50%;
   border-radius: 50%;
-  background: #fff;
+  background: var(--check-mark, #fff);
   transform: scale(0);
   transition: transform var(--_duration) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -91,6 +100,41 @@
   transition-duration: calc(var(--_duration) * 0.5);
 }
 
+/* 부분 선택(indeterminate) — 체크 표시 대신 가로줄. "전체 동의"에서 아래 항목을 일부만 골랐을 때 쓴다.
+ * 라디오는 아무것도 고르지 않은 묶음 전체가 :indeterminate라 체크박스로 좁힌다 */
+.check[data-kind='checkbox'] .check-box::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--check-mark, #fff);
+  transform: translateY(-50%) scaleX(0);
+  transition: transform var(--_duration) var(--_ease-out);
+}
+
+.check[data-kind='checkbox'] .check-input:indeterminate + .check-box {
+  background: var(--_accent);
+  border-color: var(--_accent);
+}
+
+.check[data-kind='checkbox'] .check-input:indeterminate + .check-box::after {
+  transform: translateY(-50%) scaleX(1);
+}
+
+/* checked와 indeterminate가 함께 켜져 있어도 가로줄만 보인다 */
+.check[data-kind='checkbox'] .check-input:indeterminate + .check-box .check-mark {
+  stroke-dashoffset: 24;
+  transition-delay: 0s;
+}
+
+/* 오류 — 필수 동의를 빼고 제출했을 때. 고르지 않은 박스의 테두리만 물들인다(고른 것은 이미 문제가 아니다) */
+.check-input[aria-invalid='true']:not(:checked) + .check-box {
+  border-color: var(--check-error, var(--color-danger, #c8341f));
+}
+
 /* 누르는 동안 살짝 움츠린다 — 눌림 피드백 */
 .check:active .check-input:not(:disabled) + .check-box {
   transform: scale(0.9);
@@ -106,9 +150,58 @@
   cursor: not-allowed;
 }
 
+/* 고대비(forced-colors)에서는 배경색이 지워져 고른 박스와 고르지 않은 박스가 같아 보인다(라디오 도트는 사라진다).
+ * 시스템 색으로 다시 그린다 — 고른 것은 Highlight로 채우고 표시는 그 반대색 */
+@media (forced-colors: active) {
+  .check-box {
+    border-color: ButtonText;
+  }
+
+  .check-input:checked + .check-box,
+  .check[data-kind='checkbox'] .check-input:indeterminate + .check-box {
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  .check-mark {
+    stroke: HighlightText;
+  }
+
+  .check-dot,
+  .check[data-kind='checkbox'] .check-box::after {
+    background: HighlightText;
+  }
+
+  .check-input:focus-visible + .check-box {
+    outline-color: Highlight;
+  }
+
+  .check:has(.check-input:disabled) {
+    opacity: 1; /* 고대비에서는 흐리게 대신 시스템의 "꺼진 항목" 색으로 */
+    color: GrayText;
+  }
+
+  .check-input:disabled + .check-box {
+    border-color: GrayText;
+  }
+
+  .check-input:disabled:checked + .check-box {
+    background: GrayText;
+  }
+
+  .check-input:disabled:checked + .check-box .check-mark {
+    stroke: Canvas;
+  }
+
+  .check-input:disabled:checked + .check-box .check-dot {
+    background: Canvas;
+  }
+}
+
 /* 모션 민감 사용자: 그리기·튀어오름 없이 즉시 표시, 색 전환(상태 표시)은 유지 */
 @media (prefers-reduced-motion: reduce) {
   .check-box,
+  .check[data-kind='checkbox'] .check-box::after,
   .check-mark,
   .check-dot {
     transition: none;

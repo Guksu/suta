@@ -15,6 +15,8 @@ const COPY = defineCopy({
     note: '연타해 보세요 — 새 토스트가 기존 것을 밀어내며 쌓이고(최대 3개), 각자 시간이 되면 사라집니다. 하단은 최신이 아래에 오고 위로 쌓이며, 상단 배너는 iOS 푸시처럼 위에서 내려와 최신이 맨 위에 옵니다.',
     fire: '토스트 띄우기',
     burst: '3연타',
+    long: '긴 문구',
+    longMessage: '들깨칼국수 곱빼기 2인분을 장바구니에 담았어요. 포장은 15분쯤 걸려요.',
   },
   en: {
     messages: ['Saved', 'Added to cart', 'Order placed', 'Added to Saved', 'Link copied'],
@@ -26,6 +28,8 @@ const COPY = defineCopy({
     note: 'Tap it rapidly. Each new toast pushes the older ones aside as they stack (up to 3), and each leaves when its time is up. At the bottom, the newest sits lowest and the stack grows upward. The top banner drops in from above like a phone notification, with the newest on top.',
     fire: 'Show toast',
     burst: 'Fire 3 in a row',
+    long: 'Long message',
+    longMessage: 'Added two large perilla knife-cut noodles to your cart. Takeout takes about 15 minutes.',
   },
 })
 
@@ -87,6 +91,10 @@ export const ToastStackDemo = () => {
           }}
         >
           {t.burst}
+        </button>
+        {/* 긴 문구는 화면 폭 안에서 줄이 꺾이고, 읽을 시간이 더 필요하므로 이 토스트만 오래 둔다 */}
+        <button type="button" onClick={() => toast(t.longMessage, { durationMs: durationMs + 2500 })}>
+          {t.long}
         </button>
       </div>
     </div>

@@ -45,14 +45,17 @@
   border-radius: 50%;
   border: 8px solid transparent;
   padding: 0;
-  background: rgba(128, 128, 128, 0.35);
+  /* 버튼은 글자색을 물려받지 않는다 — .carousel-dots에 준 color가 지금 장의 색(currentColor)이 되게 한다 */
+  color: inherit;
+  background-color: rgba(128, 128, 128, 0.35);
   background-clip: content-box;
   cursor: pointer;
-  transition: background 150ms ease, scale 150ms ease;
+  transition: background-color 150ms ease, scale 150ms ease;
 }
 
+/* background 단축 속성을 쓰지 않는다 — background-clip이 border-box로 되돌아가 점이 누르는 칸(24px) 전체로 번진다 */
 .carousel-dot[data-active='true'] {
-  background: currentColor;
+  background-color: currentColor;
   scale: 1.25;
 }
 
@@ -60,5 +63,18 @@
 @media (prefers-reduced-motion: reduce) {
   .carousel-dot {
     transition: none;
+  }
+}
+
+/* 고대비(forced-colors): 투명 테두리가 보이는 색으로 바뀌어 누르는 칸 전체가 채워지고, 점의 배경색은 바탕색이 된다.
+ * 테두리는 바탕색으로 숨기고 점은 시스템 색으로 그린다 — 지금 장은 선택을 뜻하는 Highlight */
+@media (forced-colors: active) {
+  .carousel-dot {
+    border-color: Canvas;
+    background-color: GrayText;
+  }
+
+  .carousel-dot[data-active='true'] {
+    background-color: Highlight;
   }
 }

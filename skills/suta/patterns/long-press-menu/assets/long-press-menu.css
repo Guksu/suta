@@ -29,9 +29,9 @@
  * transform은 새 stacking context를 만들므로 z-index를 명시해야 백드롭(40) 위에 놓인다 —
  * 백드롭·메뉴와 같은 부모 아래 형제로 두어 같은 stacking context 안에서 z-index가 비교되게 한다. */
 .lpm-item[data-open='true'] {
-  z-index: 41;
+  z-index: calc(var(--z-overlay, 40) + 1);
   transform: scale(1.04);
-  box-shadow: var(--lpm-lift-shadow, 0 18px 48px rgb(0 0 0 / 0.35));
+  box-shadow: var(--lpm-lift-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)));
 }
 
 /* 전체 화면 백드롭 — 뒤를 흐리고 어둡게 해서 떠오른 항목만 또렷하게 남긴다 */
@@ -40,7 +40,7 @@
   --_blur: var(--lpm-blur, 12px);
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: var(--z-overlay, 40);
   background: var(--lpm-tint, rgb(0 0 0 / 0.35));
   -webkit-backdrop-filter: blur(var(--_blur));
   backdrop-filter: blur(var(--_blur));
@@ -53,15 +53,15 @@
   --_duration: var(--lpm-duration, 220ms);
   --_ease: cubic-bezier(0.22, 1, 0.36, 1);
   position: fixed;
-  z-index: 42;
+  z-index: calc(var(--z-overlay, 40) + 2);
   min-width: var(--lpm-menu-min-width, 12rem);
   margin: 0;
   padding: 0.25rem;
   border: 1px solid var(--lpm-menu-border, rgb(255 255 255 / 0.12));
   border-radius: var(--lpm-radius, 16px);
   background: var(--lpm-menu-bg, rgb(255 255 255 / 0.92));
-  color: var(--lpm-menu-color, #111827);
-  box-shadow: var(--lpm-menu-shadow, 0 16px 40px rgb(0 0 0 / 0.28));
+  color: var(--lpm-menu-color, var(--color-text, #1c1c1c));
+  box-shadow: var(--lpm-menu-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)));
   animation: lpm-pop-in var(--_duration) var(--_ease);
 }
 
@@ -103,7 +103,7 @@
 
 /* 되돌리기 어려운 항목(삭제·숨기기) — 붉은 글자 */
 .lpm-menu-item[data-destructive='true'] {
-  color: var(--lpm-destructive, #dc2626);
+  color: var(--lpm-destructive, var(--color-danger, #c8341f));
 }
 
 @keyframes lpm-fade-in {

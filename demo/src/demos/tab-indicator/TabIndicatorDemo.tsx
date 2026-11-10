@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react'
+import { nextTabIndex } from '@skills/tab-indicator/assets/moveTabIndicator'
 import { useTabIndicator } from '@skills/tab-indicator/assets/useTabIndicator'
 import { defineCopy, useDemoLang } from '../../demoLang'
 import './tab-indicator-demo.css'
@@ -30,7 +31,7 @@ export const TabIndicatorDemo = () => {
   const [active, setActive] = useState(0)
   const [durationMs, setDurationMs] = useState(250)
   const [heightPx, setHeightPx] = useState(2)
-  const { registerTab, indicatorRef } = useTabIndicator({ activeIndex: active })
+  const { registerTab, indicatorRef, focusTab } = useTabIndicator({ activeIndex: active })
 
   const vars = {
     '--tab-indicator-duration': `${durationMs}ms`,
@@ -72,7 +73,8 @@ export const TabIndicatorDemo = () => {
       </section>
 
       <div className="tab-demo" style={vars}>
-        <nav className="tab-bar demo-tab-bar" role="tablist" aria-label={t.tabsLabel}>
+        {/* 좁은 화면에서는 탭 다섯 개가 한 줄에 들어가지 않는다 — 줄을 옆으로 스크롤하고 선택한 탭을 보이는 자리로 옮긴다 */}
+        <nav className="tab-bar demo-tab-bar" role="tablist" aria-label={t.tabsLabel} data-scroll="true">
           {t.tabs.map((label, index) => (
             <button
               key={index}
@@ -80,8 +82,17 @@ export const TabIndicatorDemo = () => {
               type="button"
               role="tab"
               aria-selected={index === active}
+              // 탭 줄은 Tab 한 번에 지나가고 안에서는 방향키로 오간다 — 선택된 탭만 Tab 순서에 둔다
+              tabIndex={index === active ? 0 : -1}
               className="demo-tab"
               onClick={() => setActive(index)}
+              onKeyDown={(event) => {
+                const next = nextTabIndex({ key: event.key, index, count: t.tabs.length })
+                if (next === null) return
+                event.preventDefault()
+                setActive(next)
+                focusTab(next)
+              }}
             >
               {label}
             </button>
