@@ -36,6 +36,18 @@ The top row is suta 0.17 and the bottom row is 0.18, each from the first run. Ap
 - **The new documents were rarely read.** Across the six 0.18 runs, `design.md` was opened 0 times, `detail.md` once and `elevation.md` 0 times. The difference in judgments most likely comes from the sentence added to the always-read `SKILL.md` procedure (units and context next to values, a response after pressing). After the measurement, steps 4 and 7 were changed to say "read" explicitly. This was not measured again.
 - **Limits:** two runs per condition is a small sample. One judge model is the model that built the screens. The second 0.17 waitlist run exited with code 1 after producing its page (the file was intact, so it is included).
 
+**Follow-up: are the new documents read?** The same three requests ran twice more on 0.18, six runs each.
+
+| Version | `design.md` | `detail.md` | `elevation.md` | Judgments (0.17 : this version; default model, other model) |
+|---|---|---|---|---|
+| 0.18 (table above) | 0/6 | 1/6 | 0/6 | 4 : 8, 3 : 9 |
+| Procedure says "read" explicitly | 0/6 | 3/6 | 1/6 | not judged |
+| Core of the design order moved into the `SKILL.md` procedure | 0/6 | 0/6 | 0/6 | 6 : 6, 6 : 6 |
+
+- Even with "read" written into the procedure, `design.md` was never opened. The six screen jobs and the decision, evidence and reference split now live in the always-read `SKILL.md` procedure.
+- With the core moved in, judgments tied with 0.17. The leave request led 3 : 1 and 4 : 0, the waitlist sign-up lost 1 : 3 and 0 : 4, and parcel tracking was 2 : 2 and 2 : 2. This is lower than the first measurement (8 : 4, 9 : 3). With two runs per condition the gap between the two measurements may be chance. There is not yet evidence that 0.18 is better than 0.17.
+- Seven losing judgments on the waitlist sign-up gave the same reasons: no check mark on the selected seat, a gray submit button before consent that weakens the main action, and repeated dividers that look monotonous.
+
 [Diagnosis and elevation measurements](research/2026-11-10-depth.md) (Korean)
 
 ### Seventh set of requests: vet clinic booking, mobile car wash booking, stay listing (suta 0.17)
