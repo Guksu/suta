@@ -1,10 +1,33 @@
 /* tab-indicator — 활성 탭 밑줄이 미끄러져 이동하는 인디케이터.
  * 커스터마이즈: --tab-indicator-color, --tab-indicator-height, --tab-indicator-duration.
+ * 탭이 많으면 .tab-bar에 data-scroll="true"를 달아 옆으로 스크롤한다.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .tab-bar {
   position: relative; /* 인디케이터의 offsetParent — 탭들과 같은 좌표계를 만든다 */
   display: flex;
+}
+
+/* 탭이 많아 한 줄에 다 들어가지 않을 때 — 줄을 옆으로 스크롤한다. 탭을 좁히거나 두 줄로 꺾지 않는다.
+ * 인디케이터는 줄 안에 있어 탭과 함께 스크롤된다. 선택한 탭을 보이는 자리로 옮기는 일은 코어(revealTab)가 한다 */
+.tab-bar[data-scroll='true'] {
+  overflow-x: auto;
+  overscroll-behavior-x: contain; /* 줄 끝에서 브라우저의 뒤로 가기 스와이프로 넘어가지 않게 */
+  scrollbar-width: none;
+}
+
+.tab-bar[data-scroll='true']::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-bar[data-scroll='true'] > :not(.tab-indicator) {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* 스크롤 줄은 밖으로 나간 포커스 링을 자른다 — 링을 탭 안쪽에 그린다 */
+.tab-bar[data-scroll='true'] > :focus-visible {
+  outline-offset: -2px;
 }
 
 .tab-indicator {
@@ -16,6 +39,8 @@
   width: 1px;
   height: var(--_height);
   background: var(--tab-indicator-color, currentColor);
+  /* 코어가 자리를 주기 전(서버에서 그린 직후, 선택된 탭이 없을 때)에는 보이지 않는다 — 왼쪽 끝에 1px 점이 남지 않게 */
+  transform: scaleX(0);
   transform-origin: left;
   transition: transform var(--tab-indicator-duration, 250ms) cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
@@ -25,5 +50,12 @@
 @media (prefers-reduced-motion: reduce) {
   .tab-indicator {
     transition: none;
+  }
+}
+
+/* 고대비(forced-colors): 배경색이 바탕색으로 바뀌어 밑줄이 사라진다 — 선택을 뜻하는 시스템 색으로 그린다 */
+@media (forced-colors: active) {
+  .tab-indicator {
+    background: Highlight;
   }
 }

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useStickyHeader } from '@skills/sticky-header/assets/useStickyHeader'
 import { defineCopy, useDemoLang } from '../../demoLang'
 import './sticky-header-demo.css'
@@ -25,7 +26,9 @@ const COPY = defineCopy({
 
 export const StickyHeaderDemo = () => {
   const t = COPY[useDemoLang()]
-  const { headerRef, sentinelRef } = useStickyHeader<HTMLElement, HTMLHeadingElement>()
+  // 데모는 페이지가 아니라 이 상자 안에서 스크롤된다 — 상자를 root로 넘겨야 큰 제목이 머리 아래로 들어간 순간에 바뀐다
+  const frameRef = useRef<HTMLDivElement>(null)
+  const { headerRef, sentinelRef } = useStickyHeader<HTMLElement, HTMLHeadingElement>({ root: frameRef })
 
   return (
     <div className="playground">
@@ -36,7 +39,7 @@ export const StickyHeaderDemo = () => {
       </section>
 
       {/* 스크롤 상자는 키보드로도 닿아야 한다(axe scrollable-region-focusable) — 초점을 받아 화살표 키로 스크롤한다 */}
-      <div className="header-demo-frame" tabIndex={0} role="region" aria-label={t.frameLabel}>
+      <div ref={frameRef} className="header-demo-frame" tabIndex={0} role="region" aria-label={t.frameLabel}>
         <header ref={headerRef} className="sticky-header header-demo-bar">
           <span className="sticky-header-title">{t.shopName}</span>
         </header>

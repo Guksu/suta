@@ -24,7 +24,7 @@ warn은 두 종류다. 아래 규칙표의 "종류" 열이 그 구분이다.
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/auditLayout.ts` | 코어 — 규칙 26개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
+| `assets/auditLayout.ts` | 코어 — 규칙 28개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
 | `assets/auditCore.ts` | 공통 코어 — 결과 형식, CSS 블록 자르기, 예외 주석 | 함께 복사 |
 | `assets/layoutTokens.ts` | 간격 척도·글자 하한 — `layout-principles`와 같은 파일 | 함께 복사 |
 | `assets/audit.mjs` | CLI — 폴더 재귀, `--json`, `--warn-only`, error가 있으면 exit 1 | Node 22.18+ |
@@ -73,6 +73,8 @@ console.log(formatFindings(findings))
 | `nested-card` | warn · 취향 | 둥근 모서리 + 테두리·그림자·배경을 가진 요소 안의 같은 요소. JSX·HTML 태그 중첩(Tailwind 클래스, CSS가 상자로 정의한 클래스, `Card` 컴포넌트)과 CSS 자손 선택자·중첩으로 판정한다. 입력칸·버튼·링크·배지·컨트롤 부속은 뺀다. `role="img"`·`aria-hidden="true"` 안(제품 화면을 본뜬 그림)은 세지 않는다 | P5 |
 | `effect-overuse` | warn · 취향 | 색 그라데이션·`backdrop-filter`·큰 그림자(흐림 16px 이상)가 한 파일에 3곳 이상. 검은 스크림·흰 반짝임, 전이의 시작 상태(`blur(0)`·완전히 투명한 그림자)는 세지 않는다 | P3 |
 | `gradient-text` | warn · 취향 | `background-clip: text`·`bg-clip-text` | P3 |
+| `glow-shadow` | warn · 취향 | 유채색이 번지는 바깥 그림자 — `box-shadow`·그림자 변수(`--*shadow*`)·`filter: drop-shadow()`의 흐림 8px 이상 + 채도(OKLCH) 0.08 이상, Tailwind `shadow-blue-500/50`·`shadow-[…]`. 높이가 아니라 빛나는 효과로 읽힌다. 포커스 링(흐림 0)·안쪽 그림자·투명한 시작 상태·푸른 회색 그림자는 뺀다 | `elevation.md` |
+| `shadow-variety` | warn · 취향 | 한 파일의 바깥 그림자 값 4종 이상 — `box-shadow`와 그림자 변수 정의에서 센다. 링·안쪽 그림자·투명한 시작 상태·토큰 참조(`var(--shadow-raised)`)는 뺀다. 그림자는 세 단계다 | `elevation.md`·P10 |
 | `font-size-variety` | warn · 취향 | 한 파일의 글자 크기 7종 이상 | P2·P10 |
 | `font-weight-variety` | warn · 취향 | 굵기 4종 이상 | P2 |
 | `radius-variety` | warn · 취향 | 모서리 반경 4종 이상. 0·원(50%)·알약(999px)·`calc()` 파생값은 뺀다 | P10 |

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { createHoldRepeat } from './createHoldRepeat'
 import './quantity-stepper.css'
 
@@ -32,6 +32,9 @@ const DEFAULT_BUTTON_LABELS: StepperButtonLabels = {
   increase: (label) => `${label} 늘리기`,
 }
 
+// 포인터로 누른 뒤 따라오는 click을 알아보는 시간(ms). 터치의 click은 pointerup 뒤 수십 ms 안에 온다
+const CLICK_AFTER_POINTER_MS = 700
+
 /** 소수 눈금(0.5 등)에서 부동소수 오차가 남지 않게 */
 const decimalsOf = (step: number) => (String(step).split('.')[1] ?? '').length
 
@@ -53,6 +56,8 @@ export const QuantityStepper = ({
   buttonLabels = DEFAULT_BUTTON_LABELS,
 }: QuantityStepperProps) => {
   const [draft, setDraft] = useState<string>()
+  // 화면 낭독기에 알릴 값 — 버튼에 초점이 있으면 숫자 칸이 바뀌어도 읽히지 않는다
+  const [spoken, setSpoken] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const directionRef = useRef<'up' | 'down'>('up')
   const valueRef = useRef(value)
@@ -116,28 +121,69 @@ export const QuantityStepper = ({
     }
   }
 
-  useEffect(function stopOnUnmount() {
+  // 누르기 시작할 때의 값 — 뗄 때 값이 달라졌으면 멎은 값을 한 번 알린다. 누르고 있지 않으면 null
+  const pressedFromRef = useRef<number | null>(null)
+  // 마지막 pointerdown·pointerup 시각 — 바로 뒤따르는 click은 같은 누름이라 다시 세지 않는다
+  const pointerAtRef = useRef(Number.NEGATIVE_INFINITY)
+
+  const announce = () => setSpoken(String(valueRef.current))
+
+  const release = () => {
+    holdRef.current?.up.stop()
+    holdRef.current?.down.stop()
+    const from = pressedFromRef.current
+    pressedFromRef.current = null
+    // 누르고 있는 동안에는 알리지 않는다(초당 스무 번 읽힌다) — 뗐을 때 멎은 값만
+    if (from !== null && from !== valueRef.current) announce()
+  }
+  const releaseRef = useRef(release)
+  releaseRef.current = release
+
+  useEffect(function stopOnUnmountOrBlur() {
     const held = holdRef.current
+    // 누른 채 다른 창으로 가면 pointerup이 그 창으로 간다 — 포커스를 잃는 순간 멈추지 않으면 끝까지 올라간다
+    const onBlur = () => releaseRef.current()
+    window.addEventListener('blur', onBlur)
     return () => {
+      window.removeEventListener('blur', onBlur)
       held?.up.stop()
       held?.down.stop()
     }
   }, [])
 
-  const press = (delta: number) => {
-    if (disabled) return
+  useEffect(
+    function stopWhenDisabled() {
+      // 누르고 있는 동안 잠기면(저장 중 등) 반복도 멈춘다
+      if (disabled) releaseRef.current()
+    },
+    [disabled],
+  )
+
+  const stepOnce = (delta: number) => {
+    if (disabled) return false
     if (delta < 0 && deleteAtMin) {
       onBelowMin?.()
-      return
+      return false
     }
-    bump(delta) // 첫 실행은 누르는 즉시
+    bump(delta)
+    return true
+  }
+
+  const press = ({ delta, event }: { delta: number; event: PointerEvent<HTMLButtonElement> }) => {
+    // 주 버튼(왼쪽 클릭·터치·펜)만 받는다 — 오른쪽 클릭은 메뉴가 떠 pointerup이 오지 않아 반복이 멎지 않는다
+    if (event.button > 0) return
+    pointerAtRef.current = event.timeStamp
+    pressedFromRef.current = valueRef.current
+    if (!stepOnce(delta)) return // 첫 실행은 누르는 즉시
     const held = delta > 0 ? holdRef.current?.up : holdRef.current?.down
     held?.start()
   }
 
-  const release = () => {
-    holdRef.current?.up.stop()
-    holdRef.current?.down.stop()
+  // 키보드(Enter·Space)와 화면 낭독기의 활성화는 pointerdown 없이 click만 보낸다 — 이것을 받지 않으면 버튼이 포커스만 받고 눌리지 않는다
+  const click = ({ delta, event }: { delta: number; event: MouseEvent<HTMLButtonElement> }) => {
+    if (event.timeStamp - pointerAtRef.current < CLICK_AFTER_POINTER_MS) return // 포인터로 누른 것은 pointerdown에서 이미 셌다
+    const from = valueRef.current
+    if (stepOnce(delta) && from !== valueRef.current) announce()
   }
 
   const commitDraft = () => {
@@ -151,8 +197,17 @@ export const QuantityStepper = ({
     const next = clamp(parsed)
     if (next !== value) {
       directionRef.current = next > value ? 'up' : 'down'
+      valueRef.current = next
       onChange(next)
     }
+    // 친 값이 범위·눈금에 맞춰 바뀌었으면 바뀐 값을 알린다(999 → 20). 친 그대로면 다시 읽지 않는다
+    if (next !== parsed) setSpoken(String(next))
+  }
+
+  const bumpByKey = (delta: number) => {
+    const from = valueRef.current
+    bump(delta)
+    if (from !== valueRef.current) announce()
   }
 
   const buttonProps = (delta: number) => ({
@@ -160,10 +215,18 @@ export const QuantityStepper = ({
     className: 'qty-button',
     // disabled 대신 aria-disabled — 포커스가 닿아야 "왜 더 못 줄이는지"를 알 수 있다
     'aria-disabled': disabled || (delta > 0 ? atMax : atMin && !deleteAtMin) ? ('true' as const) : undefined,
-    onPointerDown: () => press(delta),
-    onPointerUp: release,
+    onPointerDown: (event: PointerEvent<HTMLButtonElement>) => press({ delta, event }),
+    onPointerUp: (event: PointerEvent<HTMLButtonElement>) => {
+      pointerAtRef.current = event.timeStamp
+      release()
+    },
     onPointerLeave: release,
     onPointerCancel: release,
+    onClick: (event: MouseEvent<HTMLButtonElement>) => click({ delta, event }),
+    onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+      // Enter를 누르고 있으면 click이 반복된다 — 줄이다가 최솟값에 닿은 채로 삭제까지 넘어가지 않게, 삭제는 새로 누른 한 번만 받는다
+      if (event.repeat && event.key === 'Enter' && delta < 0 && deleteAtMin) event.preventDefault()
+    },
   })
 
   return (
@@ -198,12 +261,16 @@ export const QuantityStepper = ({
             event.preventDefault()
             commitDraft()
             event.currentTarget.blur()
+          } else if (event.key === 'Escape' && draft !== undefined) {
+            // 치던 글자를 버린다. 치던 것이 없을 때의 Escape는 건드리지 않는다(시트·대화상자 닫기에 쓰인다)
+            event.preventDefault()
+            setDraft(undefined)
           } else if (event.key === 'ArrowUp') {
             event.preventDefault()
-            bump(step)
+            bumpByKey(step)
           } else if (event.key === 'ArrowDown') {
             event.preventDefault()
-            bump(-step)
+            bumpByKey(-step)
           }
         }}
       />
@@ -211,6 +278,11 @@ export const QuantityStepper = ({
       <button {...buttonProps(step)} aria-label={buttonLabels.increase(label)}>
         +
       </button>
+
+      {/* 버튼·방향키로 바꾼 값을 화면 낭독기에 알린다 — 보이지 않는다 */}
+      <span className="qty-sr" role="status">
+        {spoken}
+      </span>
     </div>
   )
 }

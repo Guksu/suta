@@ -10,6 +10,8 @@
  * layout-audit-ignore-file: font-weight-variety — 굵기 남발(800)을 보여 주는 예시
  * layout-audit-ignore-file: radius-variety — 제각각인 반경(18·10·22px)을 보여 주는 예시
  * layout-audit-ignore-file: tiny-text — 11px 배지를 보여 주는 예시
+ * layout-audit-ignore-file: glow-shadow — 색이 번지는 그림자를 보여 주는 예시
+ * layout-audit-ignore-file: shadow-variety — 요소마다 다른 그림자를 보여 주는 예시
  * layout-audit-ignore-file: centered-text-block — 가운데 정렬 문단을 보여 주는 예시
  * layout-audit-ignore-file: image-distort — 늘어난 사진을 보여 주는 예시 */
 
@@ -429,4 +431,119 @@
   background: #f3f3f3;
   color: #9a9a9a;
   font-size: 12px;
+}
+
+/* ⑪ 층 — 모든 것에 그림자: 카드마다 파란 빛, 머리·하단 바에도 그림자. 정작 열린 메뉴는 테두리만 있어 카드와 같은 면이다 */
+.lp-b-layer {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  min-block-size: 440px;
+  background: #ffffff;
+  color: #1c1c1c;
+}
+
+.lp-b-layer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 1;
+}
+
+.lp-b-layer-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lp-b-layer-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #525252;
+}
+
+.lp-b-layer-menu {
+  position: absolute;
+  inset-block-start: 48px;
+  inset-inline-end: 16px;
+  z-index: 9999;
+  min-inline-size: 148px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 14px;
+}
+
+.lp-b-layer-menu li {
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.lp-b-layer-menu li[data-current] {
+  font-weight: 600;
+  background: #eff6ff;
+}
+
+.lp-b-layer-list {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+}
+
+.lp-b-layer-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.18);
+}
+
+.lp-b-layer-name {
+  font-weight: 600;
+}
+
+.lp-b-layer-toast {
+  position: absolute;
+  inset-inline: 16px;
+  inset-block-end: 88px;
+  z-index: 9999;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
+  font-size: 14px;
+}
+
+.lp-b-layer-bar {
+  padding: 12px 16px;
+  background: #ffffff;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.lp-b-layer-cta {
+  display: grid;
+  place-items: center;
+  block-size: 48px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
 }

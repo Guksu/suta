@@ -54,17 +54,20 @@ export const createSuggestSearch = <T,>({
 
   const run = async (query: string) => {
     const seq = (latestSeq += 1)
-    controller = new AbortController()
+    const { signal } = (controller = new AbortController())
     update({ status: 'loading' })
 
     try {
-      const items = await fetchSuggestions({ query, signal: controller.signal })
-      // 늦게 도착한 옛 응답은 버린다 — 이것이 검색창에서 가장 흔한 사고다
-      if (seq !== latestSeq || destroyed) return
+      const items = await fetchSuggestions({ query, signal })
+      // 늦게 도착한 옛 응답은 버린다 — 이것이 검색창에서 가장 흔한 사고다.
+      // signal.aborted도 본다: 다음 요청이 디바운스로 아직 안 나간 사이에는 순번이 그대로라서,
+      // signal을 무시한 옛 요청이 그 틈에 도착하면 순번만으로는 걸러지지 않는다
+      if (seq !== latestSeq || destroyed || signal.aborted) return
       update({ items, status: 'ready' })
     } catch (error) {
-      if (seq !== latestSeq || destroyed) return
-      if (error instanceof DOMException && error.name === 'AbortError') return // 우리가 끊은 것이다
+      // 우리가 끊은 요청은 무엇을 던지든 실패가 아니다 — fetch는 AbortError를, 다른 클라이언트는 자기 오류를 던진다
+      if (seq !== latestSeq || destroyed || signal.aborted) return
+      if (error instanceof DOMException && error.name === 'AbortError') return
       update({ items: [], status: 'error' })
     }
   }
@@ -89,6 +92,8 @@ export const createSuggestSearch = <T,>({
     cancel: () => {
       stopPending()
       latestSeq += 1
+      // 끊은 요청은 끝을 알리지 않는다 — loading에 머물면 다시 열었을 때 "찾는 중"이 끝나지 않는다
+      if (state.status === 'loading') update({ status: state.items.length > 0 ? 'ready' : 'idle' })
     },
     destroy: () => {
       destroyed = true

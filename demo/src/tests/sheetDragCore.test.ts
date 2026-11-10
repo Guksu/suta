@@ -110,6 +110,58 @@ describe('createSheetDrag — 바텀시트 드래그 닫기 판정', () => {
     expect(after.defaultPrevented).toBe(false)
   })
 
+  it('끌던 포인터를 브라우저가 가져가면(pointercancel) 닫지 않고 제자리로 돌린다 — 끌던 자리에 멈춰 있지 않는다', () => {
+    register({ dismissThresholdPx: 120 })
+    pointer({ el: sheet, type: 'pointerdown', y: 100 })
+    pointer({ el: sheet, type: 'pointermove', y: 400 })
+    window.dispatchEvent(new Event('pointercancel'))
+    expect(dismissed).toBe(0)
+    expect(sheet.style.transform).toBe('')
+    expect(sheet.style.transition).toBe('')
+    // 그 뒤의 move는 끌기로 이어지지 않는다
+    pointer({ el: sheet, type: 'pointermove', y: 500 })
+    expect(sheet.style.transform).toBe('')
+  })
+
+  it('끌기를 시작한 포인터가 아닌 다른 손가락의 움직임은 무시한다', () => {
+    register()
+    const fire = ({ type, y, id }: { type: string; y: number; id: number }) => {
+      const event = new MouseEvent(type, { bubbles: true, clientY: y, button: 0 })
+      Object.defineProperty(event, 'pointerId', { value: id })
+      sheet.dispatchEvent(event)
+    }
+    fire({ type: 'pointerdown', y: 100, id: 1 })
+    fire({ type: 'pointermove', y: 160, id: 1 })
+    fire({ type: 'pointermove', y: 400, id: 2 })
+    expect(sheet.style.transform).toBe('translateY(60px)')
+    fire({ type: 'pointerup', y: 400, id: 2 })
+    expect(sheet.style.transition).toBe('none') // 첫 손가락은 아직 끌고 있다
+  })
+
+  it('시트 안의 스크롤되는 영역에서 시작한 누름은 끌기로 보지 않는다 — 목록을 굴리는 손가락이다', () => {
+    register()
+    const list = document.createElement('div')
+    list.style.overflowY = 'auto'
+    Object.defineProperty(list, 'scrollHeight', { value: 900 })
+    Object.defineProperty(list, 'clientHeight', { value: 300 })
+    const row = document.createElement('p')
+    list.append(row)
+    sheet.append(list)
+
+    pointer({ el: row, type: 'pointerdown', y: 100 })
+    pointer({ el: row, type: 'pointermove', y: 300 })
+    expect(sheet.style.transform).toBe('')
+
+    // 내용이 넘치지 않아 스크롤할 것이 없는 영역은 그대로 끌린다
+    const short = document.createElement('div')
+    short.style.overflowY = 'auto'
+    sheet.append(short)
+    pointer({ el: short, type: 'pointerup', y: 300 })
+    pointer({ el: short, type: 'pointerdown', y: 100 })
+    pointer({ el: short, type: 'pointermove', y: 150 })
+    expect(sheet.style.transform).toBe('translateY(50px)')
+  })
+
   it('cleanup 후에는 드래그가 무시된다', () => {
     const cleanup = register()
     cleanup()

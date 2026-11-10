@@ -26,10 +26,10 @@
   margin: 0.5rem 0;
 }
 
-/* 데모 전역 button:hover(배경 교체)가 버튼의 상태 색을 덮지 않게 되돌린다 — 스킬 assets는 건드리지 않는다.
- * 진행·완료·실패 색은 스킬 쪽 규칙이 이미 더 강하므로 idle일 때만 되돌리면 된다 */
-.lb-stage .loading-button[data-status='idle']:hover,
-.lb-stage .loading-button[data-status='loading']:hover {
+/* 데모 전역 button:hover(배경 교체)가 진행 중인 버튼의 색을 덮지 않게 되돌린다 — 스킬 assets는 건드리지 않는다.
+ * idle의 호버와 완료·실패 색은 스킬 쪽 규칙이 이미 더 강하다 */
+.lb-stage .loading-button[data-status='loading']:hover,
+.lb-stage .loading-button:disabled:hover {
   background: var(--loading-button-bg);
 }
 

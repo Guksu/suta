@@ -51,8 +51,24 @@ export const createSheetDrag = ({
   let pressed = false
   let pointerId: number | null = null
 
+  /** 누른 곳이 시트 안의 스크롤되는 영역인가 — 그 영역을 굴리려는 손가락이지 시트를 끄는 손가락이 아니다 */
+  const startsInScrollArea = (target: EventTarget | null) => {
+    let node = target instanceof Element ? target : null
+    while (node && node !== handle && node !== sheet) {
+      const overflowY = getComputedStyle(node).overflowY
+      if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) return true
+      node = node.parentElement
+    }
+    return false
+  }
+
+  /** 지금 끌고 있는 포인터의 이벤트인가 — 두 번째 손가락이 끼어들면 시트가 그쪽으로 튄다 */
+  const isOurPointer = (event: Event) => pointerId == null || !('pointerId' in event) || event.pointerId === pointerId
+
   const onPointerDown = (event: PointerEvent | MouseEvent) => {
     if ('button' in event && event.button !== 0) return
+    if (dragging) return // 끄는 중에 닿은 다른 손가락
+    if (startsInScrollArea(event.target)) return
     pressed = true
     startY = event.clientY
     lastY = event.clientY
@@ -76,7 +92,7 @@ export const createSheetDrag = ({
   }
 
   const onPointerMove = (event: PointerEvent | MouseEvent) => {
-    if (!pressed) return
+    if (!pressed || !isOurPointer(event)) return
     if (!dragging) {
       if (Math.abs(event.clientY - startY) < DRAG_SLOP_PX) return
       beginDrag()
@@ -92,7 +108,8 @@ export const createSheetDrag = ({
     sheet.style.transform = `translateY(${deltaY}px)`
   }
 
-  const onPointerUp = () => {
+  const onPointerUp = (event: Event) => {
+    if (!isOurPointer(event)) return
     if (pressed) document.removeEventListener('selectstart', preventSelection)
     pressed = false
     if (!dragging) return
@@ -115,6 +132,20 @@ export const createSheetDrag = ({
       return
     }
     sheet.style.transform = '' // 스냅백 — CSS transition이 제자리로 되돌린다
+  }
+
+  /**
+   * 브라우저가 포인터를 가져갔다(pointercancel — 시스템 제스처, 안쪽 스크롤 시작, 전화 수신 등).
+   * 손을 뗀 것이 아니므로 닫지 않고, 끌기 전 자리로 돌린다. 이 처리가 없으면 시트가 끌던 자리에 transition이 꺼진 채 멈춘다
+   */
+  const onPointerCancel = (event: Event) => {
+    if (!isOurPointer(event)) return
+    if (pressed) document.removeEventListener('selectstart', preventSelection)
+    pressed = false
+    if (!dragging) return
+    dragging = false
+    sheet.style.transition = ''
+    sheet.style.transform = snaps ? `translateY(${baseOffset}px)` : ''
   }
 
   /** 놓은 위치·속도로 정착할 스냅을 고른다. 마지막 스냅 밖은 닫힘이다 */
@@ -164,10 +195,12 @@ export const createSheetDrag = ({
   handle.addEventListener('pointerdown', onPointerDown)
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
+  window.addEventListener('pointercancel', onPointerCancel)
   return () => {
     handle.removeEventListener('pointerdown', onPointerDown)
     window.removeEventListener('pointermove', onPointerMove)
     window.removeEventListener('pointerup', onPointerUp)
+    window.removeEventListener('pointercancel', onPointerCancel)
     document.removeEventListener('selectstart', preventSelection)
   }
 }

@@ -34,11 +34,12 @@
   gap: var(--space-1);
 }
 
-.profile-body strong {
+/* 이름·소개 줄 — 실제 글과 글줄 뼈대가 같은 클래스를 써서 글자 크기·행간이 같다 */
+.profile-name {
   line-height: 1.2;
 }
 
-.profile-body p {
+.profile-bio {
   margin: 0;
   color: var(--text-dim);
   font-size: 0.9rem;

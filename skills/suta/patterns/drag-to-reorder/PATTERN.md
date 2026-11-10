@@ -106,7 +106,7 @@ createDragReorder({
 | 끌기 시작 방식 | `longPressMs` (0이면 손잡이로만) | 0 |
 | 들어올린 크기 | `liftScale` | 1.02 |
 | 비켜 주기·정착 속도 | `settleMs` + CSS `--reorder-duration` (같이 맞춘다) | 200ms |
-| 들어올린 그림자 | `--reorder-lift-shadow` | 0 12px 28px rgb(0 0 0 / 0.28) |
+| 들어올린 그림자 | `--reorder-lift-shadow` | 층 토큰 `--shadow-overlay`(없으면 `0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)`) |
 | 손잡이 색 | `--reorder-handle-color` | 회색 |
 | 화면 낭독 문구 | `messages` — `{ moved({ name, to, total }), handle(label) }`. `to`는 1부터 | 한국어 |
 

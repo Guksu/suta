@@ -5,7 +5,7 @@ import './tooltip.css'
 type TooltipProps = {
   /** 말풍선 내용 — 한 줄 보조 설명. 상호작용 요소를 넣지 않는다(pointer-events가 없다) */
   label: ReactNode
-  /** 배치 방향 (기본 top) */
+  /** 배치 방향 (기본 top). 그쪽에 자리가 없고 반대쪽에 있으면 열 때 뒤집힌다 */
   place?: 'top' | 'bottom' | 'left' | 'right'
   /** 호버 열림 지연 (기본 400ms) */
   showDelayMs?: number
@@ -27,9 +27,10 @@ export const Tooltip = ({ label, place = 'top', showDelayMs, children }: Tooltip
       const anchor = anchorRef.current
       const tooltip = tooltipRef.current
       if (!anchor || !tooltip) return
-      return createTooltipTrigger({ anchor, tooltip, showDelayMs })
+      // place를 코어에 넘긴다 — 코어가 뒤집어 놓은 data-place가 아니라 prop이 "원래 방향"이다
+      return createTooltipTrigger({ anchor, tooltip, showDelayMs, place })
     },
-    [showDelayMs],
+    [showDelayMs, place],
   )
 
   return (

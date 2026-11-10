@@ -4,7 +4,7 @@
 
 .accordion {
   --_duration: var(--accordion-duration, 300ms);
-  --_border: var(--accordion-border, #e2e8f0);
+  --_border: var(--accordion-border, var(--color-line, #e6e6e6));
 }
 
 .accordion-item {
@@ -27,9 +27,14 @@
   padding: 12px 4px;
   border: none;
   background: none;
+  /* 버튼은 글자색을 물려받지 않는다(기본 buttontext) — 어두운 바탕에서 검은 글자가 되지 않게 */
+  color: inherit;
   font: inherit;
   font-weight: 600;
-  text-align: left;
+  /* 긴 제목은 두 줄로 꺾인다 — 글이 시작하는 쪽에 붙이고(rtl이면 오른쪽), 한글은 단어 단위로 꺾는다 */
+  text-align: start;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -75,6 +80,15 @@
 @media (prefers-reduced-motion: reduce) {
   .accordion-chevron,
   .accordion-panel {
+    transition: none;
+  }
+}
+
+/* 인쇄: 접힌 답도 함께 찍는다 — 종이에서는 펼칠 수 없다 */
+@media print {
+  .accordion-panel {
+    grid-template-rows: 1fr;
+    visibility: visible;
     transition: none;
   }
 }

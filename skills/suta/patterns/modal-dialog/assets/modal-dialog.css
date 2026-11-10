@@ -13,7 +13,7 @@
   border-radius: var(--modal-radius, 16px);
   background: var(--modal-bg, #fff);
   color: inherit;
-  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.35);
+  box-shadow: var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24));
   overflow: hidden; /* 둥근 모서리 안으로 내용을 자른다 — 스크롤은 .modal-body가 담당 */
 }
 
@@ -23,7 +23,7 @@
 }
 
 .modal[open]::backdrop {
-  background: var(--modal-backdrop, rgba(15, 23, 42, 0.55));
+  background: var(--modal-backdrop, var(--scrim, rgb(0 0 0 / 0.5)));
   animation: modal-backdrop-in var(--_duration) ease;
 }
 
@@ -40,6 +40,10 @@
   padding: 24px;
   overflow-y: auto;
   max-height: inherit;
+  /* 내용 끝에서 계속 굴려도 뒤 페이지가 따라 움직이지 않게 */
+  overscroll-behavior: contain;
+  /* 띄어쓰기 없는 긴 글자(주소·이메일)가 패널을 옆으로 스크롤시키지 않게 */
+  overflow-wrap: break-word;
 }
 
 @keyframes modal-in {
@@ -69,6 +73,13 @@
 @keyframes modal-backdrop-out {
   to {
     opacity: 0;
+  }
+}
+
+/* 고대비: 그림자가 사라지고 배경이 바탕색이 되어 패널의 경계가 보이지 않는다 — 테두리로 다시 긋는다 */
+@media (forced-colors: active) {
+  .modal {
+    border: 1px solid CanvasText;
   }
 }
 

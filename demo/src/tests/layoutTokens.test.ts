@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { COLOR, FONT, GAP, LEADING, LIMITS, RADIUS, RATIO, SPACE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
+import { COLOR, FONT, GAP, LAYER, LEADING, LIMITS, RADIUS, RATIO, SCRIM, SHADOW, SPACE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
 import { oklchOf } from '@skills/layout-principles/assets/palette'
 
 // vitest는 demo/에서 돈다 — 정본 CSS를 파일로 읽어 TS 상수와 비교한다(두 벌이 어긋나면 검사기와 화면이 다른 척도를 쓴다)
@@ -171,5 +171,43 @@ describe('layoutTokens — 색 역할 (P2 농도·P3 강조·P5 면)', () => {
     expect(GAP.sectionWide).toBe(48)
     expect(css).toMatch(/@media \(min-width: 768px\)\s*\{\s*:root\s*\{[^}]*--gap-section:\s*var\(--space-12\)/)
     expect(cssVar('--band')).toBe('var(--space-2)')
+  })
+})
+
+describe('layoutTokens — 층(그림자·스크림·겹치는 순서)', () => {
+  // "0 8px 24px rgb(0 0 0 / 0.12)" 꼴의 층을 { y, blur, alpha, rgb }로 읽는다
+  const layersOf = (shadow: string) =>
+    shadow.split(/,(?![^(]*\))/).map((layer) => {
+      const [, r, g, b, alpha] = layer.match(/rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)/) ?? []
+      const lengths = layer.replace(/rgb\([^)]*\)/, '').trim().split(/\s+/).map((length) => parseFloat(length))
+      return { x: lengths[0], y: lengths[1], blur: lengths[2], alpha: Number(alpha), rgb: [r, g, b].map(Number) }
+    })
+
+  it('그림자 3단계·스크림·겹치는 순서가 CSS와 일치한다', () => {
+    for (const [name, value] of Object.entries(SHADOW)) expect(cssVar(`--shadow-${name}`)).toBe(value)
+    expect(cssVar('--scrim')).toBe(SCRIM)
+    for (const [name, value] of Object.entries(LAYER)) expect(cssVar(`--z-${name}`)).toBe(String(value))
+  })
+
+  it('그림자는 무채색이고 아래로만 떨어진다 — 색이 든 그림자는 빛나는 효과로 읽히고, 방향이 섞이면 빛이 여러 곳에 있는 것처럼 보인다', () => {
+    for (const shadow of Object.values(SHADOW)) {
+      for (const layer of layersOf(shadow)) {
+        expect(layer.rgb).toEqual([0, 0, 0])
+        expect(layer.x).toBe(0)
+        expect(layer.y).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('높이 뜰수록 그림자가 넓게 번진다 — 손잡이 < 뜬 것 < 덮는 것. 가장 진한 층도 0.3을 넘지 않는다', () => {
+    const widest = (shadow: string) => Math.max(...layersOf(shadow).map((layer) => layer.blur))
+    expect(widest(SHADOW.low)).toBeLessThan(widest(SHADOW.raised))
+    expect(widest(SHADOW.raised)).toBeLessThan(widest(SHADOW.overlay))
+    for (const shadow of Object.values(SHADOW)) for (const layer of layersOf(shadow)) expect(layer.alpha).toBeLessThanOrEqual(0.3)
+  })
+
+  it('겹치는 순서는 붙은 것 < 덮는 것 < 가리키는 것 < 뷰어 < 알림이고, 단계 사이에 스크림·시트가 들어갈 틈(2 이상)이 있다', () => {
+    const order = [LAYER.sticky, LAYER.overlay, LAYER.popover, LAYER.viewer, LAYER.toast]
+    for (let i = 1; i < order.length; i += 1) expect(order[i] - order[i - 1]).toBeGreaterThanOrEqual(3)
   })
 })

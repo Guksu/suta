@@ -7,14 +7,20 @@
   --_duration: var(--header-duration, 250ms);
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: var(--z-sticky, 30);
   display: flex;
   align-items: center;
   background: var(--header-bg, rgba(15, 17, 21, 0.85));
+  -webkit-backdrop-filter: blur(8px); /* 사파리 17 이하 */
   backdrop-filter: blur(8px);
 }
 
 .sticky-header-title {
+  /* 긴 제목은 한 줄에서 말줄임한다 — 두 줄로 꺾이면 고정 높이를 넘친다. 온전한 제목은 본문의 큰 제목에 있다 */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0;
   transform: translateY(6px);
   transition:
@@ -41,6 +47,12 @@
 
 .sticky-header[data-collapsed='true']::after {
   opacity: 1;
+}
+
+/* 첫 판정(코어가 data-instant를 잠깐 건다) — 스크롤 위치가 복원돼 중간에서 시작할 때 작은 제목이 떠오르는 연출 없이 바로 놓인다 */
+.sticky-header[data-instant] .sticky-header-title,
+.sticky-header[data-instant]::after {
+  transition: none;
 }
 
 /* 모션 민감 사용자: 이동은 끄고 페이드만 남긴다 */

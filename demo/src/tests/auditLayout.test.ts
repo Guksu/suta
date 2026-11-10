@@ -981,3 +981,90 @@ describe('auditLayout — 문구 (meta-copy·mixed-tone)', () => {
     expect(audit('a.css', '.a { content: "저장되었습니다"; } .b { content: "담았어요"; }').filter((f) => f.rule === 'mixed-tone' || f.rule === 'meta-copy')).toEqual([])
   })
 })
+
+describe('auditLayout — 강조와 효과: 토큰 사슬 그림자', () => {
+  it('공개 변수 → 층 토큰 → 값으로 이은 그림자(var 안의 var)는 토큰 참조라 큰 그림자로 세지 않는다', () => {
+    const text = [
+      '.lift { box-shadow: var(--lpm-lift-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24))); }',
+      '.menu { box-shadow: var(--lpm-menu-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24))); }',
+      '.dim { backdrop-filter: blur(12px); }',
+    ].join('\n')
+    expect(rules(audit('a.css', text))).not.toContain('effect-overuse')
+  })
+})
+
+describe('auditLayout — 층: 색이 든 번지는 그림자 (glow-shadow)', () => {
+  it('유채색이 번지는 바깥 그림자는 warn — 버튼 아래 파란 빛, 사방으로 번지는 보라 빛', () => {
+    const text = ['.cta { box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); }', '.card { box-shadow: 0 0 20px #6366f1; }', '.badge { filter: drop-shadow(0 6px 12px rgb(236 72 153 / 0.5)); }'].join('\n')
+    const findings = audit('a.css', text).filter((f) => f.rule === 'glow-shadow')
+    expect(findings.map((f) => [f.line, f.severity])).toEqual([
+      [1, 'warn'],
+      [2, 'warn'],
+      [3, 'warn'],
+    ])
+    expect(findings[0].fix).toContain('--shadow-raised')
+  })
+
+  it('무채색 그림자, 푸른 회색 그림자, 포커스 링(흐림 0), 안쪽 그림자, 투명한 시작 상태, 토큰 참조는 조용하다', () => {
+    const text = [
+      '.menu { box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12); }',
+      '.float { box-shadow: 0 8px 17px rgba(99, 109, 131, 0.1); }',
+      '.input:focus-visible { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25); }',
+      '.well { box-shadow: inset 0 2px 8px rgba(37, 99, 235, 0.4); }',
+      '.fade { box-shadow: 0 8px 32px rgba(37, 99, 235, 0); }',
+      '.sheet { box-shadow: var(--shadow-overlay); }',
+      '.plain { box-shadow: none; }',
+    ].join('\n')
+    expect(rules(audit('a.css', text))).not.toContain('glow-shadow')
+  })
+
+  it('콘텐츠 그림(.art)의 색 그림자는 그림의 일부라 세지 않는다', () => {
+    expect(rules(audit('a.css', '.art--dish { box-shadow: 0 6px 16px rgba(180, 83, 9, 0.5); }'))).not.toContain('glow-shadow')
+  })
+
+  it('Tailwind의 색 그림자(shadow-blue-500/50)도 잡고, shadow-black/10·shadow-lg는 조용하다', () => {
+    const text = `export const A = () => (\n  <div>\n    <button className="shadow-lg shadow-blue-500/50">담기</button>\n    <div className="shadow-lg shadow-black/10">메뉴</div>\n  </div>\n)`
+    expect(audit('A.tsx', text).filter((f) => f.rule === 'glow-shadow').map((f) => f.line)).toEqual([3])
+  })
+
+  it('layout-audit-ignore 주석이 있는 줄은 건너뛴다', () => {
+    const text = '.neon { box-shadow: 0 0 24px #22d3ee; } /* layout-audit-ignore: 네온 간판 그림 */'
+    expect(rules(audit('a.css', text))).not.toContain('glow-shadow')
+  })
+})
+
+describe('auditLayout — 층: 그림자 단계 수 (shadow-variety)', () => {
+  it('한 파일에 바깥 그림자 값이 4종 이상이면 warn — 값과 줄을 요약한다', () => {
+    const text = ['.a { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }', '.b { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }', '.c { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }', '.d { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }'].join('\n')
+    const findings = audit('a.css', text).filter((f) => f.rule === 'shadow-variety')
+    expect(findings).toHaveLength(1)
+    expect(findings[0].severity).toBe('warn')
+    expect(findings[0].line).toBe(1)
+    expect(findings[0].lines).toEqual([1, 2, 3, 4])
+    expect(findings[0].message).toContain('4종')
+  })
+
+  it('3종까지는 조용하다. 같은 값은 띄어쓰기가 달라도 한 종으로 센다', () => {
+    const text = ['.a { box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); }', '.b { box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); }', '.c { box-shadow: 0 24px 64px rgb(0 0 0 / 0.24); }', '.d { box-shadow: 0  8px 24px  rgb(0 0 0 / 0.12); }'].join('\n')
+    expect(rules(audit('a.css', text))).not.toContain('shadow-variety')
+  })
+
+  it('포커스 링·안쪽 그림자·투명한 시작 상태·토큰 참조·none은 종류로 세지 않는다', () => {
+    const text = [
+      '.a { box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); }',
+      '.b { box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); }',
+      '.c { box-shadow: 0 24px 64px rgb(0 0 0 / 0.24); }',
+      '.d:focus-visible { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); }',
+      '.e { box-shadow: inset 0 0 0 1px #e6e6e6; }',
+      '.f { box-shadow: 0 8px 32px rgba(0, 0, 0, 0); }',
+      '.g { box-shadow: var(--shadow-raised); }',
+      '.h { box-shadow: none; }',
+    ].join('\n')
+    expect(rules(audit('a.css', text))).not.toContain('shadow-variety')
+  })
+
+  it('그림자 변수 정의(--shadow-*)도 종류로 센다 — 단계를 다섯 개 만들면 다섯 가지 높이가 생긴다', () => {
+    const text = [':root {', '  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);', '  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);', '  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);', '  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);', '  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.2);', '}'].join('\n')
+    expect(audit('tokens.css', text).filter((f) => f.rule === 'shadow-variety')[0]?.message).toContain('5종')
+  })
+})

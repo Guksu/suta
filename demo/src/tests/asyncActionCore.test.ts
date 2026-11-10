@@ -100,4 +100,44 @@ describe('createAsyncAction — 중복 차단·최소 로딩·표시 유지', ()
 
     expect(statuses).toEqual(['loading'])
   })
+
+  it('실패 표시 중에 다시 실행하면 기다리지 않고 재시도한다', async () => {
+    const action = register({ minLoadingMs: 0, errorHoldMs: 1800 })
+    await action.run(async () => {
+      throw new Error('품절')
+    })
+    expect(action.current()).toBe('error')
+
+    let resolveRetry: (value: string) => void = () => {}
+    const retry = action.run(() => new Promise<string>((resolve) => (resolveRetry = resolve)))
+    expect(action.current()).toBe('loading')
+
+    // 앞선 실패의 표시 유지 타이머가 남아 재시도 중인 상태를 idle로 되돌리면 안 된다
+    await advance(1800)
+    expect(action.current()).toBe('loading')
+
+    resolveRetry('ok')
+    await expect(retry).resolves.toEqual({ ok: true, value: 'ok' })
+    expect(statuses).toEqual(['loading', 'error', 'loading', 'success'])
+  })
+
+  it('setOptions로 바꾼 시간은 다음 실행부터 쓰인다', async () => {
+    const action = register({ minLoadingMs: 400 })
+    action.setOptions({ minLoadingMs: 0, successHoldMs: 100 })
+
+    await action.run(async () => 'ok')
+    expect(action.current()).toBe('success')
+
+    await advance(100)
+    expect(action.current()).toBe('idle')
+  })
+
+  it('setOptions에 빠진 값은 앞의 값을 그대로 둔다', async () => {
+    const action = register({ minLoadingMs: 400 })
+    action.setOptions({ successHoldMs: 100 })
+
+    void action.run(async () => 'ok')
+    await advance(399)
+    expect(action.current()).toBe('loading')
+  })
 })

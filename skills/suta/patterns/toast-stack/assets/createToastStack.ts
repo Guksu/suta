@@ -22,6 +22,11 @@ type CreateToastStackOptions = {
   position?: 'bottom' | 'top'
 }
 
+type ShowToastOptions = {
+  /** 이 토스트 하나의 표시 시간 — 문장이 길면 늘린다. 없으면 스택의 durationMs */
+  durationMs?: number
+}
+
 type ToastRecord = {
   element: HTMLElement
   autoTimer: ReturnType<typeof setTimeout>
@@ -41,6 +46,9 @@ export const createToastStack = ({
   // 스크린 리더에 방해 없이 알린다 — 토스트는 본질적으로 상태 알림이다
   region.setAttribute('role', 'status')
   region.setAttribute('aria-live', 'polite')
+  // role="status"는 aria-atomic이 기본 true다 — 토스트가 하나 더 쌓일 때마다 떠 있는 것 전부를 다시 읽는다.
+  // false로 두어 새로 온 토스트만 읽게 한다
+  region.setAttribute('aria-atomic', 'false')
   parent.appendChild(region)
 
   let alive: ToastRecord[] = [] // 오래된 것 → 최신 순
@@ -64,15 +72,21 @@ export const createToastStack = ({
     const { element } = record
     element.dataset.state = 'exiting'
     const remove = () => {
+      element.removeEventListener('transitionend', onTransitionEnd)
       element.remove()
       reposition()
     }
-    element.addEventListener('transitionend', remove, { once: true })
+    // transitionend는 속성마다 따로 온다. 밀려 올라가던 중(transform 전이)에 퇴장하면
+    // 그 전이가 먼저 끝나 반쯤 흐려진 토스트가 툭 사라진다 — 페이드(opacity)가 끝났을 때만 지운다
+    const onTransitionEnd = (event: Event) => {
+      if ((event as TransitionEvent).propertyName === 'opacity') remove()
+    }
+    element.addEventListener('transitionend', onTransitionEnd)
     setTimeout(remove, 600) // transitionend 유실 폴백
     reposition()
   }
 
-  const show = (message: string) => {
+  const show = (message: string, options: ShowToastOptions = {}) => {
     const element = document.createElement('div')
     element.className = 'toast-item'
     element.textContent = message
@@ -81,7 +95,7 @@ export const createToastStack = ({
 
     const record: ToastRecord = {
       element,
-      autoTimer: setTimeout(() => dismiss(record), durationMs),
+      autoTimer: setTimeout(() => dismiss(record), options.durationMs ?? durationMs),
     }
     alive.push(record)
 
@@ -102,7 +116,11 @@ export const createToastStack = ({
     for (const record of [...alive]) dismiss(record)
   }
 
+  // 화면 폭이 바뀌면 긴 문구의 줄 수가 달라져 토스트 높이가 변한다 — 쌓인 간격을 다시 잰다
+  window.addEventListener('resize', reposition)
+
   const destroy = () => {
+    window.removeEventListener('resize', reposition)
     alive.forEach((record) => clearTimeout(record.autoTimer))
     alive = []
     region.remove()

@@ -6,10 +6,12 @@ import './select-demo.css'
 // 언어와 무관한 값(value)은 밖에, 옵션 이름은 COPY에 value로 둔다
 const NOODLE_VALUES = ['somyeon', 'jungmyeon', 'kalguksu', 'memil', 'ssal'] as const
 const SPICE_VALUES = ['0', '1', '2', '3'] as const
+// 고를 수 없는 옵션 — 자리는 지키고 키보드는 건너뛴다
+const SOLD_OUT: string = 'ssal'
 
 const COPY = defineCopy({
   ko: {
-    noodles: { somyeon: '소면', jungmyeon: '중면', kalguksu: '칼국수면', memil: '메밀면', ssal: '쌀국수면' },
+    noodles: { somyeon: '소면', jungmyeon: '중면', kalguksu: '칼국수면', memil: '메밀면', ssal: '쌀국수면 (품절)' },
     spiceLevels: { 0: '0단계 — 맑은 국물', 1: '1단계 — 순한맛', 2: '2단계 — 칼칼한맛', 3: '3단계 — 얼얼한맛' },
     controlsLabel: '애니메이션 옵션',
     duration: '패널 드롭 속도',
@@ -27,7 +29,7 @@ const COPY = defineCopy({
       jungmyeon: 'Medium wheat noodles',
       kalguksu: 'Knife-cut noodles',
       memil: 'Buckwheat noodles',
-      ssal: 'Rice noodles',
+      ssal: 'Rice noodles (sold out)',
     },
     spiceLevels: { 0: 'Level 0 (clear broth)', 1: 'Level 1 (mild)', 2: 'Level 2 (spicy)', 3: 'Level 3 (fiery)' },
     controlsLabel: 'Animation options',
@@ -49,7 +51,7 @@ export const SelectDemo = () => {
   const [durationMs, setDurationMs] = useState(200)
 
   const vars = { '--select-duration': `${durationMs}ms` } as CSSProperties
-  const noodles = NOODLE_VALUES.map((value) => ({ value, label: t.noodles[value] }))
+  const noodles = NOODLE_VALUES.map((value) => ({ value, label: t.noodles[value], disabled: value === SOLD_OUT }))
   const spiceLevels = SPICE_VALUES.map((value) => ({ value, label: t.spiceLevels[value] }))
   const noodleLabel = noodles.find((option) => option.value === noodle)?.label
   const spiceLabel = spiceLevels.find((option) => option.value === spice)?.label

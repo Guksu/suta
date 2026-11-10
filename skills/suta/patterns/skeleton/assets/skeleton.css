@@ -1,11 +1,12 @@
 /* skeleton — 로딩 뼈대 + 시머(shimmer) 애니메이션.
- * 커스터마이즈: --skeleton-base(바탕색), --skeleton-sheen(반짝임 색), --skeleton-speed(한 바퀴 시간).
+ * 커스터마이즈: --skeleton-base(바탕색), --skeleton-sheen(반짝임 색), --skeleton-speed(한 바퀴 시간),
+ * --skeleton-line(글줄 막대 두께).
  * 시머는 ::after의 translateX만 움직인다 — background-position 애니메이션과 달리 GPU 합성으로 처리된다. */
 
 .skeleton {
   /* 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다 */
-  --_skeleton-base: var(--skeleton-base, rgba(148, 163, 184, 0.16));
-  --_skeleton-sheen: var(--skeleton-sheen, rgba(148, 163, 184, 0.24));
+  --_skeleton-base: var(--skeleton-base, rgb(128 128 128 / 0.16));
+  --_skeleton-sheen: var(--skeleton-sheen, rgb(128 128 128 / 0.24));
   --_skeleton-speed: var(--skeleton-speed, 1.4s);
   position: relative;
   overflow: hidden;
@@ -35,22 +36,46 @@
 
 /* 형태 변형 */
 .skeleton-text {
-  height: 1em;
+  /* 막대 두께 — 글자 크기를 따라간다(1em). 얇게 하려면 --skeleton-line: 0.75em */
+  --_skeleton-line: var(--skeleton-line, 1em);
+  height: var(--_skeleton-line);
   border-radius: 4px;
+  /* 상자가 글줄 한 줄(1lh)만큼 커져도 보이는 막대는 --skeleton-line 두께로 가운데에 남긴다.
+   * 상자와 막대의 높이가 같으면 안쪽 여백이 0이 되어 아무것도 자르지 않는다 */
+  clip-path: inset(calc((100% - var(--_skeleton-line)) / 2) 0 round 4px);
 }
 
 .skeleton-text + .skeleton-text {
   margin-top: 0.5em;
 }
 
-/* 문단의 마지막 줄은 짧게 — 실제 텍스트처럼 보여야 자리 이동이 어색하지 않다 */
-.skeleton-text:last-child:not(:only-child) {
+/* 글줄 뼈대 하나가 실제 글 한 줄과 같은 높이(1lh = 그 자리의 line-height)를 차지한다 —
+ * 막대 두께만 차지하면 줄마다 행간만큼 모자라, 내용으로 바뀌는 순간 아래가 밀린다.
+ * lh 단위가 없는 브라우저는 위의 막대 두께 + 줄 사이 0.5em을 그대로 쓴다 */
+@supports (height: 1lh) {
+  .skeleton-text {
+    height: max(1lh, var(--_skeleton-line));
+  }
+
+  .skeleton-text + .skeleton-text {
+    margin-top: 0;
+  }
+}
+
+/* 문단의 마지막 줄은 짧게 — 실제 텍스트처럼 보여야 자리 이동이 어색하지 않다.
+ * 앞에 글줄이 있을 때만이다. 아바타 옆의 한 줄짜리는 줄이지 않는다 */
+.skeleton-text + .skeleton-text:last-child {
   width: 60%;
 }
 
 .skeleton-circle {
   border-radius: 50%;
   aspect-ratio: 1;
+}
+
+/* 오른쪽에서 왼쪽으로 읽는 화면에서는 반짝임도 읽는 방향으로 지나간다 */
+.skeleton:dir(rtl)::after {
+  animation-direction: reverse;
 }
 
 /* 모션 민감 사용자: 이동(시머)은 끄고 느린 불투명도 맥동만 남긴다(0이 아니라 완화) */
@@ -69,5 +94,17 @@
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* 고대비 모드: 반투명 바탕은 시스템 바탕색으로 바뀌어 보이지 않는다 —
+ * 시스템의 "꺼진 항목" 색으로 칠해 자리를 보이고, 반짝임은 뺀다(그라데이션도 지워진다) */
+@media (forced-colors: active) {
+  .skeleton {
+    background: GrayText;
+  }
+
+  .skeleton::after {
+    display: none;
   }
 }

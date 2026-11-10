@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
+import { useEffect, useImperativeHandle, useRef, type Ref } from 'react'
 import { createOtpInput } from './createOtpInput'
 import { shake } from './shakeCore'
 import './otp-input.css'
@@ -21,6 +21,8 @@ type OtpInputProps = {
   /** 화면에 들어오자마자 첫 칸에 포커스 (기본 true) */
   autoFocus?: boolean
   disabled?: boolean
+  /** 틀린 코드라는 표시 — 모든 칸에 aria-invalid가 켜지고 테두리가 오류 색으로 남는다. 다시 입력을 시작하면 끈다 */
+  invalid?: boolean
   /** 스크린 리더가 읽을 그룹 이름 */
   label?: string
   /** 칸마다 읽힐 이름 — position은 1부터 센다. 기본 "{label} {position}번째 자리" */
@@ -38,6 +40,9 @@ const defaultDigitLabel = ({ label, position }: { label: string; position: numbe
  *  - inputMode="numeric"으로 숫자 키보드가 뜬다(type="number"는 스피너·휠 스크롤 때문에 쓰지 않는다)
  *  - 첫 칸의 autoComplete="one-time-code"로 iOS가 문자 메시지의 인증번호를 제안한다.
  *    제안을 누르면 6자리가 한 칸에 들어오지만 코어가 칸마다 나눈다.
+ *    그래서 maxLength는 1이 아니라 칸 수다 — 1이면 브라우저가 첫 글자만 남기고 잘라 나눌 것이 없다.
+ *
+ * 채워진 칸 표시(data-filled)는 코어가 칸에 직접 붙인다 — React는 그 속성을 그리지 않는다.
  */
 export const OtpInput = ({
   length = 6,
@@ -45,6 +50,7 @@ export const OtpInput = ({
   onChange,
   autoFocus = true,
   disabled = false,
+  invalid = false,
   label = '인증번호',
   digitLabel = defaultDigitLabel,
   ref,
@@ -55,7 +61,6 @@ export const OtpInput = ({
   onCompleteRef.current = onComplete
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
-  const [filled, setFilled] = useState(0)
 
   useEffect(
     function bindOtp() {
@@ -63,10 +68,7 @@ export const OtpInput = ({
       if (!group) return
       const controller = createOtpInput({
         inputs: Array.from(group.querySelectorAll<HTMLInputElement>('input')),
-        onChange: (code) => {
-          setFilled(code.length)
-          onChangeRef.current?.(code)
-        },
+        onChange: (code) => onChangeRef.current?.(code),
         onComplete: (code) => onCompleteRef.current(code),
       })
       controllerRef.current = controller
@@ -83,10 +85,7 @@ export const OtpInput = ({
     shake: () => {
       if (groupRef.current) shake(groupRef.current)
     },
-    clear: () => {
-      controllerRef.current?.clear()
-      setFilled(0)
-    },
+    clear: () => controllerRef.current?.clear(),
     focus: () => controllerRef.current?.focusFirstEmpty(),
     value: () => controllerRef.current?.value() ?? '',
   }))
@@ -100,10 +99,10 @@ export const OtpInput = ({
           type="text"
           inputMode="numeric"
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
-          maxLength={1}
+          maxLength={length}
           disabled={disabled}
+          aria-invalid={invalid ? true : undefined}
           aria-label={digitLabel({ label, position: index + 1 })}
-          data-filled={index < filled ? 'true' : 'false'}
         />
       ))}
     </div>

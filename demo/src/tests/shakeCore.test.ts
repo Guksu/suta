@@ -23,7 +23,7 @@ describe('shake — data-shake 부착·해제·재시작', () => {
     expect(el).toHaveAttribute('data-shake')
   })
 
-  it('재시작 뒤 animationend 한 번으로 깨끗이 해제된다 (리스너가 쌓여도 무해)', () => {
+  it('재시작 뒤 animationend 한 번으로 깨끗이 해제된다 (앞선 리스너는 재시작 때 걷힌다)', () => {
     shake(el)
     shake(el)
     el.dispatchEvent(new Event('animationend'))
@@ -51,6 +51,34 @@ describe('shake — data-shake 부착·해제·재시작', () => {
 
     vi.advanceTimersByTime(500)
     expect(el).not.toHaveAttribute('data-shake')
+    vi.useRealTimers()
+  })
+
+  it('자식의 animationend(버튼 스피너 등)가 올라와도 흔들림을 끊지 않는다 — 폼 전체를 흔들 때', () => {
+    const form = document.createElement('form')
+    const spinner = document.createElement('span')
+    form.appendChild(spinner)
+    document.body.appendChild(form)
+
+    shake(form)
+    spinner.dispatchEvent(new Event('animationend', { bubbles: true }))
+    expect(form).toHaveAttribute('data-shake')
+
+    form.dispatchEvent(new Event('animationend', { bubbles: true }))
+    expect(form).not.toHaveAttribute('data-shake')
+    form.remove()
+  })
+
+  it('끝난 뒤에는 리스너가 남지 않는다 — 다시 흔들지 않은 요소의 animationend가 속성을 건드리지 않는다', () => {
+    vi.useFakeTimers()
+    shake(el)
+    shake(el)
+    vi.advanceTimersByTime(600) // 상한으로 끝남 — animationend는 오지 않았다
+    expect(el).not.toHaveAttribute('data-shake')
+
+    el.setAttribute('data-shake', '') // 다른 코드가 붙인 속성이라고 치자
+    el.dispatchEvent(new Event('animationend'))
+    expect(el).toHaveAttribute('data-shake')
     vi.useRealTimers()
   })
 })

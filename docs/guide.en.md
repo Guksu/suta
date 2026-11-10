@@ -132,7 +132,7 @@ The skill and pattern documentation is written in Korean. One recorded check use
 
 1. You install suta once. It is a single skill, and at startup the agent reads only its description.
 2. You ask as usual, for example "build a login screen" or "polish this button animation". The agent recognizes UI work and opens suta. You don't need to name the skill.
-3. The agent reads the entry document (`SKILL.md`): priorities, the usability rules and the rules for factual content. It then reads only the documents the request needs: the defaults (`references/defaults.md`) when the project has no design standard, the conventions for the screen type, and for components the pattern catalog (`references/catalog.md`) and each chosen pattern's manual (`PATTERN.md`).
+3. The agent reads the entry document (`SKILL.md`): priorities, the usability rules and the rules for factual content. It then reads only the documents the request needs: the design order (`references/design.md`) and the detail standard (`references/detail.md`) for a new screen, the defaults (`references/defaults.md`) when the project has no design standard, the conventions for the screen type, and for components the pattern catalog (`references/catalog.md`) and each chosen pattern's manual (`PATTERN.md`).
 4. It copies the pattern code into the project and adapts it to the project's framework and styling.
 5. It runs the combined audit script (`scripts/audit.mjs`) and fixes what it finds. The script looks for layout defects (nested cards, text under 12px, effect overuse, off-scale spacing) and motion defects (layout animations, `transition: all`, missing reduced-motion support) in one pass.
 
@@ -266,7 +266,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses | [Demo](https://guksu.github.io/suta/#/motion-principles) |
 | [Motion audit](../skills/suta/patterns/motion-audit/PATTERN.md) | Scans CSS and JS for layout-property animations, missing reduced-motion, out-of-range durations and more, reports them as `file:line` and points to the pattern that fixes each | [Demo](https://guksu.github.io/suta/#/motion-audit) |
 | [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius and color (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
-| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, icon buttons that stack vertically, grid frames that grow wider than the screen, screen-reader text leaking out of scroll areas, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
+| [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, colored glow shadows, four or more shadow values, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, icon buttons that stack vertically, grid frames that grow wider than the screen, screen-reader text leaking out of scroll areas, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
 
 The layout principles pattern contains these parts.
 
@@ -279,8 +279,9 @@ The layout principles pattern contains these parts.
 - Color pairing guidance and a tool: a clear accent (the lightness and chroma range of 31 well-made apps), neutrals that match it, and `scripts/palette.mjs '<accent>'`, which prints a full set that keeps 4.5:1 contrast.
 - Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles, plus body size, display weight and tracking, serif (`--font-serif`) and monospace (`--font-mono`) chosen by industry and reading conditions (measured on 48 websites in 9 industries).
 - Copy guidance (Korean): one voice (해요체) and the shapes of buttons, dialogs, errors, empty states and toasts, drawn from 7,539 UI strings in well-made apps.
-- One token set for spacing, type, weight, radius, color and font.
-- Before and after versions of ten typical AI-made screens.
+- One token set for spacing, type, weight, radius, color, font, shadow and stacking order.
+- Elevation standard (`elevation.md`): four layers (resting, stuck, floating, covering), three shadow steps plus a scrim, and five stacking steps, with values measured on 47 public websites.
+- Before and after versions of eleven typical AI-made screens.
 
 ## Layout
 
@@ -288,6 +289,8 @@ The layout principles pattern contains these parts.
 skills/suta/                         The skill that gets installed
 ├─ SKILL.md                         Entry document read every time: priorities · usability rules · factual content · which doc to read · final checks · pattern index
 ├─ references/
+│  ├─ design.md                     Screen design order: derive the skeleton from the screen's job · what to borrow when no screen type fits
+│  ├─ detail.md                     Detail standard: sample data · controls by value type · component states · finish
 │  ├─ defaults.md                   Defaults for projects without a design standard · layout and motion values
 │  ├─ checklist.md                  Final checks for no-standard projects and per screen type
 │  └─ catalog.md                    Pattern catalog with one-line summaries (generated)

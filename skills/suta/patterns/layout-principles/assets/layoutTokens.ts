@@ -58,6 +58,25 @@ export const COLOR = {
   rewardBronze: '#a8662b',
 } as const
 
+/**
+ * 그림자 3단계 — --shadow-{이름}. 놓인 것(면·카드)에는 쓰지 않고 떠 있는 것에만 쓴다(references/elevation.md).
+ * 모두 무채색·아래 방향이다. low는 트랙 위 손잡이, raised는 메뉴·자동완성·툴팁·토스트, overlay는 모달과 끌어 올린 항목.
+ */
+export const SHADOW = {
+  low: '0 1px 3px rgb(0 0 0 / 0.2)',
+  raised: '0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12)',
+  overlay: '0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)',
+} as const
+
+/** 덮는 것(시트·모달·사이드 패널) 뒤의 어두운 막 — --scrim */
+export const SCRIM = 'rgb(0 0 0 / 0.5)'
+
+/**
+ * 겹치는 순서 — --z-{이름}. 붙은 것(머리·탭 바) < 덮는 것(스크림·시트) < 가리키는 것(메뉴·툴팁) < 전체 화면 뷰어 < 알림(토스트).
+ * 단계 안에서는 +1·+2로 쌓는다(스크림 40, 시트 41). 네이티브 dialog·popover는 브라우저의 맨 위 층이라 이 숫자 밖이다.
+ */
+export const LAYER = { sticky: 30, overlay: 40, popover: 50, viewer: 90, toast: 100 } as const
+
 /** 크기의 하한·상한 */
 export const LIMITS = {
   /** 글자 크기 하한 — 보조 글자도 이 아래로 줄이지 않는다 */

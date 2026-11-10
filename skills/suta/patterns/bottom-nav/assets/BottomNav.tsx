@@ -34,13 +34,24 @@ const prefersReducedMotion = () => typeof window !== 'undefined' && window.match
 export const BottomNav = ({ items, path, hidden = false, label = '주요 메뉴', badgeLabels, onNavigate, onReselect }: BottomNavProps) => {
   const [keyboardOpen, setKeyboardOpen] = useState(false)
 
-  useEffect(function hideWhileTyping() {
-    return watchKeyboard({ onChange: setKeyboardOpen })
-  }, [])
+  // 화면(path)이 바뀔 때마다 감시를 다시 건다 — 초점이 있던 입력칸이 화면과 함께 사라지면 브라우저에 따라
+  // focusout이 오지 않아 탭 바가 숨은 채 남는다. 다시 걸 때 지금 초점으로 판정을 새로 맞춘다
+  useEffect(
+    function hideWhileTyping() {
+      const stop = watchKeyboard({ onChange: setKeyboardOpen })
+      return () => {
+        stop()
+        setKeyboardOpen(false)
+      }
+    },
+    [path],
+  )
 
   const concealed = hidden || keyboardOpen
 
   const handleClick = ({ href, event }: { href: string; event: MouseEvent<HTMLAnchorElement> }) => {
+    // 새 탭·새 창으로 열기(Ctrl·Cmd·Shift·Alt 클릭, 가운데 버튼)는 가로채지 않는다 — 링크의 기본 동작이다
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
     if (isCurrentTab({ href, path })) {
       event.preventDefault()
       if (onReselect) onReselect(href)

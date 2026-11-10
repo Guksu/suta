@@ -1,15 +1,17 @@
 /* select — 트리거 버튼 + 아래로 펼쳐지는 리스트박스 패널.
- * 커스터마이즈: --select-duration, --select-bg, --select-border, --select-highlight, --select-accent.
+ * 커스터마이즈: --select-duration, --select-bg, --select-border, --select-highlight, --select-accent, --select-error,
+ * --select-panel-max-height, --select-min-width.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 패널은 언마운트하지 않고 data-open으로만 여닫는다 — 닫힘 애니메이션이 공짜가 된다. */
 
 .select {
   --_duration: var(--select-duration, 200ms);
   --_bg: var(--select-bg, #fff);
-  --_border: var(--select-border, #d4d9e1);
+  --_border: var(--select-border, #d4d4d4);
   position: relative; /* 패널의 offsetParent — 트리거 기준 좌표계를 만든다 */
   display: inline-block;
   min-width: var(--select-min-width, 200px);
+  max-width: 100%; /* 긴 옵션 글자가 부모 밖으로 밀고 나가지 않게 — 넘치면 트리거 안에서 줄이 꺾인다 */
 }
 
 .select-trigger {
@@ -24,12 +26,29 @@
   border-radius: 10px;
   background: var(--_bg);
   font: inherit;
-  text-align: left;
+  color: inherit; /* 버튼의 기본 글자색(검정)이 아니라 둘레의 글자색을 따른다 — 어두운 바탕에서 글자가 묻히지 않게 */
+  text-align: start;
   cursor: pointer;
 }
 
+/* 고른 값·placeholder — 길면 트리거를 넓히지 않고 안에서 줄이 꺾인다 */
+.select-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.select-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 오류 — 문구는 트리거 밖(아래 한 줄)에 둔다 */
+.select-trigger[aria-invalid='true'] {
+  border-color: var(--select-error, var(--color-danger, #c8341f));
+}
+
 .select-placeholder {
-  color: #8a93a1;
+  color: var(--color-text-tertiary, #686868);
 }
 
 .select-chevron {
@@ -53,10 +72,11 @@
   background: var(--_bg);
   border: 1px solid var(--_border);
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  box-shadow: var(--shadow-raised, 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12));
   max-height: var(--select-panel-max-height, 240px);
   overflow-y: auto;
-  z-index: 30;
+  overscroll-behavior: contain; /* 목록 끝까지 굴린 뒤 뒤의 페이지가 이어서 굴러가지 않게 */
+  z-index: var(--z-popover, 50);
   transform-origin: top; /* 트리거에서 자라 나오는 것처럼 보이게 */
   opacity: 0;
   visibility: hidden;
@@ -85,12 +105,19 @@
   min-height: 40px;
   padding: 8px 12px;
   border-radius: 8px;
+  overflow-wrap: anywhere; /* 띄어쓰기 없는 긴 글자도 패널 안에서 꺾인다 */
   cursor: pointer;
+}
+
+/* 고를 수 없는 옵션(품절 등) — 자리는 지키되 흐리게. 키보드는 건너뛰고 눌러도 반응하지 않는다 */
+.select-option[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* 하이라이트(키보드·호버)와 선택(값)은 다른 상태다 — 각각 다른 속성으로 표현한다 */
 .select-option[data-highlighted='true'] {
-  background: var(--select-highlight, #f1f5f9);
+  background: var(--select-highlight, var(--color-canvas, #f3f3f3));
 }
 
 .select-option[aria-selected='true'] {
@@ -100,6 +127,27 @@
 
 .select-option[aria-selected='true']::after {
   content: '✓';
+}
+
+/* 고대비(forced-colors)에서는 배경색이 지워져 하이라이트가 보이지 않는다 — 키보드 사용자가 지금 가리키는 옵션을 잃는다.
+ * 시스템의 선택 색으로 칠하고 그 색이 지워지지 않게 한다 */
+@media (forced-colors: active) {
+  .select-option[data-highlighted='true'] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .select-option[aria-disabled='true'] {
+    opacity: 1;
+    color: GrayText;
+  }
+
+  .select-trigger:disabled {
+    opacity: 1;
+    border-color: GrayText;
+    color: GrayText;
+  }
 }
 
 /* 모션 민감 사용자: 이동·확대를 끄고 페이드만 남긴다 */

@@ -39,7 +39,8 @@ export const placeMenu = ({ anchor, menu, viewport, gap = 6, padding = 8, align 
   const above = anchor.top - gap - menu.height
 
   // 아래에 다 들어가면 아래로. 아니면 위를 보고, 위도 좁으면 그래도 아래로 둔다
-  // (둘 다 좁을 때 아래를 고르는 이유: 아래는 스크롤로 마저 볼 수 있지만 위로 넘치면 잘린다)
+  // (둘 다 좁을 때는 어느 쪽이든 트리거를 덮는다 — 읽는 방향인 아래쪽이 덜 놀랍다.
+  //  메뉴 높이는 CSS가 화면 높이 안으로 묶어 두므로 아래 clamp가 화면 안에 넣는다)
   const fitsBelow = below + menu.height <= viewport.height - padding
   const fitsAbove = above >= padding
   const side: MenuPlacement['side'] = fitsBelow || !fitsAbove ? 'bottom' : 'top'

@@ -107,7 +107,10 @@ export const FormShakeErrorDemo = () => {
             id="shake-name"
             ref={nameField.ref}
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              setNameInvalid(false) // 고치기 시작하면 그 칸의 오류를 내린다 — 다음 제출 때 다시 판정한다
+            }}
             aria-invalid={nameInvalid}
             aria-describedby="shake-name-error"
             autoComplete="off"
@@ -121,7 +124,10 @@ export const FormShakeErrorDemo = () => {
             id="shake-phone"
             ref={phoneField.ref}
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              setPhoneInvalid(false)
+            }}
             aria-invalid={phoneInvalid}
             aria-describedby="shake-phone-error"
             inputMode="tel"

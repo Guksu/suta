@@ -1,4 +1,5 @@
-import { useEffect, useRef, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { createBackDismiss } from './createBackDismiss'
 import './modal-dialog.css'
 
 type ModalProps = {
@@ -9,6 +10,8 @@ type ModalProps = {
   labelledBy?: string
   /** 백드롭 클릭으로 닫기 허용 (기본 true — 파괴적 확인 모달이면 false) */
   dismissOnBackdrop?: boolean
+  /** 뒤로 가기(안드로이드 버튼·브라우저 뒤로)로 닫기 — 열려 있는 동안 history에 항목을 하나 쌓는다 (기본 false) */
+  closeOnBack?: boolean
   className?: string
 }
 
@@ -19,11 +22,24 @@ const CLOSE_FALLBACK_MS = 500
  * 네이티브 <dialog>.showModal() 기반 모달 — 포커스 트랩·배경 inert·Esc·포커스 복귀는 브라우저가 담당한다.
  * 이 컴포넌트가 더하는 것은 딱 하나: dialog.close()가 즉시 사라지는 문제를 data-closing 애니메이션 뒤로 미루는 것.
  * open 상태는 부모가 소유한다 — Esc·백드롭은 onClose를 부를 뿐 스스로 닫지 않는다.
+ * 브라우저가 스스로 닫아 버린 경우에도 onClose로 알리고, 부모가 open을 그대로 두면 다시 연다.
  */
-export const Modal = ({ open, onClose, children, labelledBy, dismissOnBackdrop = true, className }: ModalProps) => {
+export const Modal = ({
+  open,
+  onClose,
+  children,
+  labelledBy,
+  dismissOnBackdrop = true,
+  closeOnBack = false,
+  className,
+}: ModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+  const openRef = useRef(open)
+  openRef.current = open
+  // 브라우저가 스스로 닫을 때마다 올린다 — open prop이 그대로여도 아래 동기화가 다시 돌게 한다
+  const [nativeCloses, setNativeCloses] = useState(0)
 
   useEffect(
     function syncOpenState() {
@@ -55,7 +71,15 @@ export const Modal = ({ open, onClose, children, labelledBy, dismissOnBackdrop =
         if (!done) dialog.removeAttribute('data-closing')
       }
     },
-    [open],
+    [open, nativeCloses],
+  )
+
+  useEffect(
+    function closeOnBackButton() {
+      if (!open || !closeOnBack) return
+      return createBackDismiss({ onDismiss: () => onCloseRef.current() })
+    },
+    [open, closeOnBack],
   )
 
   useEffect(function routeNativeCloseToParent() {
@@ -66,8 +90,20 @@ export const Modal = ({ open, onClose, children, labelledBy, dismissOnBackdrop =
       event.preventDefault()
       onCloseRef.current()
     }
+    // 브라우저가 우리를 거치지 않고 닫은 경우 — 사용자 조작 없이 이어진 두 번째 Esc(크롬은 cancel을 막지 못하게 한다),
+    // 안쪽의 <form method="dialog">. open prop은 아직 true인데 창은 닫혀 있다.
+    // 부모에게 알리고, 부모가 open을 그대로 두면(닫기 거부) 위의 동기화가 다시 연다
+    const handleClose = () => {
+      if (!openRef.current || dialog.open) return // 우리가 닫은 것이거나, 그사이 다시 열렸다
+      onCloseRef.current()
+      setNativeCloses((count) => count + 1)
+    }
     dialog.addEventListener('cancel', handleCancel)
-    return () => dialog.removeEventListener('cancel', handleCancel)
+    dialog.addEventListener('close', handleClose)
+    return () => {
+      dialog.removeEventListener('cancel', handleCancel)
+      dialog.removeEventListener('close', handleClose)
+    }
   }, [])
 
   const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {

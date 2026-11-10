@@ -19,6 +19,7 @@ const COPY = defineCopy({
     note: '체크마크는 획 순서대로 그려지고(박스가 먼저 칠해진 뒤 30% 늦게 시작), 라디오 도트는 살짝 튀어 맺힙니다. 라디오에 포커스를 두고 ←→ 화살표로 옮겨 보세요 — 네이티브 input이라 그대로 됩니다.',
     noodleLegend: '면 종류 (하나만)',
     toppingLegend: '토핑 (여러 개)',
+    allToppings: '토핑 전부',
     refill: '셀프 리필 (준비 중)',
     agree: '주문 안내에 동의합니다',
     toppingCount: (count: number) => ` + 토핑 ${count}개`,
@@ -33,6 +34,7 @@ const COPY = defineCopy({
     note: 'The checkmark draws in stroke order (starting 30% after the box fills), and the radio dot pops in with a small bounce. Focus a radio and move with the ←→ arrow keys. They are native inputs, so this just works.',
     noodleLegend: 'Noodles (pick one)',
     toppingLegend: 'Toppings (pick any)',
+    allToppings: 'All toppings',
     refill: 'Self refill (coming soon)',
     agree: 'I agree to the order terms',
     toppingCount: (count: number) => ` + ${count} ${count === 1 ? 'topping' : 'toppings'}`,
@@ -85,6 +87,13 @@ export const CheckboxRadioDemo = () => {
 
         <fieldset className="check-group">
           <legend>{t.toppingLegend}</legend>
+          {/* 일부만 골랐으면 부분 선택(가로줄) — 누르면 전부 고르거나 전부 푼다 */}
+          <Checkbox
+            checked={toppings.length === TOPPINGS.length}
+            indeterminate={toppings.length > 0 && toppings.length < TOPPINGS.length}
+            onChange={(e) => setToppings(e.target.checked ? [...TOPPINGS] : [])}
+            label={t.allToppings}
+          />
           {TOPPINGS.map((id) => (
             <Checkbox
               key={id}

@@ -28,6 +28,10 @@ const COPY = defineCopy({
     snaps: '스냅 포인트',
     snapsOn: '반열림 ↔ 전체 열림',
     snapsOff: '끔',
+    back: '뒤로 가기로 닫기',
+    backOn: '켬 — 열린 동안 뒤로 가기가 시트를 닫아요',
+    backOff: '끔',
+    sheetLabel: '가게 메뉴',
     note: '시트를 잡고 끌어보세요 — 스냅 포인트를 켜면 반열림에서 시작해 위로 끌면 전체 열림, 마지막 스냅 아래로 끌거나 던지면 닫힙니다. 백드롭 클릭·Esc로도 닫힙니다.',
     open: '바텀시트 열기',
     lastChoice: '마지막 선택:',
@@ -44,6 +48,10 @@ const COPY = defineCopy({
     snaps: 'Snap points',
     snapsOn: 'Half open ↔ fully open',
     snapsOff: 'Off',
+    back: 'Close with Back',
+    backOn: 'On: while open, Back closes the sheet',
+    backOff: 'Off',
+    sheetLabel: 'Shop actions',
     note: 'Grab the sheet and drag it. With snap points on, it starts half open: drag up to open it fully, and drag or fling below the last snap to close. Clicking the backdrop or pressing Esc also closes it.',
     open: 'Open bottom sheet',
     lastChoice: 'Last choice:',
@@ -57,6 +65,7 @@ export const BottomSheetDemo = () => {
   const [open, setOpen] = useState(false)
   const [thresholdPx, setThresholdPx] = useState(120)
   const [useSnaps, setUseSnaps] = useState(false)
+  const [closeOnBack, setCloseOnBack] = useState(false)
   const [lastAction, setLastAction] = useState<MenuId | null>(null)
 
   return (
@@ -89,6 +98,19 @@ export const BottomSheetDemo = () => {
             <output>{useSnaps ? t.snapsOn : t.snapsOff}</output>
           </span>
         </label>
+        <label>
+          <span>
+            {t.back} <code>closeOnBack</code>
+          </span>
+          <span className="controls-inline">
+            <input
+              type="checkbox"
+              checked={closeOnBack}
+              onChange={(e) => setCloseOnBack(e.target.checked)}
+            />
+            <output>{closeOnBack ? t.backOn : t.backOff}</output>
+          </span>
+        </label>
         <p className="controls-note">
           {t.note}
         </p>
@@ -110,6 +132,8 @@ export const BottomSheetDemo = () => {
         onClose={() => setOpen(false)}
         dismissThresholdPx={thresholdPx}
         snapOffsetsPx={useSnaps ? SNAP_OFFSETS : undefined}
+        closeOnBack={closeOnBack}
+        label={t.sheetLabel}
         className="demo-sheet"
       >
         <ul className="sheet-menu">

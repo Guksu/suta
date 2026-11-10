@@ -1,5 +1,5 @@
 /* tooltip — 호버/포커스 시 지연 후 떠오르는 말풍선. 4방향 배치는 data-place로.
- * 커스터마이즈: --tooltip-bg, --tooltip-color, --tooltip-duration, --tooltip-offset.
+ * 커스터마이즈: --tooltip-bg, --tooltip-color, --tooltip-duration, --tooltip-offset, --tooltip-max-width.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .tooltip-anchor {
@@ -8,20 +8,26 @@
 }
 
 .tooltip {
-  --_bg: var(--tooltip-bg, #2b3440);
+  --_bg: var(--tooltip-bg, #2b2b2b);
   --_offset: var(--tooltip-offset, 10px);
   --_duration: var(--tooltip-duration, 150ms);
   --_slide: 4px; /* 닫힘 위치가 앵커 쪽으로 밀려 있어, 열릴 때 앵커에서 떠오르는 것처럼 보인다 */
+  --_shift: 0px; /* 화면 가장자리에서 옆으로 밀어 넣는 양 — 코어가 열 때 재서 인라인으로 덮어쓴다 */
   position: absolute;
-  z-index: 30;
+  z-index: var(--z-popover, 50);
   padding: 8px 12px;
   border-radius: 8px;
   background: var(--_bg);
   color: var(--tooltip-color, #fff);
   font-size: 13px;
   line-height: 1.45;
-  white-space: nowrap;
-  pointer-events: none; /* 말풍선이 커서를 가로채 깜빡이는 것을 막는다 */
+  /* 짧은 문구는 한 줄(max-content), 긴 문구는 최대 폭에서 꺾인다.
+   * width를 정해 두지 않으면 절대 배치의 폭이 앵커 폭에 눌려 글자마다 꺾인다 */
+  width: max-content;
+  max-width: var(--tooltip-max-width, min(20rem, calc(100vw - 16px)));
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  pointer-events: none; /* 닫힌 말풍선이 밑의 요소를 가리지 않게 — 열렸을 때만 포인터를 받는다 */
   opacity: 0;
   visibility: hidden;
   transition:
@@ -33,6 +39,8 @@
 .tooltip[data-open='true'] {
   opacity: 1;
   visibility: visible;
+  /* 포인터가 말풍선 위로 옮겨 가도 닫히지 않는다 (WCAG 1.4.13) */
+  pointer-events: auto;
   transition:
     opacity var(--_duration) cubic-bezier(0.23, 1, 0.32, 1),
     transform var(--_duration) cubic-bezier(0.23, 1, 0.32, 1),
@@ -49,56 +57,99 @@
   transform: rotate(45deg);
 }
 
+/* 앵커와 말풍선 사이의 틈(--_offset)을 메우는 보이지 않는 다리.
+ * 틈에서 포인터가 앵커도 말풍선도 아닌 곳에 놓이면 말풍선으로 건너가기 전에 닫힌다 */
+.tooltip::after {
+  content: '';
+  position: absolute;
+}
+
+/* 말풍선은 --_shift만큼 옆으로 밀리고, 화살표는 그만큼 되돌아가 앵커를 계속 가리킨다 */
 .tooltip[data-place='top'] {
   bottom: calc(100% + var(--_offset));
   left: 50%;
-  transform: translate(-50%, var(--_slide));
+  transform: translate(calc(-50% + var(--_shift)), var(--_slide));
 }
 .tooltip[data-place='top']::before {
   top: calc(100% - 4px);
-  left: calc(50% - 4px);
+  left: calc(50% - 4px - var(--_shift));
+}
+.tooltip[data-place='top']::after {
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: var(--_offset);
 }
 .tooltip[data-place='top'][data-open='true'] {
-  transform: translate(-50%, 0);
+  transform: translate(calc(-50% + var(--_shift)), 0);
 }
 
 .tooltip[data-place='bottom'] {
   top: calc(100% + var(--_offset));
   left: 50%;
-  transform: translate(-50%, calc(-1 * var(--_slide)));
+  transform: translate(calc(-50% + var(--_shift)), calc(-1 * var(--_slide)));
 }
 .tooltip[data-place='bottom']::before {
   bottom: calc(100% - 4px);
-  left: calc(50% - 4px);
+  left: calc(50% - 4px - var(--_shift));
+}
+.tooltip[data-place='bottom']::after {
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: var(--_offset);
 }
 .tooltip[data-place='bottom'][data-open='true'] {
-  transform: translate(-50%, 0);
+  transform: translate(calc(-50% + var(--_shift)), 0);
 }
 
 .tooltip[data-place='left'] {
   right: calc(100% + var(--_offset));
   top: 50%;
-  transform: translate(var(--_slide), -50%);
+  transform: translate(var(--_slide), calc(-50% + var(--_shift)));
 }
 .tooltip[data-place='left']::before {
   left: calc(100% - 4px);
-  top: calc(50% - 4px);
+  top: calc(50% - 4px - var(--_shift));
+}
+.tooltip[data-place='left']::after {
+  left: 100%;
+  top: 0;
+  bottom: 0;
+  width: var(--_offset);
 }
 .tooltip[data-place='left'][data-open='true'] {
-  transform: translate(0, -50%);
+  transform: translate(0, calc(-50% + var(--_shift)));
 }
 
 .tooltip[data-place='right'] {
   left: calc(100% + var(--_offset));
   top: 50%;
-  transform: translate(calc(-1 * var(--_slide)), -50%);
+  transform: translate(calc(-1 * var(--_slide)), calc(-50% + var(--_shift)));
 }
 .tooltip[data-place='right']::before {
   right: calc(100% - 4px);
-  top: calc(50% - 4px);
+  top: calc(50% - 4px - var(--_shift));
+}
+.tooltip[data-place='right']::after {
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  width: var(--_offset);
 }
 .tooltip[data-place='right'][data-open='true'] {
-  transform: translate(0, -50%);
+  transform: translate(0, calc(-50% + var(--_shift)));
+}
+
+/* 고대비: 배경색이 바탕색으로 바뀌어 말풍선의 경계가 사라진다 — 테두리로 다시 긋는다.
+ * 화살표는 테두리를 이을 수 없어 감춘다 */
+@media (forced-colors: active) {
+  .tooltip {
+    border: 1px solid CanvasText;
+  }
+  .tooltip::before {
+    display: none;
+  }
 }
 
 /* 모션 민감 사용자: 슬라이드를 0으로 — 페이드만 남는다 */

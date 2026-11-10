@@ -28,7 +28,7 @@
   position: relative;
   z-index: 2;
   transition: none;
-  box-shadow: var(--reorder-lift-shadow, 0 12px 28px rgb(0 0 0 / 0.28));
+  box-shadow: var(--reorder-lift-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)));
 }
 
 /* 손잡이는 반드시 <button> — 키보드 사용자에게 드래그는 존재하지 않는 기능이다.

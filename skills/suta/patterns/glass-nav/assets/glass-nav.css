@@ -29,7 +29,7 @@
   --_active-bg: var(--gnav-active-bg, rgba(255, 255, 255, 0.18));
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: var(--z-sticky, 30);
   padding: 8px 12px;
   color: var(--_color);
   /* 숨김은 transform만 — 레이아웃 속성 금지 */

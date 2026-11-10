@@ -4,7 +4,7 @@
 .viewer {
   position: fixed;
   inset: 0;
-  z-index: var(--viewer-z, 100);
+  z-index: var(--viewer-z, var(--z-viewer, 90));
   display: grid;
   place-items: center;
   touch-action: none; /* 두 축 모두 코어가 받는다 — 뷰어는 전체화면이라 페이지 스크롤이 필요 없다 */

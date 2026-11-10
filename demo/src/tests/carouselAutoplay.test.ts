@@ -68,4 +68,57 @@ describe('createCarouselAutoplay — 자동재생과 정지 조건', () => {
     vi.advanceTimersByTime(3000)
     expect(ticks).toBe(0)
   })
+
+  it('탭이 가려진 동안(다른 탭·최소화) 멈추고, 돌아오면 간격을 처음부터 다시 센다', () => {
+    let hidden = false
+    const spy = vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden)
+    register()
+    vi.advanceTimersByTime(900)
+    hidden = true
+    document.dispatchEvent(new Event('visibilitychange'))
+    vi.advanceTimersByTime(5000)
+    expect(ticks).toBe(0)
+    hidden = false
+    document.dispatchEvent(new Event('visibilitychange'))
+    vi.advanceTimersByTime(900)
+    expect(ticks).toBe(0)
+    vi.advanceTimersByTime(200)
+    expect(ticks).toBe(1)
+    spy.mockRestore()
+  })
+
+  it('reset()은 간격을 처음부터 다시 센다 (점을 눌러 옮긴 직후에 자동으로 또 넘어가지 않게)', () => {
+    const autoplay = register()
+    vi.advanceTimersByTime(900)
+    autoplay.reset()
+    vi.advanceTimersByTime(900)
+    expect(ticks).toBe(0)
+    vi.advanceTimersByTime(200)
+    expect(ticks).toBe(1)
+  })
+
+  it('reset()은 멈춰 있는 자동재생을 다시 켜지 않는다', () => {
+    const autoplay = register()
+    autoplay.toggle()
+    autoplay.reset()
+    vi.advanceTimersByTime(3000)
+    expect(ticks).toBe(0)
+  })
+
+  it('isPaused()는 사용자가 멈췄는지를 알린다 — 호버로 잠깐 선 것과 구별한다 (일시정지 버튼의 글자용)', () => {
+    const autoplay = register()
+    track.dispatchEvent(new Event('pointerenter'))
+    expect(autoplay.isPlaying()).toBe(false)
+    expect(autoplay.isPaused()).toBe(false)
+    autoplay.toggle()
+    expect(autoplay.isPaused()).toBe(true)
+  })
+
+  it('stop() 뒤에는 탭이 다시 보여도 재생하지 않는다', () => {
+    const autoplay = register()
+    autoplay.stop()
+    document.dispatchEvent(new Event('visibilitychange'))
+    vi.advanceTimersByTime(3000)
+    expect(ticks).toBe(0)
+  })
 })

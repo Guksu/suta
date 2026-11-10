@@ -1,5 +1,5 @@
 /* bottom-sheet — 아래에서 올라오는 시트 + 드래그 닫기.
- * 커스터마이즈: --sheet-duration, --sheet-radius, --sheet-bg, --sheet-max-height.
+ * 커스터마이즈: --sheet-duration, --sheet-radius, --sheet-bg, --sheet-max-height, --sheet-head-height.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 시트는 언마운트하지 않고 data-open으로만 여닫는다 — 닫힘 애니메이션이 공짜가 된다. */
 
@@ -10,7 +10,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--sheet-duration, 350ms) ease;
-  z-index: 40;
+  z-index: var(--z-overlay, 40);
 }
 
 .sheet-backdrop[data-open='true'] {
@@ -26,18 +26,47 @@
   bottom: 0;
   max-height: var(--sheet-max-height, 85dvh);
   overflow-y: auto;
+  /* 시트 끝에서 계속 굴려도 뒤 페이지가 따라 움직이지 않게 */
+  overscroll-behavior: contain;
+  /* 홈 표시줄이 있는 기기에서 마지막 줄이 가려지지 않게 (해당 없는 기기에서는 0) */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--sheet-bg, #fff);
   border-radius: var(--sheet-radius, 20px) var(--sheet-radius, 20px) 0 0;
   transform: translateY(100%);
+  /* 닫힌 시트는 화면 밖에 있을 뿐 DOM에는 남는다 — visibility로 Tab 순서와 스크린 리더에서 뺀다.
+   * 닫힘 이동이 끝난 뒤에 감춰야 하므로 visibility만 지연시킨다 */
+  visibility: hidden;
   /* 드로어 전용 커브 — 빠르게 나와서 부드럽게 정착한다 */
-  transition: transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: 41;
+  transition:
+    transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 0s linear var(--_duration);
+  z-index: calc(var(--z-overlay, 40) + 1);
   /* 세로 드래그를 시트가 가져간다 — 없으면 모바일에서 페이지 스크롤과 싸운다 */
   touch-action: none;
 }
 
 .bottom-sheet[data-open='true'] {
   transform: translateY(0);
+  visibility: visible;
+  transition:
+    transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 0s;
+}
+
+/* 열릴 때 포커스는 시트 자신이 받는다 — 시트는 누르는 요소가 아니므로 포커스 링을 그리지 않는다 */
+.bottom-sheet:focus {
+  outline: none;
+}
+
+/* 긴 내용 — 시트가 아니라 이 안쪽 영역이 스크롤된다. 그 위의 머리(핸들·제목)는 제자리에 남아 끌어서 닫을 수 있다.
+ * 시트 자신은 touch-action: none이라 손가락으로 굴릴 수 없다. --sheet-head-height에 머리 높이를 적는다(핸들만 있으면 20px) */
+.sheet-scroll {
+  max-height: calc(
+    var(--sheet-max-height, 85dvh) - var(--sheet-head-height, 20px) - env(safe-area-inset-bottom, 0px)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* 드래그 핸들 — 잡을 수 있다는 힌트이자 터치 타깃 */
@@ -47,6 +76,16 @@
   border-radius: 999px;
   background: rgba(128, 128, 128, 0.4);
   margin: 8px auto;
+}
+
+/* 고대비: 배경색이 바탕색으로 바뀌어 시트와 뒤 화면의 경계가 사라진다 — 위 테두리로 다시 긋고 핸들을 글자색으로 칠한다 */
+@media (forced-colors: active) {
+  .bottom-sheet {
+    border-top: 1px solid CanvasText;
+  }
+  .sheet-handle {
+    background: CanvasText;
+  }
 }
 
 /* 모션 민감 사용자: 이동을 끄고 페이드로 완화한다 */

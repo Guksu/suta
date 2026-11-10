@@ -5,12 +5,14 @@
 .qty {
   --_h: var(--qty-height, 2.5rem);
   display: inline-flex;
+  /* 좁은 행(flex) 안에서 줄어들지 않는다 — overflow: hidden이라 줄어들면 + 버튼이 잘려 안 보인다. 이름 쪽이 꺾여야 한다 */
+  flex: none;
   align-items: center;
   height: var(--_h);
-  border: 1px solid var(--qty-border, #d1d5db);
+  border: 1px solid var(--qty-border, #d4d4d4);
   border-radius: var(--qty-radius, 10px);
   background: var(--qty-bg, #fff);
-  color: var(--qty-color, #111827);
+  color: var(--qty-color, var(--color-text, #1c1c1c));
   overflow: hidden;
 }
 
@@ -41,8 +43,11 @@
   transition: background 120ms ease;
 }
 
-.qty-button:hover {
-  background: var(--qty-hover, rgb(0 0 0 / 0.05));
+/* hover는 마우스처럼 올려 둘 수 있는 포인터에서만 — 터치에서는 누른 뒤에도 hover가 남아 버튼이 눌린 채로 보인다 */
+@media (hover: hover) {
+  .qty-button:hover {
+    background: var(--qty-hover, rgb(0 0 0 / 0.05));
+  }
 }
 
 .qty-button:active {
@@ -64,13 +69,23 @@
   background: none;
 }
 
+/* 화면 낭독기 전용 — 버튼으로 바꾼 값을 알리는 자리 */
+.qty-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* 숫자 칸 — 자릿수가 늘어도 폭이 출렁이지 않게 등폭 숫자를 쓴다 */
 .qty-value {
   width: var(--qty-value-width, 3rem);
   height: 100%;
   border: none;
-  border-left: 1px solid var(--qty-border, #d1d5db);
-  border-right: 1px solid var(--qty-border, #d1d5db);
+  border-left: 1px solid var(--qty-border, #d4d4d4);
+  border-right: 1px solid var(--qty-border, #d4d4d4);
   background: none;
   color: inherit;
   font: inherit;

@@ -10,16 +10,18 @@
   gap: var(--otp-gap, 0.5rem);
   /* 여섯 칸(기본 328px)이 320px 화면에서 넘치지 않게 — 부모보다 넓어지지 않고, 칸이 대신 줄어든다 */
   max-width: 100%;
+  /* 코드는 오른쪽에서 왼쪽으로 쓰는 글(dir="rtl") 안에서도 왼쪽부터 읽는다 — 칸 순서와 방향키가 뒤집히지 않게 고정한다 */
+  direction: ltr;
 }
 
 .otp-cell {
   width: var(--_size);
   min-width: 0;
   height: calc(var(--_size) * 1.2);
-  border: 1.5px solid var(--otp-border, #d1d5db);
+  border: 1.5px solid var(--otp-border, #d4d4d4);
   border-radius: var(--otp-radius, 10px);
   background: var(--otp-bg, #fff);
-  color: var(--otp-color, #111827);
+  color: var(--otp-color, var(--color-text, #1c1c1c));
   font: inherit;
   font-size: calc(var(--_size) * 0.5);
   font-variant-numeric: tabular-nums;
@@ -32,13 +34,22 @@
 
 /* 채워진 칸은 테두리를 진하게 — 어디까지 입력했는지 눈으로 셀 수 있다 */
 .otp-cell[data-filled='true'] {
-  border-color: var(--otp-filled-border, #9ca3af);
+  border-color: var(--otp-filled-border, #8a8a8a);
 }
 
 .otp-cell:focus {
   outline: none;
   border-color: var(--_accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--_accent) 25%, transparent);
+}
+
+/* 틀린 코드 — 흔들림이 끝난 뒤에도 남는 표시. 다시 입력을 시작하면 호출하는 쪽이 aria-invalid를 끈다 */
+.otp-cell[aria-invalid='true'] {
+  border-color: var(--otp-error, var(--color-danger, #c8341f));
+}
+
+.otp-cell[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--otp-error, var(--color-danger, #c8341f)) 25%, transparent);
 }
 
 .otp-cell:disabled {
@@ -53,7 +64,7 @@
 }
 
 .otp-group[data-shake] .otp-cell {
-  border-color: var(--otp-error, #dc2626);
+  border-color: var(--otp-error, var(--color-danger, #c8341f));
 }
 
 @keyframes otp-shake {
@@ -61,6 +72,14 @@
   20%, 80% { transform: translateX(6px); }
   30%, 50%, 70% { transform: translateX(-6px); }
   40%, 60% { transform: translateX(6px); }
+}
+
+/* 고대비(forced-colors)에서는 테두리 색이 모두 같은 시스템 색이 되고 그림자가 지워져 포커스한 칸이 보이지 않는다 — 외곽선으로 알린다 */
+@media (forced-colors: active) {
+  .otp-cell:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
 }
 
 /* 모션 민감 사용자: 흔들림은 없애되 붉은 테두리는 남긴다 — 실패했다는 정보 자체는 모션이 아니다 */

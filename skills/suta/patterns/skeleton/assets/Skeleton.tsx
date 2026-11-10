@@ -7,16 +7,23 @@ type SkeletonProps = {
   /** text 전용: 글줄 수 (마지막 줄은 자동으로 짧아진다) */
   lines?: number
   width?: string | number
+  /** rect·circle은 상자 높이. text는 막대 두께다 — 글줄 상자의 높이는 그 자리의 line-height가 정한다 */
   height?: string | number
   className?: string
 }
+
+const toCssLength = (value: string | number) => (typeof value === 'number' ? `${value}px` : value)
 
 /**
  * skeleton.css의 React 편의 래퍼 — 로직이 없는 순수 마크업 도우미다.
  * 순수 JS에서는 CSS 클래스만으로 동일하게 쓸 수 있다: <div class="skeleton skeleton-text" />
  */
 export const Skeleton = ({ variant = 'rect', lines = 1, width, height, className }: SkeletonProps) => {
-  const style: CSSProperties = { width, height }
+  // text는 height를 상자가 아니라 막대 두께(--skeleton-line)로 넘긴다 — 상자는 실제 글 한 줄 높이를 지켜야 한다
+  const style: CSSProperties =
+    variant === 'text'
+      ? ({ width, ...(height === undefined ? {} : { '--skeleton-line': toCssLength(height) }) } as CSSProperties)
+      : { width, height }
   const classes = ['skeleton', variant === 'rect' ? '' : `skeleton-${variant}`, className]
     .filter(Boolean)
     .join(' ')
