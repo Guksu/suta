@@ -21,9 +21,14 @@ type CreateDropZoneOptions = {
    * 작성 중이던 화면이 통째로 날아가는 사고를 막는다.
    */
   blockWindowDrop?: boolean
+  /**
+   * 지금 받지 않는 상태인지(잠금·개수가 다 참). true면 테두리가 살아나지 않고 커서가 "금지"가 되며 놓아도 받지 않는다.
+   * 그래도 기본 동작은 막는다 — 안 막으면 브라우저가 그 파일을 탭에 연다.
+   */
+  isDisabled?: () => boolean
 }
 
-export const createDropZone = ({ zone, onDrop, onDragStateChange, blockWindowDrop = true }: CreateDropZoneOptions) => {
+export const createDropZone = ({ zone, onDrop, onDragStateChange, blockWindowDrop = true, isDisabled }: CreateDropZoneOptions) => {
   // 자식 위를 지날 때도 enter/leave가 오므로, 깊이를 세어 0이 될 때만 벗어난 것으로 본다
   let depth = 0
 
@@ -38,13 +43,13 @@ export const createDropZone = ({ zone, onDrop, onDragStateChange, blockWindowDro
     if (!hasFiles(event)) return
     event.preventDefault()
     depth += 1
-    if (depth === 1) setDragging(true)
+    if (depth === 1 && !isDisabled?.()) setDragging(true)
   }
 
   const onDragOver = (event: DragEvent) => {
     if (!hasFiles(event)) return
     event.preventDefault() // 이게 없으면 drop이 오지 않는다
-    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy' // 커서를 "복사"로
+    if (event.dataTransfer) event.dataTransfer.dropEffect = isDisabled?.() ? 'none' : 'copy' // 커서를 "복사"로(잠겼으면 "금지")
   }
 
   const onDragLeave = () => {
@@ -57,6 +62,7 @@ export const createDropZone = ({ zone, onDrop, onDragStateChange, blockWindowDro
     event.preventDefault()
     depth = 0
     setDragging(false)
+    if (isDisabled?.()) return
     onDrop(Array.from(event.dataTransfer?.files ?? []))
   }
 

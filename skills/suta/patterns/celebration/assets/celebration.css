@@ -218,3 +218,23 @@
     animation: none;
   }
 }
+
+/* 고대비 모드 — 배경색이 시스템 색으로 강제돼 패널과 어두운 막, 버튼과 패널의 경계가 사라진다.
+ * 테두리로 경계를 다시 긋는다. 조각은 장식이라 숨긴다(바탕색으로 칠해져 얼룩처럼 남는다) */
+@media (forced-colors: active) {
+  .celebration {
+    border: 1px solid CanvasText;
+  }
+
+  .celebration-figure {
+    border: 2px solid CanvasText;
+  }
+
+  .celebration-action {
+    border: 1px solid ButtonText;
+  }
+
+  .celebration-burst {
+    display: none;
+  }
+}

@@ -90,7 +90,7 @@ export const PageTransitionDemo = () => {
   const [durationMs, setDurationMs] = useState(280)
   const [shiftPercent, setShiftPercent] = useState(30)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const stack = usePageStack<Screen>({ initial: { name: 'list' }, scrollRef })
+  const stack = usePageStack<Screen>({ initial: { name: 'list' }, scrollRef, syncHistory: true })
 
   const screen = stack.current
   const menu = 'id' in screen ? MENUS.find((item) => item.id === screen.id) : undefined

@@ -115,4 +115,57 @@ describe('useTheme — 선택 기억과 기기 설정 따라가기', () => {
     expect(result.current.resolved).toBe('dark')
     setItem.mockRestore()
   })
+
+  it('한 화면의 두 곳(머리의 버튼과 설정 화면)이 같은 선택을 본다', () => {
+    stubSystemTheme(false)
+    const header = renderHook(() => useTheme())
+    const settings = renderHook(() => useTheme())
+
+    act(() => settings.result.current.setTheme('dark'))
+    expect(header.result.current.choice).toBe('dark')
+    expect(header.result.current.resolved).toBe('dark')
+
+    act(() => header.result.current.setTheme('system'))
+    expect(settings.result.current.choice).toBe('system')
+  })
+
+  it('저장 키가 다르면 서로 따라가지 않는다 — 미리보기 영역의 테마는 따로다', () => {
+    stubSystemTheme(false)
+    const page = renderHook(() => useTheme())
+    const preview = renderHook(() => useTheme({ storageKey: 'preview-theme' }))
+
+    act(() => preview.result.current.setTheme('dark'))
+    expect(page.result.current.resolved).toBe('light')
+  })
+
+  it('다른 탭에서 바꾼 선택(storage 이벤트)을 따라간다', () => {
+    stubSystemTheme(false)
+    const { result } = renderHook(() => useTheme())
+
+    act(() => {
+      localStorage.setItem('theme', 'dark')
+      window.dispatchEvent(new StorageEvent('storage', { key: 'theme', newValue: 'dark' }))
+    })
+    expect(result.current.resolved).toBe('dark')
+
+    // 다른 키의 변화에는 반응하지 않는다
+    act(() => {
+      localStorage.setItem('theme', 'light')
+      window.dispatchEvent(new StorageEvent('storage', { key: 'cart', newValue: '1' }))
+    })
+    expect(result.current.resolved).toBe('dark')
+  })
+
+  it('저장이 막힌 환경에서도 한 화면의 두 곳은 같은 선택을 본다', () => {
+    stubSystemTheme(false)
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('SecurityError')
+    })
+    const header = renderHook(() => useTheme())
+    const settings = renderHook(() => useTheme())
+
+    act(() => settings.result.current.setTheme('dark'))
+    expect(header.result.current.resolved).toBe('dark')
+    setItem.mockRestore()
+  })
 })

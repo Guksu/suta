@@ -46,6 +46,11 @@ const SELECTED_GAP_PX = 16
 /** 뒤 카드 한 장당 줄어드는 배율 — 2%면 4장에서도 맨 뒤가 94%라 글자가 뭉개지지 않는다 */
 const SCALE_STEP = 0.02
 
+/** 배율이 줄어드는 깊이의 한도 — 7장째부터는 0.86에 머문다. 한도가 없으면 수십 장에서 맨 뒤 카드가 점이 되고 50장을 넘으면 음수(뒤집힘)가 된다 */
+const MAX_SCALE_DEPTH = 7
+
+const depthScale = (depth: number) => roundScale(1 - SCALE_STEP * Math.min(Math.max(depth, 0), MAX_SCALE_DEPTH))
+
 /** 부동소수 잔재(0.9400000001)를 없앤다 — style 문자열이 깔끔해야 스냅샷·비교가 안정적이다 */
 const roundScale = (value: number) => Math.round(value * 100) / 100
 
@@ -76,7 +81,7 @@ export const cardTransform = ({
     const restCount = count - 1
     return {
       translateY: Math.round(cardHeight + SELECTED_GAP_PX + peekPx * rank),
-      scale: roundScale(1 - SCALE_STEP * (restCount - 1 - rank)),
+      scale: depthScale(restCount - 1 - rank),
       zIndex: rank,
     }
   }
@@ -84,7 +89,7 @@ export const cardTransform = ({
   // stacked (selectedIndex가 없는 selected도 stacked로 취급 — 잘못된 상태로 카드를 잃지 않는다)
   return {
     translateY: Math.round(peekPx * index),
-    scale: roundScale(1 - SCALE_STEP * (count - 1 - index)),
+    scale: depthScale(count - 1 - index),
     zIndex: index,
   }
 }

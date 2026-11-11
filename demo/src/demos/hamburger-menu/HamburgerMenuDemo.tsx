@@ -80,8 +80,8 @@ export const HamburgerMenuDemo = () => {
         <p className="drawer-stage-body">{t.body}</p>
       </div>
 
-      <Drawer open={open} onClose={() => setOpen(false)} side={side} className="demo-drawer">
-        <nav className="drawer-nav" aria-label={t.navLabel}>
+      <Drawer open={open} onClose={() => setOpen(false)} side={side} label={t.navLabel} className="demo-drawer">
+        <nav className="drawer-nav">
           <strong className="drawer-nav-title">{t.shopName}</strong>
           {t.links.map((label) => (
             <a key={label} href="#/hamburger-menu" onClick={() => setOpen(false)}>

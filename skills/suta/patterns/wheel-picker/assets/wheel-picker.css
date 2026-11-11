@@ -33,6 +33,7 @@
   box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden; /* 긴 이름이 트랙 안에 가로 스크롤을 만들지 않게 — 넘치는 글자는 잘린다 */
   overscroll-behavior: contain; /* 끝에서 더 굴려도 페이지가 따라 움직이지 않게 */
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
@@ -71,6 +72,25 @@
 .wheel-item[data-center] {
   color: var(--wheel-active-color, inherit);
   font-weight: 600;
+}
+
+/* 조작을 받지 않는 휠 — 값은 보이되 흐리게, 굴리기·클릭은 통과시키지 않는다(키보드는 래퍼가 tabindex -1로 뺀다) */
+.wheel-track[aria-disabled='true'] {
+  overflow-y: hidden;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* 고대비 모드는 box-shadow와 옅은 배경을 지운다 — 포커스는 outline으로, 선택 띠는 위아래 선으로 보인다 */
+@media (forced-colors: active) {
+  .wheel-track:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  .wheel::before {
+    border-block: 1px solid CanvasText;
+    border-radius: 0;
+  }
 }
 
 /* 모션 민감 사용자: 3D 기울기·흐림을 끄고 평평한 스냅 리스트로, 이동은 즉시 점프 */

@@ -18,7 +18,8 @@ description: 카드가 제자리에서 자라나 상세 화면이 되는 공유 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
 | `assets/runCardExpand.ts` | 코어 — 이름 부여 순서 관리 + View Transitions 호출 + 폴백 (`assignTransitionNames`/`clearTransitionNames` 포함) | 모든 프로젝트 |
-| `assets/useCardExpand.ts` | React 훅 — 열림 상태·flushSync·Esc·포커스 복귀 | React 프로젝트만 |
+| `assets/useCardExpand.ts` | React 훅 — 열림 상태·flushSync·Esc·뒤로 가기·포커스 이동과 가두기 | React 프로젝트만 |
+| `assets/createBackDismiss.ts` | 뒤로 가기로 닫기(`closeOnBack`) — 훅이 import한다 | React 프로젝트만 |
 | `assets/card-expand.css` | 세 그룹(루트·그림·제목)의 움직임, 컨테이너·상세 배치, reduced-motion | 모든 프로젝트 |
 
 ## 원리 — 이름은 한 번에 한 요소에만
@@ -77,7 +78,8 @@ const Today = () => {
 ```
 
 - `inert`는 상세가 열린 동안 목록을 키보드·스크린 리더에서 빼낸다(상세가 덮고 있어도 DOM에는 남아 있다 — 닫을 때 돌아갈 자리이므로 언마운트하면 안 된다).
-- 훅이 Esc 닫기와, 닫힌 뒤 눌렀던 카드로 포커스 복귀를 처리한다. 열릴 때 닫기 버튼으로 포커스를 옮기는 것은 화면 쪽에서 `useEffect`로 한다.
+- 훅이 포커스를 맡는다. 열리면 `.card-expand-close`(없으면 상세 루트)로 옮기고, Tab은 상세 안에서 돌고, 닫히면 눌렀던 카드로 돌려보낸다. Esc로 닫힌다.
+- `useCardExpand({ …, closeOnBack: true })`로 두면 열려 있는 동안 뒤로 가기가 페이지를 떠나지 않고 상세를 닫는다(기본 꺼짐).
 - `.card-expand-detail-body`에 감싼 내용은 상자가 다 자란 뒤(200ms 지연) 페이드 인된다 — 자라는 동안 글자까지 늘어나면 어지럽다.
 
 ## 사용 방법 — 순수 JS (React 없음)
@@ -110,6 +112,23 @@ const close = (id) =>
   })
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 같은 카드를 연달아 누른다 | 전환은 한 번만 시작된다. 전환 중의 `expand`는 받지 않는다 | `assets` — `useCardExpand` |
+| 열리는 중에 Esc·뒤로 가기를 누른다 | 버리지 않는다. 여는 전환이 끝난 직후에 닫는다. 진행 중인 전환을 끊으면 화면이 툭 바뀐다 | `assets` — `useCardExpand` |
+| 키보드로 연다 | 포커스가 닫기 버튼으로 간다. Tab은 상세 안에서만 돈다(마지막 → 처음, Shift+Tab은 반대). 닫히면 눌렀던 카드로 돌아온다 | `assets` — `useCardExpand`. 목록의 `inert`는 `프로젝트`(위 예시) |
+| 뒤로 가기를 누른다 | `closeOnBack: true`면 상세만 닫히고 페이지는 그대로다. 버튼·Esc로 닫으면 쌓아 둔 history 항목을 걷는다 | `assets` — `createBackDismiss` |
+| 상세가 열린 사이 목록이 갱신돼 그 카드가 없다 | 돌아갈 사각형이 없어 상세는 줄어들지 않고 사라진다. 포커스는 `body`가 아니라 컨테이너(`tabindex="-1"`)로 간다 | `assets` — `useCardExpand` |
+| 상세의 내용을 서버에서 받는다 | 카드에 이미 있는 그림·제목으로 상세를 먼저 열고, 나머지는 본문 자리에 뼈대를 둔다. 응답을 기다렸다 열면 누른 뒤 빈 시간이 생긴다 | `프로젝트` — `patterns/skeleton` |
+| 제목이 길어 카드에서는 한 줄로 잘리고 상세에서는 두 줄이다 | 제목 부위는 두 사진을 겹쳐 넘기므로 중간에 글자가 겹쳐 보인다. 차이가 크면 제목의 `data-card-expand-part`를 빼고 그림만 잇는다 | `프로젝트` |
+| 닫기 버튼을 터치로 누른다 | 보이는 원은 32px, 누르는 영역은 44px이다 | `assets` — `card-expand.css` |
+| 코어를 직접 불러 전환이 겹친다 | 끝난 뒤 `:root`의 `view-transition-name`이 `none`으로 남지 않고, 늦게 끝난 앞선 전환이 `data-card-expand`를 지우지 않는다 | `assets` — `runCardExpand` |
+| 탭이 가려져 있거나 브라우저가 전환을 지원하지 않는다 | 전환 없이 열리고 닫힌다. 포커스·Esc·뒤로 가기는 그대로 동작한다 | `assets` — `runCardExpand`의 폴백 |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 | 기본값 |
@@ -130,6 +149,12 @@ const close = (id) =>
 }
 ```
 
+## 함께 쓰는 패턴
+
+- `patterns/page-transition`·`patterns/theme-toggle` — 같은 화면에 함께 둘 수 있다. 코어는 전환하는 그 순간만 `:root`의 이름을 `none`으로 두고 끝나면 원래 값으로 되돌린다. 한 번의 화면 이동에 두 전환을 겹치지는 않는다.
+- `patterns/skeleton` — 상세의 본문을 서버에서 받는 동안. 그림과 제목은 카드의 것으로 바로 잇고 본문 자리에만 뼈대를 둔다.
+- `patterns/zoom-lightbox` — 커진 뒤에 조작할 것이 없는 사진 한 장. 상세 화면이 필요 없으면 그쪽이 가볍다.
+
 ## 주의사항
 
 - **`update`는 동기적으로 DOM을 바꿔야 한다.** React라면 `flushSync`가 필수다(`useCardExpand`는 이미 그렇게 한다). 그냥 `setState`하면 브라우저가 새 사진을 찍는 시점에 아직 옛 화면이라 전환이 "카드 → 카드"가 된다.
@@ -138,8 +163,7 @@ const close = (id) =>
 - **카드는 닫을 때까지 DOM에 남아 있어야 한다.** 상세를 열 때 목록을 언마운트하면 돌아갈 사각형이 없어 그냥 사라진다. `inert`로 막되 없애지 마라.
 - **컨테이너가 아니라 안쪽 목록이 스크롤해야 한다.** 컨테이너(`position: relative`)가 스크롤되면 `absolute` 상세가 스크롤된 내용의 맨 위에 붙어 화면 밖으로 나간다. 목록에 `overflow-y: auto`, 컨테이너는 `overflow: hidden`.
 - **루트 사진 두 장은 교차 페이드하지 않는다.** 카드와 상세는 종횡비가 달라 겹쳐 섞으면 중간 프레임이 뭉개진다 — 한 장만 보이게 하고 상자 밖은 잘라낸다(`::view-transition-image-pair(card-expand) { overflow: clip }`). 그래서 열 때는 처음부터 상세가, 닫을 때는 마지막까지 상세가 보이다가 ease-in으로 빠진다. 그림 부위는 `object-fit: cover`로 상자를 채운다.
-- **전환 중 사용자 입력은 잠긴다**(View Transitions API의 동작). 420ms는 화면을 덮는 큰 상자에 필요한 시간이지만 그 이상은 "느린 앱"이 된다. 훅은 전환 중 겹쳐 들어온 expand/collapse를 무시한다.
+- **전환 중 포인터 입력은 잠긴다**(View Transitions API의 동작). 420ms는 화면을 덮는 큰 상자에 필요한 시간이지만 그 이상은 "느린 앱"이 된다.
 - **미지원 브라우저(구형 사파리·파이어폭스)에서는 전환이 없다.** 상세는 정상적으로 열리고 닫힌다 — 연출만 빠진다. 폴백 애니메이션을 따로 만들지 않은 것은 의도다(두 벌의 전환 코드는 반드시 어긋난다).
-- **page-transition·theme-toggle 패턴과 함께 써도 된다.** 코어는 전환하는 그 순간만 `:root`의 이름을 `none`으로 두고 끝나면 원래 값으로 되돌린다.
-- **reduced-motion 대응 내장** — 상자가 화면을 가로질러 자라는 대신 120ms 겹침으로 바뀌고, 본문 지연 페이드도 꺼진다. 전환을 아예 없애지 않는 이유는, 갑자기 내용만 바뀌면 같은 화면인지 다른 화면인지 알기 어렵기 때문이다.
+- 동작 줄이기에서는 상자가 화면을 가로질러 자라는 대신 120ms 겹침으로 바뀌고, 본문 지연 페이드도 꺼진다. 전환을 아예 없애지 않는 이유는, 갑자기 내용만 바뀌면 같은 화면인지 다른 화면인지 알기 어렵기 때문이다.
 - 상세는 `role="dialog"` + `aria-modal="true"` + `aria-labelledby`로 표시한다 — 목록이 `inert`이므로 스크린 리더에는 상세만 남는다.

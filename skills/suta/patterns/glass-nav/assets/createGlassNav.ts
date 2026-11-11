@@ -152,6 +152,8 @@ export const createGlassNav = ({ container = document, nav, onChange, spy, ...op
   }
 
   const onClick = (event: MouseEvent) => {
+    // 새 탭·새 창으로 열려는 클릭은 브라우저에 맡긴다 — 가로채면 Ctrl+클릭이 그냥 스크롤이 된다
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
     const link = (event.target as Element | null)?.closest?.('a[href^="#"]')
     const pair = pairs.find((item) => item.link === link)
     if (!pair) return
@@ -170,12 +172,20 @@ export const createGlassNav = ({ container = document, nav, onChange, spy, ...op
     scrollContainerTo(top)
   }
 
+  /** 숨거나 접힌 바 안으로 포커스가 들어왔다(Tab) — 화면 밖·폭 0인 링크에 포커스가 가면 어디 있는지 보이지 않는다. 펼친다 */
+  const onFocusIn = () => {
+    if (!state.hidden && !state.compact) return
+    // 지금 자리를 기준점으로 — 같은 자리의 다음 스크롤 이벤트가 "내려가는 중"으로 읽혀 곧바로 다시 숨지 않게
+    apply({ ...state, hidden: false, compact: false, anchorY: Math.max(0, scrollTopOf(container)) })
+  }
+
   // 첫 상태 — 새로고침으로 중간에서 시작해도 맞는 모양으로
   nav.dataset.elevated = 'false'
   nav.dataset.hidden = 'false'
   nav.dataset.compact = 'false'
   measure()
   container.addEventListener('scroll', onScroll, { passive: true })
+  nav.addEventListener('focusin', onFocusIn)
   if (pairs.length) {
     nav.addEventListener('click', onClick)
     // 알약 너비는 글자 너비다 — 웹폰트가 늦게 실리거나 창 크기가 바뀌면 다시 잰다
@@ -202,6 +212,7 @@ export const createGlassNav = ({ container = document, nav, onChange, spy, ...op
       clearTimeout(unlockTimer)
       container.removeEventListener('scroll', onScroll)
       nav.removeEventListener('click', onClick)
+      nav.removeEventListener('focusin', onFocusIn)
       window.removeEventListener('resize', placePill)
       delete nav.dataset.elevated
       delete nav.dataset.hidden

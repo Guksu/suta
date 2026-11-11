@@ -29,6 +29,7 @@ export const createLongPress = ({ target, delayMs = 450, moveTolerancePx = 10, o
   let startX = 0
   let startY = 0
   let pressing = false // 주 버튼이 눌린 채인가
+  let pointerId: number | null = null // 누르고 있는 포인터 — 다른 손가락의 이벤트와 구별한다
   let fired = false // 이번 누름에서 이미 발화했는가 — 다음 click 억제·contextmenu 중복 방지용
 
   const cancel = () => {
@@ -47,6 +48,12 @@ export const createLongPress = ({ target, delayMs = 450, moveTolerancePx = 10, o
 
   const onPointerDown = (event: PointerEvent) => {
     if (event.button !== 0) return // 우클릭은 contextmenu 경로로 온다
+    // 누르는 중에 닿은 두 번째 손가락 — 두 손가락은 확대·넘기기지 길게 누르기가 아니다
+    if (pressing && pointerId != null && event.pointerId != null && event.pointerId !== pointerId) {
+      cancel()
+      return
+    }
+    pointerId = event.pointerId ?? null
     pressing = true
     fired = false
     startX = event.clientX
@@ -57,11 +64,15 @@ export const createLongPress = ({ target, delayMs = 450, moveTolerancePx = 10, o
 
   const onPointerMove = (event: PointerEvent) => {
     if (timer === undefined) return
+    if (pointerId != null && event.pointerId != null && event.pointerId !== pointerId) return
     if (Math.hypot(event.clientX - startX, event.clientY - startY) > moveTolerancePx) cancel()
   }
 
-  const onPointerEnd = () => {
+  const onPointerEnd = (event?: Event) => {
+    // 다른 손가락이 떼어진 것이면 누름은 그대로다(타이머는 그 손가락이 닿을 때 이미 취소됐다)
+    if (event && 'pointerId' in event && pointerId != null && event.pointerId != null && event.pointerId !== pointerId) return
     pressing = false
+    pointerId = null
     cancel()
   }
 
@@ -90,7 +101,7 @@ export const createLongPress = ({ target, delayMs = 450, moveTolerancePx = 10, o
 
   return {
     /** 진행 중인 누름을 강제로 취소한다 (예: 열린 동안 스크롤이 시작될 때) */
-    cancel: onPointerEnd,
+    cancel: () => onPointerEnd(),
     destroy: () => {
       cancel()
       target.removeEventListener('pointerdown', onPointerDown)

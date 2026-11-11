@@ -63,4 +63,39 @@ describe('validateFiles — 무엇을 받고 왜 거절하는가', () => {
     expect(formatBytes(5 * 1024 * 1024)).toBe('5.0MB')
     expect(formatBytes(21 * 1024 * 1024)).toBe('21MB')
   })
+
+  it('0바이트 파일은 empty로 거절한다 — 끌어 놓은 폴더와 깨진 파일이 이렇게 들어온다', () => {
+    const blank = makeFile({ name: '빈 파일.png', type: 'image/png', size: 0 })
+    const result = validateFiles({ files: [blank, photo] })
+
+    expect(result.accepted).toEqual([photo])
+    expect(result.rejected).toEqual([{ file: blank, reason: 'empty' }])
+  })
+
+  it('이미 담긴 파일과 이름·크기·수정 시각이 같으면 duplicate로 거절한다', () => {
+    const again = makeFile({ name: '국수.png', type: 'image/png' })
+    Object.defineProperty(again, 'lastModified', { value: photo.lastModified })
+    const result = validateFiles({ files: [again, scan], existing: [photo] })
+
+    expect(result.accepted).toEqual([scan])
+    expect(result.rejected).toEqual([{ file: again, reason: 'duplicate' }])
+  })
+
+  it('한 번에 고른 묶음 안의 같은 파일도 하나만 받는다', () => {
+    const result = validateFiles({ files: [photo, photo], existing: [] })
+
+    expect(result.accepted).toEqual([photo])
+    expect(result.rejected).toEqual([{ file: photo, reason: 'duplicate' }])
+  })
+
+  it('existing을 주지 않으면 같은 파일도 그대로 받는다 — 예전 동작', () => {
+    expect(validateFiles({ files: [photo, photo] }).accepted).toHaveLength(2)
+  })
+
+  it('겹친 파일은 개수 자리를 쓰지 않는다', () => {
+    const other = makeFile({ name: '만두.png', type: 'image/png' })
+    const result = validateFiles({ files: [photo, other], existing: [photo], maxFiles: 2, currentCount: 1 })
+
+    expect(result.accepted).toEqual([other])
+  })
 })

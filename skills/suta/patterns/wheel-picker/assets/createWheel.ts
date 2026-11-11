@@ -24,6 +24,8 @@ type CreateWheelOptions = {
   degPerItem?: number
   /** scrollend 미지원 브라우저의 정지 판정 대기(ms). 기본 150 */
   settleMs?: number
+  /** 지금 조작을 받지 않는가 — true면 키보드·클릭 이동을 무시한다(스크롤 막기는 CSS 몫) */
+  isDisabled?: () => boolean
 }
 
 export type WheelHandle = {
@@ -37,11 +39,16 @@ export type WheelHandle = {
 const reducedMotionQuery = () =>
   typeof matchMedia !== 'undefined' ? matchMedia('(prefers-reduced-motion: reduce)') : null
 
-export const createWheel = ({ container, itemHeight: itemHeightOption, onChange, degPerItem, settleMs = 150 }: CreateWheelOptions): WheelHandle => {
+export const createWheel = ({ container, itemHeight: itemHeightOption, onChange, degPerItem, settleMs = 150, isDisabled }: CreateWheelOptions): WheelHandle => {
   const reduced = reducedMotionQuery()
   const items = () => Array.from(container.children).filter((el): el is HTMLElement => el instanceof HTMLElement)
-  const first = items()[0]
-  const itemHeight = itemHeightOption ?? (first?.offsetHeight || 36)
+  let itemHeight = itemHeightOption ?? (items()[0]?.offsetHeight || 36)
+  /** 항목 높이를 다시 잰다 — 숨긴 채(display: none) 만들어지면 처음에는 0이라 기본 36으로 계산해 두었다 */
+  const measure = () => {
+    if (itemHeightOption !== undefined) return
+    const measured = items()[0]?.offsetHeight
+    if (measured) itemHeight = measured
+  }
   /** 가운데 위·아래로 보이는 칸 수 — 트랙 높이에서 역산(jsdom처럼 0이면 2 = 5칸 기준) */
   const maxVisible = () => {
     const rows = Math.round(container.clientHeight / itemHeight)
@@ -52,6 +59,7 @@ export const createWheel = ({ container, itemHeight: itemHeightOption, onChange,
   let frame = 0
   let settleTimer = 0
   let destroyed = false
+  let scrolling = false // 사용자가 굴리는 중인가 — 그동안에는 크기 변화에 자리를 다시 맞추지 않는다
 
   const scrollBehavior = (): ScrollBehavior => (reduced?.matches ? 'instant' : 'smooth')
 
@@ -106,11 +114,13 @@ export const createWheel = ({ container, itemHeight: itemHeightOption, onChange,
 
   const settle = () => {
     settleTimer = 0
+    scrolling = false
     commit(indexFromScrollTop({ scrollTop: container.scrollTop, itemHeight, count: items().length }))
   }
 
   const supportsScrollEnd = 'onscrollend' in window
   const handleScroll = () => {
+    scrolling = true
     scheduleRender()
     if (supportsScrollEnd) return
     // 마지막 scroll 이벤트 뒤 settleMs 동안 조용하면 멈춘 것으로 본다
@@ -129,12 +139,14 @@ export const createWheel = ({ container, itemHeight: itemHeightOption, onChange,
 
   /** 키보드·클릭처럼 사용자가 의도한 이동은 스크롤이 끝나기를 기다리지 않고 바로 확정한다 */
   const moveTo = (index: number) => {
+    if (items().length === 0) return // 고를 것이 없다 — 없는 인덱스를 알리지 않는다
     const changed = index !== committed
     setIndex(index)
     if (changed) onChange?.(index)
   }
 
   const handleKeyDown = (event: KeyboardEvent) => {
+    if (isDisabled?.()) return
     const next = nextIndexForKey({ index: Math.max(0, committed), count: items().length, key: event.key, page: maxVisible() * 2 + 1 })
     if (next === null) return
     event.preventDefault() // 방향키가 페이지를 스크롤하지 않게
@@ -142,6 +154,7 @@ export const createWheel = ({ container, itemHeight: itemHeightOption, onChange,
   }
 
   const handleClick = (event: MouseEvent) => {
+    if (isDisabled?.()) return
     // 클릭 지점에서 트랙 직계 자식(항목)까지 올라간다 — 클래스명에 의존하지 않는다
     let node = event.target as HTMLElement | null
     while (node && node.parentElement !== container) node = node.parentElement
@@ -155,8 +168,20 @@ export const createWheel = ({ container, itemHeight: itemHeightOption, onChange,
   container.addEventListener('keydown', handleKeyDown)
   container.addEventListener('click', handleClick)
   reduced?.addEventListener?.('change', scheduleRender)
+  /**
+   * 트랙 크기가 바뀌었다 — 닫힌 시트·대화상자 안에서 숨긴 채 만들어졌다가 보이게 됐거나, 글자 크기가 커졌다.
+   * 숨겨진 동안의 scrollTo는 먹지 않으므로, 항목 높이를 다시 재고 고른 자리로 한 번 더 맞춘다
+   */
+  const handleResize = () => {
+    measure()
+    if (committed >= 0 && !scrolling && !destroyed && container.clientHeight > 0) {
+      const top = scrollTopForIndex({ index: committed, itemHeight })
+      if (Math.abs(container.scrollTop - top) > 1) container.scrollTo({ top, behavior: 'instant' })
+    }
+    scheduleRender()
+  }
   // 보이는 칸 수·항목 높이가 바뀌면 스크롤 이벤트 없이도 기울기를 다시 그린다
-  const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(scheduleRender) : null
+  const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(handleResize) : null
   resizeObserver?.observe(container)
   render()
 

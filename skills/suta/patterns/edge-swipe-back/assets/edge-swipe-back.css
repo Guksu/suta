@@ -54,6 +54,13 @@
   user-select: none;
 }
 
+/* 고대비 모드는 그림자와 어둠을 지운다 — 밀리는 화면의 왼쪽 끝을 선으로 구분한다(정지 상태에서는 상자 밖이라 잘려 보이지 않는다) */
+@media (forced-colors: active) {
+  .edge-swipe-screen {
+    outline: 1px solid CanvasText;
+  }
+}
+
 /* 모션 민감 사용자: 손가락 추종은 그대로 두고(사용자가 움직이는 만큼만 움직인다), 놓으면 코어가 스프링 없이
  * 즉시 커밋/취소한다(matchMedia 판정). 그림자는 이동 중에만 의미가 있으므로 없앤다. */
 @media (prefers-reduced-motion: reduce) {

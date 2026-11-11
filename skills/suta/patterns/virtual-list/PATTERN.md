@@ -44,7 +44,8 @@ const OrderList = ({ orders }: { orders: Order[] }) => {
   const list = useVirtualList({ itemCount: orders.length, itemHeight: ITEM_HEIGHT })
 
   return (
-    <div ref={list.containerRef} className="virtual-viewport">
+    {/* tabIndex — 스크롤 상자가 포커스를 받아야 방향키·PageDown으로 굴릴 수 있다 */}
+    <div ref={list.containerRef} className="virtual-viewport" role="list" aria-label={`주문 ${orders.length}건`} tabIndex={0}>
       <div className="virtual-sizer" style={{ height: list.range.totalHeight }}>
         <div className="virtual-window" style={{ transform: `translateY(${list.range.offsetY}px)` }}>
           {list.indexes.map((index) => (
@@ -52,6 +53,9 @@ const OrderList = ({ orders }: { orders: Order[] }) => {
               key={orders[index].id}
               className="virtual-item"
               style={{ '--virtual-item-height': `${ITEM_HEIGHT}px` } as CSSProperties}
+              role="listitem"
+              aria-posinset={index + 1}
+              aria-setsize={orders.length}
             >
               {orders[index].name}
             </div>
@@ -88,6 +92,23 @@ viewport.addEventListener('scroll', render, { passive: true })
 render()
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 항목이 0개다 | 그릴 행이 없고 전체 높이가 0이다. 빈 400px 상자만 남으므로 목록 대신 빈 상태(상황 + 할 일)를 그린다 | 계산은 `assets`. 빈 상태는 `프로젝트` |
+| 항목이 상자보다 적다(1~7개) | 전부 그린다. 스크롤바가 생기지 않는다. 상자 높이는 그대로라 아래가 빈다. 수가 적을 때는 `--virtual-height`를 `개수 × 항목 높이`로 낮춘다 | 계산은 `assets`. 높이는 `프로젝트` |
+| 깊이 스크롤한 채로 항목이 줄어든다(필터·검색·삭제) | 없는 인덱스를 그리지 않는다. 훅이 돌려주는 `indexes`와 `range`는 바뀐 그 렌더에서 이미 새 개수 안이다. 브라우저가 스크롤을 새 끝으로 당기고, 목록은 마지막 행들을 보인다. 필터를 바꿀 때 맨 위로 보내려면 `scrollToIndex(0)`을 부른다 | `assets` — `useVirtualList`. 맨 위로 보내기는 `프로젝트` |
+| 항목이 앞에 끼어든다(새 주문이 위에 추가) | 스크롤 위치는 px로 남아 보던 행이 아래로 밀린다. 보던 자리를 지키려면 추가한 뒤 `scrollTop`에 `추가한 개수 × 항목 높이`를 더한다 | `프로젝트` |
+| 항목이 수십만 개다 | 브라우저는 요소 높이에 상한이 있다(Firefox 약 1,789만 px, Chrome·Safari 약 3,355만 px). 56px 행이면 약 31만 개에서 넘는다. 넘으면 끝쪽 행에 닿지 못한다. 그 전에 페이지를 나누거나 검색으로 좁힌다 | `프로젝트` |
+| 행 높이가 서로 다르다, 글이 길다 | 지원하지 않는다. `.virtual-item`은 높이가 고정이고 넘친 내용은 잘린다(`overflow: hidden`). 행 안의 글은 한 줄 말줄임(`white-space: nowrap; text-overflow: ellipsis`)으로 둔다 | 고정 높이는 `assets`. 말줄임은 `프로젝트` |
+| 사용자가 글자를 키웠다 | px로 고정한 행에서 글자가 잘린다. 항목 높이를 글자 크기에서 구한다: `parseFloat(getComputedStyle(document.documentElement).fontSize) * 3.5`를 `itemHeight`와 `--virtual-item-height`에 함께 넘긴다 | `프로젝트` |
+| 키보드로 굴린다 | 스크롤 상자에 `tabIndex={0}`이 있어야 방향키·PageDown·Home·End가 듣는다. 포커스 링을 지우지 않는다 | `프로젝트`(위 예시) |
+| 포커스가 있는 행이 화면 밖으로 나간다 | 그 행이 DOM에서 사라지며 포커스가 `body`로 떨어진다. 행 안에 버튼·입력이 있는 목록은 `overscan`을 넉넉히(10 이상) 주거나, 가상 스크롤 대신 페이지 나누기를 쓴다 | `프로젝트` — 이 패턴의 한계다 |
+| 화면에서 찾기(Ctrl+F), 화면 낭독기로 훑기 | 그려지지 않은 행은 찾아지지 않는다. 목록 위에 검색 입력을 둔다. 낭독기에는 행마다 `aria-posinset`·`aria-setsize`로 "10,000개 중 30번째"를 알린다 | `프로젝트`(위 예시) — 이 패턴의 한계다 |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 | 기본값 |
@@ -116,12 +137,20 @@ DOM에서 할 수 있는 것은 **틈을 줄이는 것**까지다:
 
 `scrollToIndex(0, 'smooth')`로 5만 개짜리 목록의 맨 위로 보내면 브라우저가 초당 수천 픽셀로 화면을 옮기는데, 어떤 자바스크립트도 그 속도를 따라갈 수 없어 이동 내내 빈 칸이 보인다. **먼 거리는 즉시 이동(기본값 `'auto'`)이 맞다** — 부드러운 스크롤은 한두 화면 이내에서만 쓴다.
 
+## 함께 쓰는 패턴
+
+- `patterns/infinite-scroll` — 끝에 닿으면 다음 쪽을 불러와 `itemCount`를 늘린다. 감시 요소(sentinel)는 `.virtual-sizer` 밖, 스크롤 상자의 맨 끝에 둔다.
+- `patterns/skeleton` — 첫 쪽을 기다리는 동안은 가상 목록을 그리지 않고 같은 높이의 뼈대 행 5~7개를 둔다.
+- `patterns/search-suggest` — 화면에서 찾기가 안 되는 것을 메운다. 고른 결과로 `scrollToIndex`를 부른다.
+- `patterns/swipe-to-delete` — 행을 지우면 `itemCount`가 줄어든다. 줄어든 렌더에서 없는 행을 읽지 않는 것은 훅이 맡는다.
+
 ## 주의사항
 
 - **항목 높이가 모두 같아야 한다.** 이 계산의 전제다. 높이가 제각각인 목록(글 길이에 따라 달라지는 카드)은 각 항목을 측정해 누적 높이를 관리해야 하며, 그건 이 패턴의 범위 밖이다 — 그럴 땐 `@tanstack/react-virtual` 같은 라이브러리가 맞다.
 - **CSS의 `--virtual-item-height`와 훅의 `itemHeight`가 어긋나면 목록이 서서히 밀린다.** 상수 하나를 두 곳에 전달하라(위 예시처럼).
-- **Ctrl+F로 화면에서 찾을 수 없다.** 그려지지 않은 항목은 존재하지 않기 때문이다. 검색이 중요한 목록이라면 앱 안에 검색 기능을 함께 두어야 한다(search-suggest 패턴).
-- **스크린 리더는 목록 전체 개수를 알 수 없다.** 컨테이너에 `role="list"`와 함께 `aria-rowcount`(또는 안내 문구)로 전체 개수를 알려 주고, 각 항목에 `aria-posinset`·`aria-setsize`를 주면 "1000개 중 30번째"로 읽힌다.
+- **스크롤 상자가 따로 있어야 한다.** 페이지 전체 스크롤(`window`)에 얹는 방식은 지원하지 않는다. 화면을 채우는 목록은 `--virtual-height`를 `calc(100dvh - 머리 높이)`로 둔다.
+- **첫 그리기에는 행이 없다.** 훅은 상자 높이를 잰 뒤에 구간을 정한다. 서버에서 그린 HTML과 첫 프레임에는 전체 높이만 잡힌 빈 상자가 나온다.
+- 전체 개수는 `role="list"`인 상자의 `aria-label`("주문 10,000건")에 적는다. `aria-rowcount`는 표(`grid`·`table`)의 속성이라 목록에는 쓰지 않는다.
 - **스크롤할 때마다 리렌더하지 않는다** — 구간이 실제로 바뀔 때만 상태를 갱신한다. 이 규칙을 깨면(스크롤 위치를 state에 넣는 등) 가상 스크롤을 쓰는 이유가 사라진다.
 - **애니메이션이 없는 패턴이다** — 스크롤을 따라 항목이 나타나는 것은 연출이 아니라 위치 계산이라, `prefers-reduced-motion`으로 뺄 모션 자체가 없다.
-- 항목 안에 포커스가 있는 요소(입력·버튼)를 두고 그 항목이 화면 밖으로 나가면 포커스가 사라진다. 편집 가능한 행이 있는 목록에서는 `overscan`을 넉넉히 주거나 가상 스크롤을 재고하라.
+- `scrollToIndex`는 그 항목을 상자 맨 위에 맞춘다. 범위를 넘는 인덱스는 브라우저가 끝에서 멈춘다. 동작 줄이기 설정에서는 `'smooth'`를 넘기지 않는다.

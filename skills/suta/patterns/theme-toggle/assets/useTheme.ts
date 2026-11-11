@@ -22,6 +22,9 @@ const readStored = (key: string): ThemeChoice => {
   }
 }
 
+/** 같은 화면의 다른 useTheme에게 선택이 바뀌었음을 알리는 이벤트 이름 — 저장 키마다 따로다 */
+const eventName = (key: string) => `suta-theme-change:${key}`
+
 /**
  * 테마 선택을 기억하고 data-theme로 적용한다.
  *
@@ -43,6 +46,27 @@ export const useTheme = ({ storageKey = 'theme', targetRef }: UseThemeOptions = 
   }, [])
 
   useEffect(
+    function followOtherInstances() {
+      // 같은 화면의 다른 곳(머리의 버튼 ↔ 설정 화면)에서 바꾼 선택. 저장이 막힌 환경에서도 통하게 값을 이벤트에 싣는다
+      const onLocalChange = (event: Event) => {
+        const next = (event as CustomEvent<ThemeChoice>).detail
+        if (next === 'light' || next === 'dark' || next === 'system') setChoice(next)
+      }
+      // 다른 탭에서 바꾼 선택 — storage 이벤트는 바꾼 탭이 아닌 탭에만 온다
+      const onStorage = (event: StorageEvent) => {
+        if (event.key === storageKey || event.key === null) setChoice(readStored(storageKey))
+      }
+      window.addEventListener(eventName(storageKey), onLocalChange)
+      window.addEventListener('storage', onStorage)
+      return () => {
+        window.removeEventListener(eventName(storageKey), onLocalChange)
+        window.removeEventListener('storage', onStorage)
+      }
+    },
+    [storageKey],
+  )
+
+  useEffect(
     function applyToDom() {
       const element = targetRef?.current ?? document.documentElement
       element.dataset.theme = resolved
@@ -58,6 +82,7 @@ export const useTheme = ({ storageKey = 'theme', targetRef }: UseThemeOptions = 
     } catch {
       // 저장이 막혀도 이번 세션 동안은 동작한다
     }
+    window.dispatchEvent(new CustomEvent<ThemeChoice>(eventName(storageKey), { detail: next }))
   }
 
   return {

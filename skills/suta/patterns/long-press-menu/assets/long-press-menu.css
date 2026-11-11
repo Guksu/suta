@@ -55,6 +55,11 @@
   position: fixed;
   z-index: calc(var(--z-overlay, 40) + 2);
   min-width: var(--lpm-menu-min-width, 12rem);
+  /* 긴 항목 이름은 화면 폭 안에서 줄을 바꾸고, 항목이 많으면 메뉴 안에서 스크롤한다(여백 8px은 placeContextMenu의 padding과 같다) */
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   margin: 0;
   padding: 0.25rem;
   border: 1px solid var(--lpm-menu-border, rgb(255 255 255 / 0.12));
@@ -85,7 +90,9 @@
   background: none;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -104,6 +111,28 @@
 /* 되돌리기 어려운 항목(삭제·숨기기) — 붉은 글자 */
 .lpm-menu-item[data-destructive='true'] {
   color: var(--lpm-destructive, var(--color-danger, #c8341f));
+}
+
+/* 쓸 수 없는 항목 — 포커스는 받지만 흐리게 보이고 눌리지 않는다 */
+.lpm-menu-item[aria-disabled='true'] {
+  color: var(--color-text-tertiary, #686868);
+  cursor: default;
+}
+
+.lpm-menu-item[aria-disabled='true']:hover {
+  background: none;
+}
+
+/* 고대비 모드는 옅은 배경을 지운다 — 지금 가리키는 항목을 테두리로 보인다 */
+@media (forced-colors: active) {
+  .lpm-menu-item:hover,
+  .lpm-menu-item:focus {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  .lpm-menu-item[aria-disabled='true'] {
+    color: GrayText;
+  }
 }
 
 @keyframes lpm-fade-in {

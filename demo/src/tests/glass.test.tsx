@@ -42,4 +42,23 @@ describe('Glass — 유리판 래퍼가 CSS 훅(클래스·data 속성·변수)�
     )
     expect(screen.getByText('누르기')).toHaveClass('glass', 'glass-card', 'glass-interactive', 'menu-card')
   })
+
+  it('누를 수 있는 유리는 button·a로 그린다 — div에 onClick만 달면 키보드로 누를 수 없다', () => {
+    const { container, rerender } = render(
+      <Glass as="button" interactive disabled>
+        담기
+      </Glass>,
+    )
+    const button = container.querySelector('button')!
+    expect(button).toHaveAttribute('type', 'button') // 폼 안에서 제출 버튼이 되지 않게
+    expect(button).toBeDisabled()
+    expect(button).toHaveClass('glass-interactive')
+
+    rerender(
+      <Glass as="a" href="/menu" interactive>
+        메뉴 보기
+      </Glass>,
+    )
+    expect(container.querySelector('a')).toHaveAttribute('href', '/menu')
+  })
 })

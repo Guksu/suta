@@ -14,6 +14,7 @@
   display: inline-grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr; /* 칸 폭을 균등하게 — iOS 관례. 내용 폭대로 두려면 auto로 바꾼다 */
+  max-width: 100%; /* 라벨이 길거나 칸이 많아도 부모(320px 화면)를 넘지 않는다 — 넘는 글자는 칸 안에서 줄임표가 된다 */
   padding: var(--_pad);
   border-radius: var(--_radius);
   background: var(--_track-bg);
@@ -27,7 +28,7 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
-  padding: 8px 12px;
+  padding: var(--segment-padding-block, 8px) 12px;
   border-radius: calc(var(--_radius) - var(--_pad));
   font-size: 0.875rem;
   line-height: 1.3;
@@ -47,6 +48,16 @@
   clip-path: inset(50%);
   overflow: hidden;
   white-space: nowrap;
+}
+
+/* 칸이 좁아지면 라벨을 줄임표로 자른다 — 자르지 않으면 글자가 옆 칸 위로 넘친다.
+ * 라벨은 칸의 좌우 여백 12px 중 8px까지는 써도 된다(칸 끝 4px은 남긴다): 줄어들지 않게 두고(flex-shrink 0) 최대 폭을 내용 폭 + 16px로 준다.
+ * 가운데 정렬이라 넘친 만큼 양쪽 여백으로 똑같이 나간다 */
+.segment-label {
+  flex: none;
+  max-width: calc(100% + 16px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 선택 칸의 글자는 진하게 — thumb만으로는 색약·저대비 환경에서 구분이 약하다 */
@@ -78,12 +89,42 @@
   pointer-events: none;
 }
 
-.segmented:has(.segment-input:disabled) {
+/* 전체 잠금(모든 칸이 disabled): 컨트롤을 통째로 흐리게 */
+.segmented:not(:has(.segment-input:enabled)) {
   opacity: 0.5;
 }
 
-.segmented:has(.segment-input:disabled) .segment {
+/* 일부 칸만 잠금(품절 등): 그 칸의 글자만 흐리게 — 고를 수 있는 칸과 알약은 그대로 둔다 */
+.segmented:has(.segment-input:enabled) .segment-input:disabled + .segment-label {
+  opacity: 0.4;
+}
+
+.segment:has(.segment-input:disabled) {
   cursor: not-allowed;
+}
+
+/* 고대비: 트랙과 알약의 배경색이 모두 바탕색으로 바뀌어 선택 칸이 굵기로만 남는다 —
+ * 트랙에 테두리를 긋고 알약을 강조색으로 칠한다 */
+@media (forced-colors: active) {
+  .segmented {
+    border: 1px solid CanvasText;
+  }
+
+  .segment-thumb {
+    forced-color-adjust: none;
+    background: Highlight;
+    box-shadow: none;
+  }
+
+  .segment-input:checked + .segment-label {
+    forced-color-adjust: none;
+    color: HighlightText;
+  }
+
+  .segment-input:disabled + .segment-label {
+    color: GrayText;
+    opacity: 1;
+  }
 }
 
 /* 모션 민감 사용자: 슬라이드를 끄고 위치 표시는 즉시 점프로 유지한다 */

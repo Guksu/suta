@@ -72,25 +72,37 @@ type RunCardExpandOptions = {
   names?: CardExpandNames
 }
 
+/** 지금 도는 전환의 수와, 첫 전환이 시작될 때의 root 이름 — 겹친 전환이 서로의 정리를 망치지 않게 한다 */
+let running = 0
+let savedRootName = ''
+let latestRun = 0
+
 export const runCardExpand = async ({ direction, from, update, to, names }: RunCardExpandOptions): Promise<void> => {
   const host = document.documentElement
   const start = (document as Document & { startViewTransition?: StartViewTransition }).startViewTransition
 
+  const run = (latestRun += 1)
   host.dataset.cardExpand = direction
+  // 늦게 끝난 앞선 전환이 진행 중인 새 전환의 방향 표시를 지우면 겹침 순서·페이드가 중간에 바뀐다
+  const clearDirection = () => {
+    if (latestRun === run) delete host.dataset.cardExpand
+  }
 
   if (typeof start !== 'function') {
     // 미지원 브라우저: 전환 없이 즉시 바뀐다. 기능은 그대로고 연출만 없다
     try {
       update()
     } finally {
-      delete host.dataset.cardExpand
+      clearDirection()
     }
     return
   }
 
   // 페이지 전체(root)를 전환에서 뺀다 — 안 빼면 화면 전체가 250ms 크로스페이드되면서
-  // 상세가 자라나기도 전에 완성된 모습으로 스며 나온다. 그 순간만 끄고 원래 값으로 되돌린다
-  const savedRootName = host.style.viewTransitionName
+  // 상세가 자라나기도 전에 완성된 모습으로 스며 나온다. 그 순간만 끄고 원래 값으로 되돌린다.
+  // 전환이 겹치면 두 번째가 'none'을 원래 값으로 알고 되돌려 놓는다 — 첫 전환이 본 값만 기억한다
+  if (running === 0) savedRootName = host.style.viewTransitionName
+  running += 1
   host.style.viewTransitionName = 'none'
   if (from) assignTransitionNames({ element: from, names })
 
@@ -108,7 +120,8 @@ export const runCardExpand = async ({ direction, from, update, to, names }: RunC
   } finally {
     if (from) clearTransitionNames({ element: from })
     if (target) clearTransitionNames({ element: target })
-    host.style.viewTransitionName = savedRootName
-    delete host.dataset.cardExpand
+    running -= 1
+    if (running === 0) host.style.viewTransitionName = savedRootName
+    clearDirection()
   }
 }

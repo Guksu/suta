@@ -26,13 +26,15 @@ TS가 아닌 프로젝트에 복사할 때는 타입 표기를 벗겨 .js/.jsx�
 ```tsx
 import { CountUp } from './CountUp'
 
-// value가 바뀔 때마다 직전 값에서 새 값으로 굴러간다 (최초 마운트는 0부터)
+// value가 바뀔 때마다 보이던 값에서 새 값으로 굴러간다 (최초 마운트는 0부터)
 const Balance = ({ amount }: { amount: number }) => (
   <strong>
     <CountUp value={amount} format={(v) => `${Math.round(v).toLocaleString('ko-KR')}원`} />
   </strong>
 )
 ```
+
+`CountUp` props: `value` · `initialValue`(마운트 때의 시작값, 기본 0) · `durationMs`(기본 800) · `format` · `className`.
 
 ## 사용 방법 — 순수 JS (React 없음)
 
@@ -45,6 +47,36 @@ createCountUp({ element: el, to: 1234567, durationMs: 800 }).start()
 // 값이 바뀌면: createCountUp({ element: el, from: 이전값, to: 새값 }).start()
 ```
 
+굴러가는 도중에 값이 또 바뀔 수 있으면 `onUpdate`로 지금 보이는 값을 받아 두고, 앞 카운터를 멈춘 뒤 그 값에서 다시 시작한다.
+
+```js
+let shown = 0
+let counter
+const rollTo = (to) => {
+  counter?.stop()
+  counter = createCountUp({ element: el, from: shown, to, onUpdate: (v) => { shown = v } })
+  counter.start()
+  srEl.textContent = to.toLocaleString('ko-KR') // .count-up-sr — 낭독용 최종값
+}
+```
+
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 굴러가는 도중에 값이 또 바뀐다(적립·차감 연타) | 직전 목표값이 아니라 화면에 보이던 숫자에서 새 값으로 이어 간다. 숫자가 튀지 않는다 | `assets` — `CountUp`. 순수 JS는 위 `rollTo`처럼 `프로젝트` |
+| 값이 줄어든다 | 같은 코어가 내려 센다. 음수에서 0을 지나는 프레임에 "-0"이 찍히지 않는다 | `assets` — 기본 `format`. 직접 쓴 `format`은 `Math.round(v) + 0`처럼 `프로젝트` |
+| 값이 소수다(평점 4.7, 환율) | 기본 `format`은 정수로 반올림한다. `format={(v) => v.toFixed(1)}`을 넘긴다. 마지막 프레임은 목표값 그대로라 4.699999 같은 오차가 찍히지 않는다 | 마지막 값은 `assets`. 자릿수는 `프로젝트` |
+| 자릿수가 늘어난다(9,900 → 12,400) | `tabular-nums`는 숫자끼리의 폭만 맞춘다. 자릿수가 늘면 글자 폭도 늘어 옆 요소가 밀린다. 숫자를 오른쪽 정렬하거나 최종값 폭만큼 `min-width`(`ch` 단위)를 준다 | `프로젝트` |
+| 이미 본 값이 다시 그려진다(탭 복귀·목록 재정렬·뒤로 가기) | 0부터 다시 굴리지 않는다. `initialValue={value}`면 마운트 때 굴리지 않고 그 값이 바로 놓인다 | `assets` — `initialValue`. 처음인지 아닌지는 `프로젝트` |
+| 부모가 자주 다시 그린다(`format`을 인라인 함수로 넘김) | 굴러가던 숫자가 처음부터 다시 시작하지 않는다. `format`이 바뀌면(언어·단위 전환) 멈춰 있는 숫자도 새 형식으로 다시 쓴다 | `assets` — `CountUp` |
+| 탭이 가려졌다 돌아온다 | 가려진 동안은 프레임이 멈춘다. 돌아온 첫 프레임에 지난 시간만큼 건너뛰어, `durationMs`가 지났으면 바로 최종값이다 | `assets` |
+| 첫 프레임이 오기 전, 서버에서 그린 HTML | 굴러가는 자리가 비지 않는다. 시작값(`format(initialValue)`)이 들어 있어 폭이 0에서 늘어나며 주변을 밀지 않는다 | `assets` |
+| 값이 숫자가 아니다(`NaN`·`undefined`·"1,200" 문자열) | 코어는 number만 보간한다. 그대로 넘기면 "NaN"이 찍힌다. 값이 없을 때는 `CountUp`을 그리지 않고 자리 표시(`-`)를 둔다 | `프로젝트` |
+| `durationMs`가 0 이하이거나 시작값과 목표값이 같다 | 프레임을 돌리지 않고 값을 한 번만 쓴다 | `assets` |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
@@ -54,11 +86,19 @@ createCountUp({ element: el, to: 1234567, durationMs: 800 }).start()
 | 커브 | `easing` — 기본 ease-out cubic(끝에서 감속). 등속으로 세는 느낌이 필요하면 `(t) => t` |
 | 시작값 | `from` (기본 0) — 값 갱신 연출은 직전 값을 넣어 이어지게 한다 |
 
+## 함께 쓰는 패턴
+
+- `patterns/celebration` — 큰 보상은 축하 오버레이가 알리고, 닫힌 뒤 머리의 포인트 숫자를 이 패턴으로 올린다. 두 연출을 같은 순간에 겹치지 않는다.
+- `patterns/toast-stack` — 자주 생기는 작은 적립은 토스트 한 줄이 사건을 알리고, 이 패턴은 늘어난 숫자만 보인다.
+- `patterns/progress-ring` — 링 가운데의 퍼센트 숫자에 쓴다. `durationMs`를 링의 `--ring-duration`과 같은 값으로 맞춘다.
+- `patterns/skeleton` — 값을 아직 받지 못했으면 0을 굴리지 않고 뼈대를 둔다. 값이 온 뒤에 `CountUp`을 그린다.
+
 ## 주의사항
 
 - **고정폭 숫자는 필수다** — `count-up.css`의 `font-variant-numeric: tabular-nums`가 없으면 자릿수 폭이 매 프레임 달라져 주변 레이아웃이 떨린다.
 - **reduced-motion 대응 내장** — 굴러가는 연출 없이 최종값을 즉시 쓴다. 분기 제거 금지.
+- 굴러가는 숫자는 글자다. 고대비 모드(`forced-colors`)에서도 글자색을 따라가므로 따로 할 일이 없다.
 - **화면 낭독기에는 최종값만 닿게 한다.** 굴러가는 중간값은 보조기기에 소음이다. React 래퍼는 굴러가는 숫자를 `aria-hidden`으로 두고, 최종값을 숨긴 글자(`.count-up-sr`)로 따로 넣는다. 그래서 낭독 영역(`role="status"`·`aria-live`) 안에 두어도 최종값이 한 번만 읽힌다.
   - 순수 JS로 쓸 때도 같은 구조로 만든다: 굴러가는 요소에 `aria-hidden="true"`, 옆에 최종값을 담은 `.count-up-sr` 요소.
   - 낭독 영역에는 사건(포인트를 받았어요·목표 달성)만 넣는다. 매초 바뀌는 걸음 수·타이머·남은 거리는 낭독 영역 밖에 둔다 — 넣으면 바뀔 때마다 읽힌다.
-- 서버에서 받은 문자열 금액을 그대로 넣지 마라 — 코어는 number를 보간한다. 파싱은 호출부 책임.
+- `format`은 값마다 같은 폭의 글자를 돌려주는 편이 좋다. 굴러가는 도중에만 "만" 단위로 줄어드는 형식(12,400 → 1.2만)은 숫자가 깜빡이는 것처럼 보인다.

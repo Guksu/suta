@@ -48,10 +48,10 @@ const MenuCard = ({ item }) => (
 )
 ```
 
-- 열림: 길게 누르기(기본 450ms, `delayMs`) 또는 우클릭. 키보드는 카드에 포커스한 뒤 Shift+F10(또는 메뉴 키).
+- 열림: 길게 누르기(기본 450ms, `delayMs`) 또는 우클릭. 키보드는 카드에 포커스한 뒤 Enter·Space·ArrowDown, 또는 Shift+F10(메뉴 키).
 - 열리면 첫 항목에 포커스, ArrowUp/Down 순환, Home/End, Esc 닫기. 항목을 고르면 `onSelect` 뒤 닫히고 포커스가 카드로 돌아온다.
-- 닫힘: 백드롭 클릭·Esc·스크롤·항목 선택.
-- `destructive: true` 항목은 붉은 글자로 표시된다(맨 아래에 두라).
+- 닫힘: 백드롭 클릭·Esc·페이지 스크롤·창 크기 변경·항목 선택.
+- `destructive: true` 항목은 붉은 글자로 표시된다(맨 아래에 둔다). `disabled: true` 항목은 흐리게 보이고 눌러도 실행되지 않는다.
 
 ## 사용 방법 — 순수 JS (React 없음)
 
@@ -93,6 +93,23 @@ window.addEventListener('scroll', () => setOpen(false), true)
 
 메뉴 마크업은 `role="menu"` 안에 `role="menuitem"` 버튼(`class="lpm-menu-item"`, 붉은 항목은 `data-destructive="true"`)이다. 방향키 순환은 React 래퍼의 `onMenuKeyDown`을 그대로 옮기면 된다.
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 키보드만 쓴다 | 트리거(`role="button"`, `aria-haspopup="menu"`)에 포커스한 채 Enter·Space·ArrowDown으로 연다. Shift+F10과 메뉴 키도 된다(맥 키보드에는 둘 다 없다). 카드 안의 버튼·링크에서 누른 키는 그 요소의 것이라 메뉴를 열지 않는다 | `assets`(React) |
+| 두 손가락이 닿는다 | 누르는 중에 두 번째 손가락이 닿으면 타이머를 취소한다. 두 손가락은 확대·넘기기다 | `assets` |
+| 스크롤하려던 손가락이다 | 450ms 안에 10px 넘게 움직이면 취소한다. 브라우저가 스크롤을 시작해 보내는 `pointercancel`에도 취소한다 | `assets` |
+| 항목이 0개다(권한이 없어 모두 빠짐) | 메뉴를 열지 않는다. `aria-haspopup`·`aria-expanded`도 붙이지 않는다 | `assets`(React) |
+| 쓸 수 없는 항목이 있다 | `disabled: true`를 준다. `aria-disabled="true"`로 읽히고 방향키 포커스는 받는다. 눌러도 실행되지 않고 메뉴는 열려 있다. 왜 못 쓰는지는 항목 문구에 적는다("품절 — 담을 수 없어요") | `assets`(React) |
+| 항목이 많거나 이름이 길다 | 메뉴는 화면에서 사방 8px을 띄운 크기까지만 커진다(`max-width: calc(100vw - 16px)`, `max-height: calc(100dvh - 16px)`). 긴 이름은 줄을 바꾸고, 넘치는 항목은 메뉴 안에서 스크롤한다. 메뉴 안쪽 스크롤로는 닫히지 않는다. 그래도 항목은 5개 안쪽으로 둔다 | `assets` |
+| 열린 채 페이지가 스크롤되거나 창 크기가 바뀐다 | 재 둔 위치가 틀리므로 닫는다. 포커스는 트리거로 돌아간다 | `assets`(React) |
+| 고른 동작이 카드를 없앤다(숨기기·삭제) | 메뉴는 닫으며 포커스를 트리거로 돌려보내는데, 그 트리거가 곧 사라진다. `onSelect`에서 다음 카드나 목록 제목으로 포커스를 옮긴다 | 프로젝트 |
+| 메뉴 안에서 Esc를 쓰는 요소가 있다 | 안쪽 요소가 이미 쓴 Esc(`defaultPrevented`)로는 닫지 않는다 | `assets`(React) |
+| 고대비 모드(`forced-colors`) | 옅은 배경이 사라지므로 가리키는 항목에 `outline: 2px solid Highlight`를 그린다. 뒤 흐림과 그림자는 없어지고 메뉴 테두리 1px이 경계가 된다 | `assets` |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
@@ -107,6 +124,13 @@ window.addEventListener('scroll', () => setOpen(false), true)
 | 붉은 항목 색 | `--lpm-destructive` |
 | 메뉴 간격·여백 | `placeContextMenu`의 `gap`·`padding` (기본 8px) |
 
+## 함께 쓰는 패턴
+
+- `patterns/dropdown-menu` — 같은 동작을 보이는 `⋯` 버튼으로도 낸다. 길게 누르기는 발견하기 어려우므로 필수 동작은 두 길을 다 둔다.
+- `patterns/bottom-sheet` — 항목이 5개를 넘거나 설명이 붙으면 메뉴 대신 시트를 연다. `onLongPress`에서 시트를 여는 식으로 코어(`createLongPress.ts`)만 가져다 쓴다.
+- `patterns/modal-dialog` — 붉은 항목(삭제)을 고른 뒤의 확인창. 메뉴가 닫힌 뒤에 열리므로 층이 겹치지 않는다.
+- `patterns/drag-to-reorder` — 같은 항목에 길게 눌러 끌기(`longPressMs`)와 함께 쓰지 않는다. 둘 다 "누르고 기다림"을 쓴다. 순서 바꾸기는 손잡이로 둔다.
+
 ## 주의사항
 
 - **트리거에는 `role="button"`을 준다.** 역할이 없는 `div`에는 `aria-expanded`·`aria-haspopup`이 허용되지 않아 화면 낭독기가 메뉴가 있다는 것을 알리지 못한다. React 래퍼는 이미 그렇게 그린다.
@@ -116,6 +140,8 @@ window.addEventListener('scroll', () => setOpen(false), true)
 - 발화 뒤의 `click`은 **한 번** 억제된다. 카드 안에 링크·버튼이 있으면 길게 눌러도 그것이 눌리지 않는 이유다. 카드 클릭 이동(상세 화면)은 그대로 살아 있다 — 짧게 누르면 이동, 길게 누르면 메뉴.
 - 안드로이드는 터치 길게누르기에도 `contextmenu`를 만든다. 코어가 타이머 발화 직후의 contextmenu를 무시해 두 번 열리지 않는다 — `delayMs`를 브라우저 기본(약 500ms)보다 길게 잡으면 우리 타이머 대신 contextmenu 경로로 먼저 열리는데, 결과는 같다.
 - `backdrop-filter`는 비싸다. 열린 동안 한 장뿐이라 괜찮지만, `--lpm-blur`를 애니메이션하지 마라(등장은 opacity만 움직인다).
-- 열린 채 스크롤되면 메뉴가 항목을 따라가지 않고 **닫힌다**(iOS도 그렇다). 따라다니게 하려면 `scroll` 리스너에서 닫는 대신 `placeContextMenu`를 다시 부르면 된다.
+- 열린 채 스크롤되면 메뉴가 항목을 따라가지 않고 닫힌다(iOS도 그렇다). 따라다니게 하려면 `scroll` 리스너에서 닫는 대신 `placeContextMenu`를 다시 부른다.
+- 메뉴는 항목의 왼쪽 선에 맞춘다. `dir="rtl"`에서도 왼쪽 선이다. 글자 정렬만 `text-align: start`로 따라간다.
+- 글자로 항목 찾기(첫 글자를 눌러 이동)는 들어 있지 않다. 항목이 몇 개뿐인 메뉴를 전제한다.
 - **reduced-motion 대응 내장** — 떠오르는 스케일과 메뉴의 커지는 이동을 끄고 페이드만 남긴다. 블록 제거 금지.
 - 포커스 트랩은 없다. 메뉴는 Tab으로 빠져나가면 닫힌다 — 메뉴 항목이 몇 개뿐인 액션 메뉴에는 그것이 관례다.

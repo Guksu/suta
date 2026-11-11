@@ -102,4 +102,41 @@ describe('createPinchZoom — 두 손가락 추종·복귀·상태', () => {
     touch({ el: element, type: 'touchstart', touches: TWO })
     expect(element.hasAttribute('data-zooming')).toBe(false)
   })
+  it('배율은 그대로 두고 옮기기만 했어도 복귀 전이를 거친다(곧바로 해제하면 돌아오는 사진이 형제 아래로 깔린다)', () => {
+    touch({ el: element, type: 'touchstart', touches: TWO })
+    touch({ el: element, type: 'touchmove', touches: [{ clientX: 100, clientY: 160 }, { clientX: 200, clientY: 160 }] })
+    expect(target.style.transform).toBe('translate(0px, 60px) scale(1)')
+    touch({ el: element, type: 'touchend', touches: [] })
+    expect(element.getAttribute('data-zooming')).toBe('settling')
+    target.dispatchEvent(new Event('transitionend'))
+    expect(element.hasAttribute('data-zooming')).toBe(false)
+  })
+
+  it('요소 밖에 댄 손가락을 떼어도 복귀한다(touchend가 요소로 오지 않는다)', () => {
+    touch({ el: element, type: 'touchstart', touches: TWO })
+    touch({ el: element, type: 'touchmove', touches: [{ clientX: 50, clientY: 100 }, { clientX: 250, clientY: 100 }] })
+    touch({ el: document.body, type: 'touchend', touches: [TWO[1]] })
+    expect(target.style.transform).toBe('')
+    expect(element.getAttribute('data-zooming')).toBe('settling')
+  })
+
+  it('복귀 전이가 꺼져 있으면(동작 줄이기) 폴백 타이머를 기다리지 않고 바로 해제한다', () => {
+    target.style.transitionDuration = '0s'
+    touch({ el: element, type: 'touchstart', touches: TWO })
+    touch({ el: element, type: 'touchmove', touches: [{ clientX: 50, clientY: 100 }, { clientX: 250, clientY: 100 }] })
+    touch({ el: element, type: 'touchend', touches: [] })
+    expect(element.hasAttribute('data-zooming')).toBe(false)
+    expect(states.at(-1)).toEqual({ scale: 1, active: false })
+  })
+
+  it('확대 중에 destroy하면 확대 흔적을 남기지 않는다', () => {
+    touch({ el: element, type: 'touchstart', touches: TWO })
+    touch({ el: element, type: 'touchmove', touches: [{ clientX: 50, clientY: 100 }, { clientX: 250, clientY: 100 }] })
+    cleanups.splice(0).forEach((cleanup) => cleanup())
+    expect(target.style.transform).toBe('')
+    expect(target.style.transition).toBe('')
+    expect(target.style.transformOrigin).toBe('')
+    expect(element.hasAttribute('data-zooming')).toBe(false)
+    expect(element.style.getPropertyValue('--pinch-progress')).toBe('')
+  })
 })

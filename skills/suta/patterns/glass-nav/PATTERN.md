@@ -100,6 +100,22 @@ const control = createGlassNav({ nav, mode: 'compact', hideAfterPx: 120, spy: { 
 // 폰트 로드 등으로 링크 너비가 바뀌면 control.refresh()로 알약을 다시 맞춘다
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 숨거나 접힌 바에 Tab으로 들어간다 | 포커스가 들어오는 순간(`focusin`) 바를 다시 펼친다. 화면 밖이나 폭 0인 링크에 포커스가 머물지 않는다. 펼친 자리가 새 기준점이라 그 자리에서 곧바로 다시 숨지 않는다 | `assets` — `createGlassNav` |
+| 링크에 포커스가 간다 | 링을 안쪽으로 긋는다(`outline-offset: -2px`). 링크 줄이 `overflow: hidden`이라 바깥 링은 위아래가 잘린다 | `assets` |
+| 링크가 많거나 라벨이 길어 바가 화면보다 넓다 | 바는 화면 폭에서 멈추고(`max-width: 100%`) 넘친 링크는 잘린다. Tab으로는 닿지만 손가락으로는 넘길 수 없다. 브랜드와 링크가 한 줄에 드는지 가장 좁은 화면(320px)에서 확인하고, 넘치면 그 폭에서 `mode: 'compact'`를 쓰거나 `patterns/hamburger-menu`로 바꾼다 | 프로젝트 |
+| 밝은 바탕(흰 페이지) 위에 둔다 | 기본 글자는 흰색, 유리는 흰 14%라 글자가 보이지 않는다. `--gnav-color`를 어둡게, `--gnav-tint`를 `rgba(255, 255, 255, 0.72)`쯤으로, `--gnav-fallback-bg`를 밝은 단색으로 함께 바꾼다 | 프로젝트 |
+| 흐림을 못 쓴다(미지원 브라우저·투명도 줄이기·대비 높이기) | 유리가 된 바의 배경을 `--gnav-fallback-bg`(기본 `rgba(28, 28, 28, 0.92)`)로 바꾸고 흐림을 끈다. 맨 위의 투명 상태는 그대로다 | `assets` |
+| 고대비(`forced-colors`) | 활성 링크의 배경과 알약이 사라진다. 활성 링크에 2px 밑줄을 긋고 모든 링크의 투명도를 1로 둔다 | `assets` |
+| spy 링크를 Ctrl·Cmd·Shift나 가운데 버튼으로 누른다 | 가로채지 않는다. 브라우저가 새 탭·새 창으로 연다 | `assets` |
+| spy 링크를 키보드로 누른다 | 화면은 섹션으로 가지만 포커스는 링크에 남는다. 다음 Tab이 섹션 안이 아니라 옆 링크로 간다. 섹션 제목에 `tabindex="-1"`을 주고 링크의 `click`에서 `focus({ preventScroll: true })`를 부른다 | 프로젝트 |
+| 페이지 중간에서 새로고침한다 | 붙는 순간 지금 위치로 판정한다. `hideAfterPx`보다 더 내려간 자리에서 시작하면 `hide`는 숨긴 채, `compact`는 접힌 채 시작하고 위로 조금 올리면 나온다 | `assets` |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
@@ -111,9 +127,16 @@ const control = createGlassNav({ nav, mode: 'compact', hideAfterPx: 120, spy: { 
 | 섹션 이동·활성 추적 | `spy: true` 또는 `{ offsetPx: 8, lockMs: 900, onActive }` |
 | 속도 | `--gnav-duration` (250ms — 컴포넌트 전환 단계) |
 | 유리 색·흐림 | `--gnav-tint`·`--gnav-border`·`--gnav-blur`(16px) |
+| 흐림이 없을 때의 판 | `--gnav-fallback-bg` (기본 `rgba(28, 28, 28, 0.92)` — 흰 글자 기준) |
 | 알약 모서리 | `--gnav-radius` (999px — 각진 바를 원하면 8px) |
 | 활성 알약 모서리 | `--gnav-pill-radius` (999px) — 활성 링크 아래 알약. 바를 각지게 했으면 같은 값으로 |
 | 글자·활성 배경 | `--gnav-color`·`--gnav-active-bg` |
+
+## 함께 쓰는 패턴
+
+- `patterns/hamburger-menu` — 좁은 화면에서 링크가 한 줄에 들지 않을 때. 미디어 쿼리로 `.gnav-links`를 감추고 햄버거 버튼을 바에 넣는다. 드로어의 `closeAboveWidth`에 같은 중단점을 적는다.
+- `patterns/glass-surface` — 바 아래에 뜨는 유리 카드·시트. 같은 `tint`·`blur` 값을 써야 한 재질로 보인다. 유리 위에 유리를 겹치지 않는다.
+- `patterns/sticky-header` — 큰 제목이 작은 제목으로 줄어드는 머리는 이 패턴이 아니다. 한 화면에 둘을 같이 쓰지 않는다.
 
 ## 주의사항
 
@@ -125,6 +148,6 @@ const control = createGlassNav({ nav, mode: 'compact', hideAfterPx: 120, spy: { 
 - **spy는 해시를 바꾸지 않는다.** 해시 라우터(`#/path`)와 부딪히지 않게 기본 이동을 막는다. 그래서 새 탭에서 열기·주소 복사로는 섹션에 못 간다. 주소로도 가고 싶으면 `onActive`에서 `history.replaceState`로 직접 쓴다.
 - 마지막 섹션들이 짧으면 끝까지 스크롤해도 시작점이 GNB 아래로 못 들어온다. 그때는 끝에 닿은 순간 마지막 섹션을 활성으로 본다. 그 앞 섹션은 클릭해도 끝까지만 내려가고 활성은 마지막으로 넘어간다 — 마지막 섹션에 화면 높이만큼의 여백을 두면 해결된다.
 - 스크롤 컨테이너가 `document`가 아니면 `containerRef`(React) 또는 `container`(JS)를 반드시 넘긴다. 안 넘기면 페이지 스크롤을 듣고 아무 반응이 없다.
-- 유리 전환의 `backdrop-filter`는 뒤에 무언가 있어야 보인다 — 단색 배경 위에서는 배경·테두리만 바뀐다. 흐림 미지원 브라우저·투명도 줄이기 설정 대응은 glass-surface 패턴의 폴백 블록을 같이 쓴다.
+- 유리 전환의 `backdrop-filter`는 뒤에 무언가 있어야 보인다 — 단색 배경 위에서는 배경·테두리만 바뀐다.
 - **reduced-motion 대응 내장** — 세 상태 모두 전이 없이 즉시 바뀐다. 숨김 자체는 유지한다(움직임이 아니라 자리 비움).
 - 축소(`grid-template-columns` 전이)는 Chrome 107·Safari 16·Firefox 66 이상. 그 아래에서는 전이 없이 즉시 접힌다.

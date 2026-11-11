@@ -145,4 +145,25 @@ describe('runThemeTransition — 원이 퍼지는 테마 전환', () => {
     expect(animate).not.toHaveBeenCalled()
     expect(root().style.viewTransitionName).toBe('')
   })
+
+  it('전환이 끝나기 전에 다시 눌러도(연타) 이름이 처음 값으로 돌아간다 — 도중의 값을 원래 값으로 착각하지 않는다', async () => {
+    // 브라우저처럼: 두 번째 전환이 시작되면 첫 전환은 건너뛰어지고(finished가 끝난다), 두 번째는 나중에 끝난다
+    const finishers: Array<() => void> = []
+    withViewTransitions((callback) => {
+      void callback()
+      finishers.at(-1)?.()
+      return { ready: Promise.resolve(), finished: new Promise<void>((resolve) => finishers.push(resolve)) }
+    })
+    root().style.viewTransitionName = 'none' // page-transition 패턴이 꺼 둔 상태
+
+    const first = runThemeTransition({ origin: { x: 10, y: 10 }, apply: () => {} })
+    const second = runThemeTransition({ origin: { x: 10, y: 10 }, apply: () => {} })
+    await first
+    // 첫 전환이 끝났어도 두 번째가 도는 동안은 이름을 쥐고 있다
+    expect(root().style.viewTransitionName).toBe('root')
+
+    finishers.at(-1)?.()
+    await second
+    expect(root().style.viewTransitionName).toBe('none')
+  })
 })

@@ -148,6 +148,19 @@
   cursor: pointer;
 }
 
+/* 보이는 원은 32px이지만 누르는 영역은 44px이다 — 사진 위의 작은 버튼을 엄지로 놓치지 않게 */
+.card-expand-close::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+/* 포커스를 코드로만 받는 자리(상세 루트·돌아갈 카드가 사라졌을 때의 컨테이너) — 누르는 요소가 아니므로 링을 그리지 않는다 */
+.card-expand-detail:focus,
+.card-expand-container:focus {
+  outline: none;
+}
+
 .card-expand-close:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;

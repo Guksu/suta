@@ -66,6 +66,14 @@
   color: #fff;
   background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.72));
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  /* 긴 가게 이름은 어절 단위로 꺾고, 띄어쓰기 없는 긴 글자는 칸 안에서 꺾는다 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 마우스로 당기는 동안 본문 글자가 선택되지 않게 한다 */
+.stretchy-container:has(.stretchy-header-image[data-stretch='pulling']) {
+  user-select: none;
 }
 
 /* 모션 민감 사용자: JS가 이동(패럴랙스·늘어남)을 건너뛰고 페이드만 남긴다. 혹시 남은 전환도 즉시로 */

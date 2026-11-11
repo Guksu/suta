@@ -49,6 +49,10 @@ export const createSwipeDismiss = ({
   let frame: Frame = IDENTITY
   let handle: SpringHandle | null = null
   let closed = false
+  let pointerId: number | null = null
+
+  /** 지금 끄는 포인터의 이벤트인가 — 두 번째 손가락이 끼어들면 사진이 그쪽으로 튄다 */
+  const isOurPointer = (event: PointerEvent) => pointerId == null || event.pointerId == null || event.pointerId === pointerId
 
   const write = ({ next, progress }: { next: Frame; progress: number }) => {
     frame = next
@@ -64,6 +68,8 @@ export const createSwipeDismiss = ({
     image.style.transform = ''
     const imageRect = image.getBoundingClientRect()
     image.style.transform = previous
+    // 큰 사진이 아직 내려받는 중이면 크기가 0이다 — 0으로 나눈 배율(Infinity)을 쓰지 않고 페이드로 넘긴다
+    if (imageRect.width === 0 || imageRect.height === 0) return null
     return frameFromRect({ rect: target.getBoundingClientRect(), image: imageRect })
   }
 
@@ -111,10 +117,14 @@ export const createSwipeDismiss = ({
 
   const onPointerDown = (event: PointerEvent) => {
     if (closed || event.button !== 0) return
+    if (dragging) return // 끄는 중에 닿은 다른 손가락
+    // 닫기 버튼·링크에서 시작한 누름은 끌기가 아니다 — 여기서 포인터를 잡으면 click이 버튼에 닿지 않는다
+    if (event.target instanceof Element && event.target.closest('button, a, input, [role="button"]')) return
     if (isEdgeStart({ x: event.clientX, viewportWidth: window.innerWidth })) return
     handle?.stop()
     handle = null
     dragging = true
+    pointerId = event.pointerId ?? null
     startX = event.clientX - frame.x
     startY = event.clientY - frame.y
     lastY = event.clientY
@@ -129,7 +139,7 @@ export const createSwipeDismiss = ({
   }
 
   const onPointerMove = (event: PointerEvent) => {
-    if (!dragging) return
+    if (!dragging || !isOurPointer(event)) return
     const dt = event.timeStamp - lastTime
     if (dt > 0) velocityY = ((event.clientY - lastY) / dt) * 1000
     lastY = event.clientY
@@ -141,17 +151,28 @@ export const createSwipeDismiss = ({
   }
 
   const onPointerUp = (event: PointerEvent) => {
-    if (!dragging) return
+    if (!dragging || !isOurPointer(event)) return
     dragging = false
     if (event.timeStamp - lastTime > 80) velocityY = 0
     if (shouldDismiss({ dy: frame.y, velocityY, thresholdPx, velocityThreshold })) dismiss()
     else cancel()
   }
 
+  /**
+   * 손을 뗀 것이 아니라 끌기가 끊겼다 — pointercancel(시스템 제스처·전화 수신)이거나
+   * 포인터 캡처를 잃었다(끄는 중에 창이 포커스를 잃음). 닫지 않고 중앙으로 돌린다
+   */
+  const onPointerLost = (event: PointerEvent) => {
+    if (!dragging || !isOurPointer(event)) return
+    dragging = false
+    cancel()
+  }
+
   viewer.addEventListener('pointerdown', onPointerDown)
   viewer.addEventListener('pointermove', onPointerMove)
   viewer.addEventListener('pointerup', onPointerUp)
-  viewer.addEventListener('pointercancel', onPointerUp)
+  viewer.addEventListener('pointercancel', onPointerLost)
+  viewer.addEventListener('lostpointercapture', onPointerLost)
 
   return {
     /** 썸네일 자리에서 중앙으로 커지며 열기 — 썸네일이 없으면 살짝 작은 상태에서 페이드 */
@@ -170,7 +191,8 @@ export const createSwipeDismiss = ({
       viewer.removeEventListener('pointerdown', onPointerDown)
       viewer.removeEventListener('pointermove', onPointerMove)
       viewer.removeEventListener('pointerup', onPointerUp)
-      viewer.removeEventListener('pointercancel', onPointerUp)
+      viewer.removeEventListener('pointercancel', onPointerLost)
+      viewer.removeEventListener('lostpointercapture', onPointerLost)
     },
   }
 }

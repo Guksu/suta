@@ -91,3 +91,20 @@
     animation: progress-ring-pulse 1.6s ease-in-out infinite;
   }
 }
+
+/* 고대비 모드 — SVG의 stroke는 시스템 색으로 강제되지 않는다. 기본 진행 색(거의 검정)은 검은 바탕에서,
+ * 반투명 트랙은 어느 바탕에서도 보이지 않으므로 시스템 색으로 다시 칠한다. 번짐은 뺀다.
+ * 겹친 링은 모두 같은 색이 된다 — 구별은 자리(바깥·안)와 각 링의 이름이 맡는다 */
+@media (forced-colors: active) {
+  .progress-ring-track {
+    stroke: GrayText;
+  }
+
+  .progress-ring-bar {
+    stroke: CanvasText;
+  }
+
+  :is(.progress-ring[data-over='true'], .progress-ring [data-over='true']) .progress-ring-bar {
+    filter: none;
+  }
+}

@@ -34,7 +34,8 @@ export const PullToRefresh = ({ onRefresh, children, thresholdPx, label, classNa
         content,
         thresholdPx,
         onRefresh: (done) => {
-          Promise.resolve(onRefreshRef.current()).finally(done)
+          // onRefresh가 Promise를 만들기 전에 던져도 스피너가 풀리도록 Promise 안에서 부른다
+          new Promise<void>((resolve) => resolve(onRefreshRef.current())).finally(done)
         },
       })
     },

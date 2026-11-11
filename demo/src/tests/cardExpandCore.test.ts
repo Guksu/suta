@@ -154,3 +154,33 @@ describe('runCardExpand — 이름 부여 순서와 미지원 폴백', () => {
     expect(root().dataset.cardExpand).toBeUndefined()
   })
 })
+
+describe('runCardExpand — 겹친 전환', () => {
+  afterEach(() => {
+    withoutViewTransitions()
+    document.body.innerHTML = ''
+    root().style.viewTransitionName = ''
+    delete root().dataset.cardExpand
+  })
+
+  it('전환이 겹쳐도 끝난 뒤 root의 이름이 none으로 남지 않고, 늦게 끝난 앞선 전환이 방향 표시를 지우지 않는다', async () => {
+    const { card } = makeCard()
+    const finishers: Array<() => void> = []
+    withViewTransitions((callback) => {
+      void callback()
+      return { finished: new Promise<void>((resolve) => finishers.push(resolve)) }
+    })
+
+    const first = runCardExpand({ direction: 'open', from: card, update: () => {} })
+    const second = runCardExpand({ direction: 'close', from: card, update: () => {} })
+    finishers[0]()
+    await first
+    // 두 번째 전환이 아직 돈다 — 방향과 root 제외가 그대로여야 한다
+    expect(root().dataset.cardExpand).toBe('close')
+    expect(root().style.viewTransitionName).toBe('none')
+    finishers[1]()
+    await second
+    expect(root().style.viewTransitionName).toBe('')
+    expect(root().dataset.cardExpand).toBeUndefined()
+  })
+})

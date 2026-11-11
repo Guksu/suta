@@ -15,6 +15,8 @@ type WheelPickerProps = {
   itemHeight?: number
   /** 보이는 칸 수(홀수). 기본 5 — CSS 변수 --wheel-visible과 동기 */
   visibleCount?: number
+  /** 조작을 받지 않는다 — 흐리게 보이고 Tab 순서에서 빠지며 굴리기·키·클릭이 먹지 않는다. 값은 그대로 보인다 */
+  disabled?: boolean
   'aria-label'?: string
   'aria-labelledby'?: string
   className?: string
@@ -25,7 +27,7 @@ type WheelPickerProps = {
  * 스크롤이 멎어 가운데 항목이 바뀌면 onChange(value), 밖에서 value가 바뀌면 그 위치로 스크롤한다.
  * 항목 높이·보이는 칸 수는 CSS 변수로 내려보내 코어와 CSS가 같은 숫자를 본다.
  */
-export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount, className, ...aria }: WheelPickerProps) => {
+export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount, disabled = false, className, ...aria }: WheelPickerProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const wheelRef = useRef<WheelHandle | null>(null)
   const baseId = useId()
@@ -36,6 +38,8 @@ export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount
   optionsRef.current = options
   const valueRef = useRef(value)
   valueRef.current = value
+  const disabledRef = useRef(disabled)
+  disabledRef.current = disabled
 
   const optionId = (index: number) => `${baseId}-option-${index}`
   const selectedIndex = options.findIndex((option) => option.value === value)
@@ -47,6 +51,7 @@ export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount
       const wheel = createWheel({
         container: track,
         itemHeight,
+        isDisabled: () => disabledRef.current,
         onChange: (index) => {
           const option = optionsRef.current[index]
           if (option && option.value !== valueRef.current) onChangeRef.current(option.value)
@@ -54,8 +59,10 @@ export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount
       })
       wheelRef.current = wheel
       // 첫 배치는 애니메이션 없이 — 0에서 굴러오는 가짜 이동을 막는다
+      // value가 목록에 없으면 어느 칸도 고른 것으로 두지 않는다 — 첫 항목을 고른 것으로 해 두면
+      // 화면은 첫 항목인데 부모의 값은 다른 채로 남고, 첫 항목을 눌러도 "바뀐 것이 없다"며 알리지 않는다
       const initial = optionsRef.current.findIndex((option) => option.value === valueRef.current)
-      wheel.setIndex(Math.max(0, initial), { behavior: 'instant' })
+      if (initial >= 0) wheel.setIndex(initial, { behavior: 'instant' })
       return () => {
         wheel.destroy()
         wheelRef.current = null
@@ -80,7 +87,7 @@ export const WheelPicker = ({ options, value, onChange, itemHeight, visibleCount
 
   return (
     <div className={className ? `wheel ${className}` : 'wheel'} style={vars}>
-      <div ref={trackRef} className="wheel-track" role="listbox" tabIndex={0} aria-label={aria['aria-label']} aria-labelledby={aria['aria-labelledby']}>
+      <div ref={trackRef} className="wheel-track" role="listbox" tabIndex={disabled ? -1 : 0} aria-disabled={disabled ? 'true' : undefined} aria-label={aria['aria-label']} aria-labelledby={aria['aria-labelledby']}>
         {options.map((option, index) => (
           <div key={option.value} id={optionId(index)} className="wheel-item" role="option" aria-selected={index === selectedIndex}>
             {option.label}

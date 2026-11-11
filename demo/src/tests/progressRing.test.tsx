@@ -46,4 +46,12 @@ describe('ProgressRing — 원형 진행 표시의 접근성 속성과 상태 �
     expect(screen.getByRole('progressbar', { name: '만두 빚기' })).toHaveAttribute('aria-valuenow', '80')
     expect(screen.getByRole('progressbar', { name: '만두 빚기' })).not.toHaveAttribute('data-over')
   })
+  it('숫자가 아닌 값(NaN)은 빈 링으로 그리고 aria-valuenow에 "NaN"을 싣지 않는다', () => {
+    render(<ProgressRing value={Number.NaN} label="달성률" size={120} stroke={12} />)
+    const bar = screen.getByRole('progressbar', { name: '달성률' })
+    expect(bar).toHaveAttribute('aria-valuenow', '0')
+    expect(bar).not.toHaveAttribute('data-indeterminate')
+    // 빈 링 = offset이 둘레와 같다
+    expect(bar.style.getPropertyValue('--ring-offset')).toBe(bar.style.getPropertyValue('--ring-circumference'))
+  })
 })

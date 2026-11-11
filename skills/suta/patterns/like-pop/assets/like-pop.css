@@ -8,7 +8,11 @@
   --_like-pop-duration: var(--like-pop-duration, 400ms);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  /* 하트만 있을 때도 누르는 영역이 44px 아래로 내려가지 않게 한다 */
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   padding: 0.5rem;
@@ -29,7 +33,17 @@
 .like-btn[aria-pressed='true'] .like-heart {
   fill: var(--_like-color);
   stroke: var(--_like-color);
+}
+
+/* 팝은 방금 좋아요가 됐을 때만 — 이미 좋아요인 채로 그려진 버튼은 data-pop="false"로 막는다.
+ * (속성이 없으면 팝한다: aria-pressed만 바꾸는 순수 JS 사용이 그대로 동작한다) */
+.like-btn[aria-pressed='true']:not([data-pop='false']) .like-heart {
   animation: like-pop var(--_like-pop-duration) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 수가 한 자리 늘어도(9 → 10) 옆 글자가 덜 밀리게 고정폭 숫자를 쓴다 */
+.like-count {
+  font-variant-numeric: tabular-nums;
 }
 
 /* 팝: 눌리는 순간 움츠렸다 튀어오르며 제자리 — 시작을 0이 아닌 0.6으로 해 뚝 사라져 보이지 않게 */
@@ -90,7 +104,7 @@
 
 /* 모션 민감 사용자: 확대·이동은 끄고 불투명도만 남긴다(0이 아니라 완화) */
 @media (prefers-reduced-motion: reduce) {
-  .like-btn[aria-pressed='true'] .like-heart {
+  .like-btn[aria-pressed='true']:not([data-pop='false']) .like-heart {
     animation: none;
   }
   .burst-heart {

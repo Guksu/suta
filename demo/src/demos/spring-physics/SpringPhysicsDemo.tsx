@@ -50,8 +50,6 @@ const COPY = defineCopy({
   },
 })
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 export const SpringPhysicsDemo = () => {
   const t = COPY[useDemoLang()]
   const [stiffness, setStiffness] = useState(170)
@@ -94,13 +92,14 @@ export const SpringPhysicsDemo = () => {
     d.lastT = e.timeStamp
     x.set(x.get() + e.movementX)
   }
-  const onPointerUp = () => {
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current
     if (!d.active) return
     d.active = false
     releaseGhost(x.get())
-    if (reducedMotion()) x.set(0)
-    else x.to(0, d.velocity)
+    // 끌다가 멈춘 뒤 놓으면 마지막 이동 때의 속도가 남아 있다 — 100ms 넘게 멈춰 있었으면 던진 것이 아니다.
+    // 동작 줄이기는 훅이 맡는다(튕기지 않고 바로 0으로)
+    x.to(0, e.timeStamp - d.lastT > 100 ? 0 : d.velocity)
   }
 
   const linear = springToLinear({ config })

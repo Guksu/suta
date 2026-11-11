@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { LongPressMenu } from '@skills/long-press-menu/assets/LongPressMenu'
 
 const setup = () => {
@@ -53,5 +53,78 @@ describe('LongPressMenu — 열림·포커스·닫힘', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(trigger).toHaveAttribute('data-open', 'false')
     expect(document.activeElement).toBe(trigger)
+  })
+})
+
+describe('LongPressMenu — 키보드로 열기·경계', () => {
+  it('트리거에 포커스한 채 Enter·Space·ArrowDown으로 연다', () => {
+    for (const key of ['Enter', ' ', 'ArrowDown']) {
+      const { trigger } = setup()
+      trigger.focus()
+      const notPrevented = fireEvent.keyDown(trigger, { key })
+      expect(notPrevented).toBe(false) // Space가 페이지를 굴리지 않는다
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+      cleanup()
+    }
+  })
+
+  it('카드 안의 버튼에서 누른 Enter는 메뉴를 열지 않는다(그 버튼의 것이다)', () => {
+    render(
+      <LongPressMenu items={[{ label: '담기', onSelect: () => {} }]}>
+        <button type="button">상세 보기</button>
+      </LongPressMenu>,
+    )
+    fireEvent.keyDown(screen.getByText('상세 보기'), { key: 'Enter' })
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('항목이 0개면 열지 않는다', () => {
+    render(
+      <LongPressMenu items={[]}>
+        <article>잔치국수</article>
+      </LongPressMenu>,
+    )
+    const trigger = screen.getByText('잔치국수').parentElement as HTMLElement
+    fireEvent.contextMenu(trigger)
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(trigger).toHaveAttribute('data-open', 'false')
+    expect(trigger).not.toHaveAttribute('aria-haspopup')
+  })
+
+  it('disabled 항목은 aria-disabled로 읽히고 눌러도 실행되지 않으며 메뉴는 열려 있다', () => {
+    const onSelect = vi.fn()
+    render(
+      <LongPressMenu items={[{ label: '담기', onSelect, disabled: true }, { label: '즐겨찾기', onSelect: () => {} }]}>
+        <article>잔치국수</article>
+      </LongPressMenu>,
+    )
+    fireEvent.contextMenu(screen.getByText('잔치국수').parentElement as HTMLElement)
+    const item = screen.getByRole('menuitem', { name: '담기' })
+    expect(item).toHaveAttribute('aria-disabled', 'true')
+    fireEvent.click(item)
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(screen.getByRole('menu')).toBeInTheDocument()
+  })
+
+  it('메뉴 안쪽의 스크롤로는 닫히지 않고, 페이지 스크롤과 창 크기 변경에는 닫힌다', () => {
+    const { trigger } = setup()
+    fireEvent.contextMenu(trigger)
+    fireEvent.scroll(screen.getByRole('menu'))
+    expect(screen.getByRole('menu')).toBeInTheDocument()
+    fireEvent.scroll(document)
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+
+    fireEvent.contextMenu(trigger)
+    fireEvent(window, new Event('resize'))
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('안쪽 요소가 이미 쓴 Esc(defaultPrevented)로는 닫지 않는다', () => {
+    const { trigger } = setup()
+    fireEvent.contextMenu(trigger)
+    const used = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    used.preventDefault()
+    window.dispatchEvent(used)
+    expect(screen.getByRole('menu')).toBeInTheDocument()
   })
 })

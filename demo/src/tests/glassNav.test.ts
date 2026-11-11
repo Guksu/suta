@@ -99,4 +99,33 @@ describe('createGlassNav — 스크롤 이벤트로 data 속성을 붙인다', (
     expect(nav.dataset.compact).toBe('false')
     expect(ctl.getState().elevated).toBe(true)
   })
+
+  it('숨거나 접힌 바 안으로 포커스가 들어오면 다시 펼친다 — 화면 밖 링크에 포커스가 가지 않게', async () => {
+    for (const mode of ['hide', 'compact'] as const) {
+      const container = document.createElement('div')
+      const nav = document.createElement('header')
+      nav.innerHTML = '<a href="/menu">메뉴</a>'
+      document.body.append(container, nav)
+      const ctl = createGlassNav({ container, nav, mode })
+
+      container.scrollTop = 300
+      container.dispatchEvent(new Event('scroll'))
+      await nextFrame()
+      expect(mode === 'hide' ? nav.dataset.hidden : nav.dataset.compact).toBe('true')
+
+      nav.querySelector('a')!.focus()
+      expect(nav.dataset.hidden).toBe('false')
+      expect(nav.dataset.compact).toBe('false')
+
+      // 펼친 자리가 새 기준점이다 — 같은 자리의 스크롤 이벤트로 다시 숨지 않는다
+      container.dispatchEvent(new Event('scroll'))
+      await nextFrame()
+      expect(nav.dataset.hidden).toBe('false')
+      expect(nav.dataset.compact).toBe('false')
+
+      ctl.destroy()
+      nav.remove()
+      container.remove()
+    }
+  })
 })

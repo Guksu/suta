@@ -4,6 +4,9 @@ import './like-pop.css'
 
 type Burst = { id: number; x: number; y: number }
 
+/** 버스트 애니메이션(900ms)이 끝났어야 할 시간 — animationend가 오지 않을 때의 정리 기한 */
+const BURST_FALLBACK_MS = 1200
+
 type DoubleTapAreaProps = {
   children: ReactNode
   /** 더블탭 성공 시 호출 — 좋아요 상태 갱신은 여기서 */
@@ -21,6 +24,7 @@ export const DoubleTapArea = ({ children, onDoubleTap, thresholdMs, className }:
   const areaRef = useRef<HTMLDivElement | null>(null)
   const nextIdRef = useRef(0)
   const [bursts, setBursts] = useState<Burst[]>([])
+  const timersRef = useRef(new Set<ReturnType<typeof setTimeout>>())
   // 최신 콜백을 ref로 들고 있어 인라인 함수를 넘겨도 리스너가 매 렌더 재등록되지 않는다
   const onDoubleTapRef = useRef(onDoubleTap)
   onDoubleTapRef.current = onDoubleTap
@@ -39,12 +43,21 @@ export const DoubleTapArea = ({ children, onDoubleTap, thresholdMs, className }:
             ...prev,
             { id: nextIdRef.current, x: point.x - rect.left, y: point.y - rect.top },
           ])
+          const id = nextIdRef.current
+          // animationend가 오지 않는 화면(animation: none으로 모션을 끈 초기화 CSS, display: none으로 가려진 영역)에서도
+          // 하트가 사진 위에 남지 않게 시간으로도 지운다
+          timersRef.current.add(setTimeout(() => removeBurst(id), BURST_FALLBACK_MS))
           onDoubleTapRef.current?.()
         },
       })
     },
     [thresholdMs],
   )
+
+  useEffect(function clearBurstTimers() {
+    const timers = timersRef.current
+    return () => timers.forEach((timer) => clearTimeout(timer))
+  }, [])
 
   const removeBurst = (id: number) => setBursts((prev) => prev.filter((burst) => burst.id !== id))
 

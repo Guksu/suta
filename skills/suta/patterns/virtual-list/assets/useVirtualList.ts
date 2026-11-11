@@ -34,14 +34,14 @@ export const useVirtualList = <T extends HTMLElement = HTMLDivElement>({
   maxLead = 24,
 }: UseVirtualListOptions) => {
   const containerRef = useRef<T | null>(null)
-  const [range, setRange] = useState<VirtualRange>(() => ({
+  const [state, setRange] = useState<VirtualRange>(() => ({
     startIndex: 0,
     endIndex: -1,
     offsetY: 0,
     totalHeight: itemCount * itemHeight,
   }))
-  const rangeRef = useRef(range)
-  rangeRef.current = range
+  const rangeRef = useRef(state)
+  rangeRef.current = state
 
   useEffect(
     function trackScroll() {
@@ -102,6 +102,16 @@ export const useVirtualList = <T extends HTMLElement = HTMLDivElement>({
     },
     [itemCount, itemHeight, overscan, maxLead],
   )
+
+  // range는 효과가 잰 값이라 itemCount가 바뀐 바로 그 렌더에서는 옛 구간이다.
+  // 깊이 스크롤한 채로 목록이 줄면(필터·삭제) 옛 인덱스로 data[index]를 읽어 undefined가 된다 —
+  // 그리기 전에 새 개수 안으로 당긴다. 브라우저도 내용이 짧아지면 scrollTop을 끝으로 당기므로 같은 자리다
+  const totalHeight = Math.max(0, itemCount) * itemHeight
+  const lastIndex = itemCount - 1
+  const stale = state.endIndex > lastIndex || state.totalHeight !== totalHeight
+  const endIndex = Math.min(state.endIndex, lastIndex)
+  const startIndex = Math.max(0, Math.min(state.startIndex, endIndex - (state.endIndex - state.startIndex)))
+  const range: VirtualRange = stale ? { startIndex, endIndex, offsetY: startIndex * itemHeight, totalHeight } : state
 
   return {
     containerRef,

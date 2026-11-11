@@ -44,7 +44,7 @@ export const ActivityRings = ({ rings, size = 160, stroke = 14, gap = 4, classNa
               aria-label={ring.label}
               aria-valuemin={0}
               aria-valuemax={max}
-              aria-valuenow={ring.value}
+              aria-valuenow={Number.isNaN(ring.value) ? 0 : ring.value}
               data-over={over ? 'true' : undefined}
             >
               <RingArc center={size / 2} radius={radii[index]} stroke={stroke} />

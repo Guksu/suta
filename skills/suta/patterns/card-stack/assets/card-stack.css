@@ -24,7 +24,7 @@
   background: var(--stack-card-bg, linear-gradient(135deg, #3a3f4b, #1f232b));
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   /* 윗가장자리가 보이는 쪽이므로 배율을 줄여도 윗선이 제자리에 있어야 겹침 간격이 흔들리지 않는다 */
   transform-origin: 50% 0;
@@ -42,13 +42,29 @@
   outline-offset: -4px;
 }
 
-/* 펼칠 때는 위에서부터 순서대로, 접을 때는 아래(앞) 카드부터 거꾸로 — 항상 "가까운 카드가 먼저" 움직인다 */
+/* 펼칠 때는 위에서부터 순서대로, 접을 때는 아래(앞) 카드부터 거꾸로 — 항상 "가까운 카드가 먼저" 움직인다.
+ * 지연은 240ms에서 멈춘다 — 카드가 수십 장이면 마지막 카드가 몇 초 뒤에야 움직이기 시작한다 */
 .card-stack[data-mode='fanned'] .card-stack-card {
-  transition-delay: calc(var(--stack-index, 0) * 30ms);
+  transition-delay: min(calc(var(--stack-index, 0) * 30ms), 240ms);
 }
 
 .card-stack[data-mode='stacked'] .card-stack-card {
-  transition-delay: calc((var(--stack-count, 1) - 1 - var(--stack-index, 0)) * 30ms);
+  transition-delay: min(calc((var(--stack-count, 1) - 1 - var(--stack-index, 0)) * 30ms), 240ms);
+}
+
+/* 접히거나 선택으로 넘어갈 때는 컨테이너가 낮아진다 — 높이를 바로 줄이면 아직 내려가 있는 카드가 아래에서 잘린다.
+ * 카드가 다 올라온 뒤에 한 번에 줄인다(시간 0의 계단 — 프레임마다 레이아웃을 돌리는 애니메이션이 아니다).
+ * 펼칠 때(fanned)는 높아지므로 기다리지 않는다 */
+.card-stack[data-mode='stacked'],
+.card-stack[data-mode='selected'] {
+  transition: min-height 0s linear var(--_duration); /* motion-audit-ignore: layout-animation — 시간 0의 계단이다. 지연 뒤 한 번만 바뀐다 */
+}
+
+/* 고대비 모드는 그림자를 지우고 버튼 배경을 한 색으로 바꾼다 — 겹친 카드의 경계가 사라지지 않게 선을 긋는다 */
+@media (forced-colors: active) {
+  .card-stack-card {
+    border: 1px solid ButtonText;
+  }
 }
 
 /* 모션 민감 사용자: 이동을 끄고 즉시 재배치한다 — 겹침·펼침 상태 자체는 그대로 전달된다 */
@@ -58,5 +74,8 @@
   }
   .card-stack[data-mode] .card-stack-card {
     transition-delay: 0s;
+  }
+  .card-stack[data-mode] {
+    transition: none;
   }
 }

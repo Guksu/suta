@@ -145,6 +145,60 @@ describe('createEdgeSwipe — 가장자리 캡처·추종·커밋/취소 스프�
     pointer({ el: container, type: 'pointermove', x: 110, t: 16 })
     expect(screen.style.transform).toBe('')
   })
+
+  describe('포인터 캡처·두 번째 손가락·끊김', () => {
+    const idPointer = ({ type, x, y = 100, t, id }: { type: string; x: number; y?: number; t: number; id: number }) => {
+      const event = new MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0 })
+      Object.defineProperty(event, 'timeStamp', { value: t })
+      Object.defineProperty(event, 'pointerId', { value: id })
+      container.dispatchEvent(event)
+    }
+
+    it('누르는 순간에는 포인터를 잡지 않는다 — 잡으면 가장자리 24px 안 버튼의 click이 상자로 간다', () => {
+      const captured: number[] = []
+      container.setPointerCapture = (id: number) => void captured.push(id)
+      bind()
+      pointer({ el: container, type: 'pointerdown', x: 10, t: 0 })
+      expect(captured).toEqual([])
+      pointer({ el: container, type: 'pointermove', x: 30, t: 16 }) // 가로로 6px 넘게 — 여기서 끌기가 된다
+      expect(captured).toEqual([1])
+    })
+
+    it('두 번째 손가락은 끌기를 가로채지 못한다', () => {
+      const c = bind()
+      idPointer({ type: 'pointerdown', x: 10, t: 0, id: 1 })
+      idPointer({ type: 'pointermove', x: 110, t: 16, id: 1 })
+      expect(c.progress).toBeCloseTo(0.25)
+      idPointer({ type: 'pointerdown', x: 5, t: 20, id: 2 })
+      idPointer({ type: 'pointermove', x: 395, t: 36, id: 2 })
+      expect(c.progress).toBeCloseTo(0.25)
+      idPointer({ type: 'pointerup', x: 395, t: 40, id: 2 })
+      idPointer({ type: 'pointermove', x: 210, t: 50, id: 1 })
+      expect(c.progress).toBeCloseTo(0.5) // 첫 손가락은 여전히 끌고 있다
+    })
+
+    it('pointercancel이면 임계를 넘겼어도 돌아가지 않고 제자리로 복귀한다', () => {
+      const c = bind()
+      pointer({ el: container, type: 'pointerdown', x: 10, t: 0 })
+      pointer({ el: container, type: 'pointermove', x: 310, t: 16 })
+      pointer({ el: container, type: 'pointercancel', x: 310, t: 32 })
+      vi.advanceTimersByTime(3000)
+      expect(backs).toBe(0)
+      expect(c.progress).toBe(0)
+      expect(screen.style.transform).toBe('')
+    })
+
+    it('포인터 캡처를 잃으면(창이 포커스를 잃음) 끌기를 끝내고 제자리로 복귀한다', () => {
+      const c = bind()
+      pointer({ el: container, type: 'pointerdown', x: 10, t: 0 })
+      pointer({ el: container, type: 'pointermove', x: 310, t: 16 })
+      pointer({ el: container, type: 'lostpointercapture', x: 310, t: 32 })
+      pointer({ el: container, type: 'pointermove', x: 380, t: 48 }) // 끝난 끌기 — 따라가지 않는다
+      vi.advanceTimersByTime(3000)
+      expect(backs).toBe(0)
+      expect(c.progress).toBe(0)
+    })
+  })
 })
 
 describe('createEdgeSwipe — CSS 변수를 기준값으로 읽는다', () => {

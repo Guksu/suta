@@ -65,7 +65,8 @@ export const ProgressRing = ({
   className,
   children,
 }: ProgressRingProps) => {
-  const radius = size / 2 - stroke / 2
+  // 획이 캔버스보다 두꺼우면 반지름이 음수가 된다 — SVG는 음수 r을 오류로 본다
+  const radius = Math.max(0, size / 2 - stroke / 2)
   const indeterminate = value === undefined
   const { progress, over } = clampProgress({ value: value ?? 0, max })
   const style = { width: size, height: size, ...ringVars({ radius, progress, color, trackColor }) }
@@ -79,7 +80,7 @@ export const ProgressRing = ({
       aria-valuemin={0}
       aria-valuemax={max}
       /* 실제 값을 그대로 전달한다 — 링만 시각적으로 클램프. valuenow가 없으면 ARIA상 indeterminate다 */
-      aria-valuenow={indeterminate ? undefined : value}
+      aria-valuenow={indeterminate ? undefined : Number.isNaN(value) ? 0 : value}
       data-over={over ? 'true' : undefined}
       data-indeterminate={indeterminate ? 'true' : undefined}
     >

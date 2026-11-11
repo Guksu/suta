@@ -20,7 +20,7 @@ const COPY = defineCopy({
     duration: '구간 시간',
     fromStart: '처음부터',
     replay: '다시 재생',
-    note: '화면을 길게 누르면 멈추고, 좌/우 절반을 탭하면 이전/다음 장면으로 이동합니다.',
+    note: '화면을 길게 누르면 멈추고, 좌/우 절반을 탭하면 이전/다음 장면으로 이동합니다. 길게 눌렀다 떼면 넘어가지 않습니다.',
     paused: '일시정지',
     prev: '이전 장면',
     next: '다음 장면',
@@ -36,7 +36,7 @@ const COPY = defineCopy({
     duration: 'Segment duration',
     fromStart: 'From the start',
     replay: 'Replay',
-    note: 'Press and hold the screen to pause. Tap the left or right half to go to the previous or next scene.',
+    note: 'Press and hold the screen to pause. Tap the left or right half to go to the previous or next scene. Releasing a long press does not skip.',
     paused: 'Paused',
     prev: 'Previous scene',
     next: 'Next scene',
@@ -90,6 +90,7 @@ export const StoryProgressDemo = () => {
         onPointerDown={hold}
         onPointerUp={release}
         onPointerLeave={release}
+        onPointerCancel={release}
       >
         <div className="story-bars">
           {SCENE_DISHES.map((dish, index) => (
@@ -107,8 +108,8 @@ export const StoryProgressDemo = () => {
           </div>
           {holding && <em className="story-paused">{t.paused}</em>}
         </div>
-        <button type="button" className="story-nav story-nav-prev" aria-label={t.prev} onClick={story.prev} />
-        <button type="button" className="story-nav story-nav-next" aria-label={t.next} onClick={story.next} />
+        <button type="button" className="story-nav story-nav-prev" aria-label={t.prev} onClick={story.tapPrev} />
+        <button type="button" className="story-nav story-nav-next" aria-label={t.next} onClick={story.tapNext} />
       </div>
     </div>
   )
