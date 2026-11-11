@@ -10,7 +10,9 @@
   z-index: var(--z-sticky, 30);
   display: flex;
   align-items: center;
-  background: var(--header-bg, rgba(15, 17, 21, 0.85));
+  /* 기본은 밝은 면이다 — 색 토큰이 있으면 그 면을 쓴다. 어두운 화면은 --header-bg와 --header-color를 함께 준다 */
+  background: var(--header-bg, color-mix(in srgb, var(--color-surface, #fff) 88%, transparent));
+  color: var(--header-color, var(--color-text, #1c1c1c));
   -webkit-backdrop-filter: blur(8px); /* 사파리 17 이하 */
   backdrop-filter: blur(8px);
 }
@@ -39,7 +41,7 @@
   position: absolute;
   inset: auto 0 -12px 0;
   height: 12px;
-  background: linear-gradient(rgba(0, 0, 0, 0.25), transparent);
+  background: linear-gradient(var(--header-shadow, rgb(0 0 0 / 0.1)), transparent);
   opacity: 0;
   transition: opacity var(--_duration) ease;
   pointer-events: none;

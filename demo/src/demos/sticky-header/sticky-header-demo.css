@@ -12,6 +12,8 @@
   padding: 0 1.25rem;
   font-weight: 700;
   --header-bg: rgba(23, 26, 33, 0.88);
+  --header-color: var(--text);
+  --header-shadow: rgb(0 0 0 / 0.25);
 }
 
 .header-demo-hero {
