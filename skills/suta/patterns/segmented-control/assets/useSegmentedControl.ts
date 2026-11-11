@@ -21,7 +21,14 @@ export const useSegmentedControl = ({ activeIndex }: { activeIndex: number }) =>
     function slideToActiveSegment() {
       const thumb = thumbRef.current
       const target = segmentsRef.current[activeIndex]
-      if (!thumb || !target) return
+      if (!thumb) return
+      if (!target) {
+        // 고른 값이 옵션에 없다(activeIndex -1) — 아무 칸도 선택되지 않았는데 알약이 옛 칸에 남으면 거짓 표시다.
+        // 거두고, 다음에 고를 때는 빈 자리에서 미끄러져 오지 않게 첫 배치로 되돌린다
+        thumb.style.width = '0px'
+        initializedRef.current = false
+        return
+      }
       // 첫 배치는 슬라이드 없이 — 0에서 미끄러져 오는 가짜 이동을 막는다
       moveSegmentThumb({ thumb, target, immediate: !initializedRef.current })
       initializedRef.current = true

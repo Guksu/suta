@@ -86,6 +86,12 @@ export const SwipeToDelete = ({
       done = true
       finishRef.current()
     }
+    // 동작 줄이기에서는 접힘 전이가 없어 transitionend가 오지 않는다 — 폴백 타이머(600ms)를 기다리지 않고 바로 끝낸다
+    const durations = getComputedStyle(item).transitionDuration
+    if (durations && durations.split(',').every((value) => parseFloat(value) === 0)) {
+      finish()
+      return
+    }
     item.addEventListener('transitionend', (event) => {
       if (event.propertyName === 'grid-template-rows') finish()
     })

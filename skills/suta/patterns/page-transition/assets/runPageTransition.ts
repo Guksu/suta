@@ -30,18 +30,28 @@ type RunPageTransitionOptions = {
   root?: HTMLElement
 }
 
+/** 요소마다 가장 최근 전환의 순번 — 늦게 끝난 앞선 전환이 새 전환의 방향 표시를 지우지 않게 한다 */
+const latestRun = new WeakMap<HTMLElement, number>()
+
 export const runPageTransition = async ({ direction, update, root }: RunPageTransitionOptions): Promise<void> => {
   const host = root ?? document.documentElement
   const start = (document as Document & { startViewTransition?: StartViewTransition }).startViewTransition
 
+  const run = (latestRun.get(host) ?? 0) + 1
+  latestRun.set(host, run)
   host.dataset.navDirection = direction
+  // 전환 중에 새 전환이 시작되면 브라우저는 앞선 전환을 건너뛰고 곧바로 끝낸다.
+  // 그때 방향 표시를 지우면 진행 중인 새 전환이 방향을 잃고 기본 겹침으로 바뀐다
+  const clearDirection = () => {
+    if (latestRun.get(host) === run) delete host.dataset.navDirection
+  }
 
   if (typeof start !== 'function') {
     // 미지원 브라우저(구형 사파리·파이어폭스 일부): 전환 없이 즉시 바뀐다. 화면은 멀쩡하다
     try {
       update()
     } finally {
-      delete host.dataset.navDirection
+      clearDirection()
     }
     return
   }
@@ -49,6 +59,6 @@ export const runPageTransition = async ({ direction, update, root }: RunPageTran
   try {
     await start.call(document, update).finished
   } finally {
-    delete host.dataset.navDirection
+    clearDirection()
   }
 }

@@ -29,8 +29,9 @@ type CreateStretchyHeaderOptions = {
 /** 이 거리 안의 움직임은 축을 정하지 않는다 — 손떨림으로 가로/세로를 오판하지 않기 위해 */
 const AXIS_LOCK_PX = 6
 
-const prefersReducedMotion = () =>
-  typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
+/** 질의 객체를 한 번 만들어 두고 matches를 그때그때 읽는다 — 화면이 떠 있는 동안 설정을 바꿔도 다음 프레임부터 따른다 */
+const reducedMotionQuery = () =>
+  typeof matchMedia !== 'undefined' ? matchMedia('(prefers-reduced-motion: reduce)') : null
 
 export const createStretchyHeader = ({
   container,
@@ -39,16 +40,25 @@ export const createStretchyHeader = ({
   parallaxRatio = 0.5,
   maxPull,
 }: CreateStretchyHeaderOptions) => {
-  const reduced = prefersReducedMotion()
-  const height = headerHeight ?? image.offsetHeight
+  const motionQuery = reducedMotionQuery()
+  const isReduced = () => motionQuery?.matches === true
+  let height = headerHeight ?? image.offsetHeight
   let rafId = 0
   let pulling = false
+  /** 당김을 시작한 포인터 — 두 번째 손가락이 기준점을 바꾸거나 당김을 끝내지 못하게 한다 */
+  let activePointer: number | undefined
   let axis: 'none' | 'x' | 'y' = 'none'
   let startX = 0
   let startY = 0
 
+  const pointerIdOf = (event: PointerEvent | MouseEvent) => ('pointerId' in event ? event.pointerId : undefined)
+
   const applyScroll = () => {
+    const reduced = isReduced()
     const scrollTop = container.scrollTop
+    // 복귀 전환(release)이 남아 있어도 스크롤·바운스가 시작되면 프레임 단위 이동이 우선이다.
+    // 켜 둔 채면 프레임마다 새 값으로 300ms 전환이 다시 시작돼 이미지가 손보다 늦게 따라온다
+    if (scrollTop !== 0 && image.dataset.stretch) delete image.dataset.stretch
     if (scrollTop < 0) {
       // 브라우저가 이미 바운스한 상태 — 헤더 박스가 내려간 만큼 이미지를 올려 붙이고 늘린다
       if (reduced) return
@@ -57,8 +67,6 @@ export const createStretchyHeader = ({
       image.style.opacity = ''
       return
     }
-    // 복귀 전환이 남아 있어도 스크롤이 시작되면 프레임 단위 이동이 우선이다
-    if (scrollTop > 0 && image.dataset.stretch) delete image.dataset.stretch
     const { translateY, opacity } = parallaxFrame({
       scrollTop,
       headerHeight: height,
@@ -77,8 +85,9 @@ export const createStretchyHeader = ({
   }
 
   const onPointerDown = (event: PointerEvent | MouseEvent) => {
-    if (reduced || container.scrollTop > 0) return
+    if (pulling || isReduced() || container.scrollTop > 0) return
     if ('button' in event && event.button !== 0) return
+    activePointer = pointerIdOf(event)
     pulling = true
     axis = 'none'
     startX = event.clientX
@@ -86,7 +95,14 @@ export const createStretchyHeader = ({
   }
 
   const onPointerMove = (event: PointerEvent | MouseEvent) => {
-    if (!pulling) return
+    if (!pulling || pointerIdOf(event) !== activePointer) return
+    if (container.scrollTop > 0) {
+      // 당기는 도중에 휠·키보드로 스크롤이 시작됐다 — 늘어난 이미지가 스크롤된 본문 위에 남지 않게 당김을 그만둔다
+      pulling = false
+      if (image.dataset.stretch) delete image.dataset.stretch
+      applyScroll()
+      return
+    }
     const dx = event.clientX - startX
     const dy = event.clientY - startY
     if (axis === 'none') {
@@ -107,8 +123,8 @@ export const createStretchyHeader = ({
     image.style.transform = `translateY(${translateY}px) scale(${scale})`
   }
 
-  const onPointerUp = () => {
-    if (!pulling) return
+  const onPointerUp = (event: PointerEvent | MouseEvent) => {
+    if (!pulling || pointerIdOf(event) !== activePointer) return
     pulling = false
     if (axis !== 'y') return
     image.dataset.stretch = 'release' // CSS transition이 scale 1로 되돌린다
@@ -122,9 +138,21 @@ export const createStretchyHeader = ({
   window.addEventListener('pointercancel', onPointerUp)
   applyScroll() // 스크롤된 채로 마운트돼도 첫 프레임이 맞도록
 
+  // headerHeight를 받지 않았으면 이미지 크기를 따라간다 — 숨겨진 채 마운트되면 0으로 재어 효과가 영영 꺼지고,
+  // 화면 폭에 따라 --stretch-height가 달라지는 화면은 처음 잰 값으로 비율이 어긋난다
+  const sizeObserver =
+    headerHeight === undefined && typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => {
+          height = image.offsetHeight
+          applyScroll()
+        })
+      : null
+  sizeObserver?.observe(image)
+
   return () => {
     if (rafId) cancelAnimationFrame(rafId)
     rafId = 0
+    sizeObserver?.disconnect()
     container.removeEventListener('scroll', onScroll)
     container.removeEventListener('pointerdown', onPointerDown)
     window.removeEventListener('pointermove', onPointerMove)

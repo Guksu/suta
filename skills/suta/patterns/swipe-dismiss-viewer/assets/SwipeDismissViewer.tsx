@@ -23,6 +23,7 @@ const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: r
 export const SwipeDismissViewer = ({ src, alt, returnTo, onClose, closeLabel = '닫기', className }: SwipeDismissViewerProps) => {
   const viewerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
   const controllerRef = useRef<ReturnType<typeof createSwipeDismiss> | null>(null)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
@@ -42,13 +43,23 @@ export const SwipeDismissViewer = ({ src, alt, returnTo, onClose, closeLabel = '
       controllerRef.current = controller
       controller.open()
 
+      // 열리면 포커스를 뷰어 안(닫기 버튼)으로 옮기고, 닫히면 열었던 요소로 돌려보낸다
+      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      closeRef.current?.focus({ preventScroll: true })
+
       const onKeydown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') controller.close()
+        // 안쪽 요소가 이미 쓴 Esc(defaultPrevented)로는 닫지 않는다
+        if (event.key === 'Escape' && !event.defaultPrevented) controller.close()
       }
+      // 뒤 화면이 휠로 굴러가면 돌아갈 썸네일 자리가 달라진다 — 뷰어 위의 휠은 막는다
+      const blockWheel = (event: WheelEvent) => event.preventDefault()
       window.addEventListener('keydown', onKeydown)
+      viewer.addEventListener('wheel', blockWheel, { passive: false })
       return () => {
         window.removeEventListener('keydown', onKeydown)
+        viewer.removeEventListener('wheel', blockWheel)
         controller.destroy()
+        if (opener?.isConnected) opener.focus({ preventScroll: true })
       }
     },
     // returnTo는 ref 객체라 안정적이다
@@ -57,10 +68,22 @@ export const SwipeDismissViewer = ({ src, alt, returnTo, onClose, closeLabel = '
   )
 
   return (
-    <div ref={viewerRef} className={className ? `viewer ${className}` : 'viewer'} role="dialog" aria-modal="true" aria-label={alt}>
+    <div
+      ref={viewerRef}
+      className={className ? `viewer ${className}` : 'viewer'}
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt}
+      onKeyDown={(event) => {
+        // 뷰어 안에서 포커스를 받는 것은 닫기 버튼 하나다 — Tab이 뒤 화면으로 나가지 않게 붙잡는다
+        if (event.key !== 'Tab') return
+        event.preventDefault()
+        closeRef.current?.focus()
+      }}
+    >
       <div className="viewer-backdrop" />
       <img ref={imageRef} src={src} alt={alt} className="viewer-image" draggable={false} />
-      <button type="button" className="viewer-chrome viewer-close" aria-label={closeLabel} onClick={() => controllerRef.current?.close()}>
+      <button ref={closeRef} type="button" className="viewer-chrome viewer-close" aria-label={closeLabel} onClick={() => controllerRef.current?.close()}>
         ✕
       </button>
     </div>

@@ -11,11 +11,19 @@ type Bounds = { min: number; max: number; step?: number }
 /** step이 0.1처럼 소수면 부동소수 오차가 쌓인다 — 눈금의 소수 자릿수로 정리한다 */
 const decimalsOf = (step: number) => (String(step).split('.')[1] ?? '').length
 
-/** 눈금에 맞추고 범위 안으로 가둔다 */
+/**
+ * 눈금에 맞추고 범위 안으로 가둔다.
+ *
+ * 눈금이 범위를 나누지 못하면(0~50에 20씩) 최댓값은 눈금이 아니다. 그때는 최대 아래의 마지막 눈금(40)이 끝이다 —
+ * 네이티브 `<input type="range">`가 그렇게 한다. 여기서 50을 내보내면 input이 스스로 40으로 고쳐 상태와 화면이 어긋난다.
+ * 눈금이 0 이하거나 숫자가 아니면 맞추지 않고 가두기만 한다(0으로 나누지 않는다).
+ */
 export const snapValue = ({ value, min, max, step = 1 }: Bounds & { value: number }) => {
-  const snapped = min + Math.round((value - min) / step) * step
-  const clamped = Math.min(Math.max(snapped, min), max)
-  return Number(clamped.toFixed(decimalsOf(step)))
+  if (!(step > 0)) return Math.min(Math.max(value, min), Math.max(min, max))
+  const lastIndex = Math.max(0, Math.floor((max - min) / step + 1e-9))
+  const index = Math.min(Math.max(Math.round((value - min) / step), 0), lastIndex)
+  // 자릿수는 눈금과 최솟값 중 긴 쪽 — 최솟값이 0.5면 눈금이 1이어도 값은 2.5다
+  return Number((min + index * step).toFixed(Math.max(decimalsOf(step), decimalsOf(min))))
 }
 
 /**
@@ -28,6 +36,8 @@ export const clampPair = ({
   upper,
   moved,
   minDistance = 0,
+  min = -Infinity,
+  max = Infinity,
 }: {
   lower: number
   upper: number
@@ -35,14 +45,17 @@ export const clampPair = ({
   moved: 'lower' | 'upper'
   /** 두 값 사이 최소 간격 (기본 0 = 같아져도 된다) */
   minDistance?: number
+  /** 범위의 끝 — 주면 최소 간격 때문에 범위 밖으로 밀려나지 않는다(상대가 끝에 붙어 간격을 낼 자리가 없을 때) */
+  min?: number
+  max?: number
 }) =>
   moved === 'lower'
-    ? { lower: Math.min(lower, upper - minDistance), upper }
-    : { lower, upper: Math.max(upper, lower + minDistance) }
+    ? { lower: Math.max(Math.min(lower, upper - minDistance), min), upper }
+    : { lower, upper: Math.min(Math.max(upper, lower + minDistance), max) }
 
-/** 값 → 트랙 위 위치(%) */
+/** 값 → 트랙 위 위치(%). 범위 밖 값이 들어와도 0~100 안으로 가둔다 — 채움이 트랙 밖으로 그려지지 않게 */
 export const toPercent = ({ value, min, max }: Bounds & { value: number }) =>
-  max === min ? 0 : ((value - min) / (max - min)) * 100
+  max === min ? 0 : Math.min(Math.max(((value - min) / (max - min)) * 100, 0), 100)
 
 /** 트랙 위 위치(%) → 눈금에 맞춘 값 — 트랙을 눌러 손잡이를 옮길 때 쓴다 */
 export const valueAtPercent = ({ percent, min, max, step = 1 }: Bounds & { percent: number }) =>

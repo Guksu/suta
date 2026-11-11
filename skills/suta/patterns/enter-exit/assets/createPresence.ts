@@ -36,8 +36,8 @@ export const createPresence = ({ element, timeoutMs = 500, onChange }: CreatePre
     cancelAnimationFrame(outerFrame)
     cancelAnimationFrame(innerFrame)
     clearTimeout(fallbackTimer)
-    element.removeEventListener('transitionend', finishExit)
-    element.removeEventListener('animationend', finishExit)
+    element.removeEventListener('transitionend', onExitEnd)
+    element.removeEventListener('animationend', onExitEnd)
   }
 
   const finishExit = () => {
@@ -45,9 +45,22 @@ export const createPresence = ({ element, timeoutMs = 500, onChange }: CreatePre
     applyState(null)
   }
 
-  const show = () => {
+  // 안쪽 요소(버튼의 hover 전이 등)의 transitionend는 버블링되어 여기까지 온다 —
+  // 그것으로 끝내면 퇴장이 중간에 잘리므로 이 요소 자신의 이벤트만 받는다
+  const onExitEnd = (event: Event) => {
+    if (event.target !== element) return
+    finishExit()
+  }
+
+  /** immediate: 처음부터 열려 있는 요소를 진입 애니메이션 없이 entered로 둔다(새로고침·복원된 화면) */
+  const show = ({ immediate = false }: { immediate?: boolean } = {}) => {
     if (state === 'entering' || state === 'entered') return
     clearPending()
+    // exiting에서 되돌릴 때는 요소가 이미 그려져 있다 — 프레임을 기다리면 그동안 계속 사라지다가 뒤집힌다
+    if (immediate || state === 'exiting') {
+      applyState('entered')
+      return
+    }
     applyState('entering')
     // 브라우저가 entering 스타일을 먼저 그려야 entered로의 transition이 발동한다 — 두 프레임 대기
     outerFrame = requestAnimationFrame(() => {
@@ -57,12 +70,19 @@ export const createPresence = ({ element, timeoutMs = 500, onChange }: CreatePre
 
   const hide = () => {
     if (state === null || state === 'exiting') return
+    const neverShown = state === 'entering'
     clearPending()
+    // entering은 아직 한 번도 보이지 않은 상태다(가려진 탭에서는 프레임이 오지 않아 오래 머문다).
+    // exiting과 스타일이 같아 transitionend도 없다 — 폴백 시간 동안 붙들지 않고 바로 끝낸다
+    if (neverShown) {
+      applyState(null)
+      return
+    }
     applyState('exiting')
     // transitionend는 유실될 수 있다(display 전환·탭 백그라운드) — 타임아웃이 안전망
     fallbackTimer = setTimeout(finishExit, timeoutMs)
-    element.addEventListener('transitionend', finishExit)
-    element.addEventListener('animationend', finishExit)
+    element.addEventListener('transitionend', onExitEnd)
+    element.addEventListener('animationend', onExitEnd)
   }
 
   const destroy = () => {

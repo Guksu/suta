@@ -92,15 +92,24 @@ export const Celebration = ({
     // Esc — 브라우저가 바로 close()하려는 것을 막고 부모에게 닫기를 요청한다(닫힘 애니메이션 경유)
     const handleCancel = (event: Event) => {
       event.preventDefault()
-      onCloseRef.current()
+      if (!dialog.hasAttribute('data-closing')) onCloseRef.current()
     }
     dialog.addEventListener('cancel', handleCancel)
     return () => dialog.removeEventListener('cancel', handleCancel)
   }, [])
 
+  // 닫히는 중(닫힘 애니메이션)에도 대화상자는 아직 열려 있어 버튼이 눌린다.
+  // 그 사이의 연타·Esc가 보상 처리(onAction)나 onClose를 한 번 더 부르지 않게 막는다
+  const isClosing = () => dialogRef.current?.hasAttribute('data-closing') ?? false
+
   const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
     // 패널 안쪽 클릭은 자식 요소가 target이고, ::backdrop 클릭만 dialog 자신이 target이다
-    if (event.target === event.currentTarget) onCloseRef.current()
+    if (event.target === event.currentTarget && !isClosing()) onCloseRef.current()
+  }
+
+  const handleAction = () => {
+    if (isClosing()) return
+    ;(onAction ?? onCloseRef.current)()
   }
 
   // 열려 있는 동안만 그린다 — 다시 열면 새로 붙어 한 번 더 터진다. 동작 줄이기면 날지 않고 그림 둘레 제자리에 놓인다
@@ -143,7 +152,7 @@ export const Celebration = ({
           {description !== undefined && <p className="celebration-description">{description}</p>}
         </div>
       )}
-      <button ref={actionRef} type="button" className="celebration-action" onClick={() => (onAction ?? onCloseRef.current)()}>
+      <button ref={actionRef} type="button" className="celebration-action" onClick={handleAction}>
         {actionLabel}
       </button>
     </dialog>

@@ -29,7 +29,7 @@ TS가 아닌 프로젝트에 복사할 때는 타입 표기를 벗겨 .js로 저
 
 ```html
 <div class="edge-swipe">                     <!-- 포인터를 받는 상자: position relative, overflow hidden -->
-  <div class="edge-swipe-underlay">이전 화면</div>   <!-- 맨 아래(z 1), 정지 상태에서 −30% -->
+  <div class="edge-swipe-underlay" aria-hidden="true" inert>이전 화면</div>   <!-- 맨 아래(z 1), 정지 상태에서 −30% -->
   <div class="edge-swipe-dim"></div>               <!-- 어둠(z 2), 정지 상태에서 0.4, pointer-events none -->
   <div class="edge-swipe-screen">현재 화면</div>     <!-- 맨 위(z 3), 왼쪽 그림자, 불투명 배경 -->
 </div>
@@ -67,7 +67,7 @@ const App = () => {
     <div className="app">
       <header>{stack.length > 1 && <button type="button" onClick={popWithTransition}>← 뒤로</button>}</header>
       <div ref={containerRef} data-page-view className="edge-swipe">
-        <div ref={underlayRef} className="edge-swipe-underlay" aria-hidden="true">{previous && <Render screen={previous} />}</div>
+        <div ref={underlayRef} className="edge-swipe-underlay" aria-hidden="true" inert>{previous && <Render screen={previous} />}</div>
         <div ref={dimRef} className="edge-swipe-dim" aria-hidden="true" />
         <div ref={screenRef} className="edge-swipe-screen"><Render screen={current} onSelect={(id) => push({ name: 'detail', id })} /></div>
       </div>
@@ -78,7 +78,7 @@ const App = () => {
 
 - `onBack`은 setState만 하면 된다 — 훅이 `flushSync`로 감싸 DOM을 동기적으로 바꾼 뒤 코어가 transform을 걷어 낸다. 이 순서가 어긋나면 옛 화면이 제자리로 튀어 한 프레임 깜빡인다.
 - `usePageStack`을 그대로 쓰지 않는 이유: 그 훅의 `back`은 항상 뒤로 전환을 재생한다. 즉시 pop이 필요한 제스처 경로에는 위처럼 상태를 직접 쥔다(`push`·`popWithTransition`은 `usePageStack`과 같은 동작이다).
-- 이전 화면(`underlay`)은 `aria-hidden` — 화면 아래에 있어 보조 기술이 읽으면 혼란스럽다. 뒤로가기의 접근 가능한 경로는 헤더의 **← 뒤로 버튼**이다. 제스처를 쓸 수 없는 사용자(키보드·스위치·일부 보조 기기)를 위해 버튼을 반드시 남긴다.
+- 이전 화면(`underlay`)에는 `aria-hidden`과 `inert`를 함께 준다. 화면 아래에 깔려 있어 보조 기술이 읽으면 혼란스럽고, `inert`가 없으면 Tab이 가려진 이전 화면의 버튼으로 들어간다(React 18 이하는 `inert=""`). 뒤로가기의 접근 가능한 경로는 헤더의 **← 뒤로 버튼**이다. 제스처를 쓸 수 없는 사용자(키보드·스위치·일부 보조 기기)를 위해 버튼을 반드시 남긴다.
 
 ## 사용 방법 — 순수 JS (React 없음)
 
@@ -104,6 +104,23 @@ swipe.destroy()
 
 `swipe.setOptions({ threshold: 0.3 })`로 임계·가장자리 폭·스프링을 도중에 바꿀 수 있다(다시 만들면 진행 중인 스프링이 끊긴다).
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 가장자리 24px 안에 버튼·목록 행이 걸쳐 있다 | 탭은 그대로 눌린다. 코어는 누르는 순간이 아니라 가로로 6px 넘게 움직여 끌기로 정해진 뒤에 포인터를 잡는다(`setPointerCapture`). 끈 뒤에는 `click`이 상자로 가서 버튼이 눌리지 않는다 | `assets` |
+| 첫 화면이다(돌아갈 곳이 없다) | `canGoBack`이 `false`면 가장자리에서 시작해도 아무 일도 없다. 고무줄처럼 조금 끌리다 돌아오는 연출은 넣지 않았다 | `assets` |
+| 끄는 중에 끊긴다 | `pointercancel`(시스템 제스처·전화 수신)과 `lostpointercapture`(창이 포커스를 잃음)는 손을 뗀 것이 아니다. 임계를 넘겼어도 돌아가지 않고 스프링으로 제자리에 복귀한다 | `assets` |
+| 두 번째 손가락이 닿는다 | 처음 잡은 손가락만 따라간다. 두 번째 손가락의 움직임과 뗌은 무시한다 | `assets` |
+| 복귀·커밋 스프링 도중에 다시 잡는다 | 스프링을 멈추고 그 자리에서 이어 끈다. 화면이 튀지 않는다 | `assets` |
+| 가려진 이전 화면에 버튼이 있다 | `aria-hidden`만으로는 Tab이 들어간다. 이전 화면 요소에 `inert`를 준다 | 프로젝트 |
+| 돌아간 뒤 포커스와 스크롤 | 포커스가 있던 요소는 사라진 화면에 있었다. `onBack`에서 돌아온 화면의 제목(`tabindex="-1"`)이나 들어갈 때 눌렀던 행으로 포커스를 옮긴다. 목록의 스크롤 위치도 화면마다 기억했다가 되돌린다. 이전 화면은 끄는 동안에도 보이므로 그릴 때부터 그 위치여야 한다 | 프로젝트 |
+| 키보드·화면 낭독기만 쓴다 | 제스처는 포인터로만 된다. 머리글의 "뒤로" 버튼이 같은 일을 한다. 버튼은 뒤로 전환을 재생하고, 제스처는 전환 없이 pop한다 | 프로젝트 |
+| 끄는 중에 화면 스택이 바뀐다(알림으로 화면이 열림) | 코어는 요소만 움직이고 내용은 모른다. 끄는 중(`data-edge-swipe`가 있는 동안)에는 스택을 바꾸지 않고, 끝난 뒤에 넣는다 | 프로젝트 |
+| 고대비 모드(`forced-colors`) | 그림자와 어둠이 사라지므로 밀리는 화면에 `outline: 1px solid CanvasText`를 그린다 | `assets` |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 | 기본값 |
@@ -119,6 +136,13 @@ swipe.destroy()
 
 왼쪽으로 되튕기며 놓으면(−0.3px/ms 이하) 거리를 넘겼어도 취소한다 — "끌다가 마음을 바꾼" 손짓을 존중하는 iOS 관례다. 바꾸려면 `edgeSwipeCore.ts`의 `CANCEL_VELOCITY`.
 
+## 함께 쓰는 패턴
+
+- `patterns/page-transition` — 들어갈 때와 버튼으로 돌아갈 때의 전환. 제스처로 돌아올 때는 전환을 재생하지 않는다(위 "사용 방법").
+- `patterns/carousel` — 화면 안의 가로 넘기기. 왼쪽 끝 24px에서 시작한 끌기는 이 패턴이 받으므로 캐러셀에 왼쪽 여백을 두거나 `edgeWidth`를 줄인다.
+- `patterns/bottom-sheet` · `patterns/modal-dialog` — 시트·모달이 열려 있는 동안에는 `canGoBack`을 `false`로 둔다. 덮인 화면이 뒤에서 밀려 나가면 안 된다.
+- `patterns/spring-physics` — `spring.ts`·`animateSpring.ts`의 원본이다. 두 파일은 첫 줄의 `@shared-core` 헤더를 지운 채 고치지 않는다.
+
 ## 주의사항
 
 - **Safari·Chrome의 전체 화면 히스토리 제스처는 막을 수 없다.** 모바일 브라우저는 화면 맨 가장자리에서 시작한 스와이프를 자기 뒤로가기로 먼저 가져간다 — 웹 페이지는 그 이벤트를 받지 못한다. 그래서 이 패턴은 **앱 안의 화면 스택(모달·상세·하위 설정)에만 쓰고 브라우저 히스토리에는 손대지 않는다.** 상자에 `overscroll-behavior-x: contain`과 `touch-action: pan-y`를 두어 크롬 안드로이드의 가로 당김 제스처는 상자 안에서 막지만, iOS Safari의 가장자리 제스처는 그래도 브라우저가 이긴다. 대안: 화면 폭 전체가 아니라 헤더 아래 상자에만 쓰거나, standalone PWA(브라우저 제스처 없음)에서 쓰거나, `edgeWidth`를 넓혀(48px) 브라우저가 가져간 뒤 남는 영역에서도 잡히게 한다.
@@ -126,6 +150,6 @@ swipe.destroy()
 - **세 요소를 `key`로 갈아 끼우지 말 것.** 코어는 마운트 시점의 요소를 붙잡는다. 내용만 바꾼다.
 - **현재 화면 안에 가로 스크롤·가로 제스처(캐러셀 등)가 있으면** 가장자리 폭 안에서 시작한 것만 이 패턴이 가져간다(나머지는 통과). 캐러셀이 화면 왼쪽 끝에 붙어 있으면 그 24px은 캐러셀이 받지 못한다 — 캐러셀에 왼쪽 여백을 두거나 `edgeWidth`를 줄인다.
 - **세로 스크롤과의 공존은 축 잠금으로 푼다** — 처음 6px의 방향이 세로면 이 드래그를 포기하고 포인터 캡처를 풀어 스크롤이 이어진다. `touch-action: pan-y`가 그 전제다 — 제거 금지.
-- **드래그 중 화면 안의 클릭은 발생하지 않는다** — 포인터 캡처가 상자로 옮겨 가므로 버튼 위에서 끌어도 버튼이 눌리지 않는다. 6px 안에서 놓으면 보통의 탭이다.
 - **reduced-motion 대응 내장** — 드래그 추종은 그대로 두고(사용자가 움직이는 만큼만 움직인다), 놓으면 스프링 없이 즉시 커밋/취소한다(코어가 `matchMedia`로 판정). CSS는 그림자를 없앤다. 드래그까지 끄지 않는 이유는, 손가락을 따라오는 움직임은 "예상 못 한 모션"이 아니라 사용자 자신의 손짓이기 때문이다.
-- 두 손가락(핀치)과 함께 쓰려면 `pointerdown`에서 활성 포인터 수를 세어 두 번째 포인터를 막아야 한다 — 포함하지 않았다.
+- 가장자리는 늘 왼쪽이다. `dir="rtl"` 화면에서도 왼쪽 끝을 오른쪽으로 끈다(뒤집지 않는다). 오른쪽에서 왼쪽으로 읽는 언어에서는 뒤로가기가 오른쪽 끝이어야 하므로 이 코어를 그대로 쓰지 않는다.
+- 스프링은 `requestAnimationFrame`으로 돈다. 커밋 도중 탭이 가려지면 `onBack`은 탭이 다시 보일 때 온다.

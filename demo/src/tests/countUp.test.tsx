@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import { CountUp } from '@skills/count-up/assets/CountUp'
 
 // 낭독 영역(role=status·aria-live) 안에 카운트업을 두면 굴러가는 중간값(+0P, +5P, +11P…)이 모두 읽힌다.
@@ -28,5 +28,58 @@ describe('CountUp — 화면 낭독기에는 최종값만', () => {
       </p>,
     )
     expect(spokenText()).toBe('120')
+  })
+})
+
+// 굴러가는 도중에 값이 또 바뀌면(연타로 적립·차감) 화면에 보이던 숫자에서 이어 가야 한다.
+// 직전 목표값에서 다시 시작하면 숫자가 한 번 튄다.
+describe('CountUp — 값이 도중에 바뀔 때', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  const rolling = (container: HTMLElement) => container.querySelector('[aria-hidden="true"]') as HTMLElement
+  const shown = (container: HTMLElement) => Number(rolling(container).textContent!.replace(/[^0-9.-]/g, ''))
+
+  it('마운트 직후 굴러가는 자리는 비어 있지 않다 — 시작값이 쓰여 있다', () => {
+    const { container } = render(<CountUp value={1000} />)
+    expect(rolling(container).textContent).toBe('0')
+  })
+
+  it('굴러가는 중에 새 값이 오면 보이던 숫자에서 이어 간다', () => {
+    const view = render(<CountUp value={1000} durationMs={400} />)
+    act(() => vi.advanceTimersByTime(200))
+    const mid = shown(view.container)
+    expect(mid).toBeGreaterThan(0)
+    expect(mid).toBeLessThan(1000)
+    view.rerender(<CountUp value={0} durationMs={400} />)
+    // 새 구간의 첫 숫자는 직전 목표(1000)가 아니라 보이던 숫자다
+    expect(shown(view.container)).toBe(mid)
+    act(() => vi.advanceTimersByTime(600))
+    expect(shown(view.container)).toBe(0)
+  })
+
+  it('format 함수가 렌더마다 새로 만들어져도 굴러가던 숫자가 처음부터 다시 시작하지 않는다', () => {
+    const view = render(<CountUp value={1000} durationMs={400} format={(v) => `${Math.round(v)}원`} />)
+    act(() => vi.advanceTimersByTime(300))
+    view.rerender(<CountUp value={1000} durationMs={400} format={(v) => `${Math.round(v)}원`} />)
+    act(() => vi.advanceTimersByTime(150))
+    // 처음부터 다시 셌다면 150ms 시점이라 1000에 닿지 못한다
+    expect(rolling(view.container).textContent).toBe('1000원')
+  })
+
+  it('format이 바뀌면(언어 전환) 멈춰 있는 숫자도 새 형식으로 다시 쓴다', () => {
+    const view = render(<CountUp value={1000} durationMs={100} format={(v) => `${Math.round(v)}원`} />)
+    act(() => vi.advanceTimersByTime(300))
+    view.rerender(<CountUp value={1000} durationMs={100} format={(v) => `${Math.round(v)} won`} />)
+    expect(rolling(view.container).textContent).toBe('1000 won')
+  })
+
+  it('initialValue를 value와 같게 주면 마운트 때 굴리지 않는다', () => {
+    const { container } = render(<CountUp value={1000} initialValue={1000} />)
+    expect(rolling(container).textContent).toBe('1,000')
   })
 })

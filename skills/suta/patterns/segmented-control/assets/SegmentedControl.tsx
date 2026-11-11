@@ -4,6 +4,8 @@ import { useSegmentedControl } from './useSegmentedControl'
 type SegmentOption<V extends string> = {
   value: V
   label: ReactNode
+  /** 이 칸만 잠근다(품절·권한 없음) — 방향키가 건너뛰고 글자가 흐려진다 */
+  disabled?: boolean
 }
 
 type SegmentedControlProps<V extends string> = {
@@ -14,6 +16,7 @@ type SegmentedControlProps<V extends string> = {
   onChange: (value: V) => void
   /** 그룹의 접근 가능한 이름 (스크린 리더가 "면 종류, 라디오 그룹"으로 읽는다) */
   label?: string
+  /** 컨트롤 전체를 잠근다 */
   disabled?: boolean
   className?: string
 }
@@ -45,7 +48,7 @@ export const SegmentedControl = <V extends string>({
             name={name}
             value={option.value}
             checked={option.value === value}
-            disabled={disabled}
+            disabled={disabled || option.disabled}
             onChange={() => onChange(option.value)}
           />
           <span className="segment-label">{option.label}</span>

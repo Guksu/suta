@@ -8,6 +8,9 @@
 .range-root {
   --_h: var(--range-height, 6px);
   --_thumb: var(--range-thumb-size, 24px); /* WCAG 2.2 누르는 영역 최소 24px — 손잡이가 곧 누르는 영역이다 */
+  --_track: var(--range-track, #e6e6e6);
+  --_fill: var(--range-fill-color, var(--range-accent, #1c1c1c));
+  --_to: right;
   position: relative;
   height: var(--_thumb);
   display: flex;
@@ -25,11 +28,16 @@
   height: var(--_h);
   border-radius: 999px;
   background: linear-gradient(
-    to right,
-    var(--range-track, #e5e7eb) 0 var(--range-lower, 0%),
-    var(--range-fill-color, var(--range-accent, #1c1c1c)) var(--range-lower, 0%) var(--range-upper, 100%),
-    var(--range-track, #e5e7eb) var(--range-upper, 100%) 100%
+    to var(--_to),
+    var(--_track) 0 var(--range-lower, 0%),
+    var(--_fill) var(--range-lower, 0%) var(--range-upper, 100%),
+    var(--_track) var(--range-upper, 100%) 100%
   );
+}
+
+/* 오른쪽에서 읽는 문서: 네이티브 input은 스스로 뒤집힌다(오른쪽 끝이 최솟값). 채움도 같은 방향으로 칠한다 */
+.range-root:dir(rtl) {
+  --_to: left;
 }
 
 /* input 자체는 클릭을 받지 않는다 — 트랙 누름은 컴포넌트가 처리하고,
@@ -100,6 +108,53 @@
 .range-input:focus-visible::-moz-range-thumb {
   outline: 2px solid var(--range-accent, #1c1c1c);
   outline-offset: 2px;
+}
+
+/* 잠금: 손잡이와 채움을 흐리게 하고 잡는 커서를 거둔다. input이 disabled라 Tab과 끌기는 브라우저가 막는다 */
+.range-root[data-disabled='true'] {
+  opacity: 0.45;
+  touch-action: auto; /* 조작할 수 없는 슬라이더가 세로 스크롤까지 막지 않게 */
+}
+
+.range-input:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.range-input:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
+
+/* 고대비: 브라우저가 그라디언트 배경을 지워 트랙과 고른 구간이 통째로 사라진다 —
+ * 강제 색 조정을 끄고 시스템 색으로 직접 칠한다 */
+@media (forced-colors: active) {
+  .range-root {
+    --_track: GrayText;
+    --_fill: Highlight;
+  }
+
+  .range-track {
+    forced-color-adjust: none;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    forced-color-adjust: none;
+    border-color: ButtonText;
+    background: ButtonFace;
+  }
+
+  .range-input::-moz-range-thumb {
+    forced-color-adjust: none;
+    border-color: ButtonText;
+    background: ButtonFace;
+  }
+
+  .range-input:focus-visible::-webkit-slider-thumb {
+    outline-color: Highlight;
+  }
+
+  .range-input:focus-visible::-moz-range-thumb {
+    outline-color: Highlight;
+  }
 }
 
 /* 두 손잡이가 겹쳤을 때 무엇을 위에 둘지 — 몰려 있는 쪽의 반대로 끌 수 있게 한다 */

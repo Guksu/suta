@@ -25,3 +25,19 @@
   transform-origin: left;
   /* transition을 두지 않는다 — rAF가 매 프레임 값을 쓰므로 transition이 있으면 뒤처진다 */
 }
+
+/* 오른쪽에서 왼쪽으로 쓰는 화면 — 막대 순서는 flex가 뒤집고, 채움도 오른쪽에서 차오른다 */
+.story-bar-fill:dir(rtl) {
+  transform-origin: right;
+}
+
+/* 고대비 모드 — 배경색이 시스템 바탕색으로 강제돼 트랙과 채움이 함께 사라진다. 시스템 색으로 다시 칠한다 */
+@media (forced-colors: active) {
+  .story-bar {
+    background: GrayText;
+  }
+
+  .story-bar-fill {
+    background: CanvasText;
+  }
+}

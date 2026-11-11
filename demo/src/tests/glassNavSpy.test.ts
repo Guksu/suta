@@ -179,6 +179,19 @@ describe('createGlassNav spy — 링크 클릭 → 섹션 스크롤, 스크롤 �
     ctl.destroy()
   })
 
+  it('새 탭으로 열려는 클릭(Ctrl·Cmd·Shift·가운데 버튼)은 가로채지 않는다', () => {
+    const { container, nav, links, scrollTo } = build()
+    const ctl = createGlassNav({ container, nav, spy: true })
+    for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { button: 1 }]) {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init })
+      links[1].dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+    }
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(links[0].getAttribute('aria-current')).toBe('page')
+    ctl.destroy()
+  })
+
   it('reduced-motion이면 즉시(auto) 스크롤한다', () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('prefers-reduced-motion') }))
     const { container, nav, links, scrollTo } = build()

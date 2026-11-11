@@ -197,4 +197,107 @@ describe('createDragReorder — 끌어서 순서 바꾸기', () => {
 
     expect(items[0].dataset.dragging).toBeUndefined()
   })
+  describe('끊김·취소·두 번째 손가락·정리', () => {
+    const idPointer = ({ el, type, y, id }: { el: HTMLElement | Window; type: string; y: number; id: number }) => {
+      const event = new MouseEvent(type, { bubbles: true, clientX: 0, clientY: y, button: 0 })
+      Object.defineProperty(event, 'pointerType', { value: 'touch' })
+      Object.defineProperty(event, 'pointerId', { value: id })
+      el.dispatchEvent(event)
+    }
+
+    it('pointercancel이면 옮기던 자리를 확정하지 않고 원래 자리로 돌린다', () => {
+      register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 95 })
+      pointer({ el: window, type: 'pointercancel', y: 95 })
+
+      expect(items[0].style.transform).toBe('translateY(0px)')
+      expect(items[1].style.transform).toBe('') // 비켜 준 이웃도 돌아온다
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+      expect(container.dataset.reordering).toBeUndefined()
+      expect(dragChanges).toEqual(['item-0', null])
+    })
+
+    it('끄는 중에 Esc를 누르면 취소한다', () => {
+      register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 155 })
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+      expect(items[0].dataset.dragging).toBeUndefined()
+      // 취소된 뒤의 pointerup은 아무것도 확정하지 않는다
+      pointer({ el: window, type: 'pointerup', y: 155 })
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+    })
+
+    it('끄는 중에 창이 포커스를 잃으면 취소한다(pointerup을 받지 못한다)', () => {
+      register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 95 })
+      window.dispatchEvent(new Event('blur'))
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+      expect(container.dataset.reordering).toBeUndefined()
+    })
+
+    it('두 번째 손가락의 움직임과 뗌은 무시한다', () => {
+      register()
+      idPointer({ el: handles[0], type: 'pointerdown', y: 25, id: 1 })
+      idPointer({ el: window, type: 'pointermove', y: 35, id: 1 })
+      idPointer({ el: window, type: 'pointermove', y: 200, id: 2 })
+      expect(items[0].style.transform).toBe('translateY(10px) scale(1.02)')
+      idPointer({ el: window, type: 'pointerup', y: 200, id: 2 })
+      expect(items[0].dataset.dragging).toBe('true')
+    })
+
+    it('정착하는 동안에는 새 끌기를 시작하지 않는다', () => {
+      register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 95 })
+      pointer({ el: window, type: 'pointerup', y: 95 })
+      pointer({ el: handles[2], type: 'pointerdown', y: 145 })
+      expect(items[2].dataset.dragging).toBeUndefined()
+      vi.advanceTimersByTime(300)
+      expect(reorders).toHaveLength(1)
+      pointer({ el: handles[2], type: 'pointerdown', y: 145 })
+      expect(items[2].dataset.dragging).toBe('true')
+    })
+
+    it('정착 전환이 꺼져 있으면(동작 줄이기) 타이머를 기다리지 않고 바로 확정한다', () => {
+      register()
+      items[0].style.transitionDuration = '0s'
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 95 })
+      pointer({ el: window, type: 'pointerup', y: 95 })
+      expect(reorders).toEqual([{ id: 'item-0', from: 0, to: 1, total: 4 }])
+      expect(items[0].style.transform).toBe('')
+    })
+
+    it('끄는 중에 destroy하면 옮기던 흔적을 지우고 순서는 바꾸지 않는다', () => {
+      const controller = register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 95 })
+      controller.destroy()
+      expect(items[0].style.transform).toBe('')
+      expect(items[1].style.transform).toBe('')
+      expect(items[0].dataset.dragging).toBeUndefined()
+      expect(container.dataset.reordering).toBeUndefined()
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+    })
+
+    it('항목이 하나뿐이면 끌어도 순서를 알리지 않는다', () => {
+      items.slice(1).forEach((item) => item.remove())
+      register()
+      pointer({ el: handles[0], type: 'pointerdown', y: 25 })
+      pointer({ el: window, type: 'pointermove', y: 300 })
+      pointer({ el: window, type: 'pointerup', y: 300 })
+      vi.advanceTimersByTime(300)
+      expect(reorders).toEqual([])
+      expect(items[0].style.transform).toBe('')
+    })
+  })
 })

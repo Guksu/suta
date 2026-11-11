@@ -41,4 +41,13 @@ describe('ringGeometry — 진행 링의 순수 기하 계산', () => {
     expect(ringRadii({ size: 120, stroke: 12, gap: 4, count: 1 })).toEqual([54])
     expect(ringRadii({ size: 120, stroke: 12, gap: 4, count: 0 })).toEqual([])
   })
+  it('clampProgress — 숫자가 아닌 값(NaN: 0/0으로 계산한 달성률)은 빈 링이다. 가득 찬 링으로 그려지면 안 된다', () => {
+    expect(clampProgress({ value: Number.NaN, max: 100 })).toEqual({ progress: 0, over: false })
+    expect(clampProgress({ value: 10, max: Number.NaN })).toEqual({ progress: 0, over: false })
+    expect(dashOffset({ radius: 50, progress: Number.NaN })).toBeCloseTo(circumference({ radius: 50 }))
+  })
+
+  it('ringRadii — 링이 많아 안쪽 반지름이 음수가 되면 0으로 막는다(SVG는 음수 r을 오류로 본다)', () => {
+    expect(ringRadii({ size: 60, stroke: 12, gap: 4, count: 4 })).toEqual([24, 8, 0, 0])
+  })
 })

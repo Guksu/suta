@@ -52,6 +52,12 @@
   cursor: pointer;
 }
 
+/* 열리면 포커스가 닫기 버튼으로 온다 — 어두운 배경 위라 흰 선으로 보인다 */
+.viewer-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 /* 모션 민감 사용자: 손가락 추종은 유지, 열림/복귀 스프링은 SwipeDismissViewer.tsx가 임계 감쇠·고강성으로 바꿔 즉시 정착.
  * CSS 쪽 유일한 전이(크롬 페이드)도 즉시로 */
 @media (prefers-reduced-motion: reduce) {

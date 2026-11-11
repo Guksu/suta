@@ -37,7 +37,8 @@ export const createPinchZoom = ({ element, target, maxScale = 4, dimAtScale = 2,
   let active = false
   let start: Pair | null = null
   let settleTimer = 0
-  let lastScale = 1
+  let moved = false // 이번 핀치에서 transform을 한 번이라도 썼는가 — 복귀 전이가 있을지의 기준
+  let settling = false
 
   const setProgress = (scale: number) => {
     element.style.setProperty('--pinch-progress', String(dimProgress({ scale, dimAtScale })))
@@ -47,6 +48,11 @@ export const createPinchZoom = ({ element, target, maxScale = 4, dimAtScale = 2,
     window.clearTimeout(settleTimer)
     zoomTarget.removeEventListener('transitionend', finishSettle)
     active = true
+    settling = false
+    moved = false
+    // 요소 밖에 댄 손가락의 touchend는 요소로 오지 않는다 — 그 손가락을 떼도 복귀하게 창에서도 듣는다
+    window.addEventListener('touchend', onTouchEnd)
+    window.addEventListener('touchcancel', onTouchEnd)
     start = toPair(touches)
     const rect = zoomTarget.getBoundingClientRect()
     const origin: Point = midpoint(start)
@@ -59,25 +65,34 @@ export const createPinchZoom = ({ element, target, maxScale = 4, dimAtScale = 2,
   const finishSettle = () => {
     window.clearTimeout(settleTimer)
     zoomTarget.removeEventListener('transitionend', finishSettle)
+    settling = false
     element.removeAttribute('data-zooming')
     zoomTarget.style.transformOrigin = ''
     onChange?.({ scale: 1, active: false })
+  }
+
+  /** 복귀 전이가 꺼져 있는가(동작 줄이기의 transition: none) — 그러면 transitionend가 오지 않는다 */
+  const hasNoTransition = () => {
+    const durations = getComputedStyle(zoomTarget).transitionDuration
+    return Boolean(durations) && durations.split(',').every((value) => parseFloat(value) === 0)
   }
 
   const end = () => {
     if (!active) return
     active = false
     start = null
+    window.removeEventListener('touchend', onTouchEnd)
+    window.removeEventListener('touchcancel', onTouchEnd)
     // 인라인 transform을 걷으면 CSS transition이 현재 위치에서 제자리로 되돌린다
     zoomTarget.style.transition = ''
     zoomTarget.style.transform = ''
     element.setAttribute('data-zooming', 'settling') // 복귀 중 — 딤은 페이드, 카드는 아직 위에
     setProgress(1)
-    if (lastScale === 1) {
-      finishSettle() // 움직이지 않았으면 transition이 없어 transitionend도 없다
+    if (!moved || hasNoTransition()) {
+      finishSettle() // 움직이지 않았거나 전이가 꺼져 있으면 transitionend가 오지 않는다
       return
     }
-    lastScale = 1
+    settling = true
     zoomTarget.addEventListener('transitionend', finishSettle, { once: true })
     settleTimer = window.setTimeout(finishSettle, SETTLE_FALLBACK_MS)
   }
@@ -94,7 +109,7 @@ export const createPinchZoom = ({ element, target, maxScale = 4, dimAtScale = 2,
     }
     event.preventDefault() // 페이지 자체가 확대되는 것을 막는다 — passive:false 필수
     const { scale, tx, ty } = computePinch({ start, current: toPair(event.touches), maxScale })
-    lastScale = scale
+    moved = moved || scale !== 1 || tx !== 0 || ty !== 0
     zoomTarget.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`
     setProgress(scale)
     onChange?.({ scale, active: true })
@@ -114,7 +129,20 @@ export const createPinchZoom = ({ element, target, maxScale = 4, dimAtScale = 2,
     element.removeEventListener('touchmove', onTouchMove)
     element.removeEventListener('touchend', onTouchEnd)
     element.removeEventListener('touchcancel', onTouchEnd)
+    window.removeEventListener('touchend', onTouchEnd)
+    window.removeEventListener('touchcancel', onTouchEnd)
     zoomTarget.removeEventListener('transitionend', finishSettle)
     window.clearTimeout(settleTimer)
+    // 확대·복귀 중에 해제되면(언마운트·옵션 변경) 흔적을 지운다 — 남기면 사진이 커진 채 형제 위에 얹혀 있다
+    if (active || settling) {
+      active = false
+      settling = false
+      start = null
+      zoomTarget.style.transition = ''
+      zoomTarget.style.transform = ''
+      zoomTarget.style.transformOrigin = ''
+      element.removeAttribute('data-zooming')
+      element.style.removeProperty('--pinch-progress')
+    }
   }
 }

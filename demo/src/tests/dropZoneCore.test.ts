@@ -31,7 +31,7 @@ describe('createDropZone — 끌어다 놓기 판정', () => {
     zone.remove()
   })
 
-  const register = (options: { blockWindowDrop?: boolean } = {}) => {
+  const register = (options: { blockWindowDrop?: boolean; isDisabled?: () => boolean } = {}) => {
     const controller = createDropZone({
       zone,
       ...options,
@@ -114,5 +114,28 @@ describe('createDropZone — 끌어다 놓기 판정', () => {
     zone.dispatchEvent(dragEvent({ type: 'drop', files: [makeFile('a.png')] }))
 
     expect(dropped).toEqual([])
+  })
+
+  it('잠긴 영역은 파일이 올라와도 살아나지 않고, 놓아도 받지 않는다 — 브라우저가 파일을 열지도 않는다', () => {
+    let locked = true
+    register({ isDisabled: () => locked })
+
+    zone.dispatchEvent(dragEvent({ type: 'dragenter' }))
+    expect(zone.dataset.dragging).toBe('false')
+
+    const over = dragEvent({ type: 'dragover' })
+    zone.dispatchEvent(over)
+    expect(over.defaultPrevented).toBe(true)
+    expect((over as unknown as { dataTransfer: { dropEffect: string } }).dataTransfer.dropEffect).toBe('none')
+
+    const drop = dragEvent({ type: 'drop', files: [makeFile('국수.png')] })
+    zone.dispatchEvent(drop)
+    expect(drop.defaultPrevented).toBe(true)
+    expect(dropped).toEqual([])
+
+    // 잠금이 풀리면 다시 받는다
+    locked = false
+    zone.dispatchEvent(dragEvent({ type: 'dragenter' }))
+    expect(zone.dataset.dragging).toBe('true')
   })
 })

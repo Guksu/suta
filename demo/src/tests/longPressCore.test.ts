@@ -95,6 +95,49 @@ const base = {
   viewport: { width: 1000, height: 800 },
 }
 
+describe('createLongPress — 두 번째 손가락', () => {
+  let el: HTMLElement
+  let presses: number
+  let controller: ReturnType<typeof createLongPress>
+
+  const idPointer = ({ type, x = 0, y = 0, id }: { type: string; x?: number; y?: number; id: number }) => {
+    const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 })
+    Object.defineProperty(event, 'pointerId', { value: id })
+    el.dispatchEvent(event)
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    el = document.createElement('div')
+    document.body.appendChild(el)
+    presses = 0
+    controller = createLongPress({ target: el, onLongPress: () => (presses += 1) })
+  })
+  afterEach(() => {
+    controller.destroy()
+    vi.useRealTimers()
+    el.remove()
+  })
+
+  it('누르는 중에 두 번째 손가락이 닿으면 취소한다(두 손가락은 확대·넘기기다)', () => {
+    idPointer({ type: 'pointerdown', id: 1 })
+    vi.advanceTimersByTime(200)
+    idPointer({ type: 'pointerdown', id: 2 })
+    vi.advanceTimersByTime(1000)
+    expect(presses).toBe(0)
+  })
+
+  it('두 손가락을 다 뗀 뒤의 누름은 다시 받는다', () => {
+    idPointer({ type: 'pointerdown', id: 1 })
+    idPointer({ type: 'pointerdown', id: 2 })
+    idPointer({ type: 'pointerup', id: 2 })
+    idPointer({ type: 'pointerup', id: 1 })
+    idPointer({ type: 'pointerdown', id: 3 })
+    vi.advanceTimersByTime(450)
+    expect(presses).toBe(1)
+  })
+})
+
 describe('placeContextMenu — 앵커 아래 왼쪽 정렬, 안 맞으면 뒤집고 밀어 넣기', () => {
   it('아래 공간이 있으면 앵커 아래에 왼쪽 정렬로 붙고, 부족하면 위로 뒤집는다', () => {
     const below = placeContextMenu(base)

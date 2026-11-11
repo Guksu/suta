@@ -164,6 +164,7 @@ export const createEdgeSwipe = ({
 
   const onPointerDown = (event: PointerEvent) => {
     if (event.button !== 0 || !canGoBack()) return
+    if (dragging) return // 끄는 중에 닿은 다른 손가락
     const rect = container.getBoundingClientRect()
     if (!isEdgeStart({ x: event.clientX - rect.left, edgeWidth: options.edgeWidth })) return
     // 진행 중인 스프링(취소 복귀 등)은 멈추고 그 자리에서 이어 잡는다
@@ -180,16 +181,15 @@ export const createEdgeSwipe = ({
     lastX = event.clientX
     lastTime = event.timeStamp
     velocity = 0
-    // 요소 밖으로 나가도 move/up을 계속 받는다. 합성 이벤트(활성 포인터 없음)에서는 던지므로 삼킨다
-    try {
-      container.setPointerCapture(event.pointerId)
-    } catch {
-      /* 캡처 실패는 치명적이지 않다 — 리스너가 컨테이너에 있어 안에서는 계속 동작한다 */
-    }
+    // 포인터는 아직 잡지 않는다 — 누르는 순간 잡으면 브라우저가 뒤따르는 click을 상자로 넘겨서
+    // 가장자리 폭 안에 걸친 버튼·목록 행이 눌리지 않는다. 가로 끌기로 정해진 뒤에 잡는다(onPointerMove)
   }
 
+  /** 지금 끄는 포인터의 이벤트인가 — 두 번째 손가락이 끼어들면 화면이 그쪽으로 튄다 */
+  const isOurPointer = (event: PointerEvent) => event.pointerId == null || event.pointerId === pointerId
+
   const onPointerMove = (event: PointerEvent) => {
-    if (!dragging) return
+    if (!dragging || !isOurPointer(event)) return
     const dx = event.clientX - startX
     const dy = event.clientY - startY
 
@@ -199,8 +199,14 @@ export const createEdgeSwipe = ({
       if (axis === 'y') {
         // 세로 스크롤이다 — 이 드래그는 포기하고 캡처를 풀어 스크롤이 이어지게 한다
         dragging = false
-        releaseCapture()
         return
+      }
+      // 가로 끌기로 정해졌다 — 여기서 포인터를 잡아 상자 밖으로 나가도 move/up을 계속 받는다.
+      // 합성 이벤트(활성 포인터 없음)에서는 던지므로 삼킨다
+      try {
+        container.setPointerCapture(pointerId)
+      } catch {
+        /* 캡처 실패는 치명적이지 않다 — 리스너가 컨테이너에 있어 안에서는 계속 동작한다 */
       }
       setTransition('none')
       container.dataset.edgeSwipe = 'dragging'
@@ -214,7 +220,7 @@ export const createEdgeSwipe = ({
   }
 
   const onPointerUp = (event: PointerEvent) => {
-    if (!dragging) return
+    if (!dragging || !isOurPointer(event)) return
     dragging = false
     if (axis !== 'x') return
     releaseCapture()
@@ -225,10 +231,18 @@ export const createEdgeSwipe = ({
     settle({ to: commit ? 1 : 0, velocityPxPerMs: velocity })
   }
 
+  /** 끄는 중에 포인터 캡처를 잃었다(창이 포커스를 잃음) — pointerup이 오지 않으므로 여기서 취소로 끝낸다 */
+  const onLostCapture = (event: PointerEvent) => {
+    if (!dragging || !isOurPointer(event)) return
+    dragging = false
+    if (axis === 'x') settle({ to: 0, velocityPxPerMs: 0 })
+  }
+
   container.addEventListener('pointerdown', onPointerDown)
   container.addEventListener('pointermove', onPointerMove)
   container.addEventListener('pointerup', onPointerUp)
   container.addEventListener('pointercancel', onPointerUp)
+  container.addEventListener('lostpointercapture', onLostCapture)
 
   return {
     /** 지금 진행도(0~1) — 드래그·스프링 중 값, 정지 상태면 0 */
@@ -247,6 +261,7 @@ export const createEdgeSwipe = ({
       container.removeEventListener('pointermove', onPointerMove)
       container.removeEventListener('pointerup', onPointerUp)
       container.removeEventListener('pointercancel', onPointerUp)
+      container.removeEventListener('lostpointercapture', onLostCapture)
       reset()
     },
   }

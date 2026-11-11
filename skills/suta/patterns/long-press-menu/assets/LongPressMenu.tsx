@@ -8,6 +8,8 @@ export type LongPressMenuItem = {
   onSelect: () => void
   /** 삭제·숨기기처럼 되돌리기 어려운 항목 — 붉게 표시한다 */
   destructive?: boolean
+  /** 지금은 쓸 수 없는 항목 — 흐리게 보이고 눌러도 실행되지 않는다. 포커스는 받는다(왜 있는지 읽을 수 있게) */
+  disabled?: boolean
 }
 
 type LongPressMenuProps = {
@@ -34,6 +36,13 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
   const menuRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
   const [open, setOpen] = useState(false)
+  // 항목이 없으면 열 메뉴가 없다 — 빈 상자와 백드롭만 뜨는 것을 막는다
+  const hasItems = items.length > 0
+  const hasItemsRef = useRef(hasItems)
+  hasItemsRef.current = hasItems
+  const openMenu = () => {
+    if (hasItemsRef.current) setOpen(true)
+  }
 
   const close = () => {
     setOpen(false)
@@ -48,7 +57,7 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
     function bindLongPress() {
       const trigger = triggerRef.current
       if (!trigger) return
-      const press = createLongPress({ target: trigger, delayMs, onLongPress: () => setOpen(true) })
+      const press = createLongPress({ target: trigger, delayMs, onLongPress: openMenu })
       return press.destroy
     },
     [delayMs],
@@ -77,15 +86,24 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
   useEffect(
     function closeOnScrollOrEscape() {
       if (!open) return
-      const onScroll = () => closeRef.current()
+      const onScroll = (event: Event) => {
+        // 항목이 많아 메뉴 안쪽이 스크롤되는 것은 닫을 이유가 아니다
+        if (event.target instanceof Node && menuRef.current?.contains(event.target)) return
+        closeRef.current()
+      }
+      const onResize = () => closeRef.current()
       const onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') closeRef.current()
+        // 안쪽 요소가 이미 쓴 Esc(defaultPrevented)로는 닫지 않는다
+        if (event.key === 'Escape' && !event.defaultPrevented) closeRef.current()
       }
       // 열린 채 스크롤되면 메뉴가 항목에서 떨어진다 — 따라다니게 하는 대신 닫는다(iOS도 그렇다)
       window.addEventListener('scroll', onScroll, true)
+      // 창 크기·방향이 바뀌면 재 둔 위치가 틀린다 — 스크롤과 같이 닫는다
+      window.addEventListener('resize', onResize)
       window.addEventListener('keydown', onKeyDown)
       return () => {
         window.removeEventListener('scroll', onScroll, true)
+        window.removeEventListener('resize', onResize)
         window.removeEventListener('keydown', onKeyDown)
       }
     },
@@ -128,14 +146,22 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
         tabIndex={0}
         // 메뉴를 여는 트리거라 button 역할을 준다 — 역할이 없는 div에는 aria-expanded가 허용되지 않는다
         role="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
+        aria-haspopup={hasItems ? 'menu' : undefined}
+        aria-expanded={hasItems ? open : undefined}
+        onKeyDown={(event) => {
+          // 메뉴 버튼의 관례 — Enter·Space·ArrowDown으로 연다. Shift+F10·메뉴 키가 없는 키보드(맥)의 유일한 길이다.
+          // 카드 안의 버튼·링크에서 올라온 키는 그 요소의 것이므로 건드리지 않는다
+          if (event.target !== event.currentTarget || open) return
+          if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'ArrowDown') return
+          event.preventDefault()
+          openMenu()
+        }}
         aria-controls={open ? menuId : undefined}
       >
         {children}
       </div>
 
-      {open && (
+      {open && hasItems && (
         <>
           <div className="lpm-backdrop" onClick={close} />
           <div ref={menuRef} id={menuId} className="lpm-menu" role="menu" aria-label={label} onKeyDown={onMenuKeyDown}>
@@ -146,8 +172,10 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
                 role="menuitem"
                 className="lpm-menu-item"
                 data-destructive={item.destructive ? 'true' : undefined}
+                aria-disabled={item.disabled ? 'true' : undefined}
                 tabIndex={-1}
                 onClick={() => {
+                  if (item.disabled) return
                   // 먼저 닫아 포커스를 트리거로 돌려놓고 실행한다 — 실행이 화면을 바꿔도 포커스를 잃지 않는다
                   close()
                   item.onSelect()

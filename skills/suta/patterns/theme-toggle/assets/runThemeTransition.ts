@@ -56,6 +56,30 @@ const circlePath = ({ x, y, width, height, radius }: { x: number; y: number; wid
 
 const SCOPED_NAME = 'theme-scope'
 
+/**
+ * 전환 동안 요소의 view-transition-name을 쥐고 있는 장부.
+ * 전환이 끝나기 전에 또 누르면(키보드 연타) 두 번째 호출이 "지금 값"을 원래 값으로 저장하는데,
+ * 그 값은 첫 호출이 잠깐 붙여 둔 이름이다 — 그대로 되돌리면 그 이름이 인라인에 영영 남는다.
+ * 그래서 처음 쥘 때의 값만 기억하고, 마지막 전환이 놓을 때 되돌린다.
+ */
+const held = new WeakMap<HTMLElement, { original: string; count: number }>()
+
+const holdName = ({ element, name }: { element: HTMLElement; name: string }) => {
+  const entry = held.get(element)
+  if (entry) entry.count += 1
+  else held.set(element, { original: element.style.viewTransitionName, count: 1 })
+  element.style.viewTransitionName = name
+}
+
+const releaseName = (element: HTMLElement) => {
+  const entry = held.get(element)
+  if (!entry) return
+  entry.count -= 1
+  if (entry.count > 0) return
+  held.delete(element)
+  element.style.viewTransitionName = entry.original
+}
+
 const prefersReducedMotion = () =>
   typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -80,14 +104,12 @@ export const runThemeTransition = async ({
 
   // 전환 대상 이름을 이 순간에만 손댄다 — page-transition 패턴이 :root를 꺼 놨어도,
   // 반대로 영역만 바꾸려는데 페이지 전체가 딸려 오는 일도 없게 한다
-  const savedRootName = root.style.viewTransitionName
-  const savedTargetName = target.style.viewTransitionName
-  root.style.viewTransitionName = scoped ? 'none' : 'root'
-  if (scoped) target.style.viewTransitionName = SCOPED_NAME
+  holdName({ element: root, name: scoped ? 'none' : 'root' })
+  if (scoped) holdName({ element: target, name: SCOPED_NAME })
 
   const restore = () => {
-    root.style.viewTransitionName = savedRootName
-    if (scoped) target.style.viewTransitionName = savedTargetName
+    releaseName(root)
+    if (scoped) releaseName(target)
   }
 
   const transition = start.call(document, apply)

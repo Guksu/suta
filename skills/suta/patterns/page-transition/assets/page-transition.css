@@ -17,6 +17,11 @@
   view-transition-name: page;
 }
 
+/* 화면이 바뀌면 포커스를 이 영역으로 옮긴다(usePageStack) — 누를 수 있는 요소가 아니라 읽기 시작점이므로 링을 그리지 않는다 */
+[data-page-view]:focus {
+  outline: none;
+}
+
 ::view-transition-old(page),
 ::view-transition-new(page) {
   animation-duration: var(--page-transition-duration, 280ms);
@@ -47,29 +52,39 @@
   z-index: 2;
 }
 
+/* 오른쪽에서 왼쪽으로 쓰는 화면(<html dir="rtl">)에서는 깊이의 방향이 뒤집힌다 — 새 화면이 왼쪽에서 들어온다.
+ * 변수는 :root에 두어야 ::view-transition-* 가상 요소에 닿는다 */
+:root {
+  --_page-sign: 1;
+}
+
+:root[dir='rtl'] {
+  --_page-sign: -1;
+}
+
 @keyframes page-in-from-right {
   from {
-    transform: translateX(100%);
+    transform: translateX(calc(100% * var(--_page-sign, 1)));
   }
 }
 
 @keyframes page-out-to-left {
   to {
-    transform: translateX(calc(-1 * var(--page-transition-shift, 30%)));
+    transform: translateX(calc(-1 * var(--_page-sign, 1) * var(--page-transition-shift, 30%)));
     opacity: 0.6;
   }
 }
 
 @keyframes page-in-from-left {
   from {
-    transform: translateX(calc(-1 * var(--page-transition-shift, 30%)));
+    transform: translateX(calc(-1 * var(--_page-sign, 1) * var(--page-transition-shift, 30%)));
     opacity: 0.6;
   }
 }
 
 @keyframes page-out-to-right {
   to {
-    transform: translateX(100%);
+    transform: translateX(calc(100% * var(--_page-sign, 1)));
   }
 }
 

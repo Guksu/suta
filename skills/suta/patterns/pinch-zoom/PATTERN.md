@@ -57,6 +57,22 @@ const element = document.querySelector('.pinch')
 const destroy = createPinchZoom({ element, target: element.querySelector('.pinch-target'), maxScale: 4 })
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 한 손가락으로 스크롤하다 두 번째 손가락이 닿는다 | 그 순간부터 핀치다. 두 손가락 이동은 `preventDefault()`로 막아 페이지가 스크롤·확대되지 않는다 | `assets` |
+| 핀치 중에 한 손가락을 뗀다 | 곧바로 제자리로 돌아간다. 한 손가락이 사진 밖에 있었어도 돌아간다(그 손가락의 `touchend`는 창에서 듣는다) | `assets` |
+| 벌리지 않고 옮기기만 했다 | 배율이 1이어도 복귀 전이(`--pinch-duration`, 300ms)를 거친다. 전이가 끝날 때까지 `data-zooming="settling"`으로 형제 카드 위에 남는다 | `assets` |
+| 전화 수신·시스템 제스처로 터치가 끊긴다 | `touchcancel`도 손을 뗀 것과 같이 제자리로 돌린다. 확대는 유지되는 상태가 아니라 잃을 것이 없다 | `assets` |
+| 원본보다 작게 오므린다 | 배율은 1 아래로 내려가지 않는다. 최대는 `maxScale`(기본 4)에서 멈추고 고무줄 저항은 없다 | `assets` |
+| 동작 줄이기를 켰다 | 손가락 추종은 그대로다. 복귀 전이가 없으므로 500ms 폴백을 기다리지 않고 `data-zooming`을 바로 걷는다 | `assets` |
+| 확대 중에 화면이 바뀐다 | 해제 함수가 `transform`·`transform-origin`·`data-zooming`·`--pinch-progress`를 지운다 | `assets` |
+| 마우스·키보드·화면 낭독기로 쓴다 | 핀치는 터치 전용이다. 트랙패드 핀치(`ctrl` + 휠)도 받지 않는다. 사진을 눌러 크게 보는 길(`patterns/zoom-lightbox`)을 함께 두고, `<img>`에 `alt`를 적는다 | 프로젝트 |
+| 사진 해상도가 낮다 | 4배로 키우면 흐려진다. 화면에 그리는 폭의 2배 이상인 원본을 쓰거나 `maxScale`을 3 아래로 낮춘다 | 프로젝트 |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
@@ -66,10 +82,16 @@ const destroy = createPinchZoom({ element, target: element.querySelector('.pinch
 | 복귀 속도 | `--pinch-duration` (300ms) |
 | 쌓임 순서 | `--pinch-z` (50 — 확대 중 형제 카드 위로 올라오는 z-index) |
 
+## 함께 쓰는 패턴
+
+- `patterns/zoom-lightbox` — 사진을 눌러 크게 보고 확대를 유지하는 길. 데스크톱과 키보드 사용자는 이쪽으로 본다. 피드에서는 핀치(잠깐 보기)와 탭(크게 보기)을 함께 둔다.
+- `patterns/like-pop` — 같은 사진에 두 번 탭 좋아요를 붙여도 다투지 않는다. 핀치는 두 손가락, 두 번 탭은 한 손가락이다.
+- `patterns/carousel` — 넘기는 사진 묶음 안에 넣을 때. `.pinch`의 `touch-action: pan-y`는 사진 위의 가로 넘기기를 막으므로 `pan-x pan-y`로 바꾼다.
+
 ## 주의사항
 
 - **조상에 `overflow: hidden`이 있으면 확대된 사진이 잘린다** — 카드 둥근 모서리는 카드가 아니라 이미지에 `border-radius`를 준다. 조상에 `transform`·`filter`가 있으면 스태킹 컨텍스트가 생겨 형제 카드 위로 올라오지 못하고, 배경 딤(`position: fixed`)도 어긋난다.
-- 한 손가락 스크롤 중 두 번째 손가락이 닿으면 그 시점부터 핀치가 시작된다. 핀치 중 한 손가락을 떼면 즉시 복귀한다(인스타그램과 동일).
-- `<img draggable={false}>`를 권장한다 — 데스크톱에서 이미지 드래그 고스트가 뜨는 것을 막는다. 데스크톱에는 핀치가 없으므로 필요하면 `zoom-lightbox`를 클릭 경로로 병행한다.
+- `<img draggable={false}>`를 권장한다 — 데스크톱에서 이미지 드래그 고스트가 뜨는 것을 막는다. 
 - 확대 중 페이지가 스크롤되면 `getBoundingClientRect` 기준 원점이 어긋난다 — `touchmove`를 preventDefault하므로 두 손가락 중에는 스크롤이 일어나지 않는다. 이 preventDefault를 빼면 페이지 확대와 사진 확대가 동시에 일어난다.
+- 확대 중에는 사진과 배경 딤이 `--pinch-z`(기본 50) 층으로 올라와 고정 머리글(`--z-sticky`)도 덮는다. 의도한 동작이다. 머리글을 위에 남기려면 머리글의 `z-index`를 그보다 높인다.
 - **reduced-motion 대응 내장** — 손가락 추종은 조작이라 유지하고, 복귀·딤 페이드만 즉시로 바꾼다. 블록 제거 금지.

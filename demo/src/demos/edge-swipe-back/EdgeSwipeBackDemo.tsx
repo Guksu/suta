@@ -238,7 +238,7 @@ export const EdgeSwipeBackDemo = () => {
 
           {/* 네 요소는 한 번 마운트되면 그대로 두고 안의 내용만 바꾼다 — 코어가 요소를 붙잡고 있다 */}
           <div ref={containerRef} data-page-view className="edge-swipe esb-view" style={{ '--edge-shift': `${shiftPercent}%` } as CSSProperties}>
-            <div ref={underlayRef} className="edge-swipe-underlay esb-screen" aria-hidden="true">
+            <div ref={underlayRef} className="edge-swipe-underlay esb-screen" aria-hidden="true" inert>
               {previous && render(previous)}
             </div>
             <div ref={dimRef} className="edge-swipe-dim" aria-hidden="true" />

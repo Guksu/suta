@@ -16,6 +16,14 @@
   transform: translateY(var(--reveal-distance, 24px));
 }
 
+/* 인쇄와 스크립트가 꺼진 환경에서는 공개해 줄 코드가 돌지 않는다 — 감춘 채 두면 내용이 빈 종이·빈 화면이 된다 */
+@media print, (scripting: none) {
+  .reveal[data-revealed='false'] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* 모션 민감 사용자: 이동만 제거하고 페이드는 유지한다(0이 아니라 완화) */
 @media (prefers-reduced-motion: reduce) {
   .reveal {

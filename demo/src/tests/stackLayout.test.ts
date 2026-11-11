@@ -63,3 +63,14 @@ describe('nextStackState — 탭·Esc 상태 전이', () => {
     expect(nextStackState({ mode: 'stacked', selectedIndex: null, action: { type: 'dismiss' } })).toEqual({ mode: 'stacked', selectedIndex: null })
   })
 })
+
+describe('cardTransform — 카드가 많을 때', () => {
+  it('수십 장이어도 맨 뒤 카드의 배율이 0.86 아래로 내려가지 않는다(60장이면 음수가 되어 뒤집혔다)', () => {
+    const top = cardTransform({ index: 0, count: 60, mode: 'stacked', cardHeight: 180 })
+    expect(top.scale).toBe(0.86)
+    const nearFront = cardTransform({ index: 58, count: 60, mode: 'stacked', cardHeight: 180 })
+    expect(nearFront.scale).toBe(0.98)
+    const rest = cardTransform({ index: 0, count: 60, mode: 'selected', selectedIndex: 59, cardHeight: 180 })
+    expect(rest.scale).toBe(0.86)
+  })
+})

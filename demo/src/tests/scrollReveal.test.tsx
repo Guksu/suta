@@ -66,7 +66,7 @@ describe('ScrollReveal — 뷰포트 진입 시 공개', () => {
         <p>본문</p>
       </ScrollReveal>,
     )
-    expect(observers[0].options?.threshold).toBe(0.5)
+    expect(observers[0].options?.threshold).toEqual([0, 0.5])
   })
 
   it('뷰포트에 들어오면 data-revealed=true가 되고 기본(once)은 관찰을 멈춘다', () => {

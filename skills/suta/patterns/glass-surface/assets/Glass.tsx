@@ -2,16 +2,22 @@ import { createElement, type CSSProperties, type HTMLAttributes, type ReactNode 
 import './glass.css'
 
 type GlassProps = {
-  /** 렌더할 태그 — 의미에 맞게 고른다(카드는 section/article, GNB는 header/nav) */
-  as?: 'div' | 'section' | 'article' | 'header' | 'nav' | 'aside' | 'footer'
+  /** 렌더할 태그 — 의미에 맞게 고른다(카드는 section/article, GNB는 header/nav, 누르는 유리는 a/button) */
+  as?: 'div' | 'section' | 'article' | 'header' | 'nav' | 'aside' | 'footer' | 'a' | 'button'
   /** card(둥근 판) · nav(상단에 붙는 GNB) · none(기본 유리만) */
   variant?: 'card' | 'nav' | 'none'
   /** light(흰 유리 — 어둡거나 알록달록한 배경용) · dark(검은 유리 — 밝은 배경용) */
   tone?: 'light' | 'dark'
   /** 흐림 반경 px (기본 16) */
   blur?: number
-  /** 누를 수 있는 유리 — hover 시 tint가 진해진다 */
+  /** 누를 수 있는 유리 — hover 시 tint가 진해진다. 겉모습만 바꾸므로 as를 'a'나 'button'으로 함께 준다 */
   interactive?: boolean
+  /** as="a"일 때의 주소 */
+  href?: string
+  /** as="button"일 때 (기본 'button' — 폼 안에서 제출 버튼이 되지 않게) */
+  type?: 'button' | 'submit' | 'reset'
+  /** as="button"일 때의 잠금 */
+  disabled?: boolean
   /** true면 흐림 없이 불투명 판 — 뒤가 너무 밝거나 복잡해 글자가 안 읽히는 자리에 */
   opaque?: boolean
   children?: ReactNode
@@ -29,6 +35,7 @@ export const Glass = ({
   blur,
   interactive = false,
   opaque = false,
+  type,
   className,
   style,
   children,
@@ -43,6 +50,7 @@ export const Glass = ({
     as,
     {
       ...rest,
+      ...(as === 'button' ? { type: type ?? 'button' } : {}),
       className: classes,
       style: mergedStyle,
       'data-tone': tone,

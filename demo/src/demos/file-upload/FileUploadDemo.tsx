@@ -13,8 +13,10 @@ const COPY = defineCopy({
       type: (name: string) => `${name} — 이미지만 올릴 수 있어요`,
       size: ({ name, size }: { name: string; size: number }) => `${name} — ${formatBytes(MAX_SIZE)}를 넘습니다 (${formatBytes(size)})`,
       count: (name: string) => `${name} — 최대 장수를 넘었어요`,
+      empty: (name: string) => `${name} — 내용이 없는 파일이에요`,
+      duplicate: (name: string) => `${name} — 이미 올린 사진이에요`,
     },
-    uploadFailed: '업로드 실패 — 다시 시도해 주세요',
+    uploadFailed: '올리지 못했어요',
     controlsLabel: '업로드 옵션',
     maxFiles: '최대 장수',
     photos: (n: number) => `${n}장`,
@@ -30,7 +32,12 @@ const COPY = defineCopy({
     // 패턴의 기본 안내와 같은 문구 — 영어판과 같은 구조로 그리려고 children으로 넘긴다
     dropTitle: '파일을 끌어다 놓거나 눌러서 고르세요',
     limits: ({ accept, maxSize, max }: { accept: string; maxSize: string; max: number }) => `${accept} · ${maxSize} 이하 · 최대 ${max}개`,
-    labels: { uploading: (name: string) => `${name} 업로드`, remove: (name: string) => `${name} 지우기` },
+    labels: {
+      uploading: (name: string) => `${name} 업로드`,
+      remove: (name: string) => `${name} 지우기`,
+      retry: (name: string) => `${name} 다시 시도`,
+      retryText: '다시 시도',
+    },
     count: ({ count, max }: { count: number; max: number }) => `${count} / ${max}장`,
     clearAll: '모두 지우기',
   },
@@ -39,8 +46,10 @@ const COPY = defineCopy({
       type: (name: string) => `${name}: only images can be uploaded`,
       size: ({ name, size }: { name: string; size: number }) => `${name}: over ${formatBytes(MAX_SIZE)} (${formatBytes(size)})`,
       count: (name: string) => `${name}: over the photo limit`,
+      empty: (name: string) => `${name}: the file is empty`,
+      duplicate: (name: string) => `${name}: already added`,
     },
-    uploadFailed: 'Upload failed. Please try again.',
+    uploadFailed: 'Upload failed',
     controlsLabel: 'Upload options',
     maxFiles: 'Max photos',
     photos: (n: number) => `${n}`,
@@ -56,7 +65,12 @@ const COPY = defineCopy({
     dropTitle: 'Drop files here or click to choose',
     limits: ({ accept, maxSize, max }: { accept: string; maxSize: string; max: number }) =>
       `${accept} · ${maxSize} or less · up to ${max} ${max === 1 ? 'file' : 'files'}`,
-    labels: { uploading: (name: string) => `Uploading ${name}`, remove: (name: string) => `Remove ${name}` },
+    labels: {
+      uploading: (name: string) => `Uploading ${name}`,
+      remove: (name: string) => `Remove ${name}`,
+      retry: (name: string) => `Retry ${name}`,
+      retryText: 'Retry',
+    },
     count: ({ count, max }: { count: number; max: number }) => `${count} / ${max} photos`,
     clearAll: 'Clear all',
   },
@@ -68,7 +82,7 @@ type Copy = (typeof COPY)['ko']
 const describe = ({ rejections, t }: { rejections: FileRejection[]; t: Copy }) =>
   rejections
     .map(({ file, reason }) =>
-      reason === 'type' ? t.reject.type(file.name) : reason === 'size' ? t.reject.size({ name: file.name, size: file.size }) : t.reject.count(file.name),
+      reason === 'size' ? t.reject.size({ name: file.name, size: file.size }) : t.reject[reason](file.name),
     )
     .join('\n')
 
@@ -109,6 +123,12 @@ export const FileUploadDemo = () => {
     added.forEach((item) => fakeUpload(item.id))
   }
 
+  /** 실패한 파일을 처음부터 다시 올린다 — 실패 표시를 걷고 진행 막대를 0에서 다시 시작한다 */
+  const retry = (id: string) => {
+    setFiles((prev) => prev.map((item) => (item.id === id ? { ...item, progress: 0, error: undefined } : item)))
+    fakeUpload(id)
+  }
+
   const vars = {
     '--upload-accent': 'var(--accent)',
     '--upload-border': 'var(--border)',
@@ -142,6 +162,7 @@ export const FileUploadDemo = () => {
           files={files}
           onAdd={add}
           onRemove={(id) => setFiles((prev) => prev.filter((item) => item.id !== id))}
+          onRetry={retry}
           onReject={setRejections}
           accept={ACCEPT}
           maxSizeBytes={MAX_SIZE}

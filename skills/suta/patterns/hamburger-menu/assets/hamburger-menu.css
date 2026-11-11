@@ -76,8 +76,14 @@
   bottom: 0;
   left: 0;
   width: var(--drawer-width, min(300px, 80vw));
+  /* 글자 크기를 키우거나 폭 변수를 크게 줘도 화면보다 넓어지지 않게 */
+  max-width: 100vw;
+  /* 노치·홈 표시줄이 있는 기기에서 첫 줄과 마지막 줄이 가려지지 않게 (해당 없는 기기에서는 0) */
+  padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
   background: var(--drawer-bg, #fff);
   overflow-y: auto;
+  /* 링크가 많아 드로어가 스크롤될 때, 끝에서 계속 굴려도 뒤 페이지가 따라 움직이지 않게 */
+  overscroll-behavior: contain;
   transform: translateX(-100%);
   visibility: hidden; /* 닫힌 드로어 안의 링크가 화면 밖에서 Tab 포커스를 받지 않게 */
   /* 드로어 전용 커브 — 빠르게 나와서 부드럽게 정착한다 */
@@ -98,6 +104,30 @@
   transform: translateX(0);
   visibility: visible;
   transition: transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* 열릴 때 포커스가 드로어 자신(tabindex="-1")으로 간다 — 화면 높이만 한 포커스 링은 그리지 않는다.
+ * 안의 링크·버튼은 각자의 링을 그대로 쓴다 */
+.drawer:focus {
+  outline: none;
+}
+
+/* 고대비: 배경색이 강제로 바뀌어 막대(배경으로 그린다)가 사라지고 드로어와 뒤 화면의 경계가 없어진다.
+ * 막대는 버튼 글자색으로 다시 칠하고, 드로어는 열리는 쪽 가장자리에 선을 긋는다 */
+@media (forced-colors: active) {
+  .hamburger-bar {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+
+  .drawer {
+    border-right: 1px solid CanvasText;
+  }
+
+  .drawer[data-side='right'] {
+    border-right: none;
+    border-left: 1px solid CanvasText;
+  }
 }
 
 /* 모션 민감 사용자: 아이콘은 즉시 전환, 드로어는 슬라이드 대신 페이드 */

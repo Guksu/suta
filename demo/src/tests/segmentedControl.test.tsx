@@ -159,6 +159,41 @@ describe('useSegmentedControl — 크기 감시가 진행 중인 슬라이드를
   })
 })
 
+describe('SegmentedControl — 잠긴 칸과 고른 값이 없을 때', () => {
+  const SOLD_OUT = [
+    { value: 'somyeon', label: '소면' },
+    { value: 'kalguksu', label: '칼국수', disabled: true },
+    { value: 'naengmyeon', label: '냉면' },
+  ]
+
+  it('옵션의 disabled는 그 칸의 라디오만 잠근다', () => {
+    render(<SegmentedControl name="noodle" options={SOLD_OUT} value="somyeon" onChange={() => {}} />)
+    expect(screen.getByRole('radio', { name: '칼국수' })).toBeDisabled()
+    expect(screen.getByRole('radio', { name: '냉면' })).toBeEnabled()
+  })
+
+  it('컨트롤 전체 disabled는 모든 칸을 잠근다', () => {
+    render(<SegmentedControl name="noodle" options={SOLD_OUT} value="somyeon" onChange={() => {}} disabled />)
+    screen.getAllByRole('radio').forEach((radio) => expect(radio).toBeDisabled())
+  })
+
+  it('고른 값이 옵션에 없어지면 thumb를 거둔다 — 아무 라디오도 선택되지 않았는데 알약이 남지 않게', () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(() => 100)
+    const { container, rerender } = render(<SegmentedControl name="noodle" options={NOODLES} value="kalguksu" onChange={() => {}} />)
+    const thumb = container.querySelector<HTMLElement>('.segment-thumb')!
+    expect(thumb.style.width).toBe('100px')
+
+    rerender(<SegmentedControl name="noodle" options={NOODLES} value="udon" onChange={() => {}} />)
+    expect(thumb.style.width).toBe('0px')
+
+    // 다시 고르면 빈 자리에서 미끄러져 오지 않고 바로 놓인다
+    rerender(<SegmentedControl name="noodle" options={NOODLES} value="naengmyeon" onChange={() => {}} />)
+    expect(thumb.style.width).toBe('100px')
+    expect(thumb.style.transition).toBe('none')
+    vi.restoreAllMocks()
+  })
+})
+
 describe('SegmentedControl — 네이티브 라디오 그룹 기반 세그먼트', () => {
   it('radiogroup으로 노출되고 옵션마다 라디오가 라벨과 연결된다', () => {
     render(<Harness />)

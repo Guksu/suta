@@ -114,7 +114,7 @@ export const CardExpandDemo = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const detailRef = useRef<HTMLElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
-  const { expandedId, expand, collapse } = useCardExpand({ containerRef, detailRef })
+  const { expandedId, expand, collapse } = useCardExpand({ containerRef, detailRef, closeOnBack: true })
   const current = PICKS.find((pick) => pick.id === expandedId)
 
   // ::view-transition-* 가상 요소는 문서 루트에 붙는다 — 변수도 루트에 있어야 닿는다

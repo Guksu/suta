@@ -81,4 +81,22 @@ describe('runPageTransition — 방향 표시와 미지원 폴백', () => {
     await runPageTransition({ direction: 'forward', update: () => {}, root: host })
     expect(host.dataset.navDirection).toBeUndefined()
   })
+
+  it('앞선 전환이 뒤늦게 끝나도 진행 중인 새 전환의 방향 표시를 지우지 않는다', async () => {
+    const finishers: Array<() => void> = []
+    withViewTransitions((callback) => {
+      void callback()
+      return { finished: new Promise<void>((resolve) => finishers.push(resolve)) }
+    })
+
+    const first = runPageTransition({ direction: 'forward', update: () => {} })
+    const second = runPageTransition({ direction: 'back', update: () => {} })
+    // 브라우저는 새 전환이 시작되면 앞선 전환을 건너뛰고 곧바로 끝낸다
+    finishers[0]()
+    await first
+    expect(document.documentElement.dataset.navDirection).toBe('back')
+    finishers[1]()
+    await second
+    expect(document.documentElement.dataset.navDirection).toBeUndefined()
+  })
 })

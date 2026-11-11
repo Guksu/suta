@@ -31,6 +31,14 @@
   border-radius: 50%;
 }
 
+.fu-stage .upload-retry,
+.fu-stage .upload-retry:hover {
+  align-self: center;
+  border: none;
+  background: none;
+  color: var(--text);
+}
+
 .fu-footer {
   display: flex;
   justify-content: space-between;

@@ -39,6 +39,7 @@
   place-content: center;
   width: var(--_size);
   height: var(--_size);
+  flex: none; /* 좁은 flex 줄에서 눌려 타원이 되지 않게 */
   padding: 0;
   border: 1px solid var(--theme-toggle-border, currentColor);
   border-radius: 50%;
@@ -46,6 +47,26 @@
   color: var(--theme-toggle-color, currentColor);
   cursor: pointer;
   transition: background 160ms ease;
+}
+
+/* 보이는 원은 36px이지만 누르는 영역은 44px이다 — 원 밖 4px까지 버튼이 받는다 */
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
+
+/* hover는 가리킬 수 있는 기기에서만 — 터치에서는 누른 뒤에도 남는다 */
+@media (hover: hover) {
+  .theme-toggle:hover {
+    background: var(--theme-toggle-hover-bg, color-mix(in srgb, currentColor 10%, transparent));
+  }
+}
+
+.theme-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .theme-toggle:focus-visible {

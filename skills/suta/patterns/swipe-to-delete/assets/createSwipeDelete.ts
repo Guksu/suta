@@ -7,6 +7,9 @@
  *  - 그 외 → 닫힘(0으로 스냅백)
  * 세로 스크롤과의 충돌은 축 잠금으로 푼다 — 처음 몇 px의 방향이 세로면 이 드래그는 포기한다.
  * 드래그 중에만 transition을 끄고, 놓으면 CSS transition(swipe-to-delete.css)이 정착 이동을 처리한다.
+ *
+ * 손을 뗀 것(pointerup)과 브라우저가 포인터를 가져간 것(pointercancel)은 다르게 다룬다 —
+ * 끊긴 끌기를 "놓았다"로 판정하면 사용자가 떼지도 않았는데 행이 지워진다.
  */
 
 type CreateSwipeDeleteOptions = {
@@ -46,6 +49,22 @@ export const createSwipeDelete = ({
   let lastX = 0
   let lastTime = 0
   let velocity = 0
+  let pointerId: number | null = null
+  let downOnAction = false // 누른 곳이 액션 버튼 영역인가 — 열린 행을 눌러 닫을 때 버튼은 뺀다
+  let suppressClick = false // 끌기·닫기 누름 뒤에 따라오는 click을 한 번 막는다
+  let suppressTimer: ReturnType<typeof setTimeout> | undefined
+
+  /** 뒤따르는 click을 한 번 막는다. 터치는 끌기 뒤에 click이 오지 않으므로 표시가 남지 않게 곧 걷는다 */
+  const suppressNextClick = () => {
+    suppressClick = true
+    clearTimeout(suppressTimer)
+    suppressTimer = setTimeout(() => {
+      suppressClick = false
+    }, 400)
+  }
+
+  /** 지금 끄는 포인터의 이벤트인가 — 두 번째 손가락이 끼어들면 행이 그쪽으로 튄다 */
+  const isOurPointer = (event: Event) => pointerId == null || !('pointerId' in event) || event.pointerId === pointerId
 
   const settle = (target: number) => {
     content.style.transition = ''
@@ -72,6 +91,10 @@ export const createSwipeDelete = ({
 
   const onPointerDown = (event: PointerEvent | MouseEvent) => {
     if (swipedOut || ('button' in event && event.button !== 0)) return
+    if (dragging) return // 끄는 중에 닿은 다른 손가락
+    pointerId = 'pointerId' in event ? event.pointerId : null
+    downOnAction = event.target instanceof Element && event.target.closest('.swipe-actions') !== null
+    suppressClick = false // 지난 누름에서 남은 표시 — 터치는 끌기 뒤에 click이 오지 않아 남을 수 있다
     dragging = true
     axis = 'none'
     startX = event.clientX
@@ -84,7 +107,7 @@ export const createSwipeDelete = ({
   }
 
   const onPointerMove = (event: PointerEvent | MouseEvent) => {
-    if (!dragging) return
+    if (!dragging || !isOurPointer(event)) return
     const dx = event.clientX - startX
     const dy = event.clientY - startY
 
@@ -108,10 +131,19 @@ export const createSwipeDelete = ({
     content.style.transform = `translateX(${offset}px)`
   }
 
-  const onPointerUp = () => {
-    if (!dragging) return
+  const onPointerUp = (event: Event) => {
+    if (!dragging || !isOurPointer(event)) return
     dragging = false
-    if (axis !== 'x') return
+    if (axis !== 'x') {
+      // 움직이지 않은 누름 — 열린 행의 내용을 누른 것이면 닫는다(메일 앱의 관례). 그 click이 내용의 링크를 열지 않게 막는다
+      if (axis === 'none' && isOpen && !downOnAction) {
+        suppressNextClick()
+        setOpen(false)
+      }
+      return
+    }
+    // 마우스는 가로로 끈 뒤에도 click을 낸다 — 행을 눌러 상세로 가는 화면에서 밀기가 이동으로 이어지지 않게
+    suppressNextClick()
 
     const flungLeft = velocity <= -swipeOutVelocity
     const nudgedLeft = velocity <= -NUDGE_VELOCITY
@@ -128,10 +160,25 @@ export const createSwipeDelete = ({
     setOpen(nudgedLeft || -offset >= actionWidth / 2)
   }
 
+  /** 브라우저가 포인터를 가져갔다 — 놓은 것이 아니므로 판정하지 않고 끌기 전 자리(열림·닫힘)로 돌린다 */
+  const onPointerCancel = (event: Event) => {
+    if (!dragging || !isOurPointer(event)) return
+    dragging = false
+    if (axis === 'x') settle(baseOffset)
+  }
+
+  const onClickCapture = (event: Event) => {
+    if (!suppressClick) return
+    suppressClick = false
+    event.preventDefault()
+    event.stopImmediatePropagation()
+  }
+
   content.addEventListener('pointerdown', onPointerDown)
+  content.addEventListener('click', onClickCapture, true)
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
-  window.addEventListener('pointercancel', onPointerUp)
+  window.addEventListener('pointercancel', onPointerCancel)
 
   return {
     open: () => setOpen(true),
@@ -139,9 +186,14 @@ export const createSwipeDelete = ({
     swipeOut,
     destroy: () => {
       content.removeEventListener('pointerdown', onPointerDown)
+      content.removeEventListener('click', onClickCapture, true)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
-      window.removeEventListener('pointercancel', onPointerUp)
+      window.removeEventListener('pointercancel', onPointerCancel)
+      // 끄는 중에 해제되면 꺼 둔 transition과 끌던 자리를 남기지 않는다
+      if (dragging && axis === 'x') settle(baseOffset)
+      dragging = false
+      clearTimeout(suppressTimer)
     },
   }
 }

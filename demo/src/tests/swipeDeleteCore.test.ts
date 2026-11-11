@@ -125,4 +125,102 @@ describe('createSwipeDelete — 축 잠금·스냅 열림·끝까지 밀기 판�
     drag({ from: 200, to: 100 })
     expect(content.style.transform).toBe('')
   })
+  describe('끊김·두 번째 손가락·뒤따르는 click', () => {
+    const idPointer = ({ type, x, id }: { type: string; x: number; id: number }) => {
+      const event = new MouseEvent(type, { bubbles: true, clientX: x, clientY: 0, button: 0 })
+      Object.defineProperty(event, 'pointerId', { value: id })
+      content.dispatchEvent(event)
+    }
+
+    it('pointercancel이면 세게 밀던 중이어도 삭제하지 않고 끌기 전 자리로 돌린다', () => {
+      register()
+      drag({ from: 300, to: 20, msPerStep: 5 }) // 임계 거리도 속도도 넘겼다
+      pointer({ el: content, type: 'pointercancel', x: 20 })
+      expect(swipedOut).toBe(0)
+      expect(openChanges).toEqual([])
+      expect(content.style.transform).toBe('')
+      expect(content.style.transition).toBe('')
+    })
+
+    it('열린 행을 끌다 끊기면 열린 자리로 돌아간다', () => {
+      const controller = register()
+      controller.open()
+      drag({ from: 200, to: 240 })
+      pointer({ el: content, type: 'pointercancel', x: 240 })
+      expect(content.style.transform).toBe('translateX(-88px)')
+      expect(openChanges).toEqual([true])
+    })
+
+    it('두 번째 손가락의 움직임과 뗌은 무시한다', () => {
+      register()
+      idPointer({ type: 'pointerdown', x: 300, id: 1 })
+      idPointer({ type: 'pointermove', x: 270, id: 1 })
+      const held = content.style.transform
+      idPointer({ type: 'pointerdown', x: 100, id: 2 })
+      idPointer({ type: 'pointermove', x: 0, id: 2 })
+      expect(content.style.transform).toBe(held)
+      idPointer({ type: 'pointerup', x: 0, id: 2 })
+      expect(content.style.transition).toBe('none') // 첫 손가락은 아직 끌고 있다
+      expect(swipedOut).toBe(0)
+    })
+
+    it('가로로 끈 뒤에 따라오는 click은 한 번 막는다(행 눌러 상세로 가기와 겹치지 않게)', () => {
+      register()
+      let clicks = 0
+      content.addEventListener('click', () => (clicks += 1))
+      drag({ from: 300, to: 240 })
+      pointer({ el: content, type: 'pointerup', x: 240 })
+      content.click()
+      expect(clicks).toBe(0)
+      content.click()
+      expect(clicks).toBe(1)
+    })
+
+    it('끌지 않은 누름의 click은 그대로 지나간다', () => {
+      register()
+      let clicks = 0
+      content.addEventListener('click', () => (clicks += 1))
+      pointer({ el: content, type: 'pointerdown', x: 300 })
+      pointer({ el: content, type: 'pointerup', x: 300 })
+      content.click()
+      expect(clicks).toBe(1)
+    })
+
+    it('열린 행의 내용을 누르면 닫히고 그 click은 내용에 닿지 않는다', () => {
+      const controller = register()
+      controller.open()
+      let clicks = 0
+      content.addEventListener('click', () => (clicks += 1))
+      pointer({ el: content, type: 'pointerdown', x: 100 })
+      pointer({ el: content, type: 'pointerup', x: 100 })
+      content.click()
+      expect(openChanges).toEqual([true, false])
+      expect(clicks).toBe(0)
+    })
+
+    it('열린 행의 액션 버튼을 누르면 닫지 않는다(버튼의 click이 살아야 한다)', () => {
+      const controller = register()
+      const actions = document.createElement('div')
+      actions.className = 'swipe-actions'
+      const button = document.createElement('button')
+      actions.appendChild(button)
+      content.appendChild(actions)
+      controller.open()
+      let clicks = 0
+      button.addEventListener('click', () => (clicks += 1))
+      pointer({ el: button, type: 'pointerdown', x: 400 })
+      pointer({ el: button, type: 'pointerup', x: 400 })
+      button.click()
+      expect(openChanges).toEqual([true])
+      expect(clicks).toBe(1)
+    })
+
+    it('끄는 중에 destroy하면 꺼 둔 transition을 남기지 않는다', () => {
+      const controller = register()
+      drag({ from: 300, to: 260 })
+      controller.destroy()
+      expect(content.style.transition).toBe('')
+      expect(content.style.transform).toBe('')
+    })
+  })
 })

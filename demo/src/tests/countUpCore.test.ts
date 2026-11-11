@@ -1,4 +1,4 @@
-import { createCountUp } from '@skills/count-up/assets/createCountUp'
+import { createCountUp, defaultFormat } from '@skills/count-up/assets/createCountUp'
 
 const advance = (ms: number) => {
   vi.advanceTimersByTime(ms)
@@ -85,5 +85,37 @@ describe('createCountUp — 프레임워크 무관 숫자 보간 코어', () => 
     counter.start()
     expect(el.textContent).toBe('777')
     vi.unstubAllGlobals()
+  })
+  it('start() 직후 첫 프레임 전에도 시작값이 쓰여 있다 — 빈 글자로 한 프레임 비지 않는다', () => {
+    const counter = createCountUp({ element: el, from: 300, to: 1000, durationMs: 400 })
+    counter.start()
+    expect(el.textContent).toBe('300')
+  })
+
+  it('durationMs가 0 이하이면 굴리지 않고 목표값을 바로 쓴다 (0으로 나눠 NaN이 찍히지 않는다)', () => {
+    createCountUp({ element: el, to: 1000, durationMs: 0 }).start()
+    expect(el.textContent).toBe('1,000')
+    advance(100)
+    expect(el.textContent).toBe('1,000')
+  })
+
+  it('소수 목표값도 마지막 프레임에 정확히 그 값을 넘긴다 (부동소수 오차 없음)', () => {
+    const seen: number[] = []
+    createCountUp({ element: el, from: 0.1, to: 0.3, durationMs: 100, onUpdate: (v) => seen.push(v) }).start()
+    advance(200)
+    expect(seen.at(-1)).toBe(0.3)
+  })
+
+  it('기본 포맷은 음수에서 0으로 넘어가는 프레임에 "-0"을 찍지 않는다', () => {
+    expect(defaultFormat(-0.4)).toBe('0')
+    expect(defaultFormat(-1234.5)).toBe('-1,234')
+  })
+
+  it('from과 to가 같으면 프레임을 돌리지 않고 값을 한 번만 쓴다', () => {
+    const onUpdate = vi.fn()
+    createCountUp({ element: el, from: 50, to: 50, onUpdate }).start()
+    advance(1000)
+    expect(onUpdate).toHaveBeenCalledTimes(1)
+    expect(el.textContent).toBe('50')
   })
 })

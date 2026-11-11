@@ -40,8 +40,11 @@
   justify-content: center;
   border: none;
   background: none;
+  /* 손가락으로 잡는 곳이다 — 글리프는 작아도 누르는 영역은 44px */
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.25rem 0.5rem;
-  color: var(--reorder-handle-color, #9aa1af);
+  color: var(--reorder-handle-color, var(--color-text-tertiary, #686868));
   font: inherit;
   line-height: 1;
   cursor: grab;
@@ -68,6 +71,13 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* 고대비 모드는 그림자를 지운다 — 들어올린 항목을 테두리로 구분한다 */
+@media (forced-colors: active) {
+  .reorder-item[data-dragging='true'] {
+    outline: 2px solid Highlight;
+  }
 }
 
 /* 모션 민감 사용자: 손가락 추적은 그대로 두고(조작), 비켜 주기·정착만 즉시 처리한다 */

@@ -90,9 +90,11 @@ const theme = useTheme()
 const cardRef = useRef<HTMLDivElement>(null)
 
 <div ref={cardRef} className="preview">
-  <ThemeToggle scopeRef={cardRef} />
+  <ThemeToggle scopeRef={cardRef} storageKey="preview-theme" />
 </div>
 ```
+
+영역만 바꿀 때는 `storageKey`를 따로 준다. 같은 키를 쓰면 미리보기에서 고른 값이 페이지 전체의 선택으로 저장되고, 같은 키를 쓰는 다른 버튼도 함께 바뀐다.
 
 ## 4. 사용 방법 — 순수 JS (React 없음)
 
@@ -111,6 +113,23 @@ button.addEventListener('click', (event) => {
 })
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 새로고침한다 | 번들이 실행되기 전에 `<head>`의 인라인 스크립트가 `data-theme`을 정한다. 없으면 어두운 테마를 고른 사람에게 흰 화면이 한 번 번쩍인다. 스크립트의 저장 키와 판정이 `useTheme`과 같아야 한다 | 프로젝트(위 2절) |
+| 기기 설정이 바뀐다(해 질 때 자동 전환) | 선택이 `system`인 동안은 바로 따라간다. `light`·`dark`를 직접 고른 뒤에는 따라가지 않는다. 버튼은 두 값만 오가므로 `system`으로 되돌리는 길은 설정 화면에 따로 둔다 | `assets`(React) / 되돌리는 UI는 프로젝트 |
+| 저장이 막혀 있다(프라이빗 모드·쿠키 차단) | 읽기가 실패하면 `system`으로 시작한다. 쓰기가 실패해도 선택은 이번 방문 동안 유지되고, 새로고침하면 기기 설정으로 돌아간다 | `assets`(React) |
+| 한 화면에 버튼이 둘이다(머리와 설정 화면) | 한쪽에서 바꾸면 같은 `storageKey`를 쓰는 다른 쪽의 `choice`·`aria-checked`도 함께 바뀐다. 저장이 막혀도 통한다 | `assets`(React) |
+| 다른 탭에서 바꾼다 | `storage` 이벤트로 이 탭도 따라간다. 이때는 원이 퍼지지 않고 바로 바뀐다 | `assets`(React) |
+| 전환이 끝나기 전에 또 누른다(Enter 연타) | 브라우저가 앞의 전환을 건너뛰고 새 전환을 시작한다. 테마는 누를 때마다 뒤집힌다. `view-transition-name`은 마지막 전환이 끝난 뒤 처음 값으로 돌아간다 | `assets` — `runThemeTransition` |
+| 전환하는 동안(450ms) | 화면 위에 스냅샷이 덮여 있어 그 아래를 누를 수 없다. 테마 버튼 말고 다른 조작과 묶지 않는다(저장 버튼을 누르면 테마도 바뀌는 식) | 프로젝트 |
+| 탭이 보이지 않거나 View Transitions가 없다 | 전환 없이 테마만 바뀐다 | `assets` |
+| 서버에서 먼저 그린다(SSR) | 서버는 저장된 선택을 모르므로 버튼의 `aria-checked`가 클라이언트와 어긋난다. 버튼은 마운트한 뒤에 그리거나 선택을 쿠키에 함께 적어 서버가 읽게 한다 | 프로젝트 |
+| 모바일 브라우저의 주소창 색 | `data-theme`만으로는 바뀌지 않는다. `resolved`가 바뀔 때 `<meta name="theme-color">`의 `content`를 함께 바꾼다 | 프로젝트 |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 | 기본값 |
@@ -119,16 +138,20 @@ button.addEventListener('click', (event) => {
 | 퍼지는 가속 곡선 | `easing` | `cubic-bezier(0.4, 0, 0.2, 1)` (완만한 ease-in-out) |
 | 저장 키 | `storageKey` | `'theme'` |
 | 전환 범위 | `scopeRef` (없으면 문서 전체) | 문서 전체 |
-| 버튼 크기·색 | `--theme-toggle-size`·`--theme-toggle-color`·`--theme-toggle-bg` | 2.25rem / 상속색 / 투명 |
+| 버튼 크기·색 | `--theme-toggle-size`·`--theme-toggle-color`·`--theme-toggle-bg`·`--theme-toggle-hover-bg` | 2.25rem(누르는 영역은 바깥 4px을 더해 44px) / 상속색 / 투명 / 글자색 10% |
 | 스위치 이름 | `label` | "다크 모드" |
+
+## 함께 쓰는 패턴
+
+- `patterns/segmented-control` — 설정 화면의 "기기 설정 · 밝게 · 어둡게" 세 칸. `useTheme`의 `choice`를 값으로, `setTheme`을 `onChange`로 잇는다. 머리의 버튼과 저절로 맞는다.
+- `patterns/page-transition` — 같은 View Transitions를 쓴다. 그 패턴이 `:root`의 전환 이름을 꺼 두어도 이 코어는 전환하는 동안만 켰다가 되돌린다.
+- `patterns/glass-surface` — 유리의 `tint`는 테마마다 다르다. `:root[data-theme='dark']`에서 `--glass-tint`와 `--glass-fallback-bg`를 함께 바꾼다.
 
 ## 주의사항
 
 - **`apply`는 동기적으로 DOM을 바꿔야 한다.** React라면 `flushSync`가 필수다(`ThemeToggle`은 이미 그렇게 한다). 그냥 `setState`하면 브라우저가 사진을 찍고 콜백이 끝난 뒤에야 테마가 바뀌어, 전환이 "안 바뀐 화면 → 안 바뀐 화면"이 된다.
 - **이징은 ease-out이 아니라 완만한 ease-in-out이다.** 다른 등장 모션과 다른 이유는, 여기서 눈에 보이는 것이 반지름이 아니라 **원의 가장자리가 화면을 쓸고 가는 속도**이기 때문이다. 강한 ease-out을 쓰면 반지름이 초반에 폭발적으로 커졌다가 후반에 기어가서, 같은 시간이라도 매끄럽지 않게 읽힌다.
 - **450ms는 UI 모션 예산(300ms)을 넘는 값이고, 의도된 것이다.** 화면 전체를 덮는 원이 300ms 안에 끝나면 급하게 스쳐 지나간다. 대신 테마 전환은 **드물게 일어나는 조작**이라 이 예산이 허용된다 — 자주 누르는 버튼이라면 짧게 줄여야 한다.
-- **page-transition 패턴과 함께 써도 된다.** 그 패턴은 `:root { view-transition-name: none }`으로 전체 전환을 꺼 두는데, 이 코어는 전환하는 그 순간에만 인라인으로 이름을 켜고 끝나면 원래 값으로 되돌린다.
 - **`data-theme`만으로는 브라우저 기본 UI(스크롤바·폼 컨트롤)가 따라오지 않는다.** `:root[data-theme='dark'] { color-scheme: dark; }`를 함께 선언한다.
 - **모션 민감 설정에서는 원이 퍼지지 않고 즉시 바뀐다** — 화면 전체를 쓸고 지나가는 원은 대표적인 부담 모션이라 완화가 아니라 생략이 맞다. 테마 변경 자체는 그대로 동작한다.
-- **저장이 막힌 환경(프라이빗 모드)에서도 동작한다** — 이번 세션 동안만 유지되고 기억하지 못할 뿐이다.
 - 버튼은 `role="switch"` + `aria-checked`다 — 스크린 리더가 "다크 모드, 스위치, 켜짐"처럼 현재 상태까지 읽는다.

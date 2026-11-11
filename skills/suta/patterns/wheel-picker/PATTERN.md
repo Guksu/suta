@@ -84,6 +84,23 @@ wheel.setIndex(7, { behavior: 'instant' }) // 초기 값 — 첫 배치는 애�
 // 제거 시: wheel.destroy()
 ```
 
+## 상태와 경계
+
+패턴을 붙인 뒤 화면에서 생기는 상황이다. "처리"가 `assets`면 이 패턴의 코드가 하고, `프로젝트`면 옮기는 쪽에서 챙긴다.
+
+| 상황 | 어떻게 되어야 하나 | 처리 |
+|---|---|---|
+| 닫힌 시트·대화상자 안에 미리 그려 둔다 | `display: none`인 동안에는 항목 높이가 0으로 재어지고 `scrollTo`가 먹지 않는다. 코어는 트랙 크기가 바뀔 때(`ResizeObserver`) 항목 높이를 다시 재고 고른 자리로 한 번 더 맞춘다. 굴리는 중에는 맞추지 않는다 | `assets` |
+| `value`가 목록에 없다(빈 값·지난 값) | 어느 항목도 `aria-selected="true"`가 아니고 `aria-activedescendant`도 없다. 화면에는 첫 항목이 가운데 보이지만 고른 것은 아니다. 굴리거나 누르면 그 값으로 `onChange`가 온다. 폼에서는 처음부터 목록 안의 값을 준다 | `assets`(React) / 초기값은 프로젝트 |
+| 목록이 바뀌어 고른 값이 사라진다(31일 → 2월) | 휠은 값을 대신 골라 주지 않는다. 월이 바뀌면 일을 그 달의 마지막 날로 줄여 `value`로 넘긴다 | 프로젝트 |
+| 조작을 막아야 한다(영업 종료·앞 단계 미선택) | `disabled`를 준다. `aria-disabled="true"`와 `tabindex="-1"`이 붙고 굴리기·키·클릭이 먹지 않는다. 값은 불투명도 0.4로 보인다 | `assets` |
+| 항목이 0개·1개다 | 0개면 빈 휠이고 키를 눌러도 `onChange`가 오지 않는다. 1개면 그 값이 가운데 고정이다. 고를 것이 없으면 휠 대신 글자로 값을 보인다 | `assets`(무시) / 대체는 프로젝트 |
+| 굴리는 중이다 | `onChange`는 멈춘 뒤 한 번 온다. 가운데를 지나는 항목은 `data-center`로만 표시되고 낭독기에는 읽히지 않는다. 방향키·클릭은 스크롤이 끝나기를 기다리지 않고 바로 `onChange`를 낸다 | `assets` |
+| 이름이 길다 | 항목은 한 줄(`white-space: nowrap`)이고 휠 폭을 넘는 글자는 잘린다. 말줄임표는 붙지 않는다. 단위는 휠 밖에 적고 항목은 "18", "30"처럼 짧게 둔다 | 프로젝트 |
+| 글자 크기를 키운다 | 항목 높이가 px이면 큰 글자가 칸에 꽉 찬다. `--wheel-item-height: 2.25rem`처럼 rem으로 주고 `itemHeight` prop은 생략한다. 코어가 실제 높이를 재서 쓴다 | 프로젝트(값) / `assets`(측정) |
+| 마우스만 쓴다 | 끌어서 굴릴 수는 없다. 휠 스크롤과 항목 클릭으로 고른다. 데스크톱 위주 화면이면 `<select>`가 낫다 | `assets`(클릭) |
+| 고대비 모드(`forced-colors`) | 선택 띠의 옅은 배경과 포커스 `box-shadow`가 사라진다. 띠는 위아래 1px 선으로, 포커스는 `outline: 2px solid Highlight`로 그린다 | `assets` |
+
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
@@ -97,13 +114,19 @@ wheel.setIndex(7, { behavior: 'instant' }) // 초기 값 — 첫 배치는 애�
 | 포커스 링 | `--wheel-focus-ring` (기본 currentColor) |
 | 정지 판정 대기 | `createWheel({ settleMs })` (기본 150ms — `scrollend` 미지원 브라우저에서만 쓰인다) |
 
+## 함께 쓰는 패턴
+
+- `patterns/bottom-sheet` — 모바일에서 시·분을 고르는 자리. 시트 안에 휠을 두고 아래에 "확인" 버튼을 둔다. 휠 트랙은 스크롤 영역이라 그 위에서 시작한 끌기는 시트를 끌어내리지 않는다.
+- `patterns/modal-dialog` — 닫힌 대화상자 안에 미리 그려 두어도 열릴 때 자리가 맞는다(위 표의 첫 행).
+- `patterns/segmented-control` — 값이 2~5개면 휠 대신 쓴다. 분 단위가 "00·30" 둘뿐인 경우가 그렇다.
+- `patterns/quantity-stepper` — 값을 한두 칸만 옮기는 수량에는 스테퍼가 빠르다.
+
 ## 주의사항
 
 - **보이는 칸 수는 홀수여야 한다.** 짝수면 가운데가 항목 경계에 걸려 선택 띠와 스냅 위치가 어긋난다.
 - **트랙 높이와 패딩은 CSS가 계산한다** — `height: 항목 × 칸 수`, `padding-block: 항목 × (칸 수 − 1) / 2`. 트랙에 다른 padding·border를 주면 첫/마지막 항목이 가운데에 오지 못한다. 여백이 필요하면 바깥 `.wheel`에 준다.
 - `scrollTo`의 `behavior: 'instant'`를 초기 배치에 쓴다 — `'auto'`는 CSS `scroll-behavior: smooth`를 따르므로 0에서 굴러오는 가짜 이동이 생긴다.
-- onChange는 **스크롤이 멎은 뒤** 한 번 온다. 굴러가는 중간 값이 필요하면 이 패턴 범위 밖이다(`data-center` 속성을 MutationObserver로 보는 정도).
-- `aria-activedescendant`는 확정된(멈춘) 항목만 가리킨다 — 굴러가는 중간 항목이 보조기술에 줄줄이 읽히지 않게 하기 위해서다.
+- 굴러가는 중간 값이 필요하면 이 패턴 범위 밖이다(`data-center` 속성을 MutationObserver로 보는 정도).
 - 항목이 수백 개면 매 프레임 전체 항목에 transform을 찍는 비용이 보인다. 그 규모는 가상화(virtual-list)와 결합하거나 콤보박스를 검토하라.
 - **reduced-motion 대응 내장** — JS가 `matchMedia`로 판정해 기울기·흐림을 건너뛰고, CSS도 `transform/opacity`를 `!important`로 끄며 `scroll-behavior`를 auto로 되돌린다. 스냅 리스트 자체는 남는다. 블록 제거 금지.
 - Safari는 `scrollend`가 늦게 들어왔다(26 이전 미지원) — 그 경우 디바운스가 대신 정지를 판정하므로 onChange가 150ms 늦게 온다. 그 정도는 관례상 문제 없다.

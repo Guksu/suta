@@ -56,6 +56,12 @@ export const createDragReorder = ({
 
   let drag: DragState | null = null
   let pending: { timer: ReturnType<typeof setTimeout>; startY: number; startX: number; item: HTMLElement } | null = null
+  let pointerId: number | null = null
+  /** 놓은 뒤 정착 중인 끌기를 곧바로 끝내는 함수 — 정착이 끝나면 null. 정착 중에는 새 끌기를 받지 않는다 */
+  let settleNow: (() => void) | null = null
+
+  /** 지금 끄는 포인터의 이벤트인가 — 두 번째 손가락이 끼어들면 항목이 그쪽으로 튄다 */
+  const isOurPointer = (event: Event) => pointerId == null || !('pointerId' in event) || event.pointerId === pointerId
 
   const itemsOf = () =>
     Array.from(container.children).filter((child): child is HTMLElement => child instanceof HTMLElement && Boolean(child.dataset.reorderId))
@@ -88,11 +94,15 @@ export const createDragReorder = ({
     item.dataset.dragging = 'true'
     item.style.transform = `translateY(0px) scale(${liftScale})`
     document.addEventListener('touchmove', blockTouchScroll, { passive: false })
+    window.addEventListener('keydown', onDragKeyDown, true)
+    window.addEventListener('blur', cancelDrag)
     onDragChange?.(item.dataset.reorderId ?? null)
   }
 
   const onPointerDown = (event: PointerEvent) => {
-    if (drag || event.button !== 0) return
+    // 끄는 중이거나 놓은 항목이 아직 정착 중이면 받지 않는다 — 정착 중에 위치를 재면 비켜 둔 transform이 섞인다
+    if (drag || pending || settleNow || event.button !== 0) return
+    pointerId = event.pointerId ?? null
     const target = event.target as HTMLElement | null
     const item = target?.closest<HTMLElement>('[data-reorder-id]')
     if (!item || item.parentElement !== container) return
@@ -127,6 +137,7 @@ export const createDragReorder = ({
   }
 
   const onPointerMove = (event: PointerEvent) => {
+    if (!isOurPointer(event)) return
     if (pending) {
       // 기다리는 동안 손가락이 움직이면 스크롤 의도다 — 드래그를 포기한다
       const moved = Math.abs(event.clientY - pending.startY) + Math.abs(event.clientX - pending.startX)
@@ -155,11 +166,22 @@ export const createDragReorder = ({
     }
   }
 
-  const finishDrag = () => {
+  const stopDragListeners = () => {
+    document.removeEventListener('touchmove', blockTouchScroll)
+    window.removeEventListener('keydown', onDragKeyDown, true)
+    window.removeEventListener('blur', cancelDrag)
+  }
+
+  /** 끌기를 끝낸다. cancelled면 놓은 자리를 버리고 원래 자리로 돌린다(순서는 바뀌지 않는다) */
+  const finishDrag = ({ cancelled = false }: { cancelled?: boolean } = {}) => {
     if (!drag) return
+    if (cancelled) {
+      drag.to = drag.from
+      shiftNeighbors() // 비켜 준 이웃을 제자리로
+    }
     const { item, items, rects, from, to } = drag
     drag = null
-    document.removeEventListener('touchmove', blockTouchScroll)
+    stopDragListeners()
 
     // 빈 자리의 좌표 — 아래로 갔으면 목표 슬롯의 아래끝에, 위로 갔으면 목표 슬롯의 위끝에 맞춘다
     const settleY =
@@ -181,23 +203,55 @@ export const createDragReorder = ({
     item.style.transform = `translateY(${settleY}px)`
 
     let done = false
+    let timer: ReturnType<typeof setTimeout> | undefined
     const settle = () => {
       if (done) return
       done = true
+      settleNow = null
+      clearTimeout(timer)
       item.removeEventListener('transitionend', onEnd)
       commit()
     }
     const onEnd = (event: TransitionEvent) => {
       if (event.propertyName === 'transform') settle()
     }
+    settleNow = settle
+    // 동작 줄이기(transition: none)에서는 transitionend가 오지 않는다 — 기다리지 않고 바로 확정한다
+    const durations = getComputedStyle(item).transitionDuration
+    if (durations && durations.split(',').every((value) => parseFloat(value) === 0)) {
+      settle()
+      return
+    }
     item.addEventListener('transitionend', onEnd)
     // transitionend가 오지 않는 경우(값이 그대로거나 전환 미지원)의 상한
-    setTimeout(settle, settleMs + 60)
+    timer = setTimeout(settle, settleMs + 60)
   }
 
-  const onPointerUp = () => {
+  const onPointerUp = (event: Event) => {
+    if (!isOurPointer(event)) return
     cancelPending()
     finishDrag()
+  }
+
+  /**
+   * 손을 뗀 것이 아니라 끌기가 끊겼다 — pointercancel(시스템 제스처·전화 수신), Esc, 창이 포커스를 잃음.
+   * 끊긴 자리를 새 순서로 확정하면 사용자가 정하지 않은 순서가 저장된다
+   */
+  const cancelDrag = () => {
+    cancelPending()
+    finishDrag({ cancelled: true })
+  }
+
+  const onPointerCancel = (event: Event) => {
+    if (isOurPointer(event)) cancelDrag()
+  }
+
+  /** 끄는 동안의 Esc — 취소하고, 뒤에 있는 대화상자가 같이 닫히지 않게 여기서 멈춘다 */
+  const onDragKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape') return
+    event.preventDefault()
+    event.stopPropagation()
+    cancelDrag()
   }
 
   /** 키보드 이동 — 애니메이션 없이 즉시 확정한다(연타해도 위치를 놓치지 않게) */
@@ -229,19 +283,29 @@ export const createDragReorder = ({
   container.addEventListener('keydown', onKeyDown)
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
-  window.addEventListener('pointercancel', onPointerUp)
+  window.addEventListener('pointercancel', onPointerCancel)
 
   return {
     /** 지금 끌고 있는 항목 id (없으면 null) */
     draggingId: () => drag?.item.dataset.reorderId ?? null,
     destroy: () => {
       cancelPending()
-      document.removeEventListener('touchmove', blockTouchScroll)
+      // 끄는 중에 해제되면(언마운트) 옮기던 흔적을 지운다. 순서는 바꾸지 않는다
+      if (drag) {
+        const { item, items } = drag
+        drag = null
+        items.forEach((el) => {
+          el.style.transform = ''
+        })
+        delete item.dataset.dragging
+        delete container.dataset.reordering
+      }
+      stopDragListeners()
       container.removeEventListener('pointerdown', onPointerDown)
       container.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
-      window.removeEventListener('pointercancel', onPointerUp)
+      window.removeEventListener('pointercancel', onPointerCancel)
     },
   }
 }

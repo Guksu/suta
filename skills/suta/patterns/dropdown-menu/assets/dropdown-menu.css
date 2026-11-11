@@ -34,7 +34,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.25rem;
-  border: 1px solid var(--menu-border, #e5e7eb);
+  border: 1px solid var(--menu-border, var(--color-line, #e6e6e6));
   border-radius: var(--menu-radius, 12px);
   background: var(--menu-bg, #fff);
   color: var(--menu-color, var(--color-text, #1c1c1c));
