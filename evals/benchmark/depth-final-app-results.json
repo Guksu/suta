@@ -1,0 +1,1906 @@
+{
+  "date": "2026-11-11",
+  "about": "같은 요청문을 일반 Claude Code와 suta 플러그인을 설치한 Claude Code에 주고, 만든 index.html을 브라우저로 열어 잰 결과. 모델·설정·도구 권한은 두 조건이 같다. 방법은 docs/benchmark.md",
+  "prompts": [
+    "parcel-tracking",
+    "waiting-list",
+    "class-schedule",
+    "split-bill"
+  ],
+  "metrics": [
+    {
+      "key": "overflow320",
+      "label": "320px에서 가로로 넘친 화면",
+      "en": "Pages that scroll sideways at 320px",
+      "kind": "share"
+    },
+    {
+      "key": "clippedText",
+      "label": "칸 밖으로 잘리거나 삐져나온 글자가 있는 화면(390·1280)",
+      "en": "Pages with text cut off or spilling out of its box (390, 1280)",
+      "kind": "share"
+    },
+    {
+      "key": "hiddenTableColumns",
+      "label": "390px 첫 화면 폭 밖에 표 열이 남은 화면",
+      "en": "Pages with table columns left outside the first 390px screen",
+      "kind": "share"
+    },
+    {
+      "key": "coveredByBar",
+      "label": "끝까지 내려도 하단 고정 바가 본문을 가리는 화면",
+      "en": "Pages where a fixed bottom bar still covers content at the end",
+      "kind": "share"
+    },
+    {
+      "key": "tinyText",
+      "label": "12px 미만 글자가 있는 화면",
+      "en": "Pages with text under 12px",
+      "kind": "share"
+    },
+    {
+      "key": "smallTargets",
+      "label": "24px 미만 터치 영역 (화면당)",
+      "en": "Touch targets under 24px (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "boxes",
+      "label": "카드형 상자 (화면당)",
+      "en": "Card-like boxes (per page)",
+      "kind": "mean",
+      "descriptive": true
+    },
+    {
+      "key": "nestedBoxes",
+      "label": "상자 안 상자 (화면당)",
+      "en": "Boxes nested in boxes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "strongEffects",
+      "label": "그라데이션·흐림·큰 그림자 (화면당)",
+      "en": "Gradients, blurs, large shadows (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "fontSizes",
+      "label": "글자 크기 종류 (화면당)",
+      "en": "Distinct font sizes (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "centeredParagraphs",
+      "label": "가운데 정렬 문단 (화면당)",
+      "en": "Centered multi-line paragraphs (per page)",
+      "kind": "mean"
+    },
+    {
+      "key": "transitionAll",
+      "label": "`transition: all`을 쓴 화면",
+      "en": "Pages using `transition: all`",
+      "kind": "share"
+    },
+    {
+      "key": "layoutMotion",
+      "label": "너비·높이·위치·여백을 직접 움직인 화면",
+      "en": "Pages animating width, height, position or margins directly",
+      "kind": "share"
+    },
+    {
+      "key": "gridMotion",
+      "label": "격자 트랙(grid-template-rows)으로 높이를 여닫은 화면",
+      "en": "Pages opening height via grid tracks (grid-template-rows)",
+      "kind": "share",
+      "descriptive": true
+    },
+    {
+      "key": "reducedMotion",
+      "label": "움직임이 있는데 동작 줄이기 대응이 없는 화면",
+      "en": "Pages with motion but no reduced-motion support",
+      "kind": "share"
+    },
+    {
+      "key": "axeSerious",
+      "label": "접근성 위반 — 심각 이상 (화면당, axe)",
+      "en": "Serious+ accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "axeAll",
+      "label": "접근성 위반 — 전체 (화면당, axe)",
+      "en": "All accessibility violations (per page, axe)",
+      "kind": "mean"
+    },
+    {
+      "key": "sutaErrors",
+      "label": "suta 검사 error (화면당)",
+      "en": "suta audit errors (per page)",
+      "kind": "mean",
+      "self": true
+    },
+    {
+      "key": "sutaWarns",
+      "label": "suta 검사 warn (화면당)",
+      "en": "suta audit warnings (per page)",
+      "kind": "mean",
+      "self": true
+    }
+  ],
+  "tone": [
+    {
+      "key": "bodySize",
+      "label": "가장 많은 글자의 크기(px, 중앙값)",
+      "en": "Size of the most-used text (px, median)",
+      "ref": "16 (13~16)",
+      "kind": "median"
+    },
+    {
+      "key": "smallTextShare",
+      "label": "15px 미만 글자의 비율(%, 중앙값)",
+      "en": "Share of text under 15px (%, median)",
+      "ref": "59 (14~82)",
+      "kind": "median"
+    },
+    {
+      "key": "toneSurfaces",
+      "label": "바탕 말고 넓은 무채색 면의 종류(중앙값)",
+      "en": "Neutral surfaces besides the page background (median)",
+      "ref": "2 (1~2)",
+      "kind": "median"
+    },
+    {
+      "key": "accentTextShare",
+      "label": "강조색 글자의 비율(%, 중앙값)",
+      "en": "Share of text in an accent color (%, median)",
+      "ref": "0.5 (0~6.4)",
+      "kind": "median"
+    },
+    {
+      "key": "primaryBlue",
+      "label": "주 버튼이 파랑·남색·보라 계열인 화면",
+      "en": "Pages whose primary button is blue, indigo or violet",
+      "ref": "—",
+      "kind": "share"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "pages": 12,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 12
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 12
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 12
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 12
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 12
+        },
+        "smallTargets": 0,
+        "boxes": 1.08,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.67,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 12
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "axeSerious": 0.17,
+        "axeAll": 0.17,
+        "sutaErrors": 0,
+        "sutaWarns": 0.42
+      },
+      "tone": {
+        "bodySize": 16,
+        "smallTextShare": 52.5,
+        "toneSurfaces": 1,
+        "accentTextShare": 3.9,
+        "primaryBlue": {
+          "count": 0,
+          "of": 12
+        }
+      },
+      "process": {
+        "medianSeconds": 186,
+        "meanTurns": 13.7,
+        "meanOutputTokens": 17958,
+        "meanInputTokens": 642829,
+        "skillRead": {
+          "count": 12,
+          "of": 12
+        },
+        "hookBlocks": 0,
+        "hookWarns": 10,
+        "pageErrors": {
+          "count": 0,
+          "of": 12
+        },
+        "permissionDenials": 2,
+        "costUsd": {
+          "total": 21.65,
+          "median": 1.87,
+          "runs": 12
+        }
+      }
+    },
+    "suta": {
+      "pages": 12,
+      "metrics": {
+        "overflow320": {
+          "count": 0,
+          "of": 12
+        },
+        "clippedText": {
+          "count": 0,
+          "of": 12
+        },
+        "hiddenTableColumns": {
+          "count": 0,
+          "of": 12
+        },
+        "coveredByBar": {
+          "count": 0,
+          "of": 12
+        },
+        "tinyText": {
+          "count": 0,
+          "of": 12
+        },
+        "smallTargets": 0,
+        "boxes": 0.5,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.58,
+        "centeredParagraphs": 0,
+        "transitionAll": {
+          "count": 0,
+          "of": 12
+        },
+        "layoutMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "gridMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "reducedMotion": {
+          "count": 0,
+          "of": 12
+        },
+        "axeSerious": 0,
+        "axeAll": 0,
+        "sutaErrors": 0,
+        "sutaWarns": 0.42
+      },
+      "tone": {
+        "bodySize": 14,
+        "smallTextShare": 55,
+        "toneSurfaces": 1,
+        "accentTextShare": 4.1,
+        "primaryBlue": {
+          "count": 0,
+          "of": 12
+        }
+      },
+      "process": {
+        "medianSeconds": 170,
+        "meanTurns": 11.7,
+        "meanOutputTokens": 17944,
+        "meanInputTokens": 536919,
+        "skillRead": {
+          "count": 12,
+          "of": 12
+        },
+        "hookBlocks": 1,
+        "hookWarns": 9,
+        "pageErrors": {
+          "count": 0,
+          "of": 12
+        },
+        "permissionDenials": 0,
+        "costUsd": {
+          "total": 22,
+          "median": 1.79,
+          "runs": 12
+        }
+      }
+    }
+  },
+  "judge": {
+    "judgments": 24,
+    "suta": 12,
+    "baseline": 12,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "baseline",
+      "baseline",
+      "suta",
+      "suta",
+      "suta",
+      "suta",
+      "baseline"
+    ],
+    "byPrompt": {
+      "class-schedule": {
+        "suta": 0,
+        "baseline": 6,
+        "tie": 0
+      },
+      "parcel-tracking": {
+        "suta": 5,
+        "baseline": 1,
+        "tie": 0
+      },
+      "split-bill": {
+        "suta": 5,
+        "baseline": 1,
+        "tie": 0
+      },
+      "waiting-list": {
+        "suta": 2,
+        "baseline": 4,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "class-schedule-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 오전·오후·저녁 구분, 하단 탭바, 예약한 수업의 좌측 강조선과 '예약됨' 표시로 위계와 실제 앱다운 배치가 더 완성도 있고, B는 깔끔하지만 탭바 없이 하단이 비어 있어 화면이 덜 완결돼 보인다."
+      },
+      {
+        "pair": "class-schedule-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "두 화면 모두 깔끔하지만 B는 오전·오후·저녁 구분과 종료 시각, 하단 탭 바, 예약한 수업의 좌측 강조 바와 '예약됨' 표시로 위계와 실제 앱다운 완성도가 조금 더 높다."
+      },
+      {
+        "pair": "class-schedule-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 일관된 행 간격과 구분선, 하단 탭바, 명확한 예약·마감·예약됨 상태 표현으로 실제 앱처럼 완결된 반면, B는 오전/오후/저녁 구분과 정원 정보는 좋지만 섹션 간 간격과 구분선이 들쭉날쭉하고 예약 버튼의 대비가 약하며 탭바가 없어 완성도가 떨어진다."
+      },
+      {
+        "pair": "class-schedule-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 하단 탭바와 예약일 점 표시, 일정한 카드 간격과 또렷한 아웃라인 예약 버튼으로 실제 앱처럼 완결되어 보이는 반면, A는 오전·오후·저녁 구분은 좋지만 예약 버튼이 옅어 약하고 섹션 간격이 들쭉날쭉하며 내비게이션이 없어 완성도가 떨어진다."
+      },
+      {
+        "pair": "class-schedule-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "두 화면 모두 완성도가 높지만, A는 오전·오후·저녁 구분으로 목록 위계가 더 분명하고 채도 있는 예약 버튼과 텍스트형 마감 표시, 좌측 강조선이 있는 내 예약 행으로 상태 구분이 한눈에 읽히는 반면, B는 연한 톤의 예약 버튼이 약하고 '2/10'의 부분 강조가 다소 어색하다."
+      },
+      {
+        "pair": "class-schedule-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 오전·오후·저녁 구분과 채도 높은 예약 버튼, 흐리게 처리된 마감 수업, 좌측 바로 강조한 내 예약 수업으로 위계가 더 분명하고 실제 앱처럼 정돈된 반면, A는 연한 예약 버튼의 대비가 약하고 목록이 단조로워 완성도가 조금 떨어진다."
+      },
+      {
+        "pair": "parcel-tracking-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "두 화면 모두 구성이 탄탄하지만, B는 체크 아이콘 타임라인으로 완료·현재·예정 단계가 더 분명하게 구분되고 요청 사항 '변경'이 전화 버튼과 같은 형태의 명확한 버튼이라 A의 작은 텍스트 링크보다 일관되고 완성도가 높다."
+      },
+      {
+        "pair": "parcel-tracking-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "둘 다 구성은 비슷하지만 A가 체크 아이콘이 있는 타임라인으로 단계별 시각·위치를 더 또렷하게 읽히게 하고, 요청 사항 변경을 전화 버튼과 같은 형태의 명확한 버튼으로 두어 일관성과 완성도가 높은 반면, B는 변경이 텍스트 링크로 약하고 하단 여백이 빠듯하다."
+      },
+      {
+        "pair": "parcel-tracking-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "둘 다 완성도가 높지만 B가 섹션 제목의 위계가 뚜렷하고 완료 단계의 체크 아이콘과 주황색 현재 상태 강조로 진행 상황이 더 빨리 읽히며, A는 섹션 제목이 작고 흐려 구획이 약하고 상단 단계 라벨과 아래 타임라인이 중복된다."
+      },
+      {
+        "pair": "parcel-tracking-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "두 화면 모두 구성은 충실하지만 B는 진행 막대에 단계 라벨을 붙이고 '현재' 배지, 운송장 정보 카드, 작은 섹션 라벨과 본문의 뚜렷한 위계로 한눈에 읽히며 버튼·간격 처리가 더 정돈되어 실제 앱에 가까운 완성도를 보인다."
+      },
+      {
+        "pair": "parcel-tracking-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "둘 다 완성도가 높지만 B는 상단 진행 바와 강조된 도착 예정 시각, 시각·위치를 열로 정렬한 타임라인, 작은 섹션 라벨과 본문 간의 뚜렷한 위계, 요청 사항과 같은 줄에 놓인 변경 버튼 덕분에 A보다 한눈에 읽히고 실제 택배 앱에 더 가깝다."
+      },
+      {
+        "pair": "parcel-tracking-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 진행 바와 강조색으로 현재 상태가 한눈에 들어오고 단계별 시각·위치가 열 맞춰 정렬되어 읽기 쉬운 반면, B는 깔끔하지만 전화번호(010-0000-0000)와 주소(대학로 00)가 자리표시자처럼 보여 완성도가 떨어진다."
+      },
+      {
+        "pair": "split-bill-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 안 보낸 사람과 보낸 사람을 섹션으로 나누고 진행률·남은 금액·1인당 금액·마감일을 상단 요약에 또렷한 위계로 정리해 정산 현황이 한눈에 읽히는 반면, A는 깔끔하지만 '참여자 6명'과 '5명 중 3명 보냄'의 수치가 어긋나 보이고 상태 구분이 B보다 약하다."
+      },
+      {
+        "pair": "split-bill-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 안 보낸 사람과 보낸 사람을 구역으로 나누고 진행률·남은 금액·마감일을 수치가 서로 맞게 정리해 현황이 한눈에 읽히는 반면, B는 깔끔하지만 '참여자 6명'과 '5명 중 3명 보냄'이 어긋나 보이고 상태 구분이 약하다."
+      },
+      {
+        "pair": "split-bill-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "두 화면 모두 완성도가 높지만 B는 '총 금액' 레이블과 남은 금액 표시, 안 보낸 사람·보낸 사람·먼저 결제한 사람으로 나눈 그룹 구성이 알림 버튼의 대상과 바로 연결되어 정보 위계와 실제 앱다운 배치가 A보다 한 단계 더 명확하다."
+      },
+      {
+        "pair": "split-bill-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "두 화면 모두 완성도가 높지만 B는 요약 정보를 카드로 묶고 참여자 목록을 하나의 리스트로 간결하게 정리해 미납자 금액을 굵기로 강조하는 등 위계가 더 또렷하고 밀도가 알맞은 반면, A는 섹션 구분은 친절하나 헤더 영역이 다소 흩어지고 화면이 길어 한눈에 덜 들어온다."
+      },
+      {
+        "pair": "split-bill-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 미납자를 따로 묶어 강조한 점이 좋지만 '5명 중 3명 보냄'과 '보낸 사람 4명'이 어긋나 보이는 반면, B는 요약 카드와 참여자 목록의 섹션 구분, 아바타·상태 정렬, 수치 일관성과 결제자 처리 설명까지 갖춰 실제 앱에 더 가까운 완성도를 보인다."
+      },
+      {
+        "pair": "split-bill-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "B는 미송금자를 따로 묶어 강조한 점이 좋지만 '5명 중 3명 보냄'과 '보낸 사람 4명'이 어긋나고 결제자에게도 31,000원이 표시되는 반면, A는 아바타 리스트·섹션 구분·브랜드 컬러 버튼이 일관되고 결제자를 '보낼 금액 없음'으로 정확히 처리해 실제 앱에 더 가깝게 완성되어 있다."
+      },
+      {
+        "pair": "waiting-list-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 대기 팀 수 강조와 섹션 구분, 일정한 간격으로 위계가 또렷한 반면 B는 인원·좌석 제목 아래 간격이 들쭉날쭉하고 구분선 적용이 일관되지 않아 완성도가 떨어진다."
+      },
+      {
+        "pair": "waiting-list-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 섹션 제목과 내용 사이 간격이 일정하고 대기 팀 수 강조·안내 문구·구분선 처리가 정돈되어 완성도가 높은 반면, A는 인원·좌석 제목 아래에 어색하게 큰 빈 공간이 생겨 간격 리듬이 깨져 보인다."
+      },
+      {
+        "pair": "waiting-list-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "둘 다 구조는 비슷하지만 B가 기준 시각·성인/유아 기준 설명·최대 인원 표기 등 실사용 정보가 더 충실하고, 좌석 선택 상태가 색과 체크로 분명하며 유의 사항을 박스로 묶어 위계가 또렷해 실제 앱에 더 가깝다."
+      },
+      {
+        "pair": "waiting-list-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "둘 다 완성도가 높지만 B가 섹션 구분 띠와 세그먼트 컨트롤, 일관된 간격으로 위계가 더 정돈되어 실제 앱에 가깝고, A는 섹션마다 구분 방식과 상자 스타일이 달라 다소 산만하다."
+      },
+      {
+        "pair": "waiting-list-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 대기 정보 카드와 주황색 강조로 첫인상이 강하지만 좌석 버튼 폭이 제각각이고 동의 전에도 등록 버튼이 활성으로 보이는 반면, B는 좌석 카드 폭이 균등하고 총 인원 표시·유아 보조 설명·동의 전 비활성 버튼과 안내 문구까지 갖춰 정렬과 상태 설계가 더 완성도 높다."
+      },
+      {
+        "pair": "waiting-list-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 대기 현황을 카드로 묶고 예상 대기 시간과 등록 버튼을 브랜드 색으로 강조해 위계가 더 또렷하고 좌석 칩·동의 영역도 간결해 완성도가 높으며, A는 비활성 버튼 안내 등 상태 처리는 꼼꼼하지만 라디오 카드와 스테퍼가 무겁고 화면 전체가 밋밋하다."
+      }
+    ]
+  },
+  "judgeAlt": {
+    "judgments": 24,
+    "suta": 14,
+    "baseline": 10,
+    "tie": 0,
+    "consistentPairs": [
+      "baseline",
+      "suta",
+      "suta",
+      "suta",
+      "baseline",
+      "baseline",
+      "suta",
+      "suta"
+    ],
+    "byPrompt": {
+      "class-schedule": {
+        "suta": 2,
+        "baseline": 4,
+        "tie": 0
+      },
+      "parcel-tracking": {
+        "suta": 5,
+        "baseline": 1,
+        "tie": 0
+      },
+      "split-bill": {
+        "suta": 3,
+        "baseline": 3,
+        "tie": 0
+      },
+      "waiting-list": {
+        "suta": 4,
+        "baseline": 2,
+        "tie": 0
+      }
+    },
+    "reasons": [
+      {
+        "pair": "class-schedule-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "A는 하단 탭바와 시간대 구분이 앱답지만 예약 버튼 글자가 아래로 쏠려 있고 왼쪽 강조 막대가 화면 끝에서 잘려 보이는 반면, B는 시간·수업·강사·남은 자리/정원이 일정한 간격으로 정렬되고 마감·예약한 수업 표시와 버튼이 모두 명확해 그대로 내보내기에 더 완성도가 높습니다."
+      },
+      {
+        "pair": "class-schedule-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 오전·오후·저녁 구간 구분, 시작~종료 시간 표기, 하단 탭바, 예약한 수업의 강조 막대와 예약됨 표시까지 갖춰 실제 앱에 가깝고 위계도 더 분명하다. 예약 버튼 글자가 약간 아래로 쏠린 흠은 있지만, A는 탭바가 없고 \"예약 취소\" 버튼 폭이 달라 버튼 열 정렬이 흐트러져서 B가 낫다."
+      },
+      {
+        "pair": "class-schedule-2",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 하단 탭바와 예약일 점 표시가 있는 날짜 스트립, 선명한 예약/예약 취소/마감 버튼 대비, 예약한 수업의 배경 강조로 실제 앱에 가까운 완성도와 위계를 보이지만, B는 시간대 구분과 요약 정보는 좋아도 탭바가 없고 연한 예약 버튼의 대비가 약하며 \"남은 자리 없음\"인 예약 수업 표기가 헷갈려 한 수 아래다."
+      },
+      {
+        "pair": "class-schedule-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 하단 탭바와 날짜별 예약 점, 일관된 윤곽 예약 버튼, 뚜렷한 마감·예약됨 표시로 실제 앱에 더 가깝고 위계와 정렬이 깔끔한 반면, A는 구성은 충실하지만 탭바가 없고 연한 예약 버튼이 약하며 날짜 칩이 왼쪽 가장자리에 붙어 완성도가 다소 떨어진다."
+      },
+      {
+        "pair": "class-schedule-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 모든 행의 간격·정렬이 일관되고, 연한 버튼 덕에 내가 예약한 수업 강조와 마감 표시가 또렷하며, 남은 자리를 '2/10'처럼 한눈에 보여 주는 반면, A는 시간대 구분은 좋지만 채워진 주황 버튼이 너무 많아 위계가 흐려지고 버튼 안 글자가 아래로 치우쳐 보여 완성도가 떨어집니다."
+      },
+      {
+        "pair": "class-schedule-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 오전·오후·저녁 구간 구분과 진한 주황 예약 버튼, 흐리게 처리한 마감 수업, 좌측 강조선과 체크 문구로 눈에 띄는 내 예약 표시 덕분에 위계와 스캔성이 더 좋고, A는 연한 복숭아색 예약 버튼이 약해 행동 유도가 떨어지며 세 줄 정보 때문에 밀도도 덜 정돈돼 보인다."
+      },
+      {
+        "pair": "parcel-tracking-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 단계별 체크 아이콘과 시각·위치 정보가 또렷하고 각 섹션 간격이 일정하며, 변경 버튼이 눈에 잘 띄는 버튼 형태이고 하단 여백까지 갖춰 실제 앱에 더 가깝지만, A는 상단 진행 바가 좋아도 하단이 바짝 잘린 듯하고 변경이 작은 텍스트 링크에 그쳐 완성도가 한 단계 낮다."
+      },
+      {
+        "pair": "parcel-tracking-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 큰 상태 제목과 굵은 단계 아이콘이 위계를 분명히 하고, 요청 사항 '변경'이 전화 버튼과 같은 외곽선 버튼으로 일관되게 처리되어 완성도가 높으며, B는 시각이 오른쪽에 정렬돼 훑어보기 좋지만 '변경'이 작은 텍스트 링크라 요청한 버튼으로는 존재감이 약하다."
+      },
+      {
+        "pair": "parcel-tracking-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 체크 아이콘이 있는 타임라인과 일관되게 큰 섹션 제목, 정돈된 간격 덕에 위계와 가독성이 더 좋고 실제 앱에 가깝지만, A도 라벨 있는 진행 바와 카드 구성이 좋아 차이는 크지 않다."
+      },
+      {
+        "pair": "parcel-tracking-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B가 단계 라벨이 붙은 진행 막대, 택배사·운송장 카드, '현재' 배지와 주황 타임라인, 일관된 회색 버튼으로 상태 파악이 빠르고 완성도가 높은 반면, A는 라벨 없는 진행 막대와 크고 무거운 섹션 제목 때문에 위계가 다소 평이하다."
+      },
+      {
+        "pair": "parcel-tracking-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 택배사·운송장 번호를 한 줄로 묶고 진행 막대와 단계별 상세 이력, 일관된 강조색으로 위계와 실제 앱다운 완성도가 더 높은 반면, A는 깔끔하지만 단계 정보가 단순하고 주소가 어색하게 줄바꿈되며 섹션 제목이 지나치게 커서 B보다 덜 정돈되어 보입니다."
+      },
+      {
+        "pair": "parcel-tracking-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 큰 상태 제목과 진행 바, 단계별 시각·위치 정렬, 섹션 간격과 버튼 배치가 일관되고 실제 데이터처럼 완성도가 높은 반면, B는 깔끔하지만 전화번호 \"0000\"과 주소 \"00\" 같은 자리표시 값이 남아 있고 섹션 제목 크기와 정보 밀도가 들쭉날쭉해 덜 완성돼 보인다."
+      },
+      {
+        "pair": "split-bill-1",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 진행률·남은 금액·1인당 금액·마감일을 위계 있게 보여 주고, 안 보낸 사람과 보낸 사람을 나눠 한눈에 파악되며 숫자도 모두 맞아떨어져서, 참여자가 6명인데 \"5명 중 3명\"으로 표기돼 헷갈리는 A보다 실제 앱에 더 적합합니다."
+      },
+      {
+        "pair": "split-bill-1",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 총액·진행률·1인당 금액·마감일을 위계 있게 보여주고 안 보낸 사람과 보낸 사람을 나눠 조치할 대상이 바로 보이며 숫자도 8명 중 5명 보냄, 3명 미납으로 일관되지만, B는 \"6명\"과 \"5명 중 3명 보냄\"이 엇갈려 혼란스럽고 목록 구분도 약하다."
+      },
+      {
+        "pair": "split-bill-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 '안 보낸 사람 / 보낸 사람 / 먼저 결제한 사람'으로 목록을 나눠 알림을 보낼 대상이 바로 보이고 남은 금액(123,000원)까지 보여 줘서 정산 현황 화면에 더 실용적이며, 간격·정렬도 일관되고 하단 고정 버튼도 자연스럽다. A도 카드형 요약이 깔끔하지만 안 보낸 사람, 나, 보낸 사람이 한 목록에 섞여 있어 위계가 약하다."
+      },
+      {
+        "pair": "split-bill-2",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 총액, 요약 카드(1인당 금액·마감일), 진행률, 단일 참여자 목록, 하단 알림 버튼이 군더더기 없이 위계 있게 정리돼 있고 본인 행도 회색으로 구분돼 실제 앱에 바로 쓸 만하다. A도 완성도는 높지만 세 개 섹션으로 나뉜 목록과 반복되는 \"안 보냄\" 표기가 다소 복잡하고, 마지막 행이 하단 버튼에 바짝 붙어 있다."
+      },
+      {
+        "pair": "split-bill-3",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 아직 안 보낸 사람을 주황색 강조와 함께 위로 분리해 올리고 보낸 사람은 회색으로 낮춰서, 정산 현황에서 가장 중요한 행동 대상과 하단 알림 버튼이 자연스럽게 이어지는 위계가 더 뚜렷하다."
+      },
+      {
+        "pair": "split-bill-3",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 안 보낸 사람과 보낸 사람을 구역으로 나눠 할 일이 먼저 눈에 들어오고, 진행 요약·강조색·하단 버튼의 위계와 정렬이 깔끔하며 목록이 잘리지 않지만, A는 미송금·송금 완료자가 한 목록에 섞여 구분이 약하고 마지막 행이 하단 버튼에 바짝 붙어 답답하다."
+      },
+      {
+        "pair": "waiting-list-1",
+        "order": "base-first",
+        "winner": "baseline",
+        "reason": "A는 섹션 구분선과 제목 크기, 간격이 일관되고 성인·유아 설명과 총 인원 안내가 각 항목 옆에 붙어 있어 위계가 명확한 반면, B는 섹션 제목과 내용 사이 간격이 들쭉날쭉하고(인원·좌석 제목이 내용과 떨어져 있음) 성인 행의 설명이 빠져 있으며 섹션 제목 크기도 일정하지 않아 완성도가 떨어진다."
+      },
+      {
+        "pair": "waiting-list-1",
+        "order": "suta-first",
+        "winner": "baseline",
+        "reason": "B는 섹션 구분 띠와 일관된 간격, 인원별 설명·총원 안내, 좌석 선택 안내 문구로 정보 위계와 앱다운 완성도가 더 좋은 반면, A는 섹션 제목과 내용 사이 여백이 과하게 넓고 간격이 들쭉날쭉하며 대기 팀 수 강조도 약하다."
+      },
+      {
+        "pair": "waiting-list-2",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "두 화면 모두 완성도가 높지만, B는 기준 시각, 성인·유아 연령 안내, 최대 인원 표시, 룸 대기 안내처럼 실제 앱에 필요한 정보가 더 충실합니다. 또 포인트 색 하나로 선택 상태를 분명히 보여 주고, 간격과 정렬도 고르게 정돈되어 있어 그대로 내보내기에 조금 더 적합합니다."
+      },
+      {
+        "pair": "waiting-list-2",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 가게명과 대기 정보가 크고 선명하게 위계가 잡혀 있고, 성인·유아 보조 설명, 선택 시 강조색이 분명한 좌석 버튼, 구분이 뚜렷한 유의 사항 박스 등 디테일과 일관성이 더 좋아 실제 앱에 가깝습니다(B도 깔끔하지만 섹션 구분선이 많고 위계가 다소 평평함)."
+      },
+      {
+        "pair": "waiting-list-3",
+        "order": "base-first",
+        "winner": "suta",
+        "reason": "B는 동의 전 비활성 등록 버튼과 안내 문구, 라디오형 좌석 카드, 정돈된 유의 사항 박스, 유아 보조 설명 등 실제 앱다운 상태 설계와 일관된 간격을 갖춘 반면, A는 위계는 좋지만 필수 동의 전에도 버튼이 활성처럼 보여 완성도가 약간 낮다."
+      },
+      {
+        "pair": "waiting-list-3",
+        "order": "suta-first",
+        "winner": "suta",
+        "reason": "A는 총 인원 요약, 유아 연령 보조 설명, 라디오 카드형 좌석 선택, 동의 전 비활성화 버튼과 안내 문구까지 갖춰 위계와 상태 처리가 더 완성도 있고 실제 앱에 가깝지만, B도 깔끔하나 동의 전인데 등록 버튼이 활성처럼 보이고 보조 정보가 적습니다."
+      }
+    ]
+  },
+  "perPrompt": {
+    "class-schedule": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.7,
+        "axeSerious": 0.3,
+        "smallTextShare": 54,
+        "toneSurfaces": 1,
+        "seconds": 201
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.7,
+        "axeSerious": 0,
+        "smallTextShare": 57,
+        "toneSurfaces": 1,
+        "seconds": 176
+      }
+    },
+    "parcel-tracking": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4.7,
+        "axeSerious": 0.3,
+        "smallTextShare": 60,
+        "toneSurfaces": 1,
+        "seconds": 179
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "axeSerious": 0,
+        "smallTextShare": 60,
+        "toneSurfaces": 1,
+        "seconds": 212
+      }
+    },
+    "split-bill": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 4,
+        "axeSerious": 0,
+        "smallTextShare": 35,
+        "toneSurfaces": 1,
+        "seconds": 125
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 3.7,
+        "axeSerious": 0,
+        "smallTextShare": 44,
+        "toneSurfaces": 1,
+        "seconds": 144
+      }
+    },
+    "waiting-list": {
+      "baseline": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 5.3,
+        "axeSerious": 0,
+        "smallTextShare": 66,
+        "toneSurfaces": 2,
+        "seconds": 192
+      },
+      "suta": {
+        "overflow320": 0,
+        "nestedBoxes": 0,
+        "strongEffects": 0,
+        "fontSizes": 5,
+        "axeSerious": 0,
+        "smallTextShare": 67,
+        "toneSurfaces": 2,
+        "seconds": 175
+      }
+    }
+  },
+  "runs": [
+    {
+      "prompt": "class-schedule",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 210,
+      "costUsd": 1.84,
+      "turns": 12,
+      "outputTokens": 21853,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 2,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 58,
+      "accentTextShare": 2.6,
+      "toneSurfaces": 1,
+      "primaryHue": 17,
+      "centeredParagraphs": 0,
+      "moving": 13,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 1,
+        "all": 1,
+        "rules": [
+          "target-size"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "class-schedule",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 195,
+      "costUsd": 1.9,
+      "turns": 14,
+      "outputTokens": 19849,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 51,
+      "accentTextShare": 13.3,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 16,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "class-schedule",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 198,
+      "costUsd": 1.77,
+      "turns": 13,
+      "outputTokens": 19433,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 54,
+      "accentTextShare": 7.7,
+      "toneSurfaces": 1,
+      "primaryHue": 14,
+      "centeredParagraphs": 0,
+      "moving": 20,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 209,
+      "costUsd": 2.24,
+      "turns": 17,
+      "outputTokens": 22049,
+      "skillRead": true,
+      "patterns": [
+        "bottom-sheet",
+        "layout-principles"
+      ],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 43,
+      "accentTextShare": 4.1,
+      "toneSurfaces": 1,
+      "primaryHue": 24,
+      "centeredParagraphs": 0,
+      "moving": 8,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 183,
+      "costUsd": 1.72,
+      "turns": 11,
+      "outputTokens": 19017,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 60,
+      "accentTextShare": 3.7,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 7,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 144,
+      "costUsd": 1.89,
+      "turns": 13,
+      "outputTokens": 15298,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 70,
+      "accentTextShare": 3.7,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 11,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 1,
+        "all": 1,
+        "rules": [
+          "color-contrast"
+        ]
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 135,
+      "costUsd": 1.43,
+      "turns": 11,
+      "outputTokens": 13403,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 28,
+      "accentTextShare": 6.5,
+      "toneSurfaces": 1,
+      "primaryHue": 154,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 126,
+      "costUsd": 1.28,
+      "turns": 12,
+      "outputTokens": 12585,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 35,
+      "accentTextShare": 3.6,
+      "toneSurfaces": 1,
+      "primaryHue": 154,
+      "centeredParagraphs": 0,
+      "moving": 2,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 115,
+      "costUsd": 1.14,
+      "turns": 10,
+      "outputTokens": 11442,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 41,
+      "accentTextShare": 6.8,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "baseline",
+      "rep": 1,
+      "seconds": 190,
+      "costUsd": 2.04,
+      "turns": 20,
+      "outputTokens": 20187,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 3,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 78,
+      "accentTextShare": 3,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 12,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "baseline",
+      "rep": 2,
+      "seconds": 165,
+      "costUsd": 2.04,
+      "turns": 11,
+      "outputTokens": 17585,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 66,
+      "accentTextShare": 0.5,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 10,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "baseline",
+      "rep": 3,
+      "seconds": 221,
+      "costUsd": 2.37,
+      "turns": 20,
+      "outputTokens": 22789,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 4,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 16,
+      "accentTextShare": 7.1,
+      "toneSurfaces": 1,
+      "primaryHue": 18,
+      "centeredParagraphs": 0,
+      "moving": 13,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 2
+      }
+    },
+    {
+      "prompt": "class-schedule",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 157,
+      "costUsd": 1.43,
+      "turns": 12,
+      "outputTokens": 15835,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 53,
+      "accentTextShare": 4.7,
+      "toneSurfaces": 1,
+      "primaryHue": 12,
+      "centeredParagraphs": 0,
+      "moving": 15,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "class-schedule",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 171,
+      "costUsd": 1.66,
+      "turns": 11,
+      "outputTokens": 16985,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 57,
+      "accentTextShare": 6.7,
+      "toneSurfaces": 1,
+      "primaryHue": 18,
+      "centeredParagraphs": 0,
+      "moving": 14,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "class-schedule",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 199,
+      "costUsd": 1.88,
+      "turns": 15,
+      "outputTokens": 20261,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 16,
+      "smallTextShare": 57,
+      "accentTextShare": 14.3,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 14,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 224,
+      "costUsd": 2.57,
+      "turns": 13,
+      "outputTokens": 21908,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 1,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 60,
+      "accentTextShare": 3,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 6,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 226,
+      "costUsd": 2.18,
+      "turns": 13,
+      "outputTokens": 22107,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 14,
+      "smallTextShare": 49,
+      "accentTextShare": 4.8,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 13,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "parcel-tracking",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 185,
+      "costUsd": 1.82,
+      "turns": 12,
+      "outputTokens": 18725,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 79,
+      "accentTextShare": 3.8,
+      "toneSurfaces": 1,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 7,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 168,
+      "costUsd": 1.66,
+      "turns": 11,
+      "outputTokens": 16740,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 44,
+      "accentTextShare": 4.2,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 4,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 132,
+      "costUsd": 1.49,
+      "turns": 13,
+      "outputTokens": 13456,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 3,
+      "bodySize": 16,
+      "smallTextShare": 39,
+      "accentTextShare": 2.8,
+      "toneSurfaces": 1,
+      "primaryHue": 159,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "split-bill",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 131,
+      "costUsd": 1.44,
+      "turns": 9,
+      "outputTokens": 13359,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 0,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 0,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 3,
+      "bodySize": 16,
+      "smallTextShare": 45,
+      "accentTextShare": 4.1,
+      "toneSurfaces": 1,
+      "primaryHue": 151,
+      "centeredParagraphs": 0,
+      "moving": 3,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "suta",
+      "rep": 1,
+      "seconds": 148,
+      "costUsd": 1.96,
+      "turns": 7,
+      "outputTokens": 16404,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 6,
+      "bodySize": 14,
+      "smallTextShare": 70,
+      "accentTextShare": 2,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 12,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 1
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "suta",
+      "rep": 2,
+      "seconds": 169,
+      "costUsd": 1.76,
+      "turns": 12,
+      "outputTokens": 17928,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 4,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 5,
+      "bodySize": 16,
+      "smallTextShare": 28,
+      "accentTextShare": 3.9,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 11,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 3
+      }
+    },
+    {
+      "prompt": "waiting-list",
+      "condition": "suta",
+      "rep": 3,
+      "seconds": 207,
+      "costUsd": 2.15,
+      "turns": 12,
+      "outputTokens": 21622,
+      "skillRead": true,
+      "patterns": [],
+      "hookBlocks": 0,
+      "hookWarns": 1,
+      "overflow320": false,
+      "overflow390": false,
+      "coveredByBar": false,
+      "clippedText390": [],
+      "clippedText1280": [],
+      "hiddenTableColumns": 0,
+      "tinyText": 0,
+      "smallTargets": 0,
+      "boxes": 1,
+      "nestedBoxes": 0,
+      "strongEffects": 0,
+      "fontSizes": 4,
+      "bodySize": 14,
+      "smallTextShare": 67,
+      "accentTextShare": 4.1,
+      "toneSurfaces": 2,
+      "primaryHue": null,
+      "centeredParagraphs": 0,
+      "moving": 11,
+      "transitionAll": 0,
+      "layoutMotion": 0,
+      "gridMotion": 0,
+      "reducedMotion": true,
+      "pageErrors": 0,
+      "axe": {
+        "serious": 0,
+        "all": 0,
+        "rules": []
+      },
+      "suta": {
+        "errors": 0,
+        "warns": 0
+      }
+    }
+  ]
+}
