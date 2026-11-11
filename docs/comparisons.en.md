@@ -6,6 +6,41 @@
 
 We gave Claude Code the requests below. One side had nothing installed. The other side had only suta installed. Model and settings were the same.
 
+### Depth, main measurement: 6 requests × 3 runs (suta 0.17 vs 0.19)
+
+The "Depth" section below used two runs per condition and its results disagreed with each other. This measurement uses six requests and three runs per condition (36 runs). None of the requests matches a screen convention. Three are from the earlier measurement (parcel tracking, waitlist sign-up, leave request) and three are new: a gym class schedule (app), a group bill split status (app) and a small café's stock management page (web).
+
+![Depth main measurement: AS-IS (0.17) on top, TO-BE (0.19) below](assets/depth-final-as-is-to-be.jpg)
+
+The top row is suta 0.17 and the bottom row is 0.19, each from the first run. From the left: parcel tracking, waitlist sign-up, class schedule, bill split (390px), then leave request and stock management (first 1280px view).
+
+| Request | Blind judgments (0.19 : 0.17; default model, other model) |
+|---|---|
+| Parcel tracking | 5 : 1, 5 : 1 |
+| Leave request | 5 : 1, 4 : 2 |
+| Bill split | 5 : 1, 3 : 3 |
+| Waitlist sign-up | 2 : 4, 4 : 2 |
+| Stock management | 2 : 4, 2 : 4 |
+| Class schedule | 0 : 6, 2 : 4 |
+| Total | 19 : 17, 20 : 16 |
+
+| Metric | 0.17 | 0.19 |
+|---|---|---|
+| 320px overflow, clipped text, text under 12px, touch targets under 24px | 0 | 0 |
+| Accessibility violations (axe, per page), app and web | 0.17, 1.67 | 0, 0 |
+| Boxes nested in boxes (per web page) | 1.83 | 1.17 |
+| Share of text under 15px (web, median) | 41.5% | 60% |
+| Generation cost (median per run), app and web | $1.87, $2.04 | $1.79, $2.37 |
+
+- **The judgments are effectively tied.** Of 72, 0.19 took 39 and 0.17 took 33. We cannot say the design order and the detail standard improve generated screens.
+- **It depends on the request.** Both models preferred 0.19 for parcel tracking and the leave request, and both preferred 0.17 for the class schedule and stock management.
+- **Why 0.19 lost.**
+  - Class schedule: its reserve buttons used a pale tint and read as weak (8 judgments). The 0.17 screens added a bottom tab bar that nobody asked for, and judges called them more complete (6). Not adding it is the rule.
+  - Stock management: 0.19 showed short items twice, in a separate card and in the stock list (6). Gray-filled inputs read as disabled (3). On mobile the table was squeezed and its headers wrapped (3).
+- **0.19 had zero accessibility violations.** 0.17 had 1.67 per web page (definition-list markup). With this few runs it may be chance.
+- **The new reference documents were still not read.** Across the 18 runs of 0.19, `design.md` was opened once and `detail.md` once. `defaults.md` was opened 17 times.
+- **Limits:** three runs per condition. One judge model is the model that built the screens.
+
 ### Depth: parcel tracking, waitlist sign-up, leave request (suta 0.17 vs 0.18)
 
 This section is not a comparison against plain Claude Code. The same requests went to suta 0.17 and 0.18. Version 0.18 adds the design order (`references/design.md`), the detail standard (`references/detail.md`) and the elevation standard (`elevation.md`). The requests were chosen from screens that have no convention in the skill.
