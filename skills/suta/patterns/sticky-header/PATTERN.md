@@ -76,14 +76,15 @@ const stop = observeHeaderCollapse({
 | 제목이 길다 | 작은 제목은 한 줄에서 말줄임한다. 두 줄로 꺾이면 고정 높이를 넘친다. 온전한 제목은 본문의 큰 제목에 있다 | `assets` — `sticky-header.css` |
 | 키보드 포커스나 `#앵커` 이동으로 스크롤된다 | 대상이 헤더 뒤에 가려지지 않게, 스크롤되는 요소(`html`이나 상자)에 `scroll-padding-top`을 헤더 높이로 준다 | `프로젝트` |
 | 노치가 있는 기기에서 `viewport-fit=cover`를 쓴다 | 헤더 내용이 상태 표시줄 아래로 들어간다. 헤더에 `padding-top: env(safe-area-inset-top)`을 준다 | `프로젝트` |
-| 밝은 바탕에 둔다 | 기본 배경(`rgba(15, 17, 21, 0.85)`)은 어두운 바탕용이다. `--header-bg`와 헤더 글자색을 프로젝트 토큰에 잇는다 | `프로젝트` |
+| 어두운 바탕에 둔다 | 기본은 밝은 면이다(색 토큰 `--color-surface`의 88%, 글자는 `--color-text`). 어두운 화면은 `--header-bg`와 `--header-color`를 함께 주고, 접혔을 때의 그림자 `--header-shadow`를 진하게 한다(예: `rgb(0 0 0 / 0.25)`) | `assets`(변수) / 값은 프로젝트 |
 
 ## 커스터마이즈 포인트
 
 | 대상 | 방법 |
 |------|------|
 | 전환 속도 | `--header-duration` (기본 250ms) |
-| 헤더 배경 | `--header-bg` (기본 반투명 + blur — 배경 위로 콘텐츠가 비친다) |
+| 헤더 배경·글자 | `--header-bg`(기본 밝은 면 88% + blur — 콘텐츠가 비친다)·`--header-color`(기본 `--color-text`) |
+| 접혔을 때의 그림자 | `--header-shadow` (기본 `rgb(0 0 0 / 0.1)`) |
 | 전환 시점 | 센티널을 큰 제목이 아닌 다른 요소(히어로 이미지 등)로 지정 |
 | 스크롤 기준 | 코어의 `root`, 훅의 `useStickyHeader({ root })` — 기본은 화면 |
 
