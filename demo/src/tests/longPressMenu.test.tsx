@@ -128,3 +128,36 @@ describe('LongPressMenu — 키보드로 열기·경계', () => {
     expect(screen.getByRole('menu')).toBeInTheDocument()
   })
 })
+
+describe('LongPressMenu — 오른쪽에서 왼쪽으로 쓰는 화면(dir="rtl")', () => {
+  const mount = (dir?: 'rtl') => {
+    render(
+      <div dir={dir}>
+        <LongPressMenu label="잔치국수 동작" items={[{ label: '담기', onSelect: () => {} }]}>
+          <article>잔치국수</article>
+        </LongPressMenu>
+      </div>,
+    )
+    const trigger = screen.getByText('잔치국수').parentElement as HTMLElement
+    // 항목은 (300, 100)에 240×80, 메뉴는 200×150, 화면은 1024×768(jsdom 기본)
+    trigger.getBoundingClientRect = () => ({ top: 100, left: 300, width: 240, height: 80, right: 540, bottom: 180, x: 300, y: 100, toJSON: () => ({}) })
+    const width = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(200)
+    const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(150)
+    fireEvent.contextMenu(trigger)
+    width.mockRestore()
+    height.mockRestore()
+    return screen.getByRole('menu')
+  }
+
+  it('메뉴가 항목의 오른쪽 선에 맞고, 등장 방향을 알리는 data-align이 end다', () => {
+    const menu = mount('rtl')
+    expect(menu.style.left).toBe('340px') // 항목 오른쪽 끝(540) - 메뉴 폭(200)
+    expect(menu).toHaveAttribute('data-align', 'end')
+  })
+
+  it('왼쪽에서 오른쪽으로 쓰는 화면에서는 왼쪽 선에 맞는다', () => {
+    const menu = mount()
+    expect(menu.style.left).toBe('300px')
+    expect(menu).toHaveAttribute('data-align', 'start')
+  })
+})

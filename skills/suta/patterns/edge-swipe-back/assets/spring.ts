@@ -65,8 +65,16 @@ export const springAt = ({ t, motion, config }: { t: number; motion: SpringMotio
 export const springState = ({ t, motion, config }: { t: number; motion: SpringMotion; config?: SpringConfig }): SpringState => {
   const { restDelta, restVelocity } = { ...DEFAULTS, ...config }
   const eps = 0.001
-  const value = springAt({ t, motion, config })
-  const velocity = (springAt({ t: t + eps, motion, config }) - springAt({ t: Math.max(0, t - eps), motion, config })) / (2 * eps)
+  // 첫 프레임의 시각이 시작 시각보다 이르면 t가 아주 조금 음수로 온다 — 시작 위치 밖으로 거슬러 가지 않게 0에서 막는다
+  const time = Math.max(0, t)
+  const value = springAt({ t: time, motion, config })
+  const velocity = (springAt({ t: time + eps, motion, config }) - springAt({ t: Math.max(0, time - eps), motion, config })) / (2 * eps)
+  // 숫자가 아닌 입력(NaN 속도·목표, 0 이하의 강성·질량)은 해도 숫자가 아니다. 그대로 두면 정착 판정을 영영 통과하지 못해
+  // rAF가 끝없이 돌고 화면에 NaN이 쓰인다 — 갈 수 있는 자리(목표, 없으면 시작 위치)에 놓고 끝낸다
+  if (!Number.isFinite(value) || !Number.isFinite(velocity)) {
+    const rest = Number.isFinite(motion.to) ? motion.to : Number.isFinite(motion.from) ? motion.from : 0
+    return { value: rest, velocity: 0, done: true }
+  }
   const done = Math.abs(value - motion.to) < restDelta && Math.abs(velocity) < restVelocity
   return { value: done ? motion.to : value, velocity: done ? 0 : velocity, done }
 }

@@ -1,4 +1,4 @@
-/* swipe-to-delete — 행을 왼쪽으로 밀어 액션 버튼(한 개 또는 여러 개)을 드러내고, 삭제되면 높이가 접히며 사라진다.
+/* swipe-to-delete — 행을 왼쪽으로(dir="rtl"이면 오른쪽으로) 밀어 액션 버튼(한 개 또는 여러 개)을 드러내고, 삭제되면 높이가 접히며 사라진다.
  * 커스터마이즈: --swipe-action-width(버튼 하나 폭), --swipe-duration, --swipe-bg,
  *   tone별 배경 --swipe-action-bg(danger) · --swipe-action-accent-bg · --swipe-action-default-bg.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
@@ -26,7 +26,7 @@
 .swipe-content {
   position: relative;
   min-height: 0; /* 0fr로 접힐 때 내용의 최소 높이가 행을 버티지 않게 */
-  background: var(--swipe-bg, #fff);
+  background: var(--swipe-bg, var(--color-surface, #fff));
   touch-action: pan-y; /* 세로 스크롤은 브라우저에, 가로는 코어에 */
   user-select: none;
   -webkit-user-select: none;
@@ -34,14 +34,14 @@
   transition: transform var(--_duration) var(--_ease-out);
 }
 
-/* 액션 영역은 내용의 오른쪽 바깥에 붙어 내용과 함께 움직인다 — 행 아래에 색을 깔지 않으므로
+/* 액션 영역은 내용의 글이 끝나는 쪽 바깥(오른쪽, dir="rtl"이면 왼쪽)에 붙어 내용과 함께 움직인다 — 행 아래에 색을 깔지 않으므로
  * 행 높이가 소수(px)일 때 경계 틈으로 색이 비치는 문제가 없다. 폭은 끝까지 밀려도 남지 않게 넉넉히.
  * 영역 배경은 마지막(가장 오른쪽) 액션의 tone — 버튼들 뒤로 남는 여백을 같은 색으로 채운다 */
 .swipe-actions {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 100%;
+  inset-inline-start: 100%;
   display: flex;
   width: 100%;
   background: var(--_tone-danger);

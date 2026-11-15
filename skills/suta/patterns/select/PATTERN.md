@@ -106,7 +106,7 @@ const noodle = createSelect({
 | 대상 | 방법 |
 |------|------|
 | 패널 드롭 속도 | `--select-duration` (기본 200ms) |
-| 배경·테두리 | `--select-bg`(#fff)·`--select-border`(#d4d4d4) |
+| 배경·테두리 | `--select-bg`(면 토큰 `--color-surface`, 없으면 #fff)·`--select-border`(#d4d4d4) |
 | 하이라이트·선택 색 | `--select-highlight`(색 토큰 `--color-canvas`, 없으면 #f3f3f3)·`--select-accent`(#1c1c1c) |
 | 오류 색 | `--select-error` (기본은 `--color-danger` 토큰, 없으면 #c8341f) |
 | 패널 최대 높이 | `--select-panel-max-height` (기본 240px — 넘으면 패널 안 스크롤) |

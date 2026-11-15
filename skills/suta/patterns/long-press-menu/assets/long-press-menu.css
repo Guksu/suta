@@ -64,7 +64,7 @@
   padding: 0.25rem;
   border: 1px solid var(--lpm-menu-border, rgb(255 255 255 / 0.12));
   border-radius: var(--lpm-radius, 16px);
-  background: var(--lpm-menu-bg, rgb(255 255 255 / 0.92));
+  background: var(--lpm-menu-bg, color-mix(in srgb, var(--color-surface, #fff) 92%, transparent));
   color: var(--lpm-menu-color, var(--color-text, #1c1c1c));
   box-shadow: var(--lpm-menu-shadow, var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24)));
   animation: lpm-pop-in var(--_duration) var(--_ease);
@@ -77,6 +77,15 @@
 
 .lpm-menu[data-side='top'] {
   transform-origin: bottom left;
+}
+
+/* 오른쪽 선에 맞춘 메뉴(dir="rtl")는 오른쪽 모서리에서 자라 나온다 */
+.lpm-menu[data-side='bottom'][data-align='end'] {
+  transform-origin: top right;
+}
+
+.lpm-menu[data-side='top'][data-align='end'] {
+  transform-origin: bottom right;
 }
 
 .lpm-menu-item {
@@ -100,7 +109,8 @@
 .lpm-menu-item:hover,
 .lpm-menu-item:focus {
   outline: none;
-  background: var(--lpm-menu-active-bg, rgb(0 0 0 / 0.06));
+  /* 글자색을 옅게 깐다 — 면이 밝든 어둡든 글자와 같은 쪽으로 보인다 */
+  background: var(--lpm-menu-active-bg, color-mix(in srgb, currentColor 8%, transparent));
 }
 
 .lpm-menu-item:focus-visible {

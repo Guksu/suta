@@ -135,7 +135,7 @@ const close = (id) =>
 |------|------|--------|
 | 자라나는 시간 | `--card-expand-duration` (`:root`에 선언) | 420ms |
 | 모서리(카드 값과 같게) | `--card-expand-radius` (`:root`에 선언) | 16px |
-| 상세 배경 | `--card-expand-bg` (컨테이너에 선언 가능) | `#fff` |
+| 상세 배경 | `--card-expand-bg` (컨테이너에 선언 가능) | 면 토큰 `--color-surface`, 없으면 `#fff` |
 | 닫기 버튼 색 | `--card-expand-close-bg`·`--card-expand-close-color` | 반투명 검정 / 흰색 |
 | 이름 충돌 회피(한 화면에 목록 둘) | `names: { root: 'today' }` — 부위는 `today-media`·`today-title`로 파생 | `card-expand` |
 | 따로 움직이는 부위 | `data-card-expand-part="media" \| "title"` — 둘 다 선택 사항 | 없음 |

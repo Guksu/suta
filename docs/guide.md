@@ -174,26 +174,26 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
 | [진입/퇴장 애니메이션](../skills/suta/patterns/enter-exit/PATTERN.md) | 요소가 나타나고 사라질 때 CSS 애니메이션 적용 | [데모](https://guksu.github.io/suta/#/enter-exit) |
-| [스크롤 리빌](../skills/suta/patterns/scroll-reveal/PATTERN.md) | 스크롤 위치에 따라 콘텐츠가 차례로 등장 | [데모](https://guksu.github.io/suta/#/scroll-reveal) |
-| [스티키 헤더 전환](../skills/suta/patterns/sticky-header/PATTERN.md) | 큰 제목이 사라지면 고정 헤더에 작은 제목 표시 | [데모](https://guksu.github.io/suta/#/sticky-header) |
+| [스크롤 리빌](../skills/suta/patterns/scroll-reveal/PATTERN.md) | 스크롤 위치에 따라 콘텐츠가 차례로 등장. 화면보다 긴 요소와 이미 지나간 요소도 감춰진 채 남지 않고, 인쇄할 때는 모두 보임 | [데모](https://guksu.github.io/suta/#/scroll-reveal) |
+| [스티키 헤더 전환](../skills/suta/patterns/sticky-header/PATTERN.md) | 큰 제목이 사라지면 고정 헤더에 작은 제목 표시. 스크롤 상자를 지정할 수 있고(`root`), 중간에서 시작하면 움직임 없이 놓임 | [데모](https://guksu.github.io/suta/#/sticky-header) |
 | [리스트 재배치](../skills/suta/patterns/flip-list/PATTERN.md) | 목록 순서가 바뀔 때 항목이 부드럽게 이동 | [데모](https://guksu.github.io/suta/#/flip-list) |
-| [확대 전환 라이트박스](../skills/suta/patterns/zoom-lightbox/PATTERN.md) | 썸네일 위치에서 화면 중앙으로 확대하며 열기 | [데모](https://guksu.github.io/suta/#/zoom-lightbox) |
-| [모달 다이얼로그](../skills/suta/patterns/modal-dialog/PATTERN.md) | 기본 `<dialog>` 기반으로 열기·닫기, Esc 키와 포커스 처리 | [데모](https://guksu.github.io/suta/#/modal-dialog) |
-| [스프링 물리 모션](../skills/suta/patterns/spring-physics/PATTERN.md) | 드래그 속도를 이어받아 용수철처럼 움직이는 모션 | [데모](https://guksu.github.io/suta/#/spring-physics) |
-| [다크모드 전환](../skills/suta/patterns/theme-toggle/PATTERN.md) | 누른 위치에서 원형으로 테마 전환, 선택 저장 및 기기 설정 반영 | [데모](https://guksu.github.io/suta/#/theme-toggle) |
+| [확대 전환 라이트박스](../skills/suta/patterns/zoom-lightbox/PATTERN.md) | 썸네일 위치에서 화면 중앙으로 확대하며 열기. 포커스 이동·가두기·복귀, 뒤로 가기로 닫기(`closeOnBack`) | [데모](https://guksu.github.io/suta/#/zoom-lightbox) |
+| [모달 다이얼로그](../skills/suta/patterns/modal-dialog/PATTERN.md) | 기본 `<dialog>` 기반으로 열기·닫기, Esc 키와 포커스 처리, 뒤로 가기로 닫기(`closeOnBack`) | [데모](https://guksu.github.io/suta/#/modal-dialog) |
+| [스프링 물리 모션](../skills/suta/patterns/spring-physics/PATTERN.md) | 드래그 속도를 이어받아 용수철처럼 움직이는 모션. 동작 줄이기 설정이면 목표로 바로 가고, 멈추면 알림(`onRest`). 숫자가 아닌 입력이나 멈추지 않는 설정에서도 끝남 | [데모](https://guksu.github.io/suta/#/spring-physics) |
+| [다크모드 전환](../skills/suta/patterns/theme-toggle/PATTERN.md) | 누른 위치에서 원형으로 테마 전환, 선택 저장 및 기기 설정 반영. 다른 탭과 같은 화면의 다른 토글이 함께 바뀜 | [데모](https://guksu.github.io/suta/#/theme-toggle) |
 | [늘어나는 이미지 헤더](../skills/suta/patterns/stretchy-header/PATTERN.md) | 큰 이미지 헤더가 스크롤엔 느리게 밀리며 어두워지고, 맨 위에서 당기면 늘어났다 돌아옴 | [데모](https://guksu.github.io/suta/#/stretchy-header) |
-| [카드 확장](../skills/suta/patterns/card-expand/PATTERN.md) | 누른 카드가 제자리에서 자라나 상세 화면이 되고 닫으면 그 자리로 줄어드는 공유 요소 전환 | [데모](https://guksu.github.io/suta/#/card-expand) |
+| [카드 확장](../skills/suta/patterns/card-expand/PATTERN.md) | 누른 카드가 제자리에서 자라나 상세 화면이 되고 닫으면 그 자리로 줄어드는 공유 요소 전환. 포커스 가두기와 뒤로 가기로 닫기(`closeOnBack`) | [데모](https://guksu.github.io/suta/#/card-expand) |
 | [카드 묶음](../skills/suta/patterns/card-stack/PATTERN.md) | 겹친 카드가 누르면 세로로 펼쳐지고, 고른 카드가 맨 위로 올라오며 나머지는 아래로 겹침 | [데모](https://guksu.github.io/suta/#/card-stack) |
 
 ### 기다리는 동안
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [스켈레톤 시머](../skills/suta/patterns/skeleton/PATTERN.md) | 로딩 중 콘텐츠 자리를 채우는 뼈대와 반짝임 효과 | [데모](https://guksu.github.io/suta/#/skeleton) |
-| [숫자 카운트업](../skills/suta/patterns/count-up/PATTERN.md) | 잔액·포인트 등의 숫자를 목표값까지 점진적으로 변경 | [데모](https://guksu.github.io/suta/#/count-up) |
-| [스토리 프로그레스](../skills/suta/patterns/story-progress/PATTERN.md) | 스토리 진행 표시, 길게 눌러 일시 정지, 탭으로 이동 | [데모](https://guksu.github.io/suta/#/story-progress) |
-| [로딩 버튼](../skills/suta/patterns/loading-button/PATTERN.md) | 전송 중·완료 상태를 표시하고 중복 제출 방지 | [데모](https://guksu.github.io/suta/#/loading-button) |
-| [무한 스크롤](../skills/suta/patterns/infinite-scroll/PATTERN.md) | 목록 끝에 도달하기 전에 다음 페이지를 불러오고 중복 추가 방지 | [데모](https://guksu.github.io/suta/#/infinite-scroll) |
+| [스켈레톤 시머](../skills/suta/patterns/skeleton/PATTERN.md) | 로딩 중 콘텐츠 자리를 채우는 뼈대와 반짝임 효과. 응답이 200ms 안에 오면 띄우지 않고, 띄우면 400ms는 유지(`createSkeletonGate`) | [데모](https://guksu.github.io/suta/#/skeleton) |
+| [숫자 카운트업](../skills/suta/patterns/count-up/PATTERN.md) | 잔액·포인트 등의 숫자를 목표값까지 점진적으로 변경. 굴러가는 중에 값이 바뀌면 보이던 숫자에서 이어 가고, 낭독은 최종값만 | [데모](https://guksu.github.io/suta/#/count-up) |
+| [스토리 프로그레스](../skills/suta/patterns/story-progress/PATTERN.md) | 스토리 진행 표시, 길게 눌러 일시 정지, 탭으로 이동. 탭이 가려진 동안은 시간이 흐르지 않음 | [데모](https://guksu.github.io/suta/#/story-progress) |
+| [로딩 버튼](../skills/suta/patterns/loading-button/PATTERN.md) | 전송 중·완료 상태를 표시하고 중복 제출 방지. 실패 표시 중에 다시 누르면 바로 재시도 | [데모](https://guksu.github.io/suta/#/loading-button) |
+| [무한 스크롤](../skills/suta/patterns/infinite-scroll/PATTERN.md) | 목록 끝에 도달하기 전에 다음 페이지를 불러오고 중복 추가 방지. 실패하면 다시 시도, 목록을 새로 채울 때는 `reset()` | [데모](https://guksu.github.io/suta/#/infinite-scroll) |
 | [가상 스크롤](../skills/suta/patterns/virtual-list/PATTERN.md) | 화면에 보이는 항목 중심으로 렌더링해 긴 목록 처리 | [데모](https://guksu.github.io/suta/#/virtual-list) |
 | [원형 진행 링](../skills/suta/patterns/progress-ring/PATTERN.md) | SVG 원이 값에 따라 채워지는 진행 표시, 3중 링 겹치기·목표 초과 표시·무한 로딩 | [데모](https://guksu.github.io/suta/#/progress-ring) |
 
@@ -201,23 +201,23 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [프레스 피드백](../skills/suta/patterns/press-feedback/PATTERN.md) | 누르는 순간 축소되고 손을 떼면 복원되는 효과 | [데모](https://guksu.github.io/suta/#/press-feedback) |
-| [토스트 스택](../skills/suta/patterns/toast-stack/PATTERN.md) | 하단 또는 상단 배너 위치에 여러 알림을 쌓고 각각의 표시 시간이 지나면 닫기 | [데모](https://guksu.github.io/suta/#/toast-stack) |
-| [좋아요 팝](../skills/suta/patterns/like-pop/PATTERN.md) | 하트 클릭·사진 더블 탭에 반응하는 팝 효과 | [데모](https://guksu.github.io/suta/#/like-pop) |
+| [프레스 피드백](../skills/suta/patterns/press-feedback/PATTERN.md) | 누르는 순간 축소되고 손을 떼면 복원되는 효과. 잠긴 요소는 반응하지 않고, 안쪽 버튼을 누를 때 바깥 카드는 그대로 | [데모](https://guksu.github.io/suta/#/press-feedback) |
+| [토스트 스택](../skills/suta/patterns/toast-stack/PATTERN.md) | 하단 또는 상단 배너 위치에 여러 알림을 쌓고 각각의 표시 시간이 지나면 닫기. 긴 문구는 줄바꿈, 알림마다 표시 시간 지정(`durationMs`) | [데모](https://guksu.github.io/suta/#/toast-stack) |
+| [좋아요 팝](../skills/suta/patterns/like-pop/PATTERN.md) | 하트 클릭·사진 더블 탭에 반응하는 팝 효과. 처음 그릴 때는 튀지 않고, 좋아요 수를 버튼 이름에 포함 | [데모](https://guksu.github.io/suta/#/like-pop) |
 | [축하 오버레이](../skills/suta/patterns/celebration/PATTERN.md) | 목표 달성·배지 획득 순간에 지금 화면 위로 한 번 뜨는 축하 | [데모](https://guksu.github.io/suta/#/celebration) |
-| [카트 플라이](../skills/suta/patterns/cart-fly/PATTERN.md) | 상품이 장바구니 아이콘으로 날아가는 효과 | [데모](https://guksu.github.io/suta/#/cart-fly) |
-| [툴팁](../skills/suta/patterns/tooltip/PATTERN.md) | 마우스·키보드 입력에 맞춰 표시하고 여유 공간에 따라 배치 | [데모](https://guksu.github.io/suta/#/tooltip) |
+| [카트 플라이](../skills/suta/patterns/cart-fly/PATTERN.md) | 상품이 장바구니 아이콘으로 날아가는 효과. 목적지가 없거나 숨겨져 있으면 날리지 않고 바로 담김 처리 | [데모](https://guksu.github.io/suta/#/cart-fly) |
+| [툴팁](../skills/suta/patterns/tooltip/PATTERN.md) | 마우스·키보드 입력에 맞춰 표시하고 여유 공간에 따라 뒤집거나 밀어서 배치. 말풍선을 가리킬 수 있고 Esc로 닫힘. 터치로는 뜨지 않음 | [데모](https://guksu.github.io/suta/#/tooltip) |
 | [폼 에러 흔들림](../skills/suta/patterns/form-shake-error/PATTERN.md) | 입력 오류가 있는 필드를 흔들고 오류 메시지 표시 | [데모](https://guksu.github.io/suta/#/form-shake-error) |
 
 ### 화면 이동
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [탭 인디케이터 슬라이드](../skills/suta/patterns/tab-indicator/PATTERN.md) | 선택한 탭으로 밑줄이 부드럽게 이동 | [데모](https://guksu.github.io/suta/#/tab-indicator) |
-| [스냅 캐러셀](../skills/suta/patterns/carousel/PATTERN.md) | 옆으로 밀면 카드 단위로 정렬되는 슬라이더 | [데모](https://guksu.github.io/suta/#/carousel) |
-| [햄버거 메뉴](../skills/suta/patterns/hamburger-menu/PATTERN.md) | 메뉴 아이콘을 닫기 아이콘으로 바꾸고 패널 표시 | [데모](https://guksu.github.io/suta/#/hamburger-menu) |
-| [화면 전환](../skills/suta/patterns/page-transition/PATTERN.md) | 헤더·탭바를 유지하며 이동 방향에 맞춰 화면 전환 | [데모](https://guksu.github.io/suta/#/page-transition) |
-| [드롭다운 메뉴](../skills/suta/patterns/dropdown-menu/PATTERN.md) | 공간에 맞춰 위치를 바꾸고 방향키·첫 글자로 이동하는 액션 메뉴 | [데모](https://guksu.github.io/suta/#/dropdown-menu) |
+| [탭 인디케이터 슬라이드](../skills/suta/patterns/tab-indicator/PATTERN.md) | 선택한 탭으로 밑줄이 부드럽게 이동. 탭이 넘치면 선택한 탭이 보이게 스크롤하고(`revealTab`), 방향키로 이동 | [데모](https://guksu.github.io/suta/#/tab-indicator) |
+| [스냅 캐러셀](../skills/suta/patterns/carousel/PATTERN.md) | 옆으로 밀면 카드 단위로 정렬되는 슬라이더. 자동 넘김은 탭이 가려지거나 사용자가 조작하면 멈춤 | [데모](https://guksu.github.io/suta/#/carousel) |
+| [햄버거 메뉴](../skills/suta/patterns/hamburger-menu/PATTERN.md) | 메뉴 아이콘을 닫기 아이콘으로 바꾸고 패널 표시. 포커스 이동·가두기·복귀, 넓은 화면에서 닫기(`closeAboveWidth`), 뒤로 가기로 닫기(`closeOnBack`). 나오는 쪽은 글의 방향을 따름(`side="start"`) | [데모](https://guksu.github.io/suta/#/hamburger-menu) |
+| [화면 전환](../skills/suta/patterns/page-transition/PATTERN.md) | 헤더·탭바를 유지하며 이동 방향에 맞춰 화면 전환. 브라우저 뒤로·앞으로와 맞추기(`syncHistory`), 새 화면으로 포커스 이동 | [데모](https://guksu.github.io/suta/#/page-transition) |
+| [드롭다운 메뉴](../skills/suta/patterns/dropdown-menu/PATTERN.md) | 공간에 맞춰 위치를 바꾸고 방향키·첫 글자(한글 초성 포함)로 이동하는 액션 메뉴. 브라우저의 맨 위 층에 떠서 조상의 `overflow`에 잘리지 않음 | [데모](https://guksu.github.io/suta/#/dropdown-menu) |
 | [스크롤 반응 유리 GNB](../skills/suta/patterns/glass-nav/PATTERN.md) | 맨 위에서는 투명, 내려가면 유리로 전환. 아래로 스크롤하면 숨고 올리면 나타나거나 알약 하나로 축소. 링크를 누르면 그 섹션으로 이동하고 활성 알약이 따라옴 | [데모](https://guksu.github.io/suta/#/glass-nav) |
 | [하단 탭 바(GNB)](../skills/suta/patterns/bottom-nav/PATTERN.md) | 최상위 화면 4~5개를 오가는 하단 고정 메뉴. 개수 배지·새 소식 점, 상세·장바구니에서 숨기기, 키보드가 올라오면 숨기기, 홈 표시줄(안전 영역) 피하기 | [데모](https://guksu.github.io/suta/#/bottom-nav) |
 
@@ -225,37 +225,37 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [바텀시트](../skills/suta/patterns/bottom-sheet/PATTERN.md) | 아래에서 시트를 열고 드래그로 높이 조절·닫기 | [데모](https://guksu.github.io/suta/#/bottom-sheet) |
+| [바텀시트](../skills/suta/patterns/bottom-sheet/PATTERN.md) | 아래에서 시트를 열고 드래그로 높이 조절·닫기. 포커스 이동·가두기·복귀, 안쪽 스크롤 영역(`.sheet-scroll`), 뒤로 가기로 닫기(`closeOnBack`) | [데모](https://guksu.github.io/suta/#/bottom-sheet) |
 | [당겨서 새로고침](../skills/suta/patterns/pull-to-refresh/PATTERN.md) | 목록 상단을 당기면 저항감과 함께 새로고침 | [데모](https://guksu.github.io/suta/#/pull-to-refresh) |
-| [밀어서 삭제](../skills/suta/patterns/swipe-to-delete/PATTERN.md) | 옆으로 밀어 액션 버튼(단일 삭제 또는 보관·나중에·삭제 여러 개) 표시, 끝까지 밀면 마지막 액션 실행 | [데모](https://guksu.github.io/suta/#/swipe-to-delete) |
+| [밀어서 삭제](../skills/suta/patterns/swipe-to-delete/PATTERN.md) | 옆으로 밀어 액션 버튼(단일 삭제 또는 보관·나중에·삭제 여러 개) 표시, 끝까지 밀면 마지막 액션 실행. 열린 행의 내용을 누르면 닫힘. `dir="rtl"` 화면에서는 반대쪽으로 밂 | [데모](https://guksu.github.io/suta/#/swipe-to-delete) |
 | [피드 핀치줌](../skills/suta/patterns/pinch-zoom/PATTERN.md) | 두 손가락으로 사진을 확대하고 놓으면 복원 | [데모](https://guksu.github.io/suta/#/pinch-zoom) |
-| [끌어내려 닫는 뷰어](../skills/suta/patterns/swipe-dismiss-viewer/PATTERN.md) | 사진을 아래로 끌어 축소하며 닫고 원래 위치로 복귀 | [데모](https://guksu.github.io/suta/#/swipe-dismiss-viewer) |
-| [끌어서 순서 바꾸기](../skills/suta/patterns/drag-to-reorder/PATTERN.md) | 드래그 또는 방향키로 목록 순서 변경 | [데모](https://guksu.github.io/suta/#/drag-to-reorder) |
-| [길게 눌러 메뉴](../skills/suta/patterns/long-press-menu/PATTERN.md) | 길게 누르거나 우클릭하면 항목이 떠오르고 뒤가 흐려지며 옆에 액션 메뉴 표시 | [데모](https://guksu.github.io/suta/#/long-press-menu) |
-| [가장자리 스와이프 뒤로가기](../skills/suta/patterns/edge-swipe-back/PATTERN.md) | 왼쪽 가장자리를 끌면 이전 화면이 따라 나오고, 놓으면 거리·속도로 돌아갈지 판정 | [데모](https://guksu.github.io/suta/#/edge-swipe-back) |
+| [끌어내려 닫는 뷰어](../skills/suta/patterns/swipe-dismiss-viewer/PATTERN.md) | 사진을 아래로 끌어 축소하며 닫고 원래 위치로 복귀. 열리면 닫기 버튼으로 포커스가 가고 닫히면 돌아옴 | [데모](https://guksu.github.io/suta/#/swipe-dismiss-viewer) |
+| [끌어서 순서 바꾸기](../skills/suta/patterns/drag-to-reorder/PATTERN.md) | 드래그 또는 방향키로 목록 순서 변경. Esc를 누르거나 제스처가 끊기면 원래 순서로 | [데모](https://guksu.github.io/suta/#/drag-to-reorder) |
+| [길게 눌러 메뉴](../skills/suta/patterns/long-press-menu/PATTERN.md) | 길게 누르거나 우클릭하면 항목이 떠오르고 뒤가 흐려지며 옆에 액션 메뉴 표시. Enter·Space로도 열리고, 항목을 잠글 수 있음 | [데모](https://guksu.github.io/suta/#/long-press-menu) |
+| [가장자리 스와이프 뒤로가기](../skills/suta/patterns/edge-swipe-back/PATTERN.md) | 왼쪽 가장자리(`dir="rtl"`이면 오른쪽)를 끌면 이전 화면이 따라 나오고, 놓으면 거리·속도로 돌아갈지 판정 | [데모](https://guksu.github.io/suta/#/edge-swipe-back) |
 
 ### 입력 요소
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [커스텀 셀렉트](../skills/suta/patterns/select/PATTERN.md) | 키보드 조작과 스크린 리더를 지원하는 드롭다운 | [데모](https://guksu.github.io/suta/#/select) |
-| [아코디언](../skills/suta/patterns/accordion/PATTERN.md) | CSS로 높이를 전환하며 콘텐츠 펼치기·접기 | [데모](https://guksu.github.io/suta/#/accordion) |
-| [토글 스위치](../skills/suta/patterns/switch/PATTERN.md) | 기본 체크박스를 활용한 켜기·끄기 스위치 | [데모](https://guksu.github.io/suta/#/switch) |
-| [플로팅 라벨 입력](../skills/suta/patterns/floating-label/PATTERN.md) | 입력 상태에 따라 안내 문구를 상단 라벨로 전환 | [데모](https://guksu.github.io/suta/#/floating-label) |
-| [체크박스 · 라디오](../skills/suta/patterns/checkbox-radio/PATTERN.md) | 선택 상태에 맞춰 체크 표시와 라디오 점에 모션 적용 | [데모](https://guksu.github.io/suta/#/checkbox-radio) |
-| [인증번호 입력](../skills/suta/patterns/otp-input/PATTERN.md) | 입력·삭제 시 칸 이동, 인증번호 붙여넣기 지원 | [데모](https://guksu.github.io/suta/#/otp-input) |
-| [세그먼트 컨트롤](../skills/suta/patterns/segmented-control/PATTERN.md) | 선택 칸 뒤로 알약 배경이 미끄러져 이동, 네이티브 라디오 그룹 기반 | [데모](https://guksu.github.io/suta/#/segmented-control) |
-| [휠 피커](../skills/suta/patterns/wheel-picker/PATTERN.md) | 위아래로 굴려 가운데 칸에 스냅되는 드럼 피커, 3D 기울기·클릭·키보드 병행 | [데모](https://guksu.github.io/suta/#/wheel-picker) |
-| [검색어 자동완성](../skills/suta/patterns/search-suggest/PATTERN.md) | 입력이 멈추면 검색하고 이전 응답이 최신 결과를 덮지 않도록 처리 | [데모](https://guksu.github.io/suta/#/search-suggest) |
-| [범위 슬라이더](../skills/suta/patterns/range-slider/PATTERN.md) | 두 손잡이로 최솟값·최댓값을 조절하는 범위 입력 | [데모](https://guksu.github.io/suta/#/range-slider) |
-| [수량 스테퍼](../skills/suta/patterns/quantity-stepper/PATTERN.md) | 버튼으로 수량 조절, 길게 눌러 가속, 최솟값에서 삭제 전환 | [데모](https://guksu.github.io/suta/#/quantity-stepper) |
-| [파일 업로드](../skills/suta/patterns/file-upload/PATTERN.md) | 파일 드롭, 미리보기·진행률 표시, 거절 사유 안내 | [데모](https://guksu.github.io/suta/#/file-upload) |
+| [커스텀 셀렉트](../skills/suta/patterns/select/PATTERN.md) | 키보드 조작과 스크린 리더를 지원하는 드롭다운. 타이핑으로 찾기, 잠긴 옵션, React 없이 쓰는 코어(`createSelect`) | [데모](https://guksu.github.io/suta/#/select) |
+| [아코디언](../skills/suta/patterns/accordion/PATTERN.md) | CSS로 높이를 전환하며 콘텐츠 펼치기·접기. 열림 상태를 밖에서 제어(`openIds`), 제목 단계 지정(`headingLevel`) | [데모](https://guksu.github.io/suta/#/accordion) |
+| [토글 스위치](../skills/suta/patterns/switch/PATTERN.md) | 기본 체크박스를 활용한 켜기·끄기 스위치. 누르는 영역 44px, 고대비 모드에서도 켜짐이 보임 | [데모](https://guksu.github.io/suta/#/switch) |
+| [플로팅 라벨 입력](../skills/suta/patterns/floating-label/PATTERN.md) | 입력 상태에 따라 안내 문구를 상단 라벨로 전환. 도움말·오류 문구 자리(`helperText`·`errorText`)와 잠긴 모양 | [데모](https://guksu.github.io/suta/#/floating-label) |
+| [체크박스 · 라디오](../skills/suta/patterns/checkbox-radio/PATTERN.md) | 선택 상태에 맞춰 체크 표시와 라디오 점에 모션 적용. 부분 선택(`indeterminate`)과 오류 테두리 | [데모](https://guksu.github.io/suta/#/checkbox-radio) |
+| [인증번호 입력](../skills/suta/patterns/otp-input/PATTERN.md) | 입력·삭제 시 칸 이동, 인증번호 붙여넣기 지원. 문자 자동 입력처럼 한 칸에 들어온 코드 전체를 칸마다 나눔 | [데모](https://guksu.github.io/suta/#/otp-input) |
+| [세그먼트 컨트롤](../skills/suta/patterns/segmented-control/PATTERN.md) | 선택 칸 뒤로 알약 배경이 미끄러져 이동, 네이티브 라디오 그룹 기반. 칸마다 잠글 수 있음 | [데모](https://guksu.github.io/suta/#/segmented-control) |
+| [휠 피커](../skills/suta/patterns/wheel-picker/PATTERN.md) | 위아래로 굴려 가운데 칸에 스냅되는 드럼 피커, 3D 기울기·클릭·키보드 병행. 숨겨진 채 만들어도 보일 때 자리를 다시 맞춤 | [데모](https://guksu.github.io/suta/#/wheel-picker) |
+| [검색어 자동완성](../skills/suta/patterns/search-suggest/PATTERN.md) | 입력이 멈추면 검색하고 이전 응답이 최신 결과를 덮지 않도록 처리. 한글 조합 중의 키는 건너뛰고, 결과 없음을 알림(`isEmpty`) | [데모](https://guksu.github.io/suta/#/search-suggest) |
+| [범위 슬라이더](../skills/suta/patterns/range-slider/PATTERN.md) | 두 손잡이로 최솟값·최댓값을 조절하는 범위 입력. 잠금(`disabled`), 끌기가 끝났을 때 알림(`onChangeEnd`) | [데모](https://guksu.github.io/suta/#/range-slider) |
+| [수량 스테퍼](../skills/suta/patterns/quantity-stepper/PATTERN.md) | 버튼으로 수량 조절, 길게 눌러 가속, 최솟값에서 삭제 전환. 버튼을 키보드로 누를 수 있고 바뀐 값을 낭독 | [데모](https://guksu.github.io/suta/#/quantity-stepper) |
+| [파일 업로드](../skills/suta/patterns/file-upload/PATTERN.md) | 파일 드롭, 미리보기·진행률 표시, 거절 사유 안내. 빈 파일과 같은 파일 다시 고르기를 거절하고, 실패한 파일은 다시 시도(`onRetry`) | [데모](https://guksu.github.io/suta/#/file-upload) |
 
 ### 표면과 스타일
 
 | 패턴 | 주요 동작 | 데모 |
 |---|---|---|
-| [유리판 (글라스모피즘)](../skills/suta/patterns/glass-surface/PATTERN.md) | 뒤 배경이 흐릿하게 비치는 반투명 카드·GNB·모달, 흐림 미지원 시 불투명 판으로 전환 | [데모](https://guksu.github.io/suta/#/glass-surface) |
+| [유리판 (글라스모피즘)](../skills/suta/patterns/glass-surface/PATTERN.md) | 뒤 배경이 흐릿하게 비치는 반투명 카드·GNB·모달, 흐림 미지원 시 불투명 판으로 전환. 누를 수 있는 유리는 링크나 버튼으로(`as`) | [데모](https://guksu.github.io/suta/#/glass-surface) |
 
 ### 원칙과 검토
 
@@ -263,7 +263,7 @@ Claude Code·Codex 플러그인으로 설치하면, 에이전트가 파일을 �
 |---|---|---|
 | [모션 원칙과 토큰](../skills/suta/patterns/motion-principles/PATTERN.md) | 시간 5단계·이징 5종·스태거·reduced-motion을 토큰 한 벌로 정하고, 움직임 종류별로 어느 값을 쓸지 정한 원칙 | [데모](https://guksu.github.io/suta/#/motion-principles) |
 | [모션 검사](../skills/suta/patterns/motion-audit/PATTERN.md) | CSS·JS를 훑어 레이아웃 속성 애니메이션·reduced-motion 누락·시간 범위 밖 등을 `file:line`으로 찾고 고치는 패턴을 안내 | [데모](https://guksu.github.io/suta/#/motion-audit) |
-| [레이아웃 원칙과 토큰](../skills/suta/patterns/layout-principles/PATTERN.md) | 레이아웃 원칙, 화면 유형별 관례, 간격·글자·굵기·반경·색 토큰 한 벌(구성은 표 아래에) | [데모](https://guksu.github.io/suta/#/layout-principles) |
+| [레이아웃 원칙과 토큰](../skills/suta/patterns/layout-principles/PATTERN.md) | 레이아웃 원칙, 화면 유형별 관례, 간격·글자·굵기·반경·색·그림자·겹치는 순서 토큰 한 벌(구성은 표 아래에) | [데모](https://guksu.github.io/suta/#/layout-principles) |
 | [레이아웃 검사](../skills/suta/patterns/layout-audit/PATTERN.md) | CSS·JSX·HTML을 훑어 카드 안 카드·11px 미만 글자·효과 남발·색이 든 번지는 그림자·그림자 값 4종 이상·척도 밖 간격·문단 가운데 정렬·옅은 색 면·색 계열 과다·탁한 강조색·대비가 모자란 강조색 짝·따뜻한 강조색 옆 푸른 회색·이모지 아이콘·개발용 문구·말투 섞임·랜딩의 01·02·03 번호 목록·제품 화면 그림 안의 버튼·세로로 쌓인 아이콘 버튼·화면보다 넓어지는 grid 틀·스크롤 칸 밖으로 새는 숨김 글자·모바일 웹뷰의 100vh와 입력칸 확대 등을 `file:line`으로 찾고 고칠 원칙을 안내 | [데모](https://guksu.github.io/suta/#/layout-audit) |
 
 레이아웃 원칙 패턴에는 다음이 들어 있습니다.

@@ -24,6 +24,9 @@ export type SpringHandle = {
   current: () => { value: number; velocity: number }
 }
 
+/** 이 시간이 지나도 정착하지 않으면 목표에 놓고 끝낸다 — 감쇠 0처럼 영영 흔들리는 설정이 프레임을 붙잡지 못하게(spring.ts의 springDuration 상한과 같다) */
+const MAX_DURATION_MS = 10_000
+
 export const animateSpring = ({ from, to, velocity = 0, config, onUpdate, onComplete }: AnimateSpringOptions): SpringHandle => {
   let motion = { from, to, velocity }
   let startedAt = performance.now()
@@ -33,7 +36,11 @@ export const animateSpring = ({ from, to, velocity = 0, config, onUpdate, onComp
 
   const tick = (now: number) => {
     if (!running) return
-    const state = springState({ t: (now - startedAt) / 1000, motion, config })
+    const elapsed = now - startedAt
+    const state =
+      elapsed >= MAX_DURATION_MS
+        ? { value: Number.isFinite(motion.to) ? motion.to : latest.value, velocity: 0, done: true }
+        : springState({ t: elapsed / 1000, motion, config })
     latest = { value: state.value, velocity: state.velocity }
     onUpdate(state.value)
     if (state.done) {

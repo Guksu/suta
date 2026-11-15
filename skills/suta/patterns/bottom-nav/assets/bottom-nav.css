@@ -21,7 +21,7 @@
   /* 가로로 눕히면 노치·둥근 모서리가 좌우에 온다 — 끝 탭이 그 아래로 들어가지 않게 */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  background: var(--bottom-nav-bg, #fff);
+  background: var(--bottom-nav-bg, var(--color-surface, #fff));
   border-top: 1px solid var(--bottom-nav-line, var(--color-line, #e6e6e6));
   transition:
     transform var(--_duration) var(--_ease),

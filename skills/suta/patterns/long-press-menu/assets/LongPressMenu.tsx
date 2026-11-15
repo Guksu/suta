@@ -70,14 +70,22 @@ export const LongPressMenu = ({ items, children, label, delayMs, className }: Lo
       if (!open || !trigger || !menu) return
       // 떠오른 항목 기준으로 위치를 잰다 — scale(1.04) 뒤의 rect라야 메뉴가 커진 카드에 붙는다
       const anchor = trigger.getBoundingClientRect()
+      // 글이 시작하는 쪽 선에 맞춘다 — 오른쪽에서 왼쪽으로 쓰는 화면이면 항목의 오른쪽 선이다.
+      // 계산된 direction이 정본이고, 스타일 계산이 상속을 주지 않는 환경(jsdom)에서는 가장 가까운 dir 속성을 본다
+      const direction = getComputedStyle(trigger).direction
+      const rtl = direction ? direction === 'rtl' : trigger.closest('[dir]')?.getAttribute('dir') === 'rtl'
+      const align = rtl ? 'end' : 'start'
       const { top, left, side } = placeContextMenu({
         anchor: { top: anchor.top, left: anchor.left, width: anchor.width, height: anchor.height },
         menu: { width: menu.offsetWidth, height: menu.offsetHeight },
         viewport: { width: window.innerWidth, height: window.innerHeight },
+        align,
       })
       menu.style.top = `${top}px`
       menu.style.left = `${left}px`
-      menu.dataset.side = side // CSS가 등장 방향(transform-origin)을 이 값으로 정한다
+      // CSS가 등장 방향(transform-origin)을 이 두 값으로 정한다
+      menu.dataset.side = side
+      menu.dataset.align = align
       menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true })
     },
     [open],

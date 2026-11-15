@@ -11,7 +11,7 @@
   padding: 0;
   border: none;
   border-radius: var(--modal-radius, 16px);
-  background: var(--modal-bg, #fff);
+  background: var(--modal-bg, var(--color-surface, #fff));
   color: inherit;
   box-shadow: var(--shadow-overlay, 0 2px 6px rgb(0 0 0 / 0.1), 0 24px 64px rgb(0 0 0 / 0.24));
   overflow: hidden; /* 둥근 모서리 안으로 내용을 자른다 — 스크롤은 .modal-body가 담당 */

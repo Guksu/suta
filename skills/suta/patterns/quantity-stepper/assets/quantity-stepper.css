@@ -11,7 +11,7 @@
   height: var(--_h);
   border: 1px solid var(--qty-border, #d4d4d4);
   border-radius: var(--qty-radius, 10px);
-  background: var(--qty-bg, #fff);
+  background: var(--qty-bg, var(--color-surface, #fff));
   color: var(--qty-color, var(--color-text, #1c1c1c));
   overflow: hidden;
 }

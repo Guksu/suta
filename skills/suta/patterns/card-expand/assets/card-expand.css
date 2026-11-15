@@ -104,7 +104,7 @@
   position: absolute;
   inset: 0;
   overflow: clip;
-  background: var(--card-expand-bg, #fff);
+  background: var(--card-expand-bg, var(--color-surface, #fff));
   /* 상세 화면은 목록 위에 뜬다 */
   z-index: 1;
 }

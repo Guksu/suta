@@ -121,7 +121,7 @@ document.querySelector('#menu').addEventListener('click', (event) => {
 | 화면 가장자리 여백 | `padding` (`placeMenu` 옵션) | 8px |
 | 너비 | `--menu-min-width`·`--menu-max-width` | 11rem / 화면 폭 - 16px |
 | 최대 높이 | `--menu-max-height` | 화면 높이 - 16px |
-| 색 | `--menu-bg`·`--menu-color`·`--menu-border`·`--menu-active-bg`·`--menu-danger` | 흰색 / 거의 검정 / 회색 / 연회색 / 빨강 |
+| 색 | `--menu-bg`·`--menu-color`·`--menu-border`·`--menu-active-bg`·`--menu-danger` | 면 토큰 `--color-surface`(없으면 흰색) / 글자 토큰 `--color-text`(없으면 거의 검정) / 회색 / 바탕 토큰 `--color-canvas`(없으면 연회색) / 빨강 |
 | 펼침 속도 | `--menu-duration` | 140ms |
 
 ## 함께 쓰는 패턴

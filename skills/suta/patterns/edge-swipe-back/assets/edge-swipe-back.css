@@ -1,4 +1,4 @@
-/* edge-swipe-back — 왼쪽 가장자리를 끌면 현재 화면이 밀리고 이전 화면이 따라 나온다.
+/* edge-swipe-back — 왼쪽 가장자리(dir="rtl"이면 오른쪽)를 끌면 현재 화면이 밀리고 이전 화면이 따라 나온다.
  * 커스터마이즈: --edge-shift(이전 화면이 물러나 있는 거리, 30%), --edge-dim(이전 화면 위 어둠, 0.4),
  *              --edge-screen-bg(현재 화면 배경 — 불투명해야 아래가 비치지 않는다).
  *
@@ -27,7 +27,7 @@
 /* 현재 화면 — 맨 위. 왼쪽 그림자가 "이전 화면 위에 떠 있다"는 깊이를 준다 */
 .edge-swipe-screen {
   z-index: 3;
-  background: var(--edge-screen-bg, #fff);
+  background: var(--edge-screen-bg, var(--color-surface, #fff));
   box-shadow: -8px 0 24px rgba(0, 0, 0, 0.2);
   will-change: transform; /* motion-audit-ignore: will-change-global — 화면이 가장자리 드래그로 계속 끌리는 요소 */
 }
@@ -36,6 +36,16 @@
 .edge-swipe-underlay {
   z-index: 1;
   transform: translateX(calc(-1 * var(--_shift)));
+}
+
+/* 오른쪽에서 왼쪽으로 쓰는 화면: 가장자리가 오른쪽 끝이다. 이전 화면은 오른쪽에 물러나 있고, 그림자는 밀리는 화면의 오른쪽에 진다
+ * (코어가 같은 방향으로 쓴다 — createEdgeSwipe.ts의 flip) */
+.edge-swipe:dir(rtl) .edge-swipe-underlay {
+  transform: translateX(var(--_shift));
+}
+
+.edge-swipe:dir(rtl) .edge-swipe-screen {
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
 }
 
 /* 이전 화면 위 어둠 — 정지 상태에서 --edge-dim, 끌수록 걷힌다 */

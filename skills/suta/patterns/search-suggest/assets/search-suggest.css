@@ -13,7 +13,7 @@
   border: 1px solid var(--suggest-border, #d4d4d4);
   border-radius: var(--suggest-radius, 10px);
   padding: 0.75rem 1rem;
-  background: var(--suggest-bg, #fff);
+  background: var(--suggest-bg, var(--color-surface, #fff));
   color: var(--suggest-color, var(--color-text, #1c1c1c));
   font: inherit;
 }
@@ -42,7 +42,7 @@
   overscroll-behavior: contain;
   border: 1px solid var(--suggest-border, #d4d4d4);
   border-radius: var(--suggest-radius, 10px);
-  background: var(--suggest-bg, #fff);
+  background: var(--suggest-bg, var(--color-surface, #fff));
   box-shadow: var(--suggest-shadow, var(--shadow-raised, 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12)));
   transform-origin: top center;
   animation: suggest-drop var(--_duration) var(--_ease-out);

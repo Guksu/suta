@@ -36,7 +36,7 @@
   padding: 0.25rem;
   border: 1px solid var(--menu-border, var(--color-line, #e6e6e6));
   border-radius: var(--menu-radius, 12px);
-  background: var(--menu-bg, #fff);
+  background: var(--menu-bg, var(--color-surface, #fff));
   color: var(--menu-color, var(--color-text, #1c1c1c));
   box-shadow: var(--menu-shadow, var(--shadow-raised, 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.12)));
 }
@@ -71,13 +71,13 @@
 /* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다 */
 .menu-item:focus {
   outline: none;
-  background: var(--menu-active-bg, #f3f4f6);
+  background: var(--menu-active-bg, var(--color-canvas, #f3f3f3));
 }
 
 /* hover는 가리킬 수 있는 포인터에서만 — 터치에서는 누른 항목에 hover가 남는다 */
 @media (hover: hover) {
   .menu-item:hover {
-    background: var(--menu-active-bg, #f3f4f6);
+    background: var(--menu-active-bg, var(--color-canvas, #f3f3f3));
   }
 }
 
