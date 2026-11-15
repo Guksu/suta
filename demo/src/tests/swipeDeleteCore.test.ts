@@ -224,3 +224,69 @@ describe('createSwipeDelete — 축 잠금·스냅 열림·끝까지 밀기 판�
     })
   })
 })
+
+describe('createSwipeDelete — 오른쪽에서 왼쪽으로 쓰는 화면(dir="rtl")', () => {
+  let content: HTMLElement
+  let swipedOut: number
+  let openChanges: boolean[]
+  let destroy: (() => void) | undefined
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date', 'performance'] })
+    content = document.createElement('div')
+    content.style.direction = 'rtl'
+    document.body.appendChild(content)
+    swipedOut = 0
+    openChanges = []
+    const controller = createSwipeDelete({ content, actionWidth: 88, onOpenChange: (open) => openChanges.push(open), onSwipeOut: () => (swipedOut += 1) })
+    destroy = controller.destroy
+  })
+  afterEach(() => {
+    destroy?.()
+    vi.useRealTimers()
+    content.remove()
+  })
+
+  const drag = ({ from, to, steps = 4, msPerStep = 20 }: { from: number; to: number; steps?: number; msPerStep?: number }) => {
+    pointer({ el: content, type: 'pointerdown', x: from })
+    for (let i = 1; i <= steps; i += 1) {
+      vi.advanceTimersByTime(msPerStep)
+      pointer({ el: content, type: 'pointermove', x: from + ((to - from) * i) / steps })
+    }
+  }
+
+  it('액션이 왼쪽(글이 끝나는 쪽)에 있으므로 오른쪽으로 민다 — 손가락을 따라 양수로 간다', () => {
+    drag({ from: 100, to: 140 })
+    expect(content.style.transform).toBe('translateX(40px)')
+  })
+
+  it('왼쪽으로는 0을 넘지 못한다', () => {
+    drag({ from: 100, to: 40 })
+    expect(content.style.transform).toBe('translateX(0px)')
+  })
+
+  it('액션 폭의 절반을 넘겨 놓으면 +actionWidth에 열린다', () => {
+    drag({ from: 100, to: 160, msPerStep: 200 }) // 천천히 — 튕김으로 판정되지 않게
+    vi.advanceTimersByTime(200)
+    pointer({ el: content, type: 'pointerup', x: 160 })
+    expect(content.style.transform).toBe('translateX(88px)')
+    expect(openChanges).toEqual([true])
+  })
+
+  it('오른쪽으로 세게 튕기면 끝까지 밀려 삭제된다 — 내용은 오른쪽으로 빠진다', () => {
+    drag({ from: 100, to: 180, msPerStep: 10 })
+    pointer({ el: content, type: 'pointerup', x: 180 })
+    expect(swipedOut).toBe(1)
+    expect(content.style.transform).toBe('translateX(100%)')
+  })
+
+  it('열린 행을 왼쪽으로 튕기면 닫힌다', () => {
+    drag({ from: 100, to: 160, msPerStep: 200 })
+    vi.advanceTimersByTime(200)
+    pointer({ el: content, type: 'pointerup', x: 160 })
+    drag({ from: 160, to: 140, msPerStep: 10 })
+    pointer({ el: content, type: 'pointerup', x: 140 })
+    expect(content.style.transform).toBe('')
+    expect(openChanges).toEqual([true, false])
+  })
+})

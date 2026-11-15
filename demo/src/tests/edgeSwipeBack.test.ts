@@ -221,3 +221,66 @@ describe('createEdgeSwipe — CSS 변수를 기준값으로 읽는다', () => {
     container.remove()
   })
 })
+
+describe('createEdgeSwipe — 오른쪽에서 왼쪽으로 쓰는 화면(dir="rtl")', () => {
+  let container: HTMLElement
+  let screen: HTMLElement
+  let underlay: HTMLElement
+  let dim: HTMLElement
+  let backs: number
+  let destroy: (() => void) | undefined
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'] })
+    container = document.createElement('div')
+    container.style.direction = 'rtl'
+    underlay = document.createElement('div')
+    dim = document.createElement('div')
+    screen = document.createElement('div')
+    container.append(underlay, dim, screen)
+    document.body.appendChild(container)
+    container.getBoundingClientRect = () => ({ left: 0, top: 0, right: 400, width: 400, height: 600 }) as DOMRect
+    backs = 0
+    const controller = createEdgeSwipe({ container, screen, underlay, dim, canGoBack: () => true, onBack: () => (backs += 1) })
+    destroy = controller.destroy
+  })
+  afterEach(() => {
+    destroy?.()
+    destroy = undefined
+    vi.useRealTimers()
+    container.remove()
+  })
+
+  it('가장자리는 오른쪽 끝이다 — 왼쪽 끝에서 시작한 끌기는 무시한다', () => {
+    pointer({ el: container, type: 'pointerdown', x: 10, t: 0 })
+    pointer({ el: container, type: 'pointermove', x: 110, t: 16 })
+    expect(screen.style.transform).toBe('')
+  })
+
+  it('오른쪽 끝을 왼쪽으로 끌면 현재 화면이 왼쪽으로 밀리고 이전 화면은 오른쪽에서 따라 나온다', () => {
+    pointer({ el: container, type: 'pointerdown', x: 390, t: 0 })
+    pointer({ el: container, type: 'pointermove', x: 290, t: 16 }) // 100 / 400 → 0.25
+    expect(screen.style.transform).toBe('translateX(-100px)')
+    expect(underlay.style.transform).toBe('translateX(22.5%)')
+    expect(Number(dim.style.opacity)).toBeCloseTo(0.3)
+  })
+
+  it('왼쪽으로 빠르게 던지면 커밋된다', () => {
+    pointer({ el: container, type: 'pointerdown', x: 390, t: 0 })
+    pointer({ el: container, type: 'pointermove', x: 350, t: 16 })
+    pointer({ el: container, type: 'pointermove', x: 300, t: 32 })
+    pointer({ el: container, type: 'pointerup', x: 300, t: 40 })
+    vi.advanceTimersByTime(2000)
+    expect(backs).toBe(1)
+    expect(screen.style.transform).toBe('')
+  })
+
+  it('끌다가 오른쪽으로 튕기면(되돌리는 손짓) 취소된다', () => {
+    pointer({ el: container, type: 'pointerdown', x: 390, t: 0 })
+    pointer({ el: container, type: 'pointermove', x: 150, t: 100 }) // 진행도 0.6 — 거리로는 커밋
+    pointer({ el: container, type: 'pointermove', x: 190, t: 116 }) // 오른쪽으로 되돌림
+    pointer({ el: container, type: 'pointerup', x: 190, t: 120 })
+    vi.advanceTimersByTime(2000)
+    expect(backs).toBe(0)
+  })
+})

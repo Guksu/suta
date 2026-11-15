@@ -12,6 +12,9 @@ import { isEdgeStart, progressFrom, shouldCommit, underlayFrame } from './edgeSw
  * 드래그 중에만 transition을 끄고 프레임마다 직접 쓴다. 놓은 뒤 이동은 CSS transition이 아니라 JS 스프링이다 —
  * 놓는 순간의 손가락 속도를 이어받아야 "던진 대로" 움직이기 때문이다.
  *
+ * 오른쪽에서 왼쪽으로 쓰는 화면(dir="rtl")에서는 가장자리가 오른쪽 끝이고 왼쪽으로 끈다. 뒤로 가는 방향이 글의 시작 쪽이기 때문이다.
+ * 판정은 모두 "뒤로 가는 쪽이 양수"인 좌표로 하고, 화면에 쓸 때만 부호를 뒤집는다(flip).
+ *
  * 스타일의 기준값(shift·dim)은 CSS 변수(--edge-shift·--edge-dim)를 읽는다 — CSS가 정본이고 JS는 따라간다.
  * 옵션으로 주면 옵션이 이긴다.
  */
@@ -52,6 +55,12 @@ const STALE_MS = 80
 /** 진행도(0~1)용 정착 기준 — px 기본값(0.1)은 너무 거칠다 */
 const PROGRESS_REST: SpringConfig = { restDelta: 0.001, restVelocity: 0.01 }
 
+/** 글이 오른쪽에서 왼쪽으로 흐르는가 — 계산된 direction이 정본이다. 스타일 계산이 상속을 주지 않는 환경(jsdom)에서는 가장 가까운 dir 속성을 본다 */
+const isRtl = (el: Element) => {
+  const computed = getComputedStyle(el).direction
+  return computed ? computed === 'rtl' : el.closest('[dir]')?.getAttribute('dir') === 'rtl'
+}
+
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -91,12 +100,16 @@ export const createEdgeSwipe = ({
   let dimRatio = 0.4
   let progress = 0
   let handle: SpringHandle | null = null
+  /** 화면 좌표 → 판정 좌표의 부호. 왼쪽 끝에서 끄는 화면은 1, dir="rtl"은 -1. 누를 때마다 다시 읽는다 */
+  let flip: 1 | -1 = 1
 
   const write = (next: number) => {
     progress = next
     const frame = underlayFrame({ progress: next, shift: shiftRatio, dim: dimRatio })
-    screen.style.transform = `translateX(${next * width}px)`
-    if (underlay) underlay.style.transform = `translateX(${frame.translateXPercent}%)`
+    // 0에 부호를 곱해 -0이 되지 않게 한다(문자열로 쓰면 "-0px"가 된다)
+    const signed = (value: number) => (value === 0 ? 0 : value * flip)
+    screen.style.transform = `translateX(${signed(next * width)}px)`
+    if (underlay) underlay.style.transform = `translateX(${signed(frame.translateXPercent)}%)`
     if (dim) dim.style.opacity = String(frame.dimOpacity)
   }
 
@@ -166,7 +179,12 @@ export const createEdgeSwipe = ({
     if (event.button !== 0 || !canGoBack()) return
     if (dragging) return // 끄는 중에 닿은 다른 손가락
     const rect = container.getBoundingClientRect()
-    if (!isEdgeStart({ x: event.clientX - rect.left, edgeWidth: options.edgeWidth })) return
+    const rtl = isRtl(container)
+    // 가장자리에서 잰 거리 — dir="rtl"이면 오른쪽 끝에서 잰다
+    const fromEdge = rtl ? rect.left + rect.width - event.clientX : event.clientX - rect.left
+    if (!isEdgeStart({ x: fromEdge, edgeWidth: options.edgeWidth })) return
+    // 복귀 스프링이 도는 중에 다시 잡으면 그 스프링은 아래에서 멈춘다 — 방향은 여기서 한 번만 정한다
+    flip = rtl ? -1 : 1
     // 진행 중인 스프링(취소 복귀 등)은 멈추고 그 자리에서 이어 잡는다
     handle?.stop()
     handle = null
@@ -176,7 +194,7 @@ export const createEdgeSwipe = ({
     dragging = true
     axis = 'none'
     pointerId = event.pointerId
-    startX = event.clientX - progress * width
+    startX = event.clientX - progress * width * flip
     startY = event.clientY
     lastX = event.clientX
     lastTime = event.timeStamp
@@ -190,7 +208,7 @@ export const createEdgeSwipe = ({
 
   const onPointerMove = (event: PointerEvent) => {
     if (!dragging || !isOurPointer(event)) return
-    const dx = event.clientX - startX
+    const dx = (event.clientX - startX) * flip
     const dy = event.clientY - startY
 
     if (axis === 'none') {
@@ -213,7 +231,7 @@ export const createEdgeSwipe = ({
     }
 
     const dt = event.timeStamp - lastTime
-    if (dt > 0) velocity = (event.clientX - lastX) / dt
+    if (dt > 0) velocity = ((event.clientX - lastX) * flip) / dt
     lastX = event.clientX
     lastTime = event.timeStamp
     write(progressFrom({ dx, width }))

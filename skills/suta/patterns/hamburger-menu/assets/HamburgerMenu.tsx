@@ -32,8 +32,9 @@ type DrawerProps = {
   open: boolean
   onClose: () => void
   children: ReactNode
-  /** 나오는 방향 (기본 left) */
-  side?: 'left' | 'right'
+  /** 나오는 쪽 (기본 start). start·end는 글의 방향을 따른다 — start는 왼쪽, dir="rtl"이면 오른쪽.
+   *  left·right는 글의 방향과 무관하게 그쪽에서 나온다 */
+  side?: 'start' | 'end' | 'left' | 'right'
   /** 스크린 리더가 읽을 드로어 이름 (예: "전체 메뉴"). 드로어 안에 제목이 보이면 labelledBy를 쓴다 */
   label?: string
   /** 드로어 안 제목 요소의 id — 보이는 제목이 곧 드로어 이름이 된다 */
@@ -59,7 +60,7 @@ export const Drawer = ({
   open,
   onClose,
   children,
-  side = 'left',
+  side = 'start',
   label,
   labelledBy,
   closeAboveWidth,

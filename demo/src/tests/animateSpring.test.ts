@@ -50,3 +50,47 @@ describe('animateSpring — rAF 재생·재타게팅·중단', () => {
     expect(values.at(-1)).toBe(50)
   })
 })
+
+describe('animateSpring — 끝나지 않는 스프링을 끝낸다', () => {
+  beforeEach(() => vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'] }))
+  afterEach(() => vi.useRealTimers())
+
+  it('속도가 NaN이어도 프레임이 끝없이 돌지 않는다 — 목표에 놓고 onComplete를 한 번 부른다', () => {
+    const values: number[] = []
+    const onComplete = vi.fn()
+    animateSpring({ from: 100, to: 0, velocity: Number.NaN, onUpdate: (v) => values.push(v), onComplete })
+    vi.advanceTimersByTime(200)
+    expect(values.every(Number.isFinite)).toBe(true)
+    expect(values.at(-1)).toBe(0)
+    expect(onComplete).toHaveBeenCalledTimes(1)
+    const count = values.length
+    vi.advanceTimersByTime(2000)
+    expect(values.length).toBe(count)
+  })
+
+  it('감쇠가 0이라 영영 흔들리는 스프링은 10초에서 목표에 놓고 끝낸다', () => {
+    const values: number[] = []
+    const onComplete = vi.fn()
+    animateSpring({ from: 100, to: 0, config: { damping: 0 }, onUpdate: (v) => values.push(v), onComplete })
+    vi.advanceTimersByTime(9000)
+    expect(onComplete).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1500)
+    expect(onComplete).toHaveBeenCalledTimes(1)
+    expect(values.at(-1)).toBe(0)
+    const count = values.length
+    vi.advanceTimersByTime(2000)
+    expect(values.length).toBe(count)
+  })
+
+  it('NaN 목표로 retarget해도 지금 자리에 멈추고 끝난다', () => {
+    const values: number[] = []
+    const onComplete = vi.fn()
+    const handle = animateSpring({ from: 100, to: 0, onUpdate: (v) => values.push(v), onComplete })
+    vi.advanceTimersByTime(80)
+    handle.retarget(Number.NaN)
+    vi.advanceTimersByTime(200)
+    expect(values.every(Number.isFinite)).toBe(true)
+    expect(Number.isFinite(handle.current().value)).toBe(true)
+    expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+})

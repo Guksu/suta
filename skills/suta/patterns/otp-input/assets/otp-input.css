@@ -20,7 +20,7 @@
   height: calc(var(--_size) * 1.2);
   border: 1.5px solid var(--otp-border, #d4d4d4);
   border-radius: var(--otp-radius, 10px);
-  background: var(--otp-bg, #fff);
+  background: var(--otp-bg, var(--color-surface, #fff));
   color: var(--otp-color, var(--color-text, #1c1c1c));
   font: inherit;
   font-size: calc(var(--_size) * 0.5);

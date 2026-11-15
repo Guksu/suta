@@ -98,7 +98,7 @@ document.getElementById('open').addEventListener('click', () => dialog.showModal
 |------|------|
 | 속도 | `--modal-duration` (기본 240ms — 닫힘은 자동으로 0.75배, 퇴장은 진입보다 짧게) |
 | 크기 | `--modal-width`(min(420px, 100vw-32px)), 높이는 내용 기준·최대 80vh |
-| 배경·모서리 | `--modal-bg`, `--modal-radius`(16px), `--modal-backdrop`(rgba 0.55) |
+| 배경·모서리 | `--modal-bg`(기본은 면 토큰 `--color-surface`, 없으면 흰색), `--modal-radius`(16px), `--modal-backdrop`(rgba 0.55) |
 | 진입 방향 | `modal-in` 키프레임의 `translateY(12px)` — 아래에서 떠오름. 위에서 내려오게 하려면 음수로 |
 
 ## 함께 쓰는 패턴

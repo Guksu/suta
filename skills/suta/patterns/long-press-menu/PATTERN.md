@@ -119,7 +119,7 @@ window.addEventListener('scroll', () => setOpen(false), true)
 | 떠오름·등장 속도 | `--lpm-duration` (기본 220ms, 이징 `cubic-bezier(0.22, 1, 0.36, 1)` 내장) |
 | 뒤 흐림 강도 | `--lpm-blur` (기본 12px — 0이면 어둡게만 됨) |
 | 백드롭 색 | `--lpm-tint` (기본 검정 35%) |
-| 메뉴 배경·모서리·글자색 | `--lpm-menu-bg`·`--lpm-radius`·`--lpm-menu-color` |
+| 메뉴 배경·모서리·글자색 | `--lpm-menu-bg`(기본은 면 토큰 `--color-surface`의 92%, 없으면 흰색)·`--lpm-radius`·`--lpm-menu-color`(기본 `--color-text`). 가리킨 항목은 글자색을 8%로 깔아 어두운 면에서도 보인다(`--lpm-menu-active-bg`) |
 | 떠오른 항목 그림자 | `--lpm-lift-shadow` |
 | 붉은 항목 색 | `--lpm-destructive` |
 | 메뉴 간격·여백 | `placeContextMenu`의 `gap`·`padding` (기본 8px) |
@@ -141,7 +141,7 @@ window.addEventListener('scroll', () => setOpen(false), true)
 - 안드로이드는 터치 길게누르기에도 `contextmenu`를 만든다. 코어가 타이머 발화 직후의 contextmenu를 무시해 두 번 열리지 않는다 — `delayMs`를 브라우저 기본(약 500ms)보다 길게 잡으면 우리 타이머 대신 contextmenu 경로로 먼저 열리는데, 결과는 같다.
 - `backdrop-filter`는 비싸다. 열린 동안 한 장뿐이라 괜찮지만, `--lpm-blur`를 애니메이션하지 마라(등장은 opacity만 움직인다).
 - 열린 채 스크롤되면 메뉴가 항목을 따라가지 않고 닫힌다(iOS도 그렇다). 따라다니게 하려면 `scroll` 리스너에서 닫는 대신 `placeContextMenu`를 다시 부른다.
-- 메뉴는 항목의 왼쪽 선에 맞춘다. `dir="rtl"`에서도 왼쪽 선이다. 글자 정렬만 `text-align: start`로 따라간다.
+- 메뉴는 항목의 글이 시작하는 쪽 선에 맞춘다. 왼쪽에서 오른쪽으로 쓰는 화면에서는 왼쪽 선, `dir="rtl"` 화면에서는 오른쪽 선이고 그 모서리에서 자라 나온다(`data-align`). `placeContextMenu`를 직접 쓰면 `align: 'end'`를 넘긴다.
 - 글자로 항목 찾기(첫 글자를 눌러 이동)는 들어 있지 않다. 항목이 몇 개뿐인 메뉴를 전제한다.
 - **reduced-motion 대응 내장** — 떠오르는 스케일과 메뉴의 커지는 이동을 끄고 페이드만 남긴다. 블록 제거 금지.
 - 포커스 트랩은 없다. 메뉴는 Tab으로 빠져나가면 닫힌다 — 메뉴 항목이 몇 개뿐인 액션 메뉴에는 그것이 관례다.

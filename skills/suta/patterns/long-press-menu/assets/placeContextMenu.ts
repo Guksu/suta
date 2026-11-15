@@ -2,7 +2,7 @@
  * 길게 누르기 메뉴 위치 계산 (의존성 0, DOM 없음).
  *
  * 떠오른 항목 바로 아래, 항목의 왼쪽 선에 맞춰 붙이는 것이 기본이다(iOS 관례 —
- * 메뉴가 항목에서 자라 나온 것처럼 보인다). 화면 아래쪽 항목이면 위로 뒤집고,
+ * 메뉴가 항목에서 자라 나온 것처럼 보인다). 오른쪽에서 왼쪽으로 쓰는 화면에서는 오른쪽 선에 맞춘다(align: 'end'). 화면 아래쪽 항목이면 위로 뒤집고,
  * 좌우로 넘치면 화면 안쪽으로 밀어 넣는다. 반환한 side는 CSS가 등장 방향
  * (transform-origin)을 정하는 데 쓴다.
  *
@@ -21,6 +21,8 @@ type PlaceContextMenuInput = {
   gap?: number
   /** 화면 가장자리에서 최소한 띄울 여백 (기본 8) */
   padding?: number
+  /** start = 항목의 왼쪽 선에 맞춤, end = 오른쪽 선에 맞춤 (기본 start). 오른쪽에서 왼쪽으로 쓰는 화면이면 end를 준다 */
+  align?: 'start' | 'end'
 }
 
 export type ContextMenuPlacement = {
@@ -32,7 +34,7 @@ export type ContextMenuPlacement = {
 
 const clamp = ({ value, min, max }: { value: number; min: number; max: number }) => Math.min(Math.max(value, min), max)
 
-export const placeContextMenu = ({ anchor, menu, viewport, gap = 8, padding = 8 }: PlaceContextMenuInput): ContextMenuPlacement => {
+export const placeContextMenu = ({ anchor, menu, viewport, gap = 8, padding = 8, align = 'start' }: PlaceContextMenuInput): ContextMenuPlacement => {
   const below = anchor.top + anchor.height + gap
   const above = anchor.top - gap - menu.height
 
@@ -47,7 +49,7 @@ export const placeContextMenu = ({ anchor, menu, viewport, gap = 8, padding = 8 
 
   return {
     top: clamp({ value: side === 'bottom' ? below : above, min: padding, max: maxTop }),
-    left: clamp({ value: anchor.left, min: padding, max: maxLeft }),
+    left: clamp({ value: align === 'end' ? anchor.left + anchor.width - menu.width : anchor.left, min: padding, max: maxLeft }),
     side,
   }
 }

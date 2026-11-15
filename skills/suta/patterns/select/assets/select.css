@@ -6,7 +6,7 @@
 
 .select {
   --_duration: var(--select-duration, 200ms);
-  --_bg: var(--select-bg, #fff);
+  --_bg: var(--select-bg, var(--color-surface, #fff));
   --_border: var(--select-border, #d4d4d4);
   position: relative; /* 패널의 offsetParent — 트리거 기준 좌표계를 만든다 */
   display: inline-block;

@@ -193,3 +193,25 @@ describe('Drawer — 포커스·이름·넓은 화면·뒤로 가기', () => {
     expect(button).toHaveAttribute('aria-expanded', 'false')
   })
 })
+
+describe('Drawer — 나오는 쪽', () => {
+  const mount = (side?: 'start' | 'end' | 'left' | 'right') =>
+    render(
+      <Drawer open onClose={() => {}} side={side}>
+        <a href="#menu">면 메뉴</a>
+      </Drawer>,
+    )
+
+  it('기본은 글이 시작하는 쪽(start)이다 — 방향은 CSS가 dir을 보고 정한다', () => {
+    mount()
+    expect(screen.getByRole('dialog')).toHaveAttribute('data-side', 'start')
+  })
+
+  it('end·left·right를 그대로 넘긴다', () => {
+    for (const side of ['end', 'left', 'right'] as const) {
+      const { unmount } = mount(side)
+      expect(screen.getByRole('dialog')).toHaveAttribute('data-side', side)
+      unmount()
+    }
+  })
+})

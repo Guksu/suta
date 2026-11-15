@@ -176,26 +176,26 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | Pattern | What it does | Demo |
 |---|---|---|
 | [Enter/exit animation](../skills/suta/patterns/enter-exit/PATTERN.md) | CSS animations when an element appears or disappears | [Demo](https://guksu.github.io/suta/#/enter-exit) |
-| [Scroll reveal](../skills/suta/patterns/scroll-reveal/PATTERN.md) | Content appears in sequence as you scroll | [Demo](https://guksu.github.io/suta/#/scroll-reveal) |
-| [Sticky header transition](../skills/suta/patterns/sticky-header/PATTERN.md) | When the large title scrolls away, the fixed header shows a small title | [Demo](https://guksu.github.io/suta/#/sticky-header) |
+| [Scroll reveal](../skills/suta/patterns/scroll-reveal/PATTERN.md) | Reveals content in turn as you scroll. Elements taller than the viewport or already scrolled past are not left hidden, and everything shows in print | [Demo](https://guksu.github.io/suta/#/scroll-reveal) |
+| [Sticky header transition](../skills/suta/patterns/sticky-header/PATTERN.md) | Shows a small title in the fixed header once the large title scrolls away. Accepts a scroll container (`root`) and lands without motion when the page starts mid-scroll | [Demo](https://guksu.github.io/suta/#/sticky-header) |
 | [List reorder (FLIP)](../skills/suta/patterns/flip-list/PATTERN.md) | Items move smoothly when the list order changes | [Demo](https://guksu.github.io/suta/#/flip-list) |
-| [Zoom lightbox](../skills/suta/patterns/zoom-lightbox/PATTERN.md) | Opens by scaling from the thumbnail position to the center of the screen | [Demo](https://guksu.github.io/suta/#/zoom-lightbox) |
-| [Modal dialog](../skills/suta/patterns/modal-dialog/PATTERN.md) | Open and close on the native `<dialog>`, with Esc key and focus handling | [Demo](https://guksu.github.io/suta/#/modal-dialog) |
-| [Spring physics motion](../skills/suta/patterns/spring-physics/PATTERN.md) | Motion that carries drag velocity and settles like a spring | [Demo](https://guksu.github.io/suta/#/spring-physics) |
-| [Dark mode toggle](../skills/suta/patterns/theme-toggle/PATTERN.md) | Circular theme transition from the press point, saves the choice and follows the device setting | [Demo](https://guksu.github.io/suta/#/theme-toggle) |
+| [Zoom lightbox](../skills/suta/patterns/zoom-lightbox/PATTERN.md) | Opens by zooming from the thumbnail to the center of the screen. Moves, traps and restores focus; can close on the back button (`closeOnBack`) | [Demo](https://guksu.github.io/suta/#/zoom-lightbox) |
+| [Modal dialog](../skills/suta/patterns/modal-dialog/PATTERN.md) | Open and close on the native `<dialog>`, with Esc and focus handling; can close on the back button (`closeOnBack`) | [Demo](https://guksu.github.io/suta/#/modal-dialog) |
+| [Spring physics motion](../skills/suta/patterns/spring-physics/PATTERN.md) | Spring motion that carries the drag velocity. With reduced motion on it jumps to the target; reports when it comes to rest (`onRest`). It still ends on non-numeric input or a setting that never settles | [Demo](https://guksu.github.io/suta/#/spring-physics) |
+| [Dark mode toggle](../skills/suta/patterns/theme-toggle/PATTERN.md) | Switches theme in a circle from where you pressed, stores the choice and follows the device setting. Other tabs and other toggles on the page stay in sync | [Demo](https://guksu.github.io/suta/#/theme-toggle) |
 | [Stretchy image header](../skills/suta/patterns/stretchy-header/PATTERN.md) | Large image header scrolls at a slower rate and darkens, and stretches then snaps back when pulled at the top | [Demo](https://guksu.github.io/suta/#/stretchy-header) |
-| [Card expand](../skills/suta/patterns/card-expand/PATTERN.md) | Shared-element transition: the pressed card grows in place into a detail screen and shrinks back on close | [Demo](https://guksu.github.io/suta/#/card-expand) |
+| [Card expand](../skills/suta/patterns/card-expand/PATTERN.md) | A shared-element transition: the pressed card grows in place into the detail screen and shrinks back on close. Traps focus and can close on the back button (`closeOnBack`) | [Demo](https://guksu.github.io/suta/#/card-expand) |
 | [Card stack](../skills/suta/patterns/card-stack/PATTERN.md) | Stacked cards fan out vertically on press; the chosen card moves to the top and the rest fold beneath it | [Demo](https://guksu.github.io/suta/#/card-stack) |
 
 ### While waiting
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Skeleton shimmer](../skills/suta/patterns/skeleton/PATTERN.md) | Placeholder bones with a shimmer that hold the content area while loading | [Demo](https://guksu.github.io/suta/#/skeleton) |
-| [Count-up numbers](../skills/suta/patterns/count-up/PATTERN.md) | Balances, points and other numbers step toward a target value | [Demo](https://guksu.github.io/suta/#/count-up) |
-| [Story progress](../skills/suta/patterns/story-progress/PATTERN.md) | Story progress bars, long-press to pause, tap to move | [Demo](https://guksu.github.io/suta/#/story-progress) |
-| [Loading button](../skills/suta/patterns/loading-button/PATTERN.md) | Shows sending and done states and prevents duplicate submits | [Demo](https://guksu.github.io/suta/#/loading-button) |
-| [Infinite scroll](../skills/suta/patterns/infinite-scroll/PATTERN.md) | Loads the next page before the end of the list and prevents duplicate items | [Demo](https://guksu.github.io/suta/#/infinite-scroll) |
+| [Skeleton shimmer](../skills/suta/patterns/skeleton/PATTERN.md) | Placeholder shapes with a shimmer while content loads. Not shown when the response arrives within 200ms, and kept for at least 400ms once shown (`createSkeletonGate`) | [Demo](https://guksu.github.io/suta/#/skeleton) |
+| [Count-up numbers](../skills/suta/patterns/count-up/PATTERN.md) | Counts a number such as a balance or points up to its target. If the value changes mid-count it continues from the number on screen; only the final value is announced | [Demo](https://guksu.github.io/suta/#/count-up) |
+| [Story progress](../skills/suta/patterns/story-progress/PATTERN.md) | Story progress bars, hold to pause, tap to move. Time does not advance while the tab is hidden | [Demo](https://guksu.github.io/suta/#/story-progress) |
+| [Loading button](../skills/suta/patterns/loading-button/PATTERN.md) | Shows sending and done states and prevents double submits. Pressing again during the failure state retries at once | [Demo](https://guksu.github.io/suta/#/loading-button) |
+| [Infinite scroll](../skills/suta/patterns/infinite-scroll/PATTERN.md) | Loads the next page before the end of the list and prevents duplicates. Retries on failure; `reset()` refills the list from the start | [Demo](https://guksu.github.io/suta/#/infinite-scroll) |
 | [Virtual list](../skills/suta/patterns/virtual-list/PATTERN.md) | Renders mainly the visible items to handle long lists | [Demo](https://guksu.github.io/suta/#/virtual-list) |
 | [Progress ring](../skills/suta/patterns/progress-ring/PATTERN.md) | SVG circle fills by value; three nested rings, over-target display, indeterminate loading | [Demo](https://guksu.github.io/suta/#/progress-ring) |
 
@@ -203,23 +203,23 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Press feedback](../skills/suta/patterns/press-feedback/PATTERN.md) | Shrinks on press and restores on release | [Demo](https://guksu.github.io/suta/#/press-feedback) |
-| [Toast stack](../skills/suta/patterns/toast-stack/PATTERN.md) | Stacks multiple notifications at the bottom or top banner position and closes each after its own duration | [Demo](https://guksu.github.io/suta/#/toast-stack) |
-| [Like pop](../skills/suta/patterns/like-pop/PATTERN.md) | Pop effect on heart click or photo double-tap | [Demo](https://guksu.github.io/suta/#/like-pop) |
+| [Press feedback](../skills/suta/patterns/press-feedback/PATTERN.md) | Shrinks on press and springs back on release. Disabled elements do not react, and an outer card stays still while an inner button is pressed | [Demo](https://guksu.github.io/suta/#/press-feedback) |
+| [Toast stack](../skills/suta/patterns/toast-stack/PATTERN.md) | Stacks notifications at the bottom or top and closes each after its time. Long text wraps, and each toast can set its own duration (`durationMs`) | [Demo](https://guksu.github.io/suta/#/toast-stack) |
+| [Like pop](../skills/suta/patterns/like-pop/PATTERN.md) | A pop effect for heart clicks and double taps on a photo. Does not pop on first render, and the like count is part of the button name | [Demo](https://guksu.github.io/suta/#/like-pop) |
 | [Celebration overlay](../skills/suta/patterns/celebration/PATTERN.md) | A one-time celebration over the current screen when a goal or badge is reached | [Demo](https://guksu.github.io/suta/#/celebration) |
-| [Cart fly](../skills/suta/patterns/cart-fly/PATTERN.md) | Product flies into the cart icon | [Demo](https://guksu.github.io/suta/#/cart-fly) |
-| [Tooltip](../skills/suta/patterns/tooltip/PATTERN.md) | Shows on mouse or keyboard input and positions by available space | [Demo](https://guksu.github.io/suta/#/tooltip) |
+| [Cart fly](../skills/suta/patterns/cart-fly/PATTERN.md) | Flies the product toward the cart icon. When the target is missing or hidden it skips the flight and counts the item at once | [Demo](https://guksu.github.io/suta/#/cart-fly) |
+| [Tooltip](../skills/suta/patterns/tooltip/PATTERN.md) | Shows for mouse and keyboard, flipping or shifting to fit the space. The bubble can be hovered and closes with Esc. Does not open on touch | [Demo](https://guksu.github.io/suta/#/tooltip) |
 | [Form shake error](../skills/suta/patterns/form-shake-error/PATTERN.md) | Shakes fields with input errors and shows the error message | [Demo](https://guksu.github.io/suta/#/form-shake-error) |
 
 ### Navigation
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Tab indicator slide](../skills/suta/patterns/tab-indicator/PATTERN.md) | Underline slides smoothly to the selected tab | [Demo](https://guksu.github.io/suta/#/tab-indicator) |
-| [Snap carousel](../skills/suta/patterns/carousel/PATTERN.md) | Slider that snaps to card boundaries when swiped sideways | [Demo](https://guksu.github.io/suta/#/carousel) |
-| [Hamburger menu](../skills/suta/patterns/hamburger-menu/PATTERN.md) | Morphs the menu icon into a close icon and shows the panel | [Demo](https://guksu.github.io/suta/#/hamburger-menu) |
-| [Page transition](../skills/suta/patterns/page-transition/PATTERN.md) | Keeps the header and tab bar while transitioning screens in the direction of navigation | [Demo](https://guksu.github.io/suta/#/page-transition) |
-| [Dropdown menu](../skills/suta/patterns/dropdown-menu/PATTERN.md) | Action menu that repositions to fit the space and moves with arrow keys and first-letter typing | [Demo](https://guksu.github.io/suta/#/dropdown-menu) |
+| [Tab indicator slide](../skills/suta/patterns/tab-indicator/PATTERN.md) | The underline slides to the selected tab. Overflowing tabs scroll the selected one into view (`revealTab`); arrow keys move between tabs | [Demo](https://guksu.github.io/suta/#/tab-indicator) |
+| [Snap carousel](../skills/suta/patterns/carousel/PATTERN.md) | A slider that snaps card by card. Autoplay stops when the tab is hidden or the user interacts | [Demo](https://guksu.github.io/suta/#/carousel) |
+| [Hamburger menu](../skills/suta/patterns/hamburger-menu/PATTERN.md) | Turns the menu icon into a close icon and shows a panel. Moves, traps and restores focus; closes on wide screens (`closeAboveWidth`) and on the back button (`closeOnBack`). The side it opens from follows the text direction (`side="start"`) | [Demo](https://guksu.github.io/suta/#/hamburger-menu) |
+| [Page transition](../skills/suta/patterns/page-transition/PATTERN.md) | Transitions screens by direction while the header and tab bar stay. Can follow the browser back and forward buttons (`syncHistory`) and moves focus to the new screen | [Demo](https://guksu.github.io/suta/#/page-transition) |
+| [Dropdown menu](../skills/suta/patterns/dropdown-menu/PATTERN.md) | An action menu that repositions to fit and moves by arrow keys or first letter (Korean initial consonants included). It opens in the browser's top layer, so an ancestor's `overflow` cannot clip it | [Demo](https://guksu.github.io/suta/#/dropdown-menu) |
 | [Scroll-aware glass nav](../skills/suta/patterns/glass-nav/PATTERN.md) | Transparent at the top, glass once scrolled; hides on scroll down and returns on scroll up, or collapses into a single pill. Links scroll to their section and the active pill follows | [Demo](https://guksu.github.io/suta/#/glass-nav) |
 | [Bottom tab bar](../skills/suta/patterns/bottom-nav/PATTERN.md) | Fixed bottom navigation for 4–5 top-level screens: count badges and dots, hidden on detail screens and while typing, clear of the home indicator | [Demo](https://guksu.github.io/suta/#/bottom-nav) |
 
@@ -227,37 +227,37 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Bottom sheet](../skills/suta/patterns/bottom-sheet/PATTERN.md) | Opens a sheet from the bottom; drag to resize or close | [Demo](https://guksu.github.io/suta/#/bottom-sheet) |
+| [Bottom sheet](../skills/suta/patterns/bottom-sheet/PATTERN.md) | Opens a sheet from the bottom; drag to resize or close. Moves, traps and restores focus, has an inner scroll area (`.sheet-scroll`) and can close on the back button (`closeOnBack`) | [Demo](https://guksu.github.io/suta/#/bottom-sheet) |
 | [Pull to refresh](../skills/suta/patterns/pull-to-refresh/PATTERN.md) | Pull the top of the list to refresh, with resistance | [Demo](https://guksu.github.io/suta/#/pull-to-refresh) |
-| [Swipe to delete](../skills/suta/patterns/swipe-to-delete/PATTERN.md) | Swipe sideways to reveal action buttons (a single delete, or several: archive, later, delete); swiping all the way runs the last action | [Demo](https://guksu.github.io/suta/#/swipe-to-delete) |
+| [Swipe to delete](../skills/suta/patterns/swipe-to-delete/PATTERN.md) | Swipe sideways to show action buttons (a single delete, or archive, later and delete); a full swipe runs the last action. Pressing the content of an open row closes it. In `dir="rtl"` screens the swipe goes the other way | [Demo](https://guksu.github.io/suta/#/swipe-to-delete) |
 | [Feed pinch zoom](../skills/suta/patterns/pinch-zoom/PATTERN.md) | Two-finger zoom on a photo, restores on release | [Demo](https://guksu.github.io/suta/#/pinch-zoom) |
-| [Swipe-dismiss viewer](../skills/suta/patterns/swipe-dismiss-viewer/PATTERN.md) | Drag a photo down to shrink and close it, returning to its original position | [Demo](https://guksu.github.io/suta/#/swipe-dismiss-viewer) |
-| [Drag to reorder](../skills/suta/patterns/drag-to-reorder/PATTERN.md) | Reorder a list by drag or arrow keys | [Demo](https://guksu.github.io/suta/#/drag-to-reorder) |
-| [Long-press menu](../skills/suta/patterns/long-press-menu/PATTERN.md) | Long-press or right-click lifts the item, blurs the background and shows an action menu beside it | [Demo](https://guksu.github.io/suta/#/long-press-menu) |
-| [Edge swipe back](../skills/suta/patterns/edge-swipe-back/PATTERN.md) | Drag from the left edge to pull in the previous screen; on release, distance and velocity decide whether to go back | [Demo](https://guksu.github.io/suta/#/edge-swipe-back) |
+| [Swipe-dismiss viewer](../skills/suta/patterns/swipe-dismiss-viewer/PATTERN.md) | Drag a photo down to shrink and close it back to where it came from. Focus moves to the close button on open and returns on close | [Demo](https://guksu.github.io/suta/#/swipe-dismiss-viewer) |
+| [Drag to reorder](../skills/suta/patterns/drag-to-reorder/PATTERN.md) | Reorder a list by dragging or with arrow keys. Esc or a cancelled gesture restores the original order | [Demo](https://guksu.github.io/suta/#/drag-to-reorder) |
+| [Long-press menu](../skills/suta/patterns/long-press-menu/PATTERN.md) | Long press or right-click lifts the item, blurs the rest and shows an action menu beside it. Also opens with Enter or Space, and items can be disabled | [Demo](https://guksu.github.io/suta/#/long-press-menu) |
+| [Edge swipe back](../skills/suta/patterns/edge-swipe-back/PATTERN.md) | Drag from the left edge (the right edge in `dir="rtl"`) to pull in the previous screen; on release, distance and velocity decide whether to go back | [Demo](https://guksu.github.io/suta/#/edge-swipe-back) |
 
 ### Input controls
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Custom select](../skills/suta/patterns/select/PATTERN.md) | Dropdown with keyboard control and screen reader support | [Demo](https://guksu.github.io/suta/#/select) |
-| [Accordion](../skills/suta/patterns/accordion/PATTERN.md) | Expand and collapse content with a CSS height transition | [Demo](https://guksu.github.io/suta/#/accordion) |
-| [Toggle switch](../skills/suta/patterns/switch/PATTERN.md) | On/off switch built on a native checkbox | [Demo](https://guksu.github.io/suta/#/switch) |
-| [Floating label input](../skills/suta/patterns/floating-label/PATTERN.md) | Moves the placeholder text to a top label based on input state | [Demo](https://guksu.github.io/suta/#/floating-label) |
-| [Checkbox · Radio](../skills/suta/patterns/checkbox-radio/PATTERN.md) | Animates the check mark and radio dot to match the selected state | [Demo](https://guksu.github.io/suta/#/checkbox-radio) |
-| [OTP input](../skills/suta/patterns/otp-input/PATTERN.md) | Moves between cells on type and delete, supports pasting a code | [Demo](https://guksu.github.io/suta/#/otp-input) |
-| [Segmented control](../skills/suta/patterns/segmented-control/PATTERN.md) | Pill background slides behind the selected segment, built on a native radio group | [Demo](https://guksu.github.io/suta/#/segmented-control) |
-| [Wheel picker](../skills/suta/patterns/wheel-picker/PATTERN.md) | Drum picker that scrolls vertically and snaps to the center cell, with 3D tilt, click and keyboard | [Demo](https://guksu.github.io/suta/#/wheel-picker) |
-| [Search suggestions](../skills/suta/patterns/search-suggest/PATTERN.md) | Searches when typing pauses and keeps stale responses from overwriting the latest results | [Demo](https://guksu.github.io/suta/#/search-suggest) |
-| [Range slider](../skills/suta/patterns/range-slider/PATTERN.md) | Range input with two handles for minimum and maximum | [Demo](https://guksu.github.io/suta/#/range-slider) |
-| [Quantity stepper](../skills/suta/patterns/quantity-stepper/PATTERN.md) | Adjust quantity with buttons, long-press to accelerate, switches to delete at the minimum | [Demo](https://guksu.github.io/suta/#/quantity-stepper) |
-| [File upload](../skills/suta/patterns/file-upload/PATTERN.md) | File drop, preview and progress display, rejection reasons | [Demo](https://guksu.github.io/suta/#/file-upload) |
+| [Custom select](../skills/suta/patterns/select/PATTERN.md) | A dropdown with keyboard and screen-reader support. Type-ahead, disabled options and a core that works without React (`createSelect`) | [Demo](https://guksu.github.io/suta/#/select) |
+| [Accordion](../skills/suta/patterns/accordion/PATTERN.md) | Expands and collapses content with a CSS height transition. Open state can be controlled from outside (`openIds`) and the heading level set (`headingLevel`) | [Demo](https://guksu.github.io/suta/#/accordion) |
+| [Toggle switch](../skills/suta/patterns/switch/PATTERN.md) | An on/off switch built on the native checkbox. 44px touch target, and the on state stays visible in forced-colors mode | [Demo](https://guksu.github.io/suta/#/switch) |
+| [Floating label input](../skills/suta/patterns/floating-label/PATTERN.md) | Moves the placeholder up into a label as the field is filled. Slots for helper and error text (`helperText`, `errorText`) and a disabled look | [Demo](https://guksu.github.io/suta/#/floating-label) |
+| [Checkbox · Radio](../skills/suta/patterns/checkbox-radio/PATTERN.md) | Animates the check mark and the radio dot with the selection. Indeterminate state (`indeterminate`) and an error border | [Demo](https://guksu.github.io/suta/#/checkbox-radio) |
+| [OTP input](../skills/suta/patterns/otp-input/PATTERN.md) | Moves between cells on input and delete and accepts a pasted code. A whole code arriving in one cell, as with SMS autofill, is split across the cells | [Demo](https://guksu.github.io/suta/#/otp-input) |
+| [Segmented control](../skills/suta/patterns/segmented-control/PATTERN.md) | A pill slides behind the selected segment, built on a native radio group. Individual segments can be disabled | [Demo](https://guksu.github.io/suta/#/segmented-control) |
+| [Wheel picker](../skills/suta/patterns/wheel-picker/PATTERN.md) | A drum picker that scrolls and snaps to the center row, with 3D tilt, click and keyboard. Created while hidden, it realigns when it becomes visible | [Demo](https://guksu.github.io/suta/#/wheel-picker) |
+| [Search suggestions](../skills/suta/patterns/search-suggest/PATTERN.md) | Searches after typing pauses and keeps older responses from overwriting newer ones. Skips keys during IME composition and reports an empty result (`isEmpty`) | [Demo](https://guksu.github.io/suta/#/search-suggest) |
+| [Range slider](../skills/suta/patterns/range-slider/PATTERN.md) | A range input with two thumbs for minimum and maximum. Disabled state (`disabled`) and a callback when dragging ends (`onChangeEnd`) | [Demo](https://guksu.github.io/suta/#/range-slider) |
+| [Quantity stepper](../skills/suta/patterns/quantity-stepper/PATTERN.md) | Buttons change the quantity, hold to accelerate, and the minimum turns into delete. Buttons work with the keyboard and the new value is announced | [Demo](https://guksu.github.io/suta/#/quantity-stepper) |
+| [File upload](../skills/suta/patterns/file-upload/PATTERN.md) | File drop, previews and progress, and reasons for rejected files. Rejects empty files and re-selected duplicates; failed files can be retried (`onRetry`) | [Demo](https://guksu.github.io/suta/#/file-upload) |
 
 ### Surfaces and style
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Glassmorphism surface](../skills/suta/patterns/glass-surface/PATTERN.md) | Translucent card, nav bar or modal with a blurred backdrop; falls back to an opaque surface when blur is unsupported | [Demo](https://guksu.github.io/suta/#/glass-surface) |
+| [Glassmorphism surface](../skills/suta/patterns/glass-surface/PATTERN.md) | Translucent cards, nav and modals that blur what is behind, falling back to an opaque surface where blur is unsupported. Pressable glass renders as a link or button (`as`) | [Demo](https://guksu.github.io/suta/#/glass-surface) |
 
 ### Principles and review
 
@@ -265,7 +265,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 |---|---|---|
 | [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses | [Demo](https://guksu.github.io/suta/#/motion-principles) |
 | [Motion audit](../skills/suta/patterns/motion-audit/PATTERN.md) | Scans CSS and JS for layout-property animations, missing reduced-motion, out-of-range durations and more, reports them as `file:line` and points to the pattern that fixes each | [Demo](https://guksu.github.io/suta/#/motion-audit) |
-| [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius and color (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
+| [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius, color, shadow and stacking order (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
 | [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, colored glow shadows, four or more shadow values, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, icon buttons that stack vertically, grid frames that grow wider than the screen, screen-reader text leaking out of scroll areas, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
 
 The layout principles pattern contains these parts.

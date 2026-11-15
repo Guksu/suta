@@ -60,3 +60,30 @@ describe('spring.ts — 감쇠 조화진동 닫힌 해', () => {
     expect(duration).toBeGreaterThan(0)
   })
 })
+
+describe('spring.ts — 깨진 입력에서도 끝난다', () => {
+  it('속도·위치가 숫자가 아니면 바로 정착한 것으로 본다 — 값은 목표, 속도 0', () => {
+    for (const motion of [
+      { from: 100, to: 0, velocity: Number.NaN },
+      { from: Number.NaN, to: 0 },
+      { from: 100, to: 0, velocity: Number.POSITIVE_INFINITY },
+    ]) {
+      expect(springState({ t: 0.1, motion })).toEqual({ value: 0, velocity: 0, done: true })
+    }
+  })
+
+  it('목표가 숫자가 아니면 시작 위치에 멈춘다 — NaN을 화면에 쓰지 않는다', () => {
+    expect(springState({ t: 0.1, motion: { from: 40, to: Number.NaN } })).toEqual({ value: 40, velocity: 0, done: true })
+  })
+
+  it('강성·질량이 0 이하면 해가 숫자가 아니다 — 그때도 정착으로 끝낸다', () => {
+    const motion = { from: 100, to: 0 }
+    expect(springState({ t: 0.1, motion, config: { stiffness: 0 } }).done).toBe(true)
+    expect(springState({ t: 0.1, motion, config: { mass: 0 } }).done).toBe(true)
+    expect(springState({ t: 0.1, motion, config: { stiffness: -10 } }).value).toBe(0)
+  })
+
+  it('시간이 음수로 들어와도(첫 프레임의 시각이 시작 시각보다 이를 때) 시작 위치에서 벗어나지 않는다', () => {
+    expect(springState({ t: -0.005, motion: { from: 100, to: 0 } }).value).toBeCloseTo(100)
+  })
+})

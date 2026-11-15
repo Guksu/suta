@@ -156,3 +156,16 @@ describe('placeContextMenu — 앵커 아래 왼쪽 정렬, 안 맞으면 뒤집
     expect(left.left).toBe(8)
   })
 })
+
+describe('placeContextMenu — 글이 끝나는 쪽 맞춤(dir="rtl")', () => {
+  const base = { anchor: { top: 100, left: 300, width: 240, height: 80 }, menu: { width: 200, height: 150 }, viewport: { width: 1024, height: 768 } }
+
+  it('align="end"면 메뉴의 오른쪽 선을 항목의 오른쪽 선에 맞춘다', () => {
+    expect(placeContextMenu({ ...base, align: 'end' }).left).toBe(340) // 300 + 240 - 200
+    expect(placeContextMenu(base).left).toBe(300)
+  })
+
+  it('왼쪽으로 넘치면 화면 안으로 밀어 넣는다', () => {
+    expect(placeContextMenu({ ...base, anchor: { ...base.anchor, left: 0, width: 120 }, align: 'end' }).left).toBe(8)
+  })
+})

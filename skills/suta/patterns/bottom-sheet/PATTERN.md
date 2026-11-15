@@ -105,7 +105,7 @@ const closeSheet = () => {
 | 대상 | 방법 |
 |------|------|
 | 열림/닫힘 속도 | `--sheet-duration` (기본 350ms — 드로어 커브 `cubic-bezier(0.32, 0.72, 0, 1)` 내장) |
-| 배경·모서리·최대 높이 | `--sheet-bg`·`--sheet-radius`·`--sheet-max-height` |
+| 배경·모서리·최대 높이 | `--sheet-bg`(기본은 면 토큰 `--color-surface`, 없으면 흰색)·`--sheet-radius`·`--sheet-max-height` |
 | 닫기 임계 거리 | `dismissThresholdPx` (기본 120px) |
 | 닫기 임계 속도 | `dismissVelocity` (기본 0.5px/ms — 짧게 끌어도 빠르게 던지면 닫힘) |
 | 긴 내용의 머리 높이 | `--sheet-head-height` (기본 20px — 핸들만 있을 때. 제목 줄이 있으면 그 높이를 더한다) |

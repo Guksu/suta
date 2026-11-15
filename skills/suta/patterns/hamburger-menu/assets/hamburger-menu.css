@@ -80,7 +80,7 @@
   max-width: 100vw;
   /* 노치·홈 표시줄이 있는 기기에서 첫 줄과 마지막 줄이 가려지지 않게 (해당 없는 기기에서는 0) */
   padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
-  background: var(--drawer-bg, #fff);
+  background: var(--drawer-bg, var(--color-surface, #fff));
   overflow-y: auto;
   /* 링크가 많아 드로어가 스크롤될 때, 끝에서 계속 굴려도 뒤 페이지가 따라 움직이지 않게 */
   overscroll-behavior: contain;
@@ -93,7 +93,11 @@
   z-index: calc(var(--z-overlay, 40) + 1);
 }
 
-.drawer[data-side='right'] {
+/* 오른쪽에서 나오는 경우 — right, 왼쪽에서 오른쪽으로 쓰는 화면의 end, 오른쪽에서 왼쪽으로 쓰는 화면의 start.
+ * :dir()는 :where()로 감싸 특이성을 올리지 않는다 — 올라가면 아래의 열림 규칙(transform: translateX(0))을 이겨 드로어가 열리지 않는다 */
+.drawer[data-side='right'],
+.drawer[data-side='end']:where(:dir(ltr)),
+.drawer[data-side='start']:where(:dir(rtl)) {
   left: auto;
   right: 0;
   transform: translateX(100%);
@@ -124,7 +128,9 @@
     border-right: 1px solid CanvasText;
   }
 
-  .drawer[data-side='right'] {
+  .drawer[data-side='right'],
+  .drawer[data-side='end']:where(:dir(ltr)),
+  .drawer[data-side='start']:where(:dir(rtl)) {
     border-right: none;
     border-left: 1px solid CanvasText;
   }
