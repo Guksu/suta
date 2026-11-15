@@ -42,9 +42,9 @@ Accessibility results and design preference are separate. The measured violation
 
 [Requests, screens and per-set judgments](docs/comparisons.en.md)
 
-### What was fixed in the pattern code (suta 0.18–0.19)
+### What was fixed in the pattern code (suta 0.18–0.20)
 
-Apart from the judgments, the 53 component patterns were read against their code and defects were fixed. Tests went from 754 to 1,297.
+Apart from the judgments, the 53 component patterns were read against their code and defects were fixed. Tests went from 754 to 1,322.
 
 - Pull-to-refresh did not work on touch: the browser cancelled the gesture after about 22px.
 - The bottom tab bar was drawn above an open sheet and its scrim.
@@ -52,8 +52,10 @@ Apart from the judgments, the 53 component patterns were read against their code
 - The quantity stepper's + and − buttons did not respond to the keyboard, and the long-press menu did not open with Enter or Space.
 - The drawer and the zoom lightbox did not move, trap or restore focus.
 - The floating label and the select placeholder had 3.2:1 contrast.
+- With dark color tokens, menus, sheets and modals kept a white surface and their text disappeared (0.20; 1.09:1 on the dropdown menu).
+- In right-to-left screens (`dir="rtl"`) swipe-to-delete did not open (0.20).
 
-These were checked in headless Chromium and jsdom tests, not with real screen readers, iOS, Android or Safari. The [0.19.0 release notes](https://github.com/Guksu/suta/releases/tag/v0.19.0) list the patterns whose behavior changed.
+These were checked in headless Chromium and jsdom tests, not with real screen readers, iOS, Android or Safari. The [0.19.0](https://github.com/Guksu/suta/releases/tag/v0.19.0) and [0.20.0](https://github.com/Guksu/suta/releases/tag/v0.20.0) release notes list the patterns whose behavior changed.
 
 For a keyboard example, the [demo home page](https://guksu.github.io/suta/) shows a walking-rewards app built with and without suta 0.11.0: with suta, the goal-celebration dialog moved focus to its button instead of leaving it at the top of the page, in both runs.
 
