@@ -1399,6 +1399,75 @@ const collectEmoji = ({ markup, tally }: { markup: string; tally: Tally }) => {
 }
 
 /** 상자로 정의된 CSS 클래스·요소 — 모든 소스에서 모은다(CSS 파일의 .card를 TSX의 className="card"가 쓰는 경우) */
+/* ---------------- 위 테두리에 올라탄 legend ---------------- */
+
+const BORDER_VISIBLE = (value: string) => !/^(?:none|hidden|0(?:px|rem|em)?)\b/i.test(value.trim())
+const TOP_BORDER_PROP = /^border-(?:top|block|block-start)(?:-width)?$/
+const ALL_BORDER_PROP = /^border(?:-width)?$/
+/** 이 블록이 위쪽에만 테두리를 그리는가 — 네 변 테두리(묶음 상자)는 legend가 선을 끊고 앉는 것이 본래 모양이라 뺀다 */
+const hasTopOnlyBorder = (fact: BlockFacts) => {
+  let top = false
+  let all = false
+  for (const { prop, value } of fact.decls) {
+    if (ALL_BORDER_PROP.test(prop)) {
+      all = BORDER_VISIBLE(value)
+      top = all
+    } else if (TOP_BORDER_PROP.test(prop)) {
+      top = BORDER_VISIBLE(value)
+    }
+  }
+  return top && !all
+}
+/** legend를 테두리 자리에서 떼어 내는 선언 — 띄우거나(float), 흐름에서 빼거나(absolute·fixed), 상자를 없앤다(contents) */
+const detachesLegend = (fact: BlockFacts) =>
+  fact.decls.some(({ prop, value }) => (prop === 'float' && !/^none$/i.test(value.trim())) || (prop === 'position' && /^(?:absolute|fixed)$/i.test(value.trim())) || (prop === 'display' && /^contents$/i.test(value.trim())))
+const lastKeysWhere = ({ facts, test }: { facts: BlockFacts[]; test: (fact: BlockFacts) => boolean }) => {
+  const keys = new Set<string>()
+  for (const fact of facts) {
+    if (!test(fact)) continue
+    for (const selector of splitTopLevel(fact.block.fullSelector)) for (const key of keysOf(anatomyOf(selector).last)) keys.add(key)
+  }
+  return keys
+}
+const TW_TOP_BORDER = /^border-t(?:-(?:\d+|\[[^\]]+\]))?$/
+const TW_ALL_BORDER = /^border(?:-(?:[1-9]\d*|\[[^\]]+\]))?$/
+const TW_DETACHED = /^(?:sr-only|absolute|fixed|contents|float-(?:left|right|start|end))$/
+
+/**
+ * fieldset에 위 테두리(구역 사이 띠·구분선)를 주고 그 안에 legend를 두면, 브라우저가 legend를 그 테두리 선 위에 그린다.
+ * 제목이 띠에 걸쳐 겹쳐 보인다. fieldset·legend는 묶음의 이름을 낭독기에 전하는 옳은 마크업이라, 태그를 바꾸지 않고 테두리를 옮기게 한다.
+ */
+const auditLegendOnBorder = ({ markup, facts, push }: { markup: string; facts: BlockFacts[]; push: Push }) => {
+  if (!/<legend\b/i.test(markup)) return
+  const topBorderKeys = lastKeysWhere({ facts, test: hasTopOnlyBorder })
+  const detachedKeys = lastKeysWhere({ facts, test: detachesLegend })
+  const fieldsets: boolean[] = [] // 열린 fieldset마다 — 위 테두리가 있는가
+  for (const tag of scanTags(markup)) {
+    const name = tag.name.toLowerCase()
+    if (name !== 'fieldset' && name !== 'legend') continue
+    if (tag.closing) {
+      if (name === 'fieldset') fieldsets.pop()
+      continue
+    }
+    const plain = classTokensOf(tag.attrs).filter((token) => !token.includes(':'))
+    const keys = [...plain.map((c) => `.${c}`), name]
+    if (name === 'fieldset') {
+      const tailwind = plain.some((c) => TW_TOP_BORDER.test(c) && c !== 'border-t-0') && !plain.some((c) => TW_ALL_BORDER.test(c))
+      fieldsets.push(tailwind || keys.some((key) => topBorderKeys.has(key)))
+      continue
+    }
+    if (!fieldsets.at(-1)) continue
+    if (keys.some((key) => detachedKeys.has(key)) || plain.some((c) => TW_DETACHED.test(c))) continue
+    push({
+      line: lineOf(markup, tag.start),
+      rule: 'legend-on-border',
+      severity: 'error',
+      message: '위 테두리가 있는 fieldset 안의 legend — 브라우저가 legend를 테두리 선 위에 그려서 제목이 띠·구분선과 겹친다',
+      fix: 'fieldset은 border: 0; margin: 0; padding: 0; min-width: 0으로 걷고, 띠·구분선은 바깥 요소나 fieldset::before에 둔다. 또는 legend에 float: left; width: 100%를 준다(다음 요소에 clear: both)',
+    })
+  }
+}
+
 const collectBoxKeys = (factsByFile: BlockFacts[][]) => {
   const keys = new Set<string>()
   for (const facts of factsByFile) {
@@ -1442,6 +1511,7 @@ export const auditLayout = (sources: Source[]): Finding[] => {
     if (parts.markup) {
       auditMarkup({ markup: parts.markup, boxKeys, tally, push, remBase })
       auditStackedButtons({ markup: parts.markup, rules: displayRules, push })
+      auditLegendOnBorder({ markup: parts.markup, facts: allFacts, push })
       collectEmoji({ markup: parts.markup, tally })
     }
     auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })
