@@ -1,0 +1,646 @@
+[
+  {
+    "pair": "class-schedule-1",
+    "prompt": "class-schedule",
+    "order": "base-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [],
+      "baseline": []
+    },
+    "reason": "두 이미지의 읽기 권한이 허용되지 않아 화면을 보지 못했으므로, 이 값은 실제 비교 결과가 아니라 판정하지 못한 자리표시입니다."
+  },
+  {
+    "pair": "class-schedule-1",
+    "prompt": "class-schedule",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "suta",
+      "hierarchy": "suta",
+      "controls": "suta",
+      "finish": "suta"
+    },
+    "extras": {
+      "suta": [
+        "요일 아래 빨간 점(예약 있는 날 표시)",
+        "수업 개수·내 예약 개수 요약",
+        "수업 시간 길이(50분 등)",
+        "전체 정원(/14)",
+        "마감 수업의 정원 표기"
+      ],
+      "baseline": [
+        "하단 탭바(홈·시간표·이용권·마이)",
+        "오전/오후/저녁 구간 구분",
+        "종료 시간(~07:20)",
+        "요일 아래 빨간 점",
+        "수업 개수·내 예약 개수 요약",
+        "예약한 수업 왼쪽 강조 막대"
+      ]
+    },
+    "reason": "A는 숫자 중심의 남은 자리와 \"예약 취소\" 버튼, 일관된 정렬로 요청 항목이 또렷하게 읽히는 반면, B는 예약 버튼 라벨이 아래로 치우쳐 보이고 \"취소\" 버튼이 모호하며 남은 자리 표기가 작고 평이해 조작과 마감 면에서 뒤처진다."
+  },
+  {
+    "pair": "class-schedule-2",
+    "prompt": "class-schedule",
+    "order": "base-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [],
+      "baseline": []
+    },
+    "reason": "A-mobile.png와 B-mobile.png를 읽을 권한이 거부되어 이미지를 보지 못했고, 따라서 이 값들은 실제 비교가 아니라 판단 보류입니다."
+  },
+  {
+    "pair": "class-schedule-2",
+    "prompt": "class-schedule",
+    "order": "suta-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "오전/오후/저녁 구간 구분",
+        "수업 개수·내 예약 개수 요약",
+        "정원 인원 표시",
+        "오늘 날짜 표시 점"
+      ],
+      "baseline": [
+        "하단 탭바(홈·수업·기록·마이)",
+        "요일 아래 점 표시(오늘·예약 있는 날)",
+        "수업 개수 표시(우측 상단)"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 다 갖췄지만, B는 수업 이름·시간이 군더더기 없이 읽히고 예약/취소/마감 버튼의 윤곽과 상태가 더 뚜렷해 A보다 위계와 조작 인지가 앞선다."
+  },
+  {
+    "pair": "class-schedule-3",
+    "prompt": "class-schedule",
+    "order": "base-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "baseline"
+    },
+    "extras": {
+      "suta": [
+        "날짜 헤더 요약(수업 개수·내 예약 수)",
+        "날짜 아래 예약 표시 점",
+        "하단 탭바",
+        "수업 길이(분)",
+        "총 정원(예: 6/12)"
+      ],
+      "baseline": [
+        "오전/오후/저녁 시간대 구분",
+        "날짜 헤더 요약(수업 개수·내 예약 수)",
+        "날짜 아래 예약 표시 점",
+        "하단 탭바",
+        "수업 길이(분)"
+      ]
+    },
+    "reason": "요청 항목은 두 화면 모두 갖췄지만, A는 시간대 구분과 큰 날짜 제목·진한 예약 버튼으로 읽는 순서와 조작 상태가 더 분명하고, B는 예약 버튼이 옅은 색이라 눌러야 할 곳이 덜 두드러진다."
+  },
+  {
+    "pair": "class-schedule-3",
+    "prompt": "class-schedule",
+    "order": "suta-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "날짜 띄 아래 점 표시(예약/수업 있는 날)",
+        "수업 길이(분)",
+        "전체 정원 표시(남은 자리 x/정원)",
+        "상단 요약(수업 6개·내 예약 1건)",
+        "하단 탭바",
+        "예약 취소 버튼"
+      ],
+      "baseline": [
+        "날짜 띄 아래 점 표시",
+        "수업 길이(분)",
+        "오전/오후/저녁 구간 구분",
+        "상단 요약(수업 7개·내 예약 1건)",
+        "하단 탭바",
+        "취소 버튼",
+        "'(오늘)' 표기"
+      ]
+    },
+    "reason": "B는 진한 채움 예약 버튼과 오전/오후/저녁 구분, 큰 날짜 제목으로 눈에 먼저 들어올 것이 분명하고 예약 가능·마감·내 예약 상태가 대비로 바로 읽히는 반면, A는 연한 분홍 예약 버튼과 모든 행에 반복되는 정원 표기 탓에 행동 유도가 약하다."
+  },
+  {
+    "pair": "parcel-tracking-1",
+    "prompt": "parcel-tracking",
+    "order": "base-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "suta",
+      "finish": "suta"
+    },
+    "extras": {
+      "suta": [
+        "상태 보조 문구",
+        "받는 사람 이름",
+        "단계별 완료 체크 표시"
+      ],
+      "baseline": [
+        "상단 5단계 진행 막대",
+        "상태 보조 문구",
+        "보내는 분 정보(접수 단계)",
+        "받는 사람 이름",
+        "주소의 동 표기"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 다 담고 상태를 크게 보여주지만, B는 요청사항 변경을 테두리 있는 버튼으로 줘서 조작이 분명하고 하단 여백까지 마무리된 반면 A는 변경이 작은 텍스트 링크이고 화면이 요청사항 줄에서 바로 끝나 마감이 덜하다."
+  },
+  {
+    "pair": "parcel-tracking-1",
+    "prompt": "parcel-tracking",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [],
+      "baseline": [
+        "상단 5단계 진행 막대"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 빠짐없이 담고 위계도 비슷하며, A는 '변경'을 테두리 있는 버튼으로 두어 조작이 더 분명하게 읽히고 B는 '변경'이 작은 텍스트 링크라 조작성이 약하다는 점이 가장 큰 차이다."
+  },
+  {
+    "pair": "parcel-tracking-2",
+    "prompt": "parcel-tracking",
+    "order": "base-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "suta",
+      "finish": "baseline"
+    },
+    "extras": {
+      "suta": [
+        "우편번호",
+        "단계 체크 아이콘",
+        "이동 중 단계의 추가 경유 기록"
+      ],
+      "baseline": [
+        "단계 라벨이 있는 상단 진행 막대",
+        "우편번호",
+        "현재 배지"
+      ]
+    },
+    "reason": "A는 큰 상태 제목과 라벨 달린 진행 막대·카드로 위계와 마감이 더 또렷한 반면, B는 버튼이 외곽선으로 더 눈에 띄고 체크·현재 표시가 명확해 조작은 앞서지만 상태 영역이 작고 밋밋합니다."
+  },
+  {
+    "pair": "parcel-tracking-2",
+    "prompt": "parcel-tracking",
+    "order": "suta-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "상태 보조 문구",
+        "상단 진행 막대(라벨 없음)",
+        "수신자 이름",
+        "우편번호"
+      ],
+      "baseline": [
+        "상태 보조 문구",
+        "단계 이름이 붙은 진행 막대",
+        "'현재' 배지",
+        "수신자 이름",
+        "우편번호"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목과 조작이 빠짐없이 갖춰져 마감도 비슷하지만, B는 상단 진행 막대에 단계 이름이 붙고 현재 단계에 배지가 있어 지금 상태가 더 빨리 읽힙니다."
+  },
+  {
+    "pair": "parcel-tracking-3",
+    "prompt": "parcel-tracking",
+    "order": "base-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "suta",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "도착 예정 시간 문구",
+        "진행 막대",
+        "5단계 중 4단계 텍스트",
+        "현재 단계 '현재' 라벨",
+        "이동 중 단계의 하위 이벤트 3건"
+      ],
+      "baseline": [
+        "도착 예정 시간 문구",
+        "5단계 중 4단계 텍스트",
+        "현재 단계 '현재' 배지"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 빠짐없이 담았고 조작·마감도 비슷하지만, B는 현재 상태와 도착 예정 시간(14~16시)을 강조색으로 크게 띄우고 진행 막대까지 두어 먼저 봐야 할 정보가 더 분명히 읽힌다."
+  },
+  {
+    "pair": "parcel-tracking-3",
+    "prompt": "parcel-tracking",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "suta",
+      "hierarchy": "tie",
+      "controls": "tie",
+      "finish": "suta"
+    },
+    "extras": {
+      "suta": [
+        "5칸 진행 막대",
+        "우편번호",
+        "배송 완료 예정 위치(성산동)",
+        "이동 중 하위 이벤트 3건"
+      ],
+      "baseline": [
+        "'5단계 중 4단계' 라벨",
+        "현재 단계 배지"
+      ]
+    },
+    "reason": "A는 모든 단계에 시각·위치를 채우고 기사 번호·주소도 실제 값으로 쓰여 깔끔하지만, B는 배송 완료 위치가 없고 연락처와 주소가 \"010-0000-0000\"·\"대학로 00\" 같은 임시 값이며 주소가 어색하게 줄바꿈되어 완성도가 떨어진다."
+  },
+  {
+    "pair": "split-bill-1",
+    "prompt": "split-bill",
+    "order": "base-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [],
+      "baseline": []
+    },
+    "reason": "A-mobile.png와 B-mobile.png 읽기 권한이 거부돼 두 화면을 보지 못했으므로 이 결과는 실제 판정이 아니고 자리만 채운 값이며, 권한을 허용해 주시면 다시 비교하겠습니다."
+  },
+  {
+    "pair": "split-bill-1",
+    "prompt": "split-bill",
+    "order": "suta-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "suta",
+      "controls": "tie",
+      "finish": "baseline"
+    },
+    "extras": {
+      "suta": [
+        "상단 진행률 막대",
+        "8명 중 5명 보냄 요약",
+        "남은 금액(93,000원 남음)",
+        "마감일 요일·D-day(4일 남음)",
+        "미송금/송금 그룹 분리",
+        "송금 날짜 표시",
+        "'나' 배지와 '모임에서 결제' 표시",
+        "뒤로가기 헤더"
+      ],
+      "baseline": [
+        "참여자 수 요약(6명)",
+        "5명 중 3명 보냄 요약",
+        "목록 위 진행률 막대",
+        "마감일 요일·D-day(4일 남음)",
+        "총무 표시('먼저 결제했어요')",
+        "뒤로가기 헤더"
+      ]
+    },
+    "reason": "A는 총액·진행률·미송금자를 위쪽에 모아 먼저 봐야 할 정보가 앞서 읽히지만 화면이 빽빽하고 마지막 행이 하단 버튼에 바짝 붙는 반면, B는 정보 양이 적당하고 간격과 정렬이 더 깔끔하게 마감되어 있다."
+  },
+  {
+    "pair": "split-bill-2",
+    "prompt": "split-bill",
+    "order": "base-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "tie",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [],
+      "baseline": []
+    },
+    "reason": "판정 불가: 이미지 읽기 권한이 승인되지 않아 A·B 화면을 보지 못했으므로, 이 값은 실제 비교가 아니라 자리 채움용 tie와 빈 목록입니다."
+  },
+  {
+    "pair": "split-bill-2",
+    "prompt": "split-bill",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "suta",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "진행률 바",
+        "남은 금액(123,000원 남음)",
+        "마감 D-day(4일 남음)",
+        "상태별 그룹 구역(안 보낸/보낸/먼저 결제한)",
+        "'먼저 결제함' 상태",
+        "아바타",
+        "본인 표시(나)",
+        "참여 인원 수"
+      ],
+      "baseline": [
+        "진행률 바",
+        "마감 D-day(4일 남음)",
+        "아바타",
+        "본인 표시(나)",
+        "총무 표시",
+        "'내 몫' 상태",
+        "참여자 인원 수 제목",
+        "한 사람당·마감일 요약 카드"
+      ]
+    },
+    "reason": "A는 안 보낸 사람을 맨 위 그룹으로 묶고 마감일을 굵게 강조해 알림 버튼의 대상과 지금 상태가 한눈에 읽히지만, B는 보낸/안 보낸/내 몫이 한 목록에 섞여 있어 상태 파악이 덜 직관적이다."
+  },
+  {
+    "pair": "split-bill-3",
+    "prompt": "split-bill",
+    "order": "base-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "suta",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "baseline"
+    },
+    "extras": {
+      "suta": [
+        "전체 진행률 바와 '5명 중 3명 보냄'",
+        "받은 금액 합계(144,000원 / 240,000원)",
+        "'내 몫 제외' 안내 문구",
+        "참여자 이니셜 아바타",
+        "보낸 날짜 표시",
+        "마감 D-4 표시",
+        "참여자 수 표시(6명)"
+      ],
+      "baseline": [
+        "전체 진행률 바와 '5명 중 3명 보냄'",
+        "받은 금액 합계(155,000원 중 93,000원)",
+        "'안 보낸 사람'·'보낸 사람' 그룹 구분",
+        "보낸 날짜 표시",
+        "마감까지 '4일 남음'",
+        "인원수 표시(6명)"
+      ]
+    },
+    "reason": "A는 안 보낸 사람을 위로 올리고 주황 점과 '아직 안 보냄' 문구로 상태·위계를 더 분명하게 보여 주지만, '5명 중 3명'과 목록의 6명·4명 보냄, 155,000원 중 93,000원이 서로 맞지 않아 요청한 정산 데이터가 모순되고, B는 '내 몫 제외' 설명으로 숫자가 맞지만 안 보냄 표시가 약하고 마지막 행이 하단 버튼에 가려진다."
+  },
+  {
+    "pair": "split-bill-3",
+    "prompt": "split-bill",
+    "order": "suta-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "baseline",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "상단 뒤로가기 헤더",
+        "진행률 막대",
+        "송금 진행 요약(5명 중 3명, 144,000원/240,000원)",
+        "내 몫 제외 안내 문구",
+        "D-4 표시",
+        "참여자 수 표시",
+        "이니셜 아바타",
+        "보낸 날짜",
+        "'결제한 사람' 표시"
+      ],
+      "baseline": [
+        "상단 뒤로가기 헤더",
+        "진행률 막대",
+        "송금 진행 요약(5명 중 3명, 155,000원 중 93,000원 받음)",
+        "미송금/송금 그룹 구분과 인원수",
+        "'4일 남음' 표시",
+        "한 사람당 옆 인원수(6명)",
+        "보낸 날짜",
+        "'결제한 사람' 표시"
+      ]
+    },
+    "reason": "B는 아직 안 보낸 사람을 목록 맨 위 별도 그룹에 주황 점으로 묶고 모든 참여자에게 보낼 금액을 적어 알림 대상이 바로 읽히지만, A는 미송금자가 보낸 사람과 같은 목록에 검은 글씨로 섞여 있고 '나'는 금액 대신 '보낼 금액 없음'으로 나옵니다."
+  },
+  {
+    "pair": "waiting-list-1",
+    "prompt": "waiting-list",
+    "order": "base-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "baseline"
+    },
+    "extras": {
+      "suta": [
+        "총 인원 합계 표시",
+        "좌석 옵션별 부연 설명(테이블 자리 등)",
+        "요청 사항 글자수 카운터(0/100)",
+        "동의 안 하면 등록 불가 안내문",
+        "유아 연령 설명(만 6세 이하)"
+      ],
+      "baseline": [
+        "성인/유아 연령 설명(초등학생 이상, 미취학 아동)",
+        "한 팀 최대 8명 안내",
+        "상관없음 선택 안내문",
+        "요청 사항 입력 글자수 카운터(0/100)",
+        "동의 안 하면 등록 불가 안내문",
+        "대기 시간 변동 안내문"
+      ]
+    },
+    "reason": "A는 가게 이름 아래 대기 팀 수와 예상 시간을 큰 주황 숫자로 강조하고 섹션 구분과 간격이 일정해 위계·조작 상태·마감이 더 선명한 반면, B는 인원·좌석 섹션 제목과 내용 사이 간격이 들쭉날쭉하고 숫자가 작으며 선택 상태 표시가 약하다."
+  },
+  {
+    "pair": "waiting-list-1",
+    "prompt": "waiting-list",
+    "order": "suta-first",
+    "winner": "baseline",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "baseline",
+      "finish": "suta"
+    },
+    "extras": {
+      "suta": [
+        "성인/유아 총 인원 합계",
+        "좌석 옵션별 부연 설명",
+        "요청 사항 글자 수 카운터(0/100)",
+        "등록 버튼 위 안내 문구",
+        "뒤로가기 버튼"
+      ],
+      "baseline": [
+        "성인/유아 연령 기준 설명",
+        "총 인원 및 팀당 최대 8명 안내",
+        "상관없음 선택 안내 문구",
+        "대기 시간 변동 안내 문구",
+        "요청 사항 글자 수 카운터(0/100)",
+        "등록 버튼 위 안내 문구",
+        "뒤로가기 버튼"
+      ]
+    },
+    "reason": "B는 대기 팀 수·시간이 강조색으로 크게 읽히고 선택 상태와 입력 안내가 명확하지만, A는 간격과 정렬이 더 균일하게 정돈되어 마감이 낫고 요청 항목은 둘 다 충족해 대동소이하다."
+  },
+  {
+    "pair": "waiting-list-2",
+    "prompt": "waiting-list",
+    "order": "base-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "뒤로가기 버튼",
+        "'오전 2:29 기준' 시각 표기",
+        "인원 연령 설명(초등학생 이상, 미취학 아동)",
+        "최대 8명 표기",
+        "요청 사항 글자수 카운터(0/100)",
+        "선택·필수 라벨",
+        "룸 대기 연장 유의 문구",
+        "등록 버튼 위 안내 문구"
+      ],
+      "baseline": [
+        "뒤로가기 버튼",
+        "인원 최대 8명 안내",
+        "요청 사항 글자수 카운터(0/100)",
+        "선택·필수 라벨",
+        "등록 버튼 위 안내 문구"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 다 갖추고 위계와 마감도 비슷하지만, B는 좌석 선택에 체크 표시와 강조색 테두리를 써서 선택 상태가 더 분명하고 인원 스테퍼도 윤곽선이 있어 조작이 더 잘 읽힌다."
+  },
+  {
+    "pair": "waiting-list-2",
+    "prompt": "waiting-list",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "suta",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "기준 시각(오전 2:29 기준)",
+        "인원 연령 설명(초등학생 이상, 미취학 아동)",
+        "최대 8명 안내",
+        "룸 대기 지연 유의 문구",
+        "뒤로가기 헤더"
+      ],
+      "baseline": [
+        "한 번에 8명까지 안내",
+        "입장 순서 호출 안내 문구",
+        "뒤로가기 헤더"
+      ]
+    },
+    "reason": "A는 가게 이름과 대기 팀 수·예상 시간을 크게 키우고 강조색으로 먼저 읽히게 했고, 좌석 선택 상태와 인원 항목 설명도 더 분명한 반면, B는 요청 항목은 모두 갖췄지만 상단 정보의 위계와 선택 상태 표시가 더 약하다."
+  },
+  {
+    "pair": "waiting-list-3",
+    "prompt": "waiting-list",
+    "order": "base-first",
+    "winner": "tie",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "baseline",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "상단 뒤로가기 헤더",
+        "총 인원 합계·최대 8명 표기",
+        "유아 보조 설명(미취학 아동)",
+        "요청 사항 글자 수 카운터(0/100자)",
+        "대기 시간 변동 안내 문구",
+        "등록 버튼 위 동의 안내 문구"
+      ],
+      "baseline": [
+        "상단 뒤로가기 헤더",
+        "인원 최대 8명 표기",
+        "요청 사항 글자 수 카운터(0/100자)"
+      ]
+    },
+    "reason": "A는 가게 이름과 대기 팀·시간을 카드와 큰 주황 숫자로 먼저 읽히게 해 위계가 앞서고, B는 동의 전 비활성 버튼과 안내 문구, 라디오형 좌석 표시, 총 인원 합계로 조작과 현재 상태가 더 분명하다."
+  },
+  {
+    "pair": "waiting-list-3",
+    "prompt": "waiting-list",
+    "order": "suta-first",
+    "winner": "suta",
+    "criteria": {
+      "request": "tie",
+      "hierarchy": "tie",
+      "controls": "suta",
+      "finish": "tie"
+    },
+    "extras": {
+      "suta": [
+        "총 인원 합계·최대 인원 표시",
+        "유아 '미취학 아동' 보조 설명",
+        "등록 버튼 위 동의 안내 문구",
+        "유의 사항 4번째 항목(예상 시간 변동)"
+      ],
+      "baseline": [
+        "최대 인원 표시"
+      ]
+    },
+    "reason": "두 화면 모두 요청 항목을 빠짐없이 담았고 위계와 마감도 비슷하지만, A는 동의 전 등록 버튼을 회색으로 비활성화하고 그 이유를 안내 문구로 알려 주는 반면 B는 동의하지 않아도 버튼이 활성처럼 보여 조작 상태가 덜 분명합니다."
+  }
+]

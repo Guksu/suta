@@ -257,6 +257,26 @@ suta 쪽을 고른 이유:
 - 한 쌍을 순서를 바꿔 두 번 판정했습니다. 앞에 놓인 쪽을 고르는 버릇을 상쇄하기 위해서입니다.
 - 사람의 평가가 아니라 모델의 판정입니다.
 
+### 항목별 판정(2026-11부터)
+
+하나를 고르게 하는 판정은 화면 전체의 인상으로 답합니다. 요청한 것을 얼마나 잘 만들었는지와 요청에 없는 것을 얼마나 더 넣었는지가 한 숫자에 섞이고, 이유도 한 문장이라 무엇을 고칠지 알기 어렵습니다. `judge.mjs --mode rubric`은 이 둘을 가릅니다.
+
+- 판정자는 먼저 화면마다 요청문에 적히지 않은 구역·기능·데이터 항목을 적습니다. 좋은지 나쁜지는 묻지 않습니다.
+- 그다음 요청문에 적힌 범위 안에서만 두 화면을 비교해 항목 네 가지마다 A·B·비김을 고릅니다.
+
+| 항목 | 물음 |
+|---|---|
+| 요청 충족 | 요청문에 적힌 항목이 빠짐없이, 요청한 대로 들어 있는가 |
+| 정보 위계 | 요청한 내용 가운데 먼저 봐야 할 것이 먼저, 크게 읽히는가 |
+| 조작 | 요청한 조작(버튼·선택·입력)이 무엇을 하는지와 지금 상태가 한눈에 읽히는가 |
+| 마감 | 간격·정렬·글자 크기·대비가 일관되고, 잘리거나 겹치거나 넘친 곳이 없는가 |
+
+- 승패는 판정자에게 따로 묻지 않고 이긴 항목 수로 정합니다. 같으면 비김입니다.
+- 무엇이 요청 밖인지 예는 들지 않습니다. 낱말을 주면 판정이 그 낱말을 찾습니다. suta의 규칙도 싣지 않습니다.
+- 순서를 바꾼 두 판정이 항목마다 같은 쪽을 골랐는지도 셉니다. 낮은 항목은 놓인 자리에 흔들리는 항목입니다.
+- "요청한 범위 안에서만 비교한다"는 틀은 suta의 원칙(요청하지 않은 구역은 더하지 않는다)과 같은 방향입니다. 그래서 하나를 고르는 판정을 대신하지 않고 나란히 싣습니다.
+- 물음과 집계 로직은 `scripts/lib/judgeRubric.ts`에 있습니다.
+
 ## 한계
 
 - 표본이 작습니다. 조건마다 요청 8개 × 2회입니다. 차이가 작은 지표는 우연일 수 있습니다. 실행별 값은 [`evals/benchmark/results.json`](../evals/benchmark/results.json)(2차)과 [`results-r1.json`](../evals/benchmark/results-r1.json)(1차)에 모두 있습니다.
@@ -278,6 +298,7 @@ npm i --no-save playwright axe-core && npx playwright install chromium
 node scripts/benchmark/run.mjs --out ../suta-bench --repeats 2 --concurrency 4   # 실행(중간에 끊겨도 같은 명령으로 이어서)
 node scripts/benchmark/measure.mjs --out ../suta-bench                          # 측정
 node scripts/benchmark/judge.mjs --out ../suta-bench                            # 블라인드 판정(선택)
+node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # 항목별 판정(선택) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # 집계 → evals/benchmark/results.json(--name으로 이름 변경)
 ```
 

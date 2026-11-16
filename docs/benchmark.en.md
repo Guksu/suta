@@ -257,6 +257,26 @@ For each request and run, the two pages' screenshots (full mobile page at 390px,
 - Each pair was judged twice with the order swapped, to cancel out any bias toward whichever comes first.
 - This is a model's judgment, not a human evaluation.
 
+### Per-criterion judgment (since 2026-11)
+
+A judge that picks one page answers from its overall impression. How well the requested things were built and how much was added beyond the request end up in one number, and the one-sentence reason rarely says what to fix. `judge.mjs --mode rubric` separates the two.
+
+- The judge first lists, for each page, the sections, features and data items that the request does not mention. It is not asked whether they are good or bad.
+- It then compares the two pages only within what the request names, and picks A, B or tie on four criteria.
+
+| Criterion | Question |
+|---|---|
+| Request coverage | Is everything the request names present, and as requested? |
+| Hierarchy | Among the requested content, is what should be read first placed first and largest? |
+| Controls | Do the requested controls (buttons, choices, inputs) show what they do and their current state at a glance? |
+| Finish | Are spacing, alignment, type sizes and contrast consistent, with nothing clipped, overlapping or overflowing? |
+
+- The winner is not asked for. It is the side that won more criteria; equal counts are a tie.
+- The prompt gives no example of what counts as outside the request, because a judge looks for any word it is given. It does not contain suta's rules either.
+- For each criterion we also count whether the two order-swapped judgments picked the same side. A criterion with low agreement depends on position.
+- "Compare only within the request" points the same way as suta's own principle (do not add sections that were not requested). So it is reported next to the pick-one judgment, not in place of it.
+- The questions and the aggregation live in `scripts/lib/judgeRubric.ts`.
+
 ## Limitations
 
 - The sample is small, at 8 requests × 2 runs per condition. Small differences may be chance. Every run's values are in [`evals/benchmark/results.json`](../evals/benchmark/results.json) (round 2) and [`results-r1.json`](../evals/benchmark/results-r1.json) (round 1).
@@ -278,6 +298,7 @@ npm i --no-save playwright axe-core && npx playwright install chromium
 node scripts/benchmark/run.mjs --out ../suta-bench --repeats 2 --concurrency 4   # runs (re-run the same command to resume)
 node scripts/benchmark/measure.mjs --out ../suta-bench                          # measure
 node scripts/benchmark/judge.mjs --out ../suta-bench                            # blind judgment (optional)
+node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # per-criterion judgment (optional) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # aggregate → evals/benchmark/results.json (--name changes the file name)
 ```
 
