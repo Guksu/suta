@@ -1068,3 +1068,50 @@ describe('auditLayout — 층: 그림자 단계 수 (shadow-variety)', () => {
     expect(audit('tokens.css', text).filter((f) => f.rule === 'shadow-variety')[0]?.message).toContain('5종')
   })
 })
+
+describe('auditLayout — 위 테두리에 올라탄 legend (legend-on-border)', () => {
+  const page = ({ css, body }: { css: string; body: string }) => `<!doctype html><html><head><style>${css}</style></head><body>${body}</body></html>`
+  const found = (html: string, file = 'index.html') => audit(file, html).filter((f) => f.rule === 'legend-on-border')
+
+  it('위쪽에만 테두리를 준 fieldset 안에 legend가 있으면 알린다 — 제목이 구역 사이 띠에 겹쳐 그려진다', () => {
+    const html = page({
+      css: '.section { margin: 0; padding: 24px 20px; border: 0; border-top: 8px solid #f3f3f3; }\n.section-title { font-size: 17px; font-weight: 700; }',
+      body: '<fieldset class="section">\n<legend class="section-title">인원</legend>\n</fieldset>',
+    })
+    const findings = found(html)
+    expect(findings).toHaveLength(1)
+    expect(findings[0].severity).toBe('error')
+    expect(findings[0].message).toContain('legend')
+  })
+
+  it('태그 선택자(fieldset)와 얇은 선에도 알린다', () => {
+    expect(found(page({ css: 'fieldset { border: none; border-top: 1px solid #e6e6e6; padding-top: 16px; }', body: '<fieldset><legend>좌석</legend></fieldset>' }))).toHaveLength(1)
+  })
+
+  it('테두리를 걷은 fieldset은 알리지 않는다 — 띠는 바깥 요소에 둔 것이다', () => {
+    const html = page({ css: '.group { border: 0; padding: 0; margin: 0; min-width: 0; }\n.band { border-top: 8px solid #f3f3f3; }', body: '<div class="band"><fieldset class="group"><legend>인원</legend></fieldset></div>' })
+    expect(found(html)).toEqual([])
+  })
+
+  it('네 변 테두리(묶음 상자)는 알리지 않는다 — legend가 선을 끊고 앉는 것이 그 모양이다', () => {
+    expect(found(page({ css: '.box { border: 1px solid #e6e6e6; padding: 16px; }', body: '<fieldset class="box"><legend>배송지</legend></fieldset>' }))).toEqual([])
+  })
+
+  it('legend를 테두리에서 떼어 냈으면(float·absolute·contents) 알리지 않는다', () => {
+    const css = '.section { border: 0; border-top: 8px solid #f3f3f3; }'
+    expect(found(page({ css: `${css}\n.title { float: left; width: 100%; }`, body: '<fieldset class="section"><legend class="title">인원</legend></fieldset>' }))).toEqual([])
+    expect(found(page({ css: `${css}\n.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; }`, body: '<fieldset class="section"><legend class="sr">인원</legend></fieldset>' }))).toEqual([])
+    expect(found(page({ css: `${css}\nlegend { display: contents; }`, body: '<fieldset class="section"><legend>인원</legend></fieldset>' }))).toEqual([])
+  })
+
+  it('legend가 없거나 위 테두리가 0·none이면 알리지 않는다', () => {
+    expect(found(page({ css: '.section { border: 0; border-top: 8px solid #f3f3f3; }', body: '<fieldset class="section"><h2>인원</h2></fieldset>' }))).toEqual([])
+    expect(found(page({ css: '.section { border-top: 0; }', body: '<fieldset class="section"><legend>인원</legend></fieldset>' }))).toEqual([])
+    expect(found(page({ css: '.section { border-top: none; }', body: '<fieldset class="section"><legend>인원</legend></fieldset>' }))).toEqual([])
+  })
+
+  it('Tailwind의 위 테두리 클래스(border-t)도 본다. sr-only인 legend는 뺀다', () => {
+    expect(found('export const A = () => (<fieldset className="border-0 border-t-8 border-neutral-100 pt-6"><legend className="text-lg font-bold">인원</legend></fieldset>)', 'A.tsx')).toHaveLength(1)
+    expect(found('export const A = () => (<fieldset className="border-t pt-6"><legend className="sr-only">인원</legend></fieldset>)', 'A.tsx')).toEqual([])
+  })
+})
