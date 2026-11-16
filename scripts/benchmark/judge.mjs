@@ -7,12 +7,18 @@
  *
  * 입력: measure.mjs가 실행 폴더마다 남긴 shot-390.png(모바일 전체)·shot-1280.png(데스크톱 첫 화면)
  * 결과: <out>/judgments.json
- * 사용: node scripts/benchmark/judge.mjs --out <폴더> [--concurrency 4] [--model 이름] [--name 결과파일이름] [--prompts 요청 세트]
+ * 사용: node scripts/benchmark/judge.mjs --out <폴더> [--concurrency 4] [--model 이름] [--name 결과파일이름] [--prompts 요청 세트] [--mode pick|rubric]
  * 요청 세트에 mobileOnly: true가 있으면(앱 화면) 모바일 화면만 보여 준다. 앱 화면을 데스크톱 배치로 판정하지 않게
+ *
+ * --mode rubric(항목별 판정): 하나를 고르게 하는 대신 요청문에 적힌 범위 안에서 항목 네 가지(요청 충족·정보 위계·조작·마감)마다
+ * 고르게 하고, 요청문에 없는 구역·기능은 비교에 넣지 않고 화면별로 따로 적게 한다. 하나를 고르는 판정은 요청에 없는 구역이
+ * 있어 더 차 보이는 화면을 "완성도"로 쳐 준다 — 요청한 것의 품질과 더 넣은 것의 양이 한 숫자에 섞인다.
+ * 결과 파일의 기본 이름은 judgments-rubric이다. 물음과 집계는 scripts/lib/judgeRubric.ts
  */
 import { spawn } from 'node:child_process'
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { RUBRIC_SCHEMA, resolveRubric, rubricInstruction, summarizeRubric } from '../lib/judgeRubric.ts'
 
 const root = new URL('../..', import.meta.url).pathname
 const option = (name, fallback) => {
@@ -27,8 +33,13 @@ if (!outDir) {
 const out = resolve(outDir)
 const concurrency = Number(option('concurrency', '4'))
 const model = option('model', '')
+const mode = option('mode', 'pick')
+if (mode !== 'pick' && mode !== 'rubric') {
+  console.error(`--mode는 pick 또는 rubric이다 (받은 값: ${mode})`)
+  process.exit(1)
+}
 // 판정 결과 파일 이름 — 다른 판정 모델로 한 번 더 판정할 때 앞의 결과를 덮지 않게
-const name = option('name', 'judgments')
+const name = option('name', mode === 'rubric' ? 'judgments-rubric' : 'judgments')
 const spec = JSON.parse(readFileSync(resolve(root, option('prompts', 'evals/benchmark/prompts.json')), 'utf8'))
 const prompts = Object.fromEntries(spec.prompts.map((p) => [p.id, p.prompt]))
 const mobileOnly = spec.mobileOnly === true
@@ -85,12 +96,12 @@ const judgeOnce = ({ pair, order }) =>
       copyFileSync(join(a, 'shot-1280.png'), join(work, 'A-desktop.png'))
       copyFileSync(join(b, 'shot-1280.png'), join(work, 'B-desktop.png'))
     }
-    const argv = ['-p', '--output-format', 'json', '--no-session-persistence', '--tools', 'Read', '--json-schema', SCHEMA]
+    const argv = ['-p', '--output-format', 'json', '--no-session-persistence', '--tools', 'Read', '--json-schema', mode === 'rubric' ? RUBRIC_SCHEMA : SCHEMA]
     if (model) argv.push('--model', model)
     const child = spawn('claude', argv, { cwd: work, env: childEnv, stdio: ['pipe', 'pipe', 'pipe'] })
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
-    child.stdin.end(instruction(prompts[pair.prompt]))
+    child.stdin.end(mode === 'rubric' ? rubricInstruction({ request: prompts[pair.prompt], mobileOnly }) : instruction(prompts[pair.prompt]))
     child.on('close', () => {
       let verdict = null
       try {
@@ -98,6 +109,11 @@ const judgeOnce = ({ pair, order }) =>
         verdict = result.structured_output ?? JSON.parse(String(result.result).match(/\{[\s\S]*\}/)?.[0] ?? 'null')
       } catch {
         verdict = null
+      }
+      if (mode === 'rubric') {
+        const resolved = resolveRubric({ verdict, order })
+        done({ pair: pair.name, prompt: pair.prompt, order, winner: resolved?.winner ?? null, criteria: resolved?.criteria ?? null, extras: resolved?.extras ?? null, reason: resolved?.reason ?? null })
+        return
       }
       const picked = verdict?.winner
       // A·B를 조건 이름으로 되돌린다
@@ -123,5 +139,10 @@ await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, wor
 judgments.sort((x, y) => (x.pair + x.order).localeCompare(y.pair + y.order))
 writeFileSync(join(out, `${name}.json`), JSON.stringify(judgments, null, 2))
 const valid = judgments.filter((j) => j.winner)
+if (mode === 'rubric') {
+  const summary = summarizeRubric(valid)
+  for (const [id, count] of Object.entries(summary.criteria)) console.log(`${id}: suta ${count.suta} : baseline ${count.baseline} (비김 ${count.tie}, 순서 일치 ${summary.orderAgreement[id].same}/${summary.orderAgreement[id].pairs})`)
+  console.log(`요청 밖 요소를 적은 판정: suta ${summary.extras.suta.judgments}번(${summary.extras.suta.items}개) · baseline ${summary.extras.baseline.judgments}번(${summary.extras.baseline.items}개)`)
+}
 const score = (who) => valid.reduce((sum, j) => sum + (j.winner === who ? 1 : j.winner === 'tie' ? 0.5 : 0), 0)
 console.log(`suta ${score('suta')} : baseline ${score('baseline')} (판정 ${valid.length}개, 무승부는 0.5)`)

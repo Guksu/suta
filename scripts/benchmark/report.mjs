@@ -6,6 +6,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { summarizeRubric } from '../lib/judgeRubric.ts'
 
 const root = new URL('../..', import.meta.url).pathname
 const option = (name, fallback) => {
@@ -116,6 +117,15 @@ const judgeOf = (file) => {
 const judge = judgeOf('judgments.json')
 const judgeAlt = judgeOf('judgments-alt.json')
 
+// 항목별 판정(judge.mjs --mode rubric) — 요청한 범위 안에서 항목마다 고른 결과와, 판정자가 적은 요청 밖 요소
+const rubricOf = (file) => {
+  const path = join(resolve(outDir), file)
+  const judgments = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')).filter((j) => j.winner && j.criteria) : []
+  return judgments.length ? { ...summarizeRubric(judgments), reasons: judgments.map(({ pair, order, winner, criteria, extras, reason }) => ({ pair, order, winner, criteria, extras, reason })) } : null
+}
+const judgeRubric = rubricOf('judgments-rubric.json')
+const judgeRubricAlt = rubricOf('judgments-rubric-alt.json')
+
 const cell = (metric, value) => (metric.kind === 'share' ? `${value.count}/${value.of}` : String(value))
 for (const [lang, head] of [['ko', '| 지표 (낮을수록 좋다) | 일반 Claude Code | suta 설치 |'], ['en', '| Metric (lower is better) | Plain Claude Code | With suta |']]) {
   const table = [head, '|---|---|---|']
@@ -137,6 +147,11 @@ console.log('† 많고 적음이 곧 좋고 나쁨은 아니다 — 설명용\n
 for (const condition of conditions) console.log(condition, JSON.stringify(summary[condition].process))
 if (judge) console.log('판정', JSON.stringify(judge))
 if (judgeAlt) console.log('다른 모델 판정', JSON.stringify(judgeAlt))
+for (const [label, rubric] of [['항목별 판정', judgeRubric], ['다른 모델 항목별 판정', judgeRubricAlt]]) {
+  if (!rubric) continue
+  const { reasons: _reasons, ...numbers } = rubric
+  console.log(label, JSON.stringify(numbers))
+}
 
 // 요청별 — 화면 유형마다 어느 지표가 갈렸는지 본다
 const perPrompt = {}
@@ -166,6 +181,8 @@ const results = {
   summary,
   judge,
   judgeAlt,
+  judgeRubric,
+  judgeRubricAlt,
   perPrompt,
   runs: rows.map((r) => ({
     prompt: r.prompt,
