@@ -139,6 +139,7 @@ export const USABILITY_WARN_RULES: ReadonlySet<string> = new Set([
   'input-zoom',
   'zoom-disabled',
   'image-distort',
+  'table-squeeze',
   'infinite-loop',
   'js-interval-anim',
   'will-change-global',

@@ -24,7 +24,7 @@ warn은 두 종류다. 아래 규칙표의 "종류" 열이 그 구분이다.
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/auditLayout.ts` | 코어 — 규칙 29개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
+| `assets/auditLayout.ts` | 코어 — 규칙 30개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
 | `assets/auditCore.ts` | 공통 코어 — 결과 형식, CSS 블록 자르기, 예외 주석 | 함께 복사 |
 | `assets/layoutTokens.ts` | 간격 척도·글자 하한 — `layout-principles`와 같은 파일 | 함께 복사 |
 | `assets/audit.mjs` | CLI — 폴더 재귀, `--json`, `--warn-only`, error가 있으면 exit 1 | Node 22.18+ |
@@ -98,6 +98,7 @@ console.log(formatFindings(findings))
 | `grid-blowout` | error · 사용 | 행을 둘 이상 두고 하나를 `fr`로 채운 grid 틀(화면 높이 틀)에 열(`grid-template-columns`)이 없다. 열이 `auto`라 입력칸(textarea) 기본 폭이나 줄임표 글자(`white-space: nowrap`)가 틀 전체를 화면보다 넓게 민다(suta 0.15 채팅방 3번이 390px에서 413\~458px로 넘쳤다). 같은 선택자의 다른 블록이나 `grid-template`·`grid` 단축 속성이 열을 적으면 잡지 않는다. 행 하나(`0fr → 1fr` 높이 전이)는 틀이 아니다 | 렌더 |
 | `hidden-text-escape` | error · 사용 | 화면 높이 틀(`height: 100dvh`, Tailwind `h-dvh`·`h-screen`)이 있는 파일에서 숨김 글자(`.sr-only`·`.visually-hidden`, `position: absolute`)를 쓰는데, 세로 스크롤 칸(`overflow-y: auto`)에 `position`·`contain`이 없다. 숨김 글자가 스크롤 칸이 아니라 페이지 기준으로 놓여 칸 밖으로 새고, 페이지가 길어져 입력 줄 아래가 빈다(suta 0.15 채팅방 3번). HTML이면 그 칸의 마크업 자식이나 행을 그려 넣는 스크립트에 숨김 글자가 있을 때만 잡는다. 벤치 산출물 383개 중 4개를 잡았고 그중 3개가 실제로 샜다 | 렌더 |
 | `legend-on-border` | error · 사용 | 위쪽에만 테두리(구역 사이 띠·구분선)를 준 `fieldset` 안에 `legend`가 있다. 브라우저는 `legend`를 `fieldset`의 테두리 선 위에 그려서 제목이 띠에 걸쳐 겹쳐 보인다. 같은 파일 묶음의 CSS에서 `fieldset`이나 그 클래스에 `border-top`·`border-block(-start)`이 있고 네 변 테두리는 없을 때, Tailwind는 `border-t`가 있고 `border`가 없을 때 알린다. `legend`를 떼어 낸 경우(`float`, `position: absolute`, `display: contents`, `sr-only`)와 네 변 테두리(묶음 상자)는 뺀다 | `fieldset`은 `border: 0; margin: 0; padding: 0; min-width: 0`으로 걷고 띠·구분선은 바깥 요소나 `fieldset::before`에 둔다. 또는 `legend`에 `float: left; width: 100%`를 주고 다음 요소에 `clear: both`를 준다. 묶음 이름을 낭독기에 전하는 태그라 `div`로 바꾸지 않는다 |
+| `table-squeeze` | warn · 사용 | 열이 4개 이상인 표(`table`)에 좁은 화면 규칙이 없다. 표의 CSS가 검사 범위에 있는데, 미디어·컨테이너 쿼리 안에서 표의 `display`를 바꾸는 규칙도 없고 옆으로 넘기는 장치(표 자신의 `min-width` 400px 이상이나 `width: max-content` + 넘기는 칸 `overflow-x: auto`)도 없을 때 알린다. 390px에서 열이 그대로 좁아져 이름이 두세 줄로 꺾이고 행 높이가 들쭉날쭉해진다. 표의 CSS가 보이지 않으면(다른 파일을 함께 검사하지 않았거나 유틸리티 클래스만 쓴 경우) 판단하지 않는다 | 좁은 화면에서 행마다 "이름 + 핵심 값 / 나머지 값 한 줄"로 다시 놓는다. `@media`에서 `table`·`tbody`를 `display: block`, `tr`을 `display: grid`로 두고 머리 행은 숨김 글자로 남긴다. 값은 빼지 않는다. 옆으로 넘기려면 표에 `min-width`를 주고 감싼 칸에 `overflow-x: auto`를 주되 이름·핵심 값 열이 첫 화면 안에 있어야 한다 |
 
 **콘텐츠 그림:** `.art`·`.art--장면` 선택자(`layout-principles/assets/content-art.css`의 사진 대역)와 `--art-*` 변수는 사진처럼 내용이다. 색(`hue-count`·`tinted-surface`)·효과(`effect-overuse`)·반경(`radius-variety`)·상자(`nested-card`)로 세지 않는다. 글자 크기·간격은 그대로 본다.
 

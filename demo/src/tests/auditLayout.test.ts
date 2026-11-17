@@ -1115,3 +1115,63 @@ describe('auditLayout — 위 테두리에 올라탄 legend (legend-on-border)',
     expect(found('export const A = () => (<fieldset className="border-t pt-6"><legend className="sr-only">인원</legend></fieldset>)', 'A.tsx')).toEqual([])
   })
 })
+
+describe('auditLayout — 좁은 화면 처리가 없는 표 (table-squeeze)', () => {
+  const table = (cols: string[], cls = 'stock') =>
+    `<table class="${cls}"><thead><tr>${cols.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody><tr>${cols.map(() => '<td>값</td>').join('')}</tr></tbody></table>`
+  const page = ({ css, body }: { css: string; body: string }) => `<!doctype html><html><head><style>${css}</style></head><body>${body}</body></html>`
+  const BASE = '.stock { width: 100%; border-collapse: collapse; }\n.stock th, .stock td { padding: 12px 8px; text-align: left; }'
+  const FOUR = ['품목', '현재 수량', '적정 수량', '상태']
+  const found = (sources: Array<{ file: string; text: string }>) => auditLayout(sources).filter((f) => f.rule === 'table-squeeze')
+
+  it('열이 4개 이상인 표에 좁은 화면 규칙이 없으면 알린다 — 390px에서 그대로 좁아져 이름이 여러 줄로 꺾인다', () => {
+    const findings = found([{ file: 'index.html', text: page({ css: BASE, body: table(FOUR) }) }])
+    expect(findings).toHaveLength(1)
+    expect(findings[0].severity).toBe('warn')
+    expect(findings[0].message).toContain('4')
+  })
+
+  it('미디어 쿼리에서 표의 display를 바꿨으면(행으로 다시 놓기) 조용하다', () => {
+    const css = `${BASE}\n@media (max-width: 640px) {\n  .stock, .stock tbody { display: block; }\n  .stock tr { display: grid; grid-template-columns: 1fr auto; }\n}`
+    expect(found([{ file: 'index.html', text: page({ css, body: table(FOUR) }) }])).toEqual([])
+  })
+
+  it('컨테이너 쿼리로 바꿔도 조용하다', () => {
+    const css = `${BASE}\n@container (max-width: 520px) { .stock tr { display: grid; } }`
+    expect(found([{ file: 'index.html', text: page({ css, body: table(FOUR) }) }])).toEqual([])
+  })
+
+  it('미디어 쿼리가 여백만 바꾸면 여전히 알린다', () => {
+    const css = `${BASE}\n@media (max-width: 640px) { .stock th, .stock td { padding: 8px 4px; } }`
+    expect(found([{ file: 'index.html', text: page({ css, body: table(FOUR) }) }])).toHaveLength(1)
+  })
+
+  it('열이 3개 이하면 조용하다', () => {
+    expect(found([{ file: 'index.html', text: page({ css: BASE, body: table(['품목', '수량', '상태']) }) }])).toEqual([])
+  })
+
+  it('표에 최소 폭을 주고 감싼 칸이 옆으로 넘기면 조용하다 — 좁아지지 않고 넘긴다', () => {
+    const css = `${BASE}\n.stock { min-width: 560px; }\n.scroll { overflow-x: auto; }`
+    expect(found([{ file: 'index.html', text: page({ css, body: `<div class="scroll">${table(FOUR)}</div>` }) }])).toEqual([])
+  })
+
+  it('칸 하나의 줄바꿈 금지와 다른 곳(메뉴)의 가로 스크롤은 표를 넘기는 장치가 아니다 — 여전히 알린다', () => {
+    const css = `${BASE}\n.stock td.qty { white-space: nowrap; }\n.nav { overflow-x: auto; }`
+    expect(found([{ file: 'index.html', text: page({ css, body: `<nav class="nav"></nav>${table(FOUR)}` }) }])).toHaveLength(1)
+  })
+
+  it('표의 CSS가 검사 범위에 없으면 조용하다 — 다른 파일이나 유틸리티 클래스로 처리했을 수 있다', () => {
+    expect(found([{ file: 'Stock.tsx', text: `export const Stock = () => (${table(FOUR).replaceAll('class=', 'className=')})` }])).toEqual([])
+  })
+
+  it('마크업과 CSS가 다른 파일이어도 함께 검사하면 잇는다', () => {
+    const jsx = { file: 'Stock.tsx', text: `export const Stock = () => (${table(FOUR).replaceAll('class=', 'className=')})` }
+    expect(found([jsx, { file: 'stock.css', text: BASE }])).toHaveLength(1)
+    expect(found([jsx, { file: 'stock.css', text: `${BASE}\n@media (max-width: 640px) { .stock tr { display: grid; } }` }])).toEqual([])
+  })
+
+  it('머리 행이 없으면 첫 행의 칸 수로 센다', () => {
+    const body = '<table class="stock"><tr><td>우유</td><td>9L</td><td>20L</td><td>부족</td><td>입고</td></tr></table>'
+    expect(found([{ file: 'index.html', text: page({ css: BASE, body }) }])).toHaveLength(1)
+  })
+})

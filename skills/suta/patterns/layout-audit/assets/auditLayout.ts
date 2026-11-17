@@ -1468,6 +1468,83 @@ const auditLegendOnBorder = ({ markup, facts, push }: { markup: string; facts: B
   }
 }
 
+/* ---------------- 좁은 화면 처리가 없는 표 ---------------- */
+
+const TABLE_PART = /^(?:table|thead|tbody|tfoot|tr|td|th)$/
+const TABLE_MIN_COLS = 4
+/** 표가 좁아지지 않고 옆으로 넘어가게 하는 최소 폭 — 이보다 작으면 390px 화면에서 넘길 것이 없다 */
+const TABLE_SCROLL_MIN_PX = 400
+/** 선택자의 모든 마디(조상 포함)가 가리키는 태그·클래스 */
+const allKeysOf = (block: CssBlock) =>
+  splitTopLevel(block.fullSelector).flatMap((selector) => {
+    const { last, ancestors } = anatomyOf(selector)
+    return [...ancestors, last].flatMap(keysOf)
+  })
+const inNarrowQuery = (block: CssBlock) => /^@(?:media|container)\b/i.test(block.selector.trim())
+
+/**
+ * 열이 많은 표에 좁은 화면 규칙이 없으면 390px에서 열이 그대로 좁아진다. 이름이 두세 줄로 꺾이고 행 높이가 들쭉날쭉해진다.
+ * 렌더해야 보이는 흠이라 코드에서 신호를 본다 — 표의 CSS가 검사 범위에 있는데, 그 표를 좁은 화면에서 다시 놓는 규칙
+ * (미디어·컨테이너 쿼리 안의 display)도 옆으로 넘기는 장치(표의 최소 폭 + 넘기는 칸)도 없다.
+ * 표의 CSS가 보이지 않으면(다른 파일, 유틸리티 클래스) 판단하지 않는다.
+ */
+const auditTableSqueeze = ({ markup, facts, push }: { markup: string; facts: BlockFacts[]; push: Push }) => {
+  if (!/<table\b/i.test(markup)) return
+  type Open = { line: number; own: Set<string>; keys: Set<string>; cols: number; rowDone: boolean; inFirstRow: boolean }
+  const open: Open[] = []
+  const done: Open[] = []
+  for (const tag of scanTags(markup)) {
+    const name = tag.name.toLowerCase()
+    if (!TABLE_PART.test(name)) continue
+    if (name === 'table') {
+      if (tag.closing) {
+        const table = open.pop()
+        if (table) done.push(table)
+      } else {
+        const own = ['table', ...classTokensOf(tag.attrs).map((c) => `.${c}`)]
+        open.push({ line: lineOf(markup, tag.start), own: new Set(own), keys: new Set(own), cols: 0, rowDone: false, inFirstRow: false })
+      }
+      continue
+    }
+    const table = open.at(-1)
+    if (!table) continue
+    if (tag.closing) {
+      if (name === 'tr' && table.inFirstRow) {
+        table.inFirstRow = false
+        table.rowDone = true
+      }
+      continue
+    }
+    table.keys.add(name)
+    for (const c of classTokensOf(tag.attrs)) table.keys.add(`.${c}`)
+    // 열 수는 첫 행(머리 행이 있으면 그 행)의 칸 수다
+    if (name === 'tr' && !table.rowDone) table.inFirstRow = true
+    if ((name === 'th' || name === 'td') && table.inFirstRow) table.cols += 1
+  }
+  if (!done.length) return
+  const scrolls = facts.some((fact) => fact.decls.some(({ prop, value }) => /^overflow(?:-x)?$/.test(prop) && /\b(?:auto|scroll)\b/i.test(value)))
+  for (const table of done) {
+    if (table.cols < TABLE_MIN_COLS) continue
+    const related = facts.filter((fact) => allKeysOf(fact.block).some((key) => table.keys.has(key)))
+    if (!related.length) continue // 이 표의 CSS가 검사 범위에 없다
+    const reflowed = related.some((fact) => inNarrowQuery(fact.block) && fact.decls.some(({ prop }) => prop === 'display'))
+    // 표 자신에 준 최소 폭만 본다 — 칸 하나의 nowrap이나 다른 요소의 폭은 표를 넘기지 못한다
+    const wide = related.some(
+      (fact) =>
+        splitTopLevel(fact.block.fullSelector).some((selector) => keysOf(anatomyOf(selector).last).some((key) => table.own.has(key))) &&
+        fact.decls.some(({ prop, value }) => (prop === 'min-width' && (toPx(unwrapVar(value)) ?? 0) >= TABLE_SCROLL_MIN_PX) || (prop === 'width' && /max-content/i.test(value))),
+    )
+    if (reflowed || (wide && scrolls)) continue
+    push({
+      line: table.line,
+      rule: 'table-squeeze',
+      severity: 'warn',
+      message: `열 ${table.cols}개인 표에 좁은 화면 규칙이 없다 — 390px에서 열이 그대로 좁아져 이름이 여러 줄로 꺾이고 행 높이가 들쭉날쭉해진다`,
+      fix: '좁은 화면에서 행마다 "이름 + 핵심 값 / 나머지 값 한 줄"로 다시 놓는다(@media에서 tr을 display: grid로, 머리 행은 숨김 글자로). 값은 빼지 않는다. 옆으로 넘기려면 표에 min-width를 주고 감싼 칸에 overflow-x: auto를 주되 이름·핵심 값 열이 첫 화면 안에 있어야 한다',
+    })
+  }
+}
+
 const collectBoxKeys = (factsByFile: BlockFacts[][]) => {
   const keys = new Set<string>()
   for (const facts of factsByFile) {
@@ -1512,6 +1589,7 @@ export const auditLayout = (sources: Source[]): Finding[] => {
       auditMarkup({ markup: parts.markup, boxKeys, tally, push, remBase })
       auditStackedButtons({ markup: parts.markup, rules: displayRules, push })
       auditLegendOnBorder({ markup: parts.markup, facts: allFacts, push })
+      auditTableSqueeze({ markup: parts.markup, facts: allFacts, push })
       collectEmoji({ markup: parts.markup, tally })
     }
     auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })
