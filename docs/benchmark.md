@@ -301,6 +301,7 @@ node scripts/benchmark/judge.mjs --out ../suta-bench                            
 node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # 항목별 판정(선택) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # 집계 → evals/benchmark/results.json(--name으로 이름 변경)
 node scripts/benchmark/archive.mjs --out ../suta-bench --name <이름>              # 생성물 보존 → evals/benchmark/artifacts/<이름>.json.gz
+node scripts/benchmark/fidelity.mjs --out ../suta-bench                          # 요구 충족률(fidelity 요청 세트만, 선택) → fidelity-summary.json
 ```
 
 ### 생성물 보존(2026-11부터)
@@ -320,3 +321,52 @@ node scripts/benchmark/measure.mjs --out ../suta-bench-restored                 
 ```
 
 작업 폴더는 저장소 밖의 짧은 경로가 좋습니다. 모델이 긴 경로를 옮겨 적다 틀리면, 작업 폴더 밖 쓰기로 막혀 산출물이 없는 실행이 생깁니다.
+
+### 요구 충족률(2026-11-26부터)
+
+`fidelity.mjs`는 요청문에 적힌 디테일을 화면이 그대로 지켰는지 잽니다. 설계는 `docs/research/2026-11-26-fidelity.md` 4절입니다.
+
+- 요청문을 낱개 요구로 나눈 목록이 `evals/benchmark/fidelity/requirements.json`에 있습니다. 요청 6개, 요구 114개입니다.
+- 요구마다 실제 브라우저(Chromium)로 `index.html`을 새로 엽니다. 앞 요구의 조작이 뒤 요구에 남지 않게 하려는 것입니다.
+- 계산된 스타일을 봅니다. 브라우저가 CSS를 모두 적용한 뒤의 실제 값입니다. 상자 좌표·글자·속성도 함께 봅니다.
+- 대상은 CSS 선택자로 찾지 않습니다. 생성물마다 클래스 이름이 다르기 때문입니다.
+  - 역할과 접근 이름으로 찾습니다. 접근 이름은 스크린 리더가 읽는 이름입니다(예: '담기' 버튼).
+  - 카드·행은 요청문의 데이터 글자(메뉴 이름 등)로 찾습니다. 글자마다 조상을 올라가, 형제 중에 다른 글자를 품은 요소가 있는 가장 낮은 조상을 한 장으로 봅니다.
+  - 화면 위·아래에 붙은 머리·막대, 다른 요소 가까이 있는 요소 같은 관계로도 찾습니다.
+
+요구 하나의 결과는 다섯 가지 중 하나입니다.
+
+| 결과 | 뜻 |
+|---|---|
+| 지킴(met) | 기대값과 맞습니다. 길이는 1px, 색은 거리 2(RGB 채널 차이의 합)까지 봐줍니다 |
+| 어김(violated) | 기대값과 다릅니다. 차이를 함께 적습니다 |
+| 찾지 못함(not-found) | 대상이나 조작 대상을 찾지 못했습니다. 화면의 잘못인지 찾는 규칙의 모자람인지 몰라 어김과 따로 셉니다 |
+| 판정 필요(needs-judge) | 기계로 볼 수 없는 요구입니다(`type: judge`) |
+| 미지원(unsupported) | 이 검사기가 아직 읽지 못하는 문법을 쓴 요구입니다. 어떤 키 때문인지 이유를 남깁니다 |
+
+충족률은 두 가지입니다. 판정 필요와 미지원은 어느 쪽 분모에도 넣지 않습니다.
+
+- 엄격: 지킴 ÷ (지킴 + 어김 + 찾지 못함)
+- 너그러움: 지킴 ÷ (지킴 + 어김)
+
+`fidelity-summary.json`은 이 둘을 조건별로 내고, 요구 종류(`kind`)별, suta 기본값과 부딪치는 요구인지별, 요구 순서 3분위별로도 나눕니다. 찾지 못함 비율과 미지원 이유별 개수도 담습니다.
+
+지금 지원하는 범위는 요구 목록 초안이 자주 쓰는 핵심 문법뿐입니다.
+
+- 검사 종류: `style`·`exists`·`count`·`text`·`attr`·`columns`·`spacing`, 조작(`steps`)과 조작 뒤 기대값(`then`)
+- 조작: 누르기·스크롤·기다리기·키·마우스 올리기·입력·포커스·길게 누르기·끌기
+- 기대값: `px`·`color`(허용 오차 `tol`)·`equals`·`matches`·`min`·`max`·`count`·`visible`
+
+초안의 요구 114개 중 지원 17개, 미지원 96개, 판정 필요 1개입니다. 미지원이 많은 것은 초안이 검사 종류(`order`·`motion`·`timing`·`focus` 등)와 뜻으로 쓴 키(`alsoVisible`·`containsEach` 등)를 넓게 썼기 때문입니다. 지원 범위는 이렇게 봅니다.
+
+```bash
+node scripts/benchmark/fidelity.mjs --coverage    # 브라우저 없이 요청별 지원·미지원 수와 미지원 이유 상위
+```
+
+검사기를 시험하는 견본 화면 두 개가 `evals/benchmark/fidelity/fixtures/`에 있습니다. `bakery-pickup` 요청을 지킨 판과 일부러 8곳을 어긴 판입니다. 검사기는 실행 폴더에 결과를 쓰므로, 복사해서 돌립니다.
+
+```bash
+cp -r evals/benchmark/fidelity/fixtures /tmp/fidelity-fixtures
+node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # 지킨 판 9/9 지킴, 어긴 판 7곳 어김
+```
+

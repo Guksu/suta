@@ -301,6 +301,7 @@ node scripts/benchmark/judge.mjs --out ../suta-bench                            
 node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # per-criterion judgment (optional) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # aggregate → evals/benchmark/results.json (--name changes the file name)
 node scripts/benchmark/archive.mjs --out ../suta-bench --name <name>             # keep the output → evals/benchmark/artifacts/<name>.json.gz
+node scripts/benchmark/fidelity.mjs --out ../suta-bench                          # request fidelity (fidelity prompt set only, optional) → fidelity-summary.json
 ```
 
 ### Keeping the generated output (since 2026-11)
@@ -320,3 +321,52 @@ node scripts/benchmark/measure.mjs --out ../suta-bench-restored                 
 ```
 
 Use a short work path outside the repository. When a model mistypes a long path, the write lands outside the work folder, gets blocked, and the run ends without output.
+
+### Request fidelity (since 2026-11-26)
+
+`fidelity.mjs` measures whether a page kept the details written in the request. The design is in section 4 of `docs/research/2026-11-26-fidelity.md`.
+
+- The list of requests split into single requirements is `evals/benchmark/fidelity/requirements.json`. It has 6 requests and 114 requirements.
+- Each requirement opens `index.html` fresh in a real browser (Chromium). This keeps one requirement's interactions from leaking into the next.
+- It reads computed styles. A computed style is the actual value after the browser applies all CSS. It also reads box coordinates, text and attributes.
+- It does not find elements with CSS selectors. Every generated page uses different class names.
+  - It finds elements by role and accessible name. The accessible name is the name a screen reader reads (for example, the '담기' button).
+  - It finds cards and rows by the data text in the request (menu names and so on). From each text it climbs the ancestors and takes the lowest one that has a sibling holding another of those texts.
+  - It also finds elements by relation: a header or bar pinned to the top or bottom of the screen, or an element near another one.
+
+Each requirement gets one of five results.
+
+| Result | Meaning |
+|---|---|
+| met | Matches the expected value. Lengths allow 1px, colors allow a distance of 2 (sum of RGB channel differences) |
+| violated | Differs from the expected value. The difference is recorded |
+| not-found | The target or the element to interact with was not found. It may be the page's fault or a gap in the finding rules, so it is counted apart from violated |
+| needs-judge | Cannot be checked by machine (`type: judge`) |
+| unsupported | Uses grammar this checker cannot read yet. The keys that caused it are recorded |
+
+There are two fidelity rates. Neither counts needs-judge or unsupported in the denominator.
+
+- Strict: met ÷ (met + violated + not-found)
+- Lenient: met ÷ (met + violated)
+
+`fidelity-summary.json` gives both per condition. It also splits them by requirement kind (`kind`), by whether the requirement conflicts with a suta default, and by requirement position in thirds. It also holds the not-found rate and the count of each unsupported reason.
+
+For now the checker supports only the core grammar the draft list uses most.
+
+- Check types: `style`, `exists`, `count`, `text`, `attr`, `columns`, `spacing`, with interactions (`steps`) and expectations after them (`then`)
+- Interactions: click, scroll, wait, key press, hover, type, focus, long press, drag
+- Expectations: `px`, `color` (tolerance `tol`), `equals`, `matches`, `min`, `max`, `count`, `visible`
+
+Of the 114 draft requirements, 17 are supported, 96 unsupported and 1 needs a judge. Most are unsupported because the draft uses many check types (`order`, `motion`, `timing`, `focus` and so on) and keys that describe meaning (`alsoVisible`, `containsEach` and so on). See the support range like this.
+
+```bash
+node scripts/benchmark/fidelity.mjs --coverage    # no browser; supported and unsupported counts per request, top unsupported reasons
+```
+
+Two sample pages for testing the checker are in `evals/benchmark/fidelity/fixtures/`. One keeps the `bakery-pickup` request; the other breaks it on purpose in 8 places. The checker writes results into the run folders, so run it on a copy.
+
+```bash
+cp -r evals/benchmark/fidelity/fixtures /tmp/fidelity-fixtures
+node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # kept page 9/9 met, broken page 7 violated
+```
+

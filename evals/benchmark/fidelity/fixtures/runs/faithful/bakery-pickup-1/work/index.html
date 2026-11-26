@@ -1,0 +1,257 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — bakery-pickup 요청(app-prompts.json)을 지킨 판.
+  사람이 손으로 쓴 화면이다. 클래스 이름·구조는 검사기에 맞추지 않았다.
+  본문은 창이 아니라 .screen 칸 안에서 넘어간다(앱 화면에서 흔한 구조 — 스크롤 조작이 창 밖 칸도 넘기는지 본다).
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>밀밭제과 — 픽업 주문</title>
+<style>
+  :root {
+    --brand: #C2410C;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --line: #e8e8e8;
+    --bg: #fafafa;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    word-break: keep-all;
+  }
+  .screen { height: 100dvh; overflow-y: auto; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px; padding: 0 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    transition: height 200ms ease;
+  }
+  .topbar h1 { margin: 0; font-size: 20px; font-weight: 700; transition: font-size 200ms ease; }
+  .topbar.is-compact { height: 44px; }
+  .topbar.is-compact h1 { font-size: 17px; }
+
+  .cart {
+    position: relative;
+    width: 44px; height: 44px; margin-right: -10px;
+    display: grid; place-items: center;
+    border: 0; background: none; color: var(--ink); cursor: pointer;
+  }
+  .cart svg { width: 24px; height: 24px; }
+  .cart-count {
+    position: absolute; top: 4px; right: 2px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px;
+    background: #dc2626; color: #fff;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+  }
+  .cart-count[hidden] { display: none; }
+
+  .categories {
+    display: flex; gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .categories button {
+    flex: none;
+    height: 36px; padding: 0 14px;
+    border: 1px solid var(--line); border-radius: 18px;
+    background: var(--surface); color: var(--ink);
+    font: inherit; font-size: 14px; cursor: pointer;
+  }
+  .categories button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  .menu {
+    list-style: none; margin: 0; padding: 4px 16px 96px;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+  }
+  .menu li {
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .menu .photo { aspect-ratio: 4 / 3; background: #efe9e1; }
+  .menu .info { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; flex: 1; }
+  .menu h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .menu .price { margin: 0; color: var(--brand); font-size: 15px; font-weight: 700; }
+  .menu .add {
+    align-self: flex-end; margin-top: 8px;
+    height: 36px; padding: 0 16px;
+    border: 0; border-radius: 8px;
+    background: var(--brand); color: #FFFFFF;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .menu li.is-sold-out { opacity: 0.5; }
+  .menu .add:disabled { background: #d4d4d4; color: #525252; cursor: not-allowed; }
+
+  .skeleton { list-style: none; margin: 0; padding: 4px 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .skeleton li { height: 200px; border-radius: 12px; background: #e9e9e9; }
+
+  .empty { padding: 80px 16px; text-align: center; color: var(--muted); }
+
+  .toast {
+    position: fixed; left: 16px; right: 16px; bottom: 24px;
+    padding: 14px 16px; border-radius: 10px;
+    background: #262626; color: #fff; font-size: 14px;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 160ms ease, transform 160ms ease;
+    pointer-events: none;
+  }
+  .toast.is-shown { opacity: 1; transform: none; }
+
+  .press-menu {
+    position: fixed; z-index: 20;
+    min-width: 140px; padding: 6px;
+    background: var(--surface); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  }
+  .press-menu[hidden] { display: none; }
+  .press-menu button {
+    display: block; width: 100%; height: 44px; padding: 0 12px;
+    border: 0; background: none; text-align: left; font: inherit; font-size: 15px; cursor: pointer;
+  }
+
+  @media (max-width: 359px) {
+    .menu, .skeleton { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .topbar, .topbar h1, .toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <header class="topbar" id="topbar">
+    <h1>밀밭제과</h1>
+    <button class="cart" type="button" aria-label="장바구니">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+      <span class="cart-count" id="cart-count" hidden>0</span>
+    </button>
+  </header>
+
+  <nav class="categories" aria-label="분류">
+    <button type="button" aria-pressed="true" data-cat="all">전체</button>
+    <button type="button" aria-pressed="false" data-cat="bread"><span aria-hidden="true">🍞</span> 식빵</button>
+    <button type="button" aria-pressed="false" data-cat="pastry"><span aria-hidden="true">🥐</span> 페이스트리</button>
+    <button type="button" aria-pressed="false" data-cat="cake"><span aria-hidden="true">🍰</span> 케이크</button>
+    <button type="button" aria-pressed="false" data-cat="drink"><span aria-hidden="true">☕</span> 음료</button>
+  </nav>
+
+  <main id="content"></main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="press-menu" id="press-menu" role="menu" hidden>
+  <button type="button" role="menuitem">찜하기</button>
+  <button type="button" role="menuitem">자세히 보기</button>
+</div>
+
+<script>
+  const MENU = [
+    { name: '소금빵', price: 3500, cat: 'bread' },
+    { name: '우유식빵', price: 5800, cat: 'bread' },
+    { name: '크루아상', price: 4200, cat: 'pastry' },
+    { name: '딸기 생크림 케이크', price: 32000, cat: 'cake' },
+    { name: '바닐라 라떼', price: 5000, cat: 'drink' },
+    { name: '앙버터', price: 4800, cat: 'pastry', soldOut: true },
+  ]
+  const won = (n) => `${n.toLocaleString('ko-KR')}원`
+  const state = new URLSearchParams(location.search).get('state')
+  const content = document.getElementById('content')
+  let category = 'all'
+  let count = 0
+
+  const render = () => {
+    if (state === 'loading') {
+      content.innerHTML = `<ul class="skeleton" aria-busy="true" aria-label="메뉴를 불러오는 중">${'<li></li>'.repeat(6)}</ul>`
+      return
+    }
+    const items = state === 'empty' ? [] : MENU.filter((m) => category === 'all' || m.cat === category)
+    if (items.length === 0) {
+      content.innerHTML = '<p class="empty">아직 준비된 빵이 없어요</p>'
+      return
+    }
+    content.innerHTML = `<ul class="menu">${items
+      .map(
+        (m) => `<li class="${m.soldOut ? 'is-sold-out' : ''}" data-name="${m.name}">
+          <div class="photo" aria-hidden="true"></div>
+          <div class="info">
+            <h2>${m.name}</h2>
+            <p class="price">${won(m.price)}</p>
+            ${m.soldOut ? '<button class="add" type="button" disabled>품절</button>' : '<button class="add" type="button">담기</button>'}
+          </div>
+        </li>`,
+      )
+      .join('')}</ul>`
+  }
+  render()
+
+  // 분류 칩
+  document.querySelector('.categories').addEventListener('click', (event) => {
+    const chip = event.target.closest('button')
+    if (!chip) return
+    category = chip.dataset.cat
+    document.querySelectorAll('.categories button').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)))
+    render()
+  })
+
+  // 담기 — 숫자를 바로 올리고 알림을 2초 보여 준다
+  const toast = document.getElementById('toast')
+  const badge = document.getElementById('cart-count')
+  let toastTimer = 0
+  content.addEventListener('click', (event) => {
+    const add = event.target.closest('.add')
+    if (!add || add.disabled) return
+    count += 1
+    badge.textContent = String(count)
+    badge.hidden = false
+    document.querySelector('.cart').setAttribute('aria-label', `장바구니, ${count}개 담김`)
+    toast.textContent = '장바구니에 담았어요'
+    toast.classList.add('is-shown')
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toast.classList.remove('is-shown'), 2000)
+  })
+
+  // 머리 줄이기 — 본문 칸이 넘어가면 56 → 44px
+  const screen = document.getElementById('screen')
+  const topbar = document.getElementById('topbar')
+  screen.addEventListener('scroll', () => topbar.classList.toggle('is-compact', screen.scrollTop > 8), { passive: true })
+
+  // 카드 길게 누르기(0.5초) → 작은 메뉴
+  const pressMenu = document.getElementById('press-menu')
+  let pressTimer = 0
+  content.addEventListener('pointerdown', (event) => {
+    const card = event.target.closest('.menu li')
+    if (!card || event.target.closest('button')) return
+    const { clientX, clientY } = event
+    pressTimer = setTimeout(() => {
+      pressMenu.hidden = false
+      pressMenu.style.left = `${Math.min(clientX, innerWidth - 156)}px`
+      pressMenu.style.top = `${clientY}px`
+      pressMenu.querySelector('button').focus()
+    }, 500)
+  })
+  const cancelPress = () => clearTimeout(pressTimer)
+  content.addEventListener('pointerup', cancelPress)
+  content.addEventListener('pointercancel', cancelPress)
+  content.addEventListener('pointermove', (event) => { if (event.pointerType === 'mouse' && event.buttons === 0) cancelPress() })
+  content.addEventListener('contextmenu', (event) => { if (event.target.closest('.menu li')) event.preventDefault() })
+  document.addEventListener('pointerdown', (event) => { if (!pressMenu.hidden && !pressMenu.contains(event.target)) pressMenu.hidden = true })
+  pressMenu.addEventListener('click', () => { pressMenu.hidden = true })
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') pressMenu.hidden = true })
+</script>
+</body>
+</html>
