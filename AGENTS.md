@@ -54,7 +54,7 @@ node scripts/validateSkills.mjs   # 진입 스킬·패턴 구조 검사 — 실�
 node scripts/evalSelection.mjs    # 선택 평가 — UI 요청에 suta가 걸리는지, 요청에 맞는 패턴이 골라지는지
 node skills/suta/scripts/audit.mjs <경로>   # 레이아웃·모션 통합 검사 — error가 있으면 exit 1
 npm run validate                  # 위 두 검사 + 통합 검사(skills/suta 전체, error만 출력)를 한 번에
-node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일반 vs suta) — claude CLI를 수십 번 부르므로 비용이 든다. 측정·집계는 measure.mjs·report.mjs, 방법은 docs/benchmark.md
+node scripts/benchmark/run.mjs --out <폴더>   # 퍼블리싱 벤치마크(일반 vs suta) — claude CLI를 수십 번 부르므로 비용이 든다. 측정·집계는 measure.mjs·report.mjs, 생성물 보존은 archive.mjs(→ evals/benchmark/artifacts), 방법은 docs/benchmark.md
 ```
 
 알려진 제약: `npm run lint`는 `skills/**/assets`를 실제로 검사하지 않는다(ESLint flat config가 `demo/` 밖 파일을 무시). assets 코드는 `npm run build`의 타입 검사와 테스트로 검증된다. `scripts/lib/*.ts`는 Node 22.18 이상이 그대로 실행한다(타입 표기만 벗겨 실행).

@@ -300,6 +300,23 @@ node scripts/benchmark/measure.mjs --out ../suta-bench                          
 node scripts/benchmark/judge.mjs --out ../suta-bench                            # blind judgment (optional)
 node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # per-criterion judgment (optional) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # aggregate → evals/benchmark/results.json (--name changes the file name)
+node scripts/benchmark/archive.mjs --out ../suta-bench --name <name>             # keep the output → evals/benchmark/artifacts/<name>.json.gz
+```
+
+### Keeping the generated output (since 2026-11)
+
+The run folder lives outside the repository and is gone once measuring ends. Runs before 2026-11 left only the aggregate JSON and comparison images, so their pages cannot be reopened. `archive.mjs` packs three things per run into one file in the repository.
+
+- The text files of the output (`index.html` and so on, up to 1 MB per file)
+- `meta.json` (time, cost, tool-call counts)
+- The order of tool calls (`trace`): which files were read and written, and which commands ran. File contents and the runner's folder path are left out.
+
+The full transcript and the screenshots are not included. Screenshots come back when you unpack the bundle and measure again.
+
+```bash
+node scripts/benchmark/archive.mjs --list <name>                                  # skill docs read and tool calls per run
+node scripts/benchmark/archive.mjs --restore <name> --out ../suta-bench-restored  # unpack into runs/<condition>/<id>/ (empty folder only)
+node scripts/benchmark/measure.mjs --out ../suta-bench-restored                   # measure and capture the unpacked output again
 ```
 
 Use a short work path outside the repository. When a model mistypes a long path, the write lands outside the work folder, gets blocked, and the run ends without output.

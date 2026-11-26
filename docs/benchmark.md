@@ -300,6 +300,23 @@ node scripts/benchmark/measure.mjs --out ../suta-bench                          
 node scripts/benchmark/judge.mjs --out ../suta-bench                            # 블라인드 판정(선택)
 node scripts/benchmark/judge.mjs --out ../suta-bench --mode rubric              # 항목별 판정(선택) → judgments-rubric.json
 node scripts/benchmark/report.mjs --out ../suta-bench                           # 집계 → evals/benchmark/results.json(--name으로 이름 변경)
+node scripts/benchmark/archive.mjs --out ../suta-bench --name <이름>              # 생성물 보존 → evals/benchmark/artifacts/<이름>.json.gz
+```
+
+### 생성물 보존(2026-11부터)
+
+실행 폴더는 저장소 밖이라 측정이 끝나면 사라집니다. 2026-11 이전 실행은 집계 JSON과 비교 이미지만 남아서, 화면을 다시 열어 볼 수 없습니다. `archive.mjs`는 실행마다 세 가지를 한 파일로 묶어 저장소에 둡니다.
+
+- 산출물의 글자 파일(`index.html` 등, 파일당 1MB까지)
+- `meta.json`(시간·비용·도구 사용 수)
+- 도구 사용 순서(`trace`): 어떤 파일을 읽고 썼는지, 어떤 명령을 돌렸는지. 파일 내용과 실행한 사람의 폴더 경로는 넣지 않습니다.
+
+대화 기록 전체와 캡처는 넣지 않습니다. 캡처는 묶음을 풀고 측정을 다시 돌리면 나옵니다.
+
+```bash
+node scripts/benchmark/archive.mjs --list <이름>                                  # 실행마다 읽은 스킬 문서와 도구 사용 수
+node scripts/benchmark/archive.mjs --restore <이름> --out ../suta-bench-restored  # runs/<조건>/<id>/ 배치로 풀기(빈 폴더에만)
+node scripts/benchmark/measure.mjs --out ../suta-bench-restored                   # 풀어 놓은 산출물을 다시 측정·캡처
 ```
 
 작업 폴더는 저장소 밖의 짧은 경로가 좋습니다. 모델이 긴 경로를 옮겨 적다 틀리면, 작업 폴더 밖 쓰기로 막혀 산출물이 없는 실행이 생깁니다.

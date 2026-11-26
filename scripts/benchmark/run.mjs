@@ -12,7 +12,7 @@
  * 사용: node scripts/benchmark/run.mjs --out <폴더> [--repeats 2] [--concurrency 3] [--only id,id]
  *                                     [--conditions baseline,suta] [--model 이름] [--effort 수준] [--budget 4]
  *                                     [--prompts evals/benchmark/app-prompts.json]
- * 다음 단계: measure.mjs(측정) → report.mjs(집계)
+ * 다음 단계: measure.mjs(측정) → report.mjs(집계) → archive.mjs(생성물 보존 — 이 폴더는 저장소 밖이라 사라진다)
  */
 import { spawn } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
