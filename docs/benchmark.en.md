@@ -327,7 +327,7 @@ Use a short work path outside the repository. When a model mistypes a long path,
 `fidelity.mjs` measures whether a page kept the details written in the request. The design is in section 4 of `docs/research/2026-11-26-fidelity.md`.
 
 - The list of requests split into single requirements is `evals/benchmark/fidelity/requirements.json`. It has 6 requests and 114 requirements.
-- Each requirement opens `index.html` fresh in a real browser (Chromium). This keeps one requirement's interactions from leaking into the next.
+- Each requirement opens `index.html` fresh in a real browser (Chromium). This keeps one requirement's interactions from leaking into the next. Several checks inside one requirement share a page when they use the same viewport, state and interactions.
 - It reads computed styles. A computed style is the actual value after the browser applies all CSS. It also reads box coordinates, text and attributes.
 - It does not find elements with CSS selectors. Every generated page uses different class names.
   - It finds elements by role and accessible name. The accessible name is the name a screen reader reads (for example, the '담기' button).
@@ -338,7 +338,7 @@ Each requirement gets one of five results.
 
 | Result | Meaning |
 |---|---|
-| met | Matches the expected value. Lengths allow 1px, colors allow a distance of 2 (sum of RGB channel differences) |
+| met | Matches the expected value. Tolerances are in the table below |
 | violated | Differs from the expected value. The difference is recorded |
 | not-found | The target or the element to interact with was not found. It may be the page's fault or a gap in the finding rules, so it is counted apart from violated |
 | needs-judge | Cannot be checked by machine (`type: judge`) |
@@ -351,22 +351,53 @@ There are two fidelity rates. Neither counts needs-judge or unsupported in the d
 
 `fidelity-summary.json` gives both per condition. It also splits them by requirement kind (`kind`), by whether the requirement conflicts with a suta default, and by requirement position in thirds. It also holds the not-found rate and the count of each unsupported reason.
 
-For now the checker supports only the core grammar the draft list uses most.
+Each requirement has one check (`check`). The grammar stays small; a requirement that needs several checks groups them.
 
-- Check types: `style`, `exists`, `count`, `text`, `attr`, `columns`, `spacing`, with interactions (`steps`) and expectations after them (`then`)
-- Interactions: click, scroll, wait, key press, hover, type, focus, long press, drag
-- Expectations: `px`, `color` (tolerance `tol`), `equals`, `matches`, `min`, `max`, `count`, `visible`
+- There are twelve check types (`type`).
+  - Values on the page: `style` (computed style), `attr` (accessibility state or attribute), `text`, `exists` (present or visible), `count` (number visible)
+  - Layout: `columns` (number of columns), `spacing` (gap between rows and cells), `order` (reading order, same row, horizontal scrolling, aligned right edges of text, numbers sorted)
+  - After an interaction: `focus` (where focus is), `motion` (length and direction of movement, smooth scrolling), `timing` (when something appeared and disappeared)
+  - Not checkable by machine: `judge` (a question `ask` for the judge model)
+- Groups: `checks` is met only when all are met; `anyOf` is met when one is met. Children inherit the parent's keys (viewport, state, interactions, target, property). Requirements with several valid implementations (a strikethrough or a checked state, `aria-pressed` or `aria-checked`) use `anyOf`.
+- Targets: role and accessible name (including the regex `nameMatches`), text, repeated unit (`unit`), bars pinned to the screen (`pinned`), an open dialog (`dialog`) and skeletons (`blank`, painted boxes with no text). Add `near`, `within`, `inner`, `nth`, and the filters `containsText` (holds that text) and `live` (inside a live region).
+- Interactions: click, hover, focus, long press, drag (start point `from: "top"`), type, key press, scroll and wait. With `reducedMotion: true` the browser opens with reduced motion on.
 
-Of the 114 draft requirements, 17 are supported, 96 unsupported and 1 needs a judge. Most are unsupported because the draft uses many check types (`order`, `motion`, `timing`, `focus` and so on) and keys that describe meaning (`alsoVisible`, `containsEach` and so on). See the support range like this.
+Some values are read the way the page shows them.
+
+- Accessibility states (`aria-checked`, `aria-expanded`, `aria-disabled`, `aria-selected`) fall back to the native state when the attribute is missing. Examples are a checkbox's `checked`, a `details` element's `open`, and `disabled`.
+- When an element's background is transparent, it reads the color of the nearest painted ancestor. Blur, filter and strikethrough show even when set on an ancestor, so ancestors are read too.
+- A hidden radio or checkbox looks like its visible `label`. If the `label` is visible, the input counts as visible, and clicks go to the `label`.
+- Text inside `script` (data arrays) does not count as text on the page.
+
+Tolerances:
+
+| Value | Tolerance |
+|---|---|
+| Width, height and gaps measured from boxes | 1px |
+| Computed lengths (font size, radius, border) | 0.5px |
+| Expected values under 4px | a quarter of the value (so 0px does not pass a 1px line) |
+| Color | distance 2 (sum of RGB channel differences) |
+| Length of a movement | 20ms |
+
+`motion` starts recording right before the last interaction. On every frame it collects `document.getAnimations()` and `style` changes made by scripts, then reports length, properties and box movement. Transitions that only change color (a hover background) and movements shorter than 20ms do not count. The same recording will serve before-and-after comparisons when entrance and scroll motion is improved. `timing` checks every 50ms after the last interaction whether the target is visible.
+
+Some rules separate not-found from violated.
+
+- A target found by scanning the whole page (text, skeleton) that is missing is violated. The finding rule cannot fall short.
+- When the role-based target exists but nothing passes the filter, it is violated. An example is a footer without '사업자' (business info).
+- When other units of the same list are found but this item is not, it is violated. An example is a row that does not come back after undo.
+- When the role-based target itself is missing, it is not-found. The page may have left out the role, or the rule may fall short.
+
+Of the 114 requirements, 111 (97%) are checked by machine and 3 need a judge (P01 and F02 on tone, I06 on real company names). None are unsupported. Where a check could not carry the whole meaning, `check.note` says what is missing. See the support range like this.
 
 ```bash
-node scripts/benchmark/fidelity.mjs --coverage    # no browser; supported and unsupported counts per request, top unsupported reasons
+node scripts/benchmark/fidelity.mjs --coverage    # no browser; supported, unsupported and judge counts per request, and unsupported reasons
 ```
 
-Two sample pages for testing the checker are in `evals/benchmark/fidelity/fixtures/`. One keeps the `bakery-pickup` request; the other breaks it on purpose in 8 places. The checker writes results into the run folders, so run it on a copy.
+Sample pages for testing the checker are in `evals/benchmark/fidelity/fixtures/`. Each of the six requests has one page that keeps it, and `bakery-pickup` also has a page that breaks it on purpose in 11 places. The checker writes results into the run folders, so run it on a copy.
 
 ```bash
 cp -r evals/benchmark/fidelity/fixtures /tmp/fidelity-fixtures
-node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # kept page 9/9 met, broken page 7 violated
+node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # kept pages 111/111 met (3 judge), broken page 11 violated
 ```
 

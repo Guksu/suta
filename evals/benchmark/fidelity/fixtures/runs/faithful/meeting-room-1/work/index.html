@@ -1,0 +1,319 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — meeting-room 요청(web-prompts.json)을 지킨 판.
+  사람이 손으로 쓴 화면이다. 클래스 이름·구조는 검사기에 맞추지 않았다.
+  날짜 줄은 실제 오늘부터 7일을 만든다. 예약된 칸은 어느 날이든 같은 다섯 칸으로 두었다.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모퉁이 회의실 예약</title>
+<style>
+  :root {
+    --ink: #18181b;
+    --muted: #71717a;
+    --line: #e4e4e7;
+    --teal: #0F766E;
+    --error: #DC2626;
+    --bg: #fafafa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink); background: var(--bg);
+    word-break: keep-all;
+  }
+  .site { display: flex; align-items: center; height: 64px; padding: 0 32px; border-bottom: 1px solid var(--line); background: #fff; font-weight: 700; }
+  .page { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; max-width: 1120px; margin: 0 auto; padding: 32px 32px 96px; }
+  .page > main { min-width: 0; }
+  h1 { margin: 0 0 24px; font-size: 26px; }
+  fieldset { margin: 0 0 32px; padding: 0; border: 0; min-width: 0; }
+  legend { margin-bottom: 12px; padding: 0; font-size: 16px; font-weight: 700; }
+
+  .rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .room { position: relative; display: block; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; }
+  .room input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .room strong { display: block; font-size: 16px; }
+  .room span { display: block; margin-top: 4px; font-size: 14px; color: var(--muted); }
+  .room:has(input:checked) { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
+  .room:has(input:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+  .days { display: flex; gap: 8px; overflow-x: auto; }
+  .day {
+    flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    width: 64px; height: 72px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+    font: inherit; cursor: pointer;
+  }
+  .day small { font-size: 12px; color: var(--muted); }
+  .day strong { font-size: 18px; }
+  .day[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .day[aria-pressed="true"] small { color: #d4d4d8; }
+
+  .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .slot {
+    height: 44px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    font: inherit; font-size: 14px; font-variant-numeric: tabular-nums; cursor: pointer;
+  }
+  .slot[aria-disabled="true"] {
+    color: #a1a1aa; cursor: not-allowed;
+    background-color: #f4f4f5;
+    background-image: repeating-linear-gradient(135deg, #d4d4d8 0 2px, transparent 2px 8px);
+  }
+  .slot.is-selected { border-color: var(--teal); background: #0F766E; color: #FFFFFF; }
+  .slot:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .slot-error { margin: 8px 0 0; font-size: 14px; color: var(--error); min-height: 20px; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+  .field input {
+    width: 100%; height: 48px; padding: 0 14px;
+    border: 1px solid #D1D5DB; border-radius: 8px; background: #fff;
+    font: inherit; font-size: 16px; color: var(--ink);
+  }
+  .field input[aria-invalid="true"] { border-color: var(--error); }
+  .field .error { margin: 6px 0 0; font-size: 13px; color: var(--error); }
+
+  .summary { position: sticky; top: 24px; align-self: start; width: 320px; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .summary h2 { margin: 0 0 16px; font-size: 18px; }
+  .summary dl { display: grid; grid-template-columns: 64px 1fr; gap: 10px 8px; margin: 0 0 16px; font-size: 14px; }
+  .summary dt { color: var(--muted); }
+  .summary dd { margin: 0; }
+  .calc { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+  .total { margin: 0 0 20px; font-size: 24px; font-weight: 800; }
+  .book {
+    position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; height: 52px; border: 0; border-radius: 12px; background: var(--ink); color: #fff;
+    font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .book:disabled { opacity: 0.7; cursor: progress; }
+  .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .book[aria-busy="true"] .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  dialog { width: 360px; padding: 28px 24px 24px; border: 0; border-radius: 16px; text-align: center; }
+  dialog::backdrop { background: rgba(24, 24, 27, 0.45); }
+  dialog h2 { margin: 0 0 8px; font-size: 20px; }
+  dialog p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  dialog button { width: 100%; height: 48px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; font: inherit; font-size: 16px; cursor: pointer; }
+
+  @media (max-width: 720px) {
+    .site { padding: 0 16px; }
+    .page { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 120px; }
+    .rooms { grid-template-columns: 1fr; }
+    .slots { grid-template-columns: repeat(3, 1fr); }
+    .summary {
+      position: fixed; top: auto; left: 0; right: 0; bottom: 0; z-index: 10; width: auto;
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); border-radius: 0;
+    }
+    .summary h2, .summary dl, .summary .calc { display: none; }
+    .summary .total { flex: 1; margin: 0; font-size: 20px; }
+    .summary .book { width: auto; padding: 0 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2.4s; }
+  }
+</style>
+</head>
+<body>
+<header class="site">모퉁이</header>
+<div class="page">
+  <main>
+    <h1>회의실 예약</h1>
+    <form id="form" novalidate>
+      <fieldset>
+        <legend>회의실</legend>
+        <div class="rooms">
+          <label class="room"><input type="radio" name="room" value="small" checked><strong>작은방</strong><span>4인 · 시간당 15,000원</span></label>
+          <label class="room"><input type="radio" name="room" value="medium"><strong>중간방</strong><span>8인 · 시간당 25,000원</span></label>
+          <label class="room"><input type="radio" name="room" value="large"><strong>큰방</strong><span>12인 · 시간당 40,000원</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>날짜</legend>
+        <div class="days" id="days"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>시간</legend>
+        <div class="slots" id="slots" role="group" aria-label="시간 칸, 방향키로 옮겨 다닐 수 있어요" aria-describedby="slot-error"></div>
+        <p class="slot-error" id="slot-error" aria-live="polite"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>예약자</legend>
+        <div class="field">
+          <label for="name">이름</label>
+          <input id="name" name="name" autocomplete="name" aria-describedby="name-error">
+          <p class="error" id="name-error" hidden>이름을 입력해 주세요</p>
+        </div>
+        <div class="field">
+          <label for="phone">연락처</label>
+          <input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" aria-describedby="phone-error">
+          <p class="error" id="phone-error" hidden>연락처를 입력해 주세요</p>
+        </div>
+      </fieldset>
+    </form>
+  </main>
+
+  <aside class="summary" aria-label="예약 요약">
+    <h2>예약 요약</h2>
+    <dl>
+      <dt>회의실</dt><dd id="sum-room"></dd>
+      <dt>날짜</dt><dd id="sum-date"></dd>
+      <dt>시간</dt><dd id="sum-time"></dd>
+    </dl>
+    <p class="calc" id="sum-calc"></p>
+    <p class="total" id="sum-total"></p>
+    <button class="book" id="book" type="submit" form="form"><span class="spinner" aria-hidden="true"></span><span id="book-label">예약하기</span></button>
+  </aside>
+</div>
+
+<dialog id="done" aria-labelledby="done-title">
+  <h2 id="done-title">예약이 확정됐어요</h2>
+  <p id="done-desc"></p>
+  <form method="dialog"><button>확인</button></form>
+</dialog>
+
+<script>
+  const ROOMS = { small: { name: '작은방', price: 15000 }, medium: { name: '중간방', price: 25000 }, large: { name: '큰방', price: 40000 } }
+  const BOOKED = ['10:00', '10:30', '14:00', '14:30', '15:00']
+  const TIMES = Array.from({ length: 24 }, (_, i) => `${String(9 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`)
+  const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
+  const won = (n) => `${n.toLocaleString('ko-KR')}원`
+  const form = document.getElementById('form')
+  const slotsEl = document.getElementById('slots')
+  const errorEl = document.getElementById('slot-error')
+  let range = { start: null, end: null }
+  let dayIndex = 0
+  let busy = false
+
+  // 날짜 줄 — 오늘부터 7일
+  const today = new Date()
+  const days = Array.from({ length: 7 }, (_, i) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + i))
+  document.getElementById('days').innerHTML = days
+    .map(
+      (d, i) => `<button type="button" class="day" aria-pressed="${i === 0}" data-index="${i}" aria-label="${i === 0 ? '오늘 ' : ''}${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEKDAYS[d.getDay()]}요일">
+        <small>${i === 0 ? '오늘' : WEEKDAYS[d.getDay()]}</small><strong>${d.getDate()}</strong>${i === 0 ? `<small>${WEEKDAYS[d.getDay()]}</small>` : ''}
+      </button>`,
+    )
+    .join('')
+  document.getElementById('days').addEventListener('click', (event) => {
+    const day = event.target.closest('.day')
+    if (!day) return
+    dayIndex = Number(day.dataset.index)
+    document.querySelectorAll('.day').forEach((b) => b.setAttribute('aria-pressed', String(b === day)))
+    updateSummary()
+  })
+
+  // 시간 칸 — 방향키로 옮겨 다닌다(한 줄에 6칸, 좁은 화면은 3칸)
+  slotsEl.innerHTML = TIMES.map(
+    (t, i) => `<button type="button" class="slot" data-index="${i}" tabindex="${i === 0 ? 0 : -1}" ${BOOKED.includes(t) ? 'aria-disabled="true" aria-label="' + t + ' 예약됨"' : ''}>${t}</button>`,
+  ).join('')
+  const slots = [...slotsEl.querySelectorAll('.slot')]
+  const columns = () => getComputedStyle(slotsEl).gridTemplateColumns.split(' ').length
+  slotsEl.addEventListener('keydown', (event) => {
+    const index = slots.indexOf(event.target)
+    if (index < 0) return
+    const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: columns(), ArrowUp: -columns() }[event.key]
+    if (step === undefined) return
+    event.preventDefault()
+    const next = slots[Math.min(slots.length - 1, Math.max(0, index + step))]
+    slots.forEach((s) => (s.tabIndex = s === next ? 0 : -1))
+    next.focus()
+  })
+
+  const paint = () => {
+    slots.forEach((s, i) => {
+      const lo = range.start
+      const hi = range.end ?? range.start
+      s.classList.toggle('is-selected', lo !== null && i >= lo && i <= hi)
+      s.setAttribute('aria-pressed', String(lo !== null && i >= lo && i <= hi))
+    })
+  }
+  slotsEl.addEventListener('click', (event) => {
+    const slot = event.target.closest('.slot')
+    if (!slot || slot.getAttribute('aria-disabled') === 'true') return
+    const i = Number(slot.dataset.index)
+    errorEl.textContent = ''
+    if (range.start === null || range.end !== null) range = { start: i, end: null }
+    else {
+      const lo = Math.min(range.start, i)
+      const hi = Math.max(range.start, i)
+      if (TIMES.slice(lo, hi + 1).some((t) => BOOKED.includes(t))) {
+        errorEl.textContent = '예약된 시간이 사이에 있어요'
+        range = { start: i, end: null }
+      } else range = { start: lo, end: hi }
+    }
+    paint()
+    updateSummary()
+  })
+
+  const updateSummary = () => {
+    const room = ROOMS[form.room.value]
+    const d = days[dayIndex]
+    document.getElementById('sum-room').textContent = room.name
+    document.getElementById('sum-date').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`
+    if (range.start === null) {
+      document.getElementById('sum-time').textContent = '시간을 골라 주세요'
+      document.getElementById('sum-calc').textContent = ''
+      document.getElementById('sum-total').textContent = won(0)
+      return
+    }
+    const hi = range.end ?? range.start
+    const hours = (hi - range.start + 1) / 2
+    const endTime = TIMES[hi + 1] ?? '21:00'
+    document.getElementById('sum-time').textContent = `${TIMES[range.start]}–${endTime}`
+    document.getElementById('sum-calc').textContent = `${hours}시간 × ${won(room.price)} = ${won(hours * room.price)}`
+    document.getElementById('sum-total').textContent = won(hours * room.price)
+  }
+  form.addEventListener('change', (event) => {
+    if (event.target.name === 'room') updateSummary()
+  })
+  updateSummary()
+
+  // 연락처 — 숫자만 쳐도 하이픈
+  const phone = document.getElementById('phone')
+  phone.addEventListener('input', () => {
+    const digits = phone.value.replace(/\D/g, '').slice(0, 11)
+    phone.value = digits.length < 4 ? digits : digits.length < 8 ? `${digits.slice(0, 3)}-${digits.slice(3)}` : `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
+  })
+
+  // 예약하기 — 비었으면 칸 아래 오류, 아니면 버튼 안 진행 표시 1.5초 뒤 확인 창
+  const book = document.getElementById('book')
+  const showError = (input, message, show) => {
+    input.setAttribute('aria-invalid', String(show))
+    document.getElementById(`${input.id}-error`).hidden = !show
+  }
+  form.addEventListener('submit', (event) => {
+    event.preventDefault()
+    if (busy) return
+    const name = document.getElementById('name')
+    const nameEmpty = name.value.trim() === ''
+    const phoneEmpty = phone.value.trim() === ''
+    showError(name, '이름을 입력해 주세요', nameEmpty)
+    showError(phone, '연락처를 입력해 주세요', phoneEmpty)
+    if (range.start === null) errorEl.textContent = '시간을 골라 주세요'
+    if (nameEmpty) return name.focus()
+    if (phoneEmpty) return phone.focus()
+    if (range.start === null) return slots[0].focus()
+    busy = true
+    book.disabled = true
+    book.setAttribute('aria-busy', 'true')
+    document.getElementById('book-label').textContent = '예약 중'
+    setTimeout(() => {
+      busy = false
+      book.disabled = false
+      book.removeAttribute('aria-busy')
+      document.getElementById('book-label').textContent = '예약하기'
+      document.getElementById('done-desc').textContent = `${document.getElementById('sum-room').textContent} · ${document.getElementById('sum-date').textContent} · ${document.getElementById('sum-time').textContent}`
+      document.getElementById('done').showModal()
+    }, 1500)
+  })
+</script>
+</body>
+</html>

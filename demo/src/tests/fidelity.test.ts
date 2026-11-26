@@ -7,14 +7,19 @@ import {
   companionAnchors,
   compareExpect,
   coverageOf,
+  animationVerdict,
   findRepeatUnits,
   gapsOf,
+  groupKey,
+  leavesOf,
   parseColor,
   parsePx,
   parseSpec,
   summarizeFidelity,
   verdict,
+  visibilityWindow,
   type FidelityRow,
+  type Motion,
   type Requirement,
 } from '../../../scripts/lib/fidelity'
 
@@ -85,6 +90,22 @@ describe('parseSpec — 요구 목록을 읽고 구조 오류를 가린다', () 
     expect(parsed.requests).toHaveLength(6)
     expect(parsed.requests.reduce((sum, r) => sum + r.requirements.length, 0)).toBe(114)
   })
+
+  it('저장소의 요구 목록은 설계 표 밖의 type이 없고, 기계로 재는 요구가 80% 이상이다', () => {
+    const json = readFileSync(resolve(process.cwd(), '../evals/benchmark/fidelity/requirements.json'), 'utf8')
+    const parsed = parseSpec({ json })
+    expect(parsed.warnings).toEqual([])
+    const all = parsed.requests.flatMap((r) => r.requirements)
+    expect(all.filter((r) => r.support === 'supported').length / all.length).toBeGreaterThanOrEqual(0.8)
+  })
+
+  it('checks·anyOf로 묶은 요구는 type 없이도 읽는다', () => {
+    const parsed = parseSpec({
+      json: spec([{ id: 'R01', kind: '상태', text: 'a', check: { type: 'attr', target: { unit: ['전체'] }, anyOf: [{ property: 'aria-pressed', expect: { equals: 'true' } }, { property: 'aria-selected', expect: { equals: 'true' } }] } }]),
+    })
+    expect(parsed.errors).toEqual([])
+    expect(parsed.requests[0].requirements[0].support).toBe('supported')
+  })
 })
 
 describe('classifyRequirement — 핵심 문법만 지원하고 나머지는 이유와 함께 미지원', () => {
@@ -110,15 +131,15 @@ describe('classifyRequirement — 핵심 문법만 지원하고 나머지는 이
   })
 
   it('핵심이 아닌 expect 키는 키 이름을 이유로 남긴다', () => {
-    const result = classifyRequirement({ requirement: req({ type: 'style', target: { text: '빵' }, property: 'background-color', expect: { hue: [345, 15], minSaturation: 0.5 } }) })
+    const result = classifyRequirement({ requirement: req({ type: 'style', target: { text: '빵' }, property: 'background-color', expect: { rgbNear: '#FFFFFF', alphaBetween: [0.3, 0.95] } }) })
     expect(result.support).toBe('unsupported')
-    expect(result.reasons).toEqual(['expect.hue', 'expect.minSaturation'])
+    expect(result.reasons).toEqual(['expect.rgbNear', 'expect.alphaBetween'])
   })
 
   it('핵심이 아닌 target 키는 안쪽(inner·within·near)까지 찾아 이유로 남긴다', () => {
     const result = classifyRequirement({ requirement: req({ type: 'style', target: { unit: CARDS, inner: { dot: { maxSize: 16 } } }, property: 'color', expect: { color: '#000000' } }) })
     expect(result.reasons).toEqual(['target.dot'])
-    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { dialog: true, containsText: '확인' }, expect: { visible: true } }) }).reasons).toEqual(['target.containsText'])
+    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { dialog: true, ancestorPinned: 'top' }, expect: { visible: true } }) }).reasons).toEqual(['target.ancestorPinned'])
   })
 
   it('지원하지 않는 조작과 "$target" 참조는 미지원이다', () => {
@@ -133,8 +154,8 @@ describe('classifyRequirement — 핵심 문법만 지원하고 나머지는 이
     expect(result.reasons).toEqual(['steps.drag.hold'])
   })
 
-  it('설계 표의 나머지 type(order·timing 등)은 type 하나만 이유로 남긴다 — 그 type의 expect 키까지 세면 이유 순위가 흐려진다', () => {
-    expect(classifyRequirement({ requirement: req({ type: 'order', target: { unit: ['a', 'b'] }, expect: { sameRow: true } }) }).reasons).toEqual(['check.type:order'])
+  it('설계 표의 나머지 type(copyTone·interaction 등)은 type 하나만 이유로 남긴다 — 그 type의 expect 키까지 세면 이유 순위가 흐려진다', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'copyTone', target: { text: 'a' }, expect: { tone: '합쇼체' } }) }).reasons).toEqual(['check.type:copyTone'])
   })
 
   it('judge는 판정 필요로 분류한다', () => {
@@ -172,8 +193,8 @@ describe('coverageOf — 요구 목록의 지원·미지원 분류표', () => {
           a: {
             requirements: [
               { id: 'R01', kind: '수치', text: 'a', check: { type: 'exists', target: { text: '빵' }, expect: { visible: true } } },
-              { id: 'R02', kind: '수치', text: 'b', check: { type: 'order', target: { text: '빵' } } },
-              { id: 'R03', kind: '수치', text: 'c', check: { type: 'order', target: { text: '빵' }, expect: { hue: 1 } } },
+              { id: 'R02', kind: '수치', text: 'b', check: { type: 'copyTone', target: { text: '빵' } } },
+              { id: 'R03', kind: '수치', text: 'c', check: { type: 'copyTone', target: { text: '빵' }, expect: { hue: 1 } } },
               { id: 'R05', kind: '색', text: 'e', check: { type: 'exists', target: { text: '빵' }, expect: { hue: 1 } } },
               { id: 'R04', kind: '데이터', text: 'd', check: { type: 'judge' } },
             ],
@@ -183,7 +204,7 @@ describe('coverageOf — 요구 목록의 지원·미지원 분류표', () => {
     })
     const coverage = coverageOf({ spec: parsed })
     expect(coverage.byRequest).toEqual([{ id: 'a', total: 5, supported: 1, unsupported: 3, judge: 1 }])
-    expect(coverage.reasons[0]).toEqual({ reason: 'check.type:order', count: 2 })
+    expect(coverage.reasons[0]).toEqual({ reason: 'check.type:copyTone', count: 2 })
     expect(coverage.reasons[1]).toEqual({ reason: 'expect.hue', count: 1 })
   })
 })
@@ -234,6 +255,14 @@ describe('compareExpect — 기대값과 관찰값', () => {
     expect(compareExpect({ expect: { px: 12 }, actual: '13px' }).ok).toBe(true)
     expect(compareExpect({ expect: { px: 12 }, actual: '11px' }).ok).toBe(true)
     expect(compareExpect({ expect: { px: 12 }, actual: '13.01px' }).ok).toBe(false)
+  })
+
+  it('기대값이 4px보다 작으면 허용 오차는 그 1/4이다 — 1px 선을 0px이, 2px 테두리를 1px이 지키지 않게', () => {
+    expect(compareExpect({ expect: { px: 1 }, actual: '0px' }).ok).toBe(false)
+    expect(compareExpect({ expect: { px: 1 }, actual: '1px' }).ok).toBe(true)
+    expect(compareExpect({ expect: { px: 2 }, actual: '1px' }).ok).toBe(false)
+    expect(compareExpect({ expect: { px: 0 }, actual: '1px' }).ok).toBe(false)
+    expect(compareExpect({ expect: { px: 0 }, actual: '0px' }).ok).toBe(true)
   })
 
   it('tol로 허용 오차를 바꾼다', () => {
@@ -378,9 +407,9 @@ describe('verdict — 요구 + 관찰 → 다섯 결과', () => {
   const style = req({ type: 'style', target: { unit: CARDS }, property: 'border-radius', expect: { px: 12 } })
 
   it('미지원 요구는 관찰을 보지 않고 미지원', () => {
-    const result = verdict({ requirement: req({ type: 'order', target: { text: 'a' } }), observation: { elements: [] } })
+    const result = verdict({ requirement: req({ type: 'copyTone', target: { text: 'a' } }), observation: { elements: [] } })
     expect(result.result).toBe('unsupported')
-    expect(result.detail).toContain('check.type:order')
+    expect(result.detail).toContain('check.type:copyTone')
   })
 
   it('judge는 판정 필요', () => {
@@ -430,6 +459,14 @@ describe('verdict — 요구 + 관찰 → 다섯 결과', () => {
     const title = req({ type: 'style', target: { text: '밀밭제과' }, property: 'font-size', expect: { px: 20 } })
     const elements = [{ visible: true, values: { 'font-size': '20px' } }, { visible: true, values: { 'font-size': '14px' } }]
     expect(verdict({ requirement: title, observation: { elements } }).result).toBe('met')
+  })
+
+  it('style — 계산된 길이(글자 크기·모서리·테두리)는 허용 오차 0.5px, 상자에서 잰 폭·높이는 1px', () => {
+    const tiny = req({ type: 'style', target: { text: '다음 물 주기' }, property: 'font-size', expect: { px: 11 } })
+    expect(verdict({ requirement: tiny, observation: { elements: [{ visible: true, values: { 'font-size': '12px' } }] } }).result).toBe('violated')
+    expect(verdict({ requirement: tiny, observation: { elements: [{ visible: true, values: { 'font-size': '11px' } }] } }).result).toBe('met')
+    const row = req({ type: 'style', target: { unit: CARDS }, property: 'height', expect: { px: 72 } })
+    expect(verdict({ requirement: row, observation: { elements: [{ visible: true, values: { height: '72.8px' } }] } }).result).toBe('met')
   })
 
   it('px와 색이 함께 있으면 길이 속성에는 px, 색 속성에는 색을 쓴다', () => {
@@ -497,6 +534,304 @@ describe('verdict — 요구 + 관찰 → 다섯 결과', () => {
   it('spacing — 잴 상자 쌍이 없으면(한 열인데 칸 사이를 물음) 찾지 못함', () => {
     const gap = req({ type: 'spacing', target: { unit: CARDS }, expect: { column: { px: 12 } } })
     expect(verdict({ requirement: gap, observation: { elements: [box(16, 0), box(16, 112)].map((b) => ({ visible: true, box: b })) } }).result).toBe('not-found')
+  })
+})
+
+describe('leavesOf·groupKey — 여러 확인(checks·anyOf)을 낱개 확인으로 펴기', () => {
+  it('부모의 키(type·viewport·target·steps 등)를 자식이 물려받고, 자식 키가 이긴다', () => {
+    const leaves = leavesOf({
+      check: {
+        type: 'attr',
+        viewport: 390,
+        target: { unit: ['전체'] },
+        note: '부모 메모는 물려주지 않는다',
+        anyOf: [{ property: 'aria-pressed', expect: { equals: 'true' } }, { type: 'style', property: 'color', expect: { color: '#000000' } }],
+      },
+    })
+    expect(leaves.map((l) => l.path)).toEqual(['0', '1'])
+    expect(leaves[0].check).toEqual({ type: 'attr', viewport: 390, target: { unit: ['전체'] }, property: 'aria-pressed', expect: { equals: 'true' } })
+    expect(leaves[1].check.type).toBe('style')
+  })
+
+  it('묶음 안의 묶음도 편다 — 경로는 "1.0"처럼 적는다', () => {
+    const leaves = leavesOf({ check: { type: 'exists', checks: [{ target: { text: 'a' }, expect: { visible: true } }, { anyOf: [{ target: { text: 'b' }, expect: { visible: true } }] }] } })
+    expect(leaves.map((l) => l.path)).toEqual(['0', '1.0'])
+    expect(leaves[1].check).toEqual({ type: 'exists', target: { text: 'b' }, expect: { visible: true } })
+  })
+
+  it('묶음이 아니면 자기 자신 하나', () => {
+    expect(leavesOf({ check: { type: 'exists', target: { text: 'a' } } })).toEqual([{ path: '', check: { type: 'exists', target: { text: 'a' } } }])
+  })
+
+  it('같은 화면 크기·상태·조작이면 같은 열쇠 — 한 페이지에서 함께 관찰한다. 조작 중 시간을 재는 확인(motion·timing)과 then은 따로', () => {
+    const a = { type: 'exists', viewport: 390, steps: [{ do: 'click', target: { text: 'a' } }], target: { text: 'x' } }
+    const b = { type: 'style', viewport: 390, steps: [{ do: 'click', target: { text: 'a' } }], target: { text: 'y' }, property: 'color' }
+    expect(groupKey({ check: a })).toBe(groupKey({ check: b }))
+    expect(groupKey({ check: { ...a, viewport: 320 } })).not.toBe(groupKey({ check: a }))
+    expect(groupKey({ check: { ...a, reducedMotion: true } })).not.toBe(groupKey({ check: a }))
+    expect(groupKey({ check: { ...a, type: 'motion' } })).toBeNull()
+    expect(groupKey({ check: { ...a, then: { expect: { visible: false } } } })).toBeNull()
+  })
+})
+
+describe('classifyRequirement — 넓힌 문법', () => {
+  it('order·motion·timing·focus는 지원한다', () => {
+    const ok = (check: Record<string, unknown>) => classifyRequirement({ requirement: req(check) })
+    expect(ok({ type: 'order', target: { unit: CARDS }, expect: { inOrder: true, sameRow: true, scrollableX: true } })).toEqual({ support: 'supported', reasons: [] })
+    expect(ok({ type: 'order', target: { unit: CARDS }, expect: { first: ['소금빵'], alignRight: true, sorted: 'asc' } }).support).toBe('supported')
+    expect(ok({ type: 'motion', steps: [{ do: 'click', target: { role: 'button', name: '필터' } }], target: { dialog: true }, expect: { animates: true, maxMs: 300, from: 'below' } }).support).toBe('supported')
+    expect(ok({ type: 'motion', reducedMotion: true, steps: [{ do: 'click', target: { text: 'a' } }], expect: { moves: false } }).support).toBe('supported')
+    expect(ok({ type: 'timing', steps: [{ do: 'click', target: { text: 'a' } }], target: { text: '담았어요' }, expect: { appearMs: 300, goneMs: [1700, 2600] } }).support).toBe('supported')
+    expect(ok({ type: 'focus', steps: [{ do: 'press', key: 'Escape' }], target: { role: 'button', name: '필터' }, expect: { focused: true } }).support).toBe('supported')
+  })
+
+  it('motion·timing은 조작이 있어야 한다 — 마지막 조작부터 잰다. then은 쓸 수 없다', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'motion', target: { dialog: true }, expect: { animates: true } }) }).reasons).toEqual(['steps 없음'])
+    expect(classifyRequirement({ requirement: req({ type: 'timing', steps: [{ do: 'click', target: { text: 'a' } }], target: { text: 'b' }, expect: { goneMs: [1, 2] }, then: { expect: { goneMs: [1, 2] } } }) }).reasons).toEqual(['check.then'])
+  })
+
+  it('timing의 goneMs는 [최소, 최대], motion의 from은 네 방향 중 하나', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'timing', steps: [{ do: 'click', target: { text: 'a' } }], target: { text: 'b' }, expect: { goneMs: 2000 } }) }).reasons).toEqual(['expect.goneMs:[최소, 최대] 아님'])
+    expect(classifyRequirement({ requirement: req({ type: 'motion', steps: [{ do: 'click', target: { text: 'a' } }], expect: { from: 'top' } }) }).reasons).toEqual(['expect.from:top'])
+  })
+
+  it('새 대상 키(nameMatches·containsText·live·blank)와 끌기의 시작점(from)', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { role: 'button', nameMatches: '메뉴|menu' }, expect: { visible: true } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { dialog: true, containsText: '확인' }, expect: { visible: true } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { text: '담았어요', live: true }, expect: { present: true } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'count', target: { blank: { minWidth: 100, minHeight: 100 } }, expect: { count: 6 } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'count', target: { blank: { minWidth: 100, round: true } }, expect: { count: 6 } }) }).reasons).toEqual(['target.blank.round'])
+    expect(classifyRequirement({ requirement: req({ type: 'exists', steps: [{ do: 'drag', target: { dialog: true }, from: 'top', dx: 0, dy: 300 }], target: { dialog: true }, expect: { visible: false } }) }).support).toBe('supported')
+  })
+
+  it('색 계열(hue·gray)은 색 속성의 기대값이다 — 칠한 색들(painted-colors)도 색 속성', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'style', target: { text: '1' }, property: 'background-color', expect: { hue: [340, 20] } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'style', target: { text: '1' }, property: 'painted-colors', expect: { color: '#16A34A' } }) }).support).toBe('supported')
+    expect(classifyRequirement({ requirement: req({ type: 'style', target: { text: '1' }, property: 'font-size', expect: { gray: true } }) }).reasons).toEqual(['expect:속성에 맞는 기대값 없음'])
+  })
+
+  it('exists의 present·inView·withinWidth·uncovered', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'exists', target: { text: 'a' }, expect: { inView: true, withinWidth: true, uncovered: true } }) }).support).toBe('supported')
+  })
+
+  it('reducedMotion·report(보고문 — 이 검사기는 보지 않는다)는 check 키로 받는다', () => {
+    expect(classifyRequirement({ requirement: req({ type: 'style', reducedMotion: true, report: { mustMention: '11px' }, target: { text: 'a' }, property: 'font-size', expect: { px: 11 } }) }).support).toBe('supported')
+  })
+
+  it('묶음은 자식 하나라도 미지원이면 미지원이고, 자식의 이유를 모은다. 묶음 안 judge는 쓸 수 없다', () => {
+    const mixed = classifyRequirement({ requirement: req({ checks: [{ type: 'exists', target: { text: 'a' }, expect: { visible: true } }, { type: 'exists', target: { text: 'b' }, expect: { hue: 1 } }] }) })
+    expect(mixed).toEqual({ support: 'unsupported', reasons: ['expect.hue'] })
+    expect(classifyRequirement({ requirement: req({ checks: [{ type: 'judge', ask: '?' }] }) }).reasons).toEqual(['checks 안 judge'])
+    expect(classifyRequirement({ requirement: req({ checks: [] }) }).reasons).toEqual(['checks:빈 배열'])
+    expect(classifyRequirement({ requirement: req({ checks: [{ type: 'exists', target: { text: 'a' }, expect: {} }], anyOf: [] }) }).reasons).toContain('checks와 anyOf를 함께 씀')
+  })
+})
+
+describe('compareExpect — 색 계열(hue·gray)', () => {
+  it('hue는 [시작, 끝] 각도 안(0도를 넘어 감싸도 된다)이고 채도가 있어야 한다', () => {
+    expect(compareExpect({ expect: { hue: [340, 20] }, actual: 'rgb(220, 38, 38)' }).ok).toBe(true) // #DC2626 — 0도
+    expect(compareExpect({ expect: { hue: [340, 20] }, actual: 'rgb(225, 29, 72)' }).ok).toBe(true) // #E11D48 — 347도
+    expect(compareExpect({ expect: { hue: [340, 20] }, actual: 'rgb(234, 88, 12)' }).ok).toBe(false) // #EA580C — 21도 주황
+    expect(compareExpect({ expect: { hue: [340, 20] }, actual: 'rgb(120, 110, 110)' }).ok).toBe(false) // 채도 없음
+    expect(compareExpect({ expect: { hue: [340, 20] }, actual: 'rgba(220, 38, 38, 0)' }).ok).toBe(false) // 투명
+  })
+
+  it('gray는 무채색(채널 차 40 이하)이고 흰색·검정에 가깝지 않다 — 반투명은 흰 바탕에 섞어 본다', () => {
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgb(107, 114, 128)' }).ok).toBe(true) // #6B7280
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgb(243, 244, 246)' }).ok).toBe(true) // #F3F4F6 옅은 회색 바탕
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgb(26, 26, 26)' }).ok).toBe(false) // 거의 검정
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgb(255, 255, 255)' }).ok).toBe(false)
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgb(21, 128, 61)' }).ok).toBe(false)
+    expect(compareExpect({ expect: { gray: true }, actual: 'rgba(0, 0, 0, 0.5)' }).ok).toBe(true)
+  })
+})
+
+describe('verdict — 넓힌 문법', () => {
+  it('painted-colors — 칠한 색 중 하나라도 기대 색이면 지킴', () => {
+    const dot = req({ type: 'style', target: { unit: ['성수 공영주차장'] }, property: 'painted-colors', expect: { color: '#16A34A' } })
+    const at = (colors: string) => ({ elements: [{ visible: true, values: { 'painted-colors': colors } }] })
+    expect(verdict({ requirement: dot, observation: at('rgb(255, 255, 255) | rgb(22, 163, 74)') }).result).toBe('met')
+    expect(verdict({ requirement: dot, observation: at('rgb(255, 255, 255) | rgb(245, 158, 11)') }).result).toBe('violated')
+    expect(verdict({ requirement: dot, observation: at('') }).result).toBe('violated')
+  })
+
+  it('exists — present는 보이지 않아도(화면 낭독용 칸) 있으면 지킴', () => {
+    const live = req({ type: 'exists', target: { text: '담았어요', live: true }, expect: { present: true } })
+    expect(verdict({ requirement: live, observation: { elements: [{ visible: false }] } }).result).toBe('met')
+    expect(verdict({ requirement: live, observation: { elements: [] } }).result).toBe('violated')
+  })
+
+  it('exists — inView는 위 끝이 화면 안(가로로 다 들어감), withinWidth는 가로만, uncovered는 가운데가 가려지지 않음', () => {
+    const viewport = { width: 390, height: 844 }
+    const el = (view: { left: number; right: number; top: number; bottom: number }, extra = {}) => ({ visible: true, view, ...extra })
+    const inView = req({ type: 'exists', target: { text: 'a' }, expect: { inView: true } })
+    expect(verdict({ requirement: inView, observation: { viewport, elements: [el({ left: 0, right: 300, top: 800, bottom: 900 })] } }).result).toBe('met')
+    expect(verdict({ requirement: inView, observation: { viewport, elements: [el({ left: 0, right: 300, top: 900, bottom: 1000 })] } }).result).toBe('violated')
+    // 위로 밀려 올라가 아래만 걸친 패널은 따라온 것이 아니다(스크롤이 짧은 페이지)
+    expect(verdict({ requirement: inView, observation: { viewport, elements: [el({ left: 0, right: 300, top: -94, bottom: 306 })] } }).result).toBe('violated')
+    const width = req({ type: 'exists', target: { text: 'a', all: true }, expect: { withinWidth: true } })
+    expect(verdict({ requirement: width, observation: { viewport, elements: [el({ left: 16, right: 374, top: 2000, bottom: 2020 })] } }).result).toBe('met')
+    const over = verdict({ requirement: width, observation: { viewport, elements: [el({ left: 16, right: 374, top: 0, bottom: 20 }), el({ left: 300, right: 420, top: 40, bottom: 60 })] } })
+    expect(over.result).toBe('violated')
+    expect(over.detail).toContain('2번째')
+    const cover = req({ type: 'exists', target: { text: 'a' }, expect: { uncovered: true } })
+    expect(verdict({ requirement: cover, observation: { viewport, elements: [el({ left: 0, right: 100, top: 700, bottom: 750 }, { hit: true })] } }).result).toBe('met')
+    expect(verdict({ requirement: cover, observation: { viewport, elements: [el({ left: 0, right: 100, top: 700, bottom: 750 }, { hit: false })] } }).result).toBe('violated')
+  })
+
+  it('exists visible:false — 대상(단위 앵커)을 못 찾았으면 사라진 것이라 지킴. 조작 대상을 못 찾은 것은 찾지 못함', () => {
+    const gone = req({ type: 'exists', target: { unit: ['보스턴고사리'] }, expect: { visible: false } })
+    expect(verdict({ requirement: gone, observation: { missing: '되풀이 단위를 찾지 못한 앵커: 보스턴고사리', targetMissing: true } }).result).toBe('met')
+    expect(verdict({ requirement: gone, observation: { missing: '조작 1(click) 대상을 찾지 못함' } }).result).toBe('not-found')
+  })
+
+  it('찾기 기준으로는 찾았는데 조건(near·containsText·live)에 맞는 것이 없으면(mismatch) 보여야 하는 요구는 어김이다', () => {
+    const footer = req({ type: 'exists', target: { role: 'contentinfo', containsText: '사업자' }, expect: { visible: true } })
+    const result = verdict({ requirement: footer, observation: { elements: [], mismatch: 'containsText "사업자"를 품은 것 없음(기준 대상 1개)' } })
+    expect(result.result).toBe('violated')
+    expect(result.detail).toContain('사업자')
+    expect(verdict({ requirement: req({ type: 'count', target: { text: '예시', near: { text: '1만' } }, expect: { min: 1 } }), observation: { elements: [], mismatch: '48px 밖' } }).result).toBe('violated')
+    expect(verdict({ requirement: footer, observation: { elements: [] } }).result).toBe('not-found')
+  })
+
+  it('되풀이 단위에서 그 앵커만 빠졌으면(다른 단위는 있음, absent) 보여야 하는 요구는 어김이다', () => {
+    const back = req({ type: 'exists', target: { unit: ['보스턴고사리'] }, expect: { visible: true } })
+    expect(verdict({ requirement: back, observation: { missing: '되풀이 단위를 찾지 못한 앵커: 보스턴고사리', targetMissing: true, absent: true } }).result).toBe('violated')
+    expect(verdict({ requirement: back, observation: { missing: '되풀이 단위를 찾지 못한 앵커: 보스턴고사리', targetMissing: true } }).result).toBe('not-found')
+  })
+
+  it('뼈대(blank)도 글자처럼 화면 전체를 훑으므로, 없으면 찾지 못함이 아니라 어김이다', () => {
+    const skeleton = req({ type: 'count', target: { blank: { minWidth: 120, minHeight: 8 } }, expect: { min: 3 } })
+    expect(verdict({ requirement: skeleton, observation: { elements: [] } }).result).toBe('violated')
+  })
+
+  it('order — 같은 줄·읽는 순서·가로로 넘김', () => {
+    const chips = req({ type: 'order', target: { unit: ['전체', '식빵', '케이크'] }, expect: { inOrder: true, sameRow: true, scrollableX: true } })
+    const row = [box(16, 10, 60, 36), box(84, 10, 60, 36), box(152, 10, 60, 36)].map((b, i) => ({ visible: true, box: b, label: ['전체', '식빵', '케이크'][i] }))
+    expect(verdict({ requirement: chips, observation: { elements: row, scrollableX: true } }).result).toBe('met')
+    expect(verdict({ requirement: chips, observation: { elements: row, scrollableX: false } }).detail).toContain('가로')
+    const swapped = [row[1], row[0], row[2]].map((e, i) => ({ ...e, label: ['전체', '식빵', '케이크'][i] }))
+    expect(verdict({ requirement: chips, observation: { elements: swapped, scrollableX: true } }).result).toBe('violated')
+    const wrapped = [row[0], row[1], { ...row[2], box: box(16, 56, 60, 36) }]
+    expect(verdict({ requirement: chips, observation: { elements: wrapped, scrollableX: true } }).detail).toContain('줄')
+  })
+
+  it('order — first는 읽는 순서의 앞자리들이 그 이름들(순서는 상관없음)', () => {
+    const plants = req({ type: 'order', target: { unit: ['몬스테라', '스투키', '보스턴고사리'] }, expect: { first: ['보스턴고사리'] } })
+    const at = (tops: number[]) => ({ elements: tops.map((top, i) => ({ visible: true, box: box(16, top, 358, 80), label: ['몬스테라', '스투키', '보스턴고사리'][i] })) })
+    expect(verdict({ requirement: plants, observation: at([200, 300, 100]) }).result).toBe('met')
+    const late = verdict({ requirement: plants, observation: at([100, 300, 200]) })
+    expect(late.result).toBe('violated')
+    expect(late.detail).toContain('몬스테라')
+  })
+
+  it('order — alignRight는 글자 오른쪽 끝이 맞고, sorted는 글자 속 수가 읽는 순서로 오르거나 내린다', () => {
+    const amounts = req({ type: 'order', target: { textMatches: '원$', all: true }, expect: { alignRight: true, sorted: 'asc' } })
+    const cell = (top: number, right: number, text: string) => ({ visible: true, box: box(700, top, 160, 40), textBox: { left: right - 80, right, top, bottom: top + 20 }, text })
+    expect(verdict({ requirement: amounts, observation: { elements: [cell(100, 860, '320,000원'), cell(140, 860.4, '1,250,000원')] } }).result).toBe('met')
+    expect(verdict({ requirement: amounts, observation: { elements: [cell(100, 860, '320,000원'), cell(140, 830, '1,250,000원')] } }).detail).toContain('오른쪽')
+    expect(verdict({ requirement: amounts, observation: { elements: [cell(100, 860, '1,250,000원'), cell(140, 860, '320,000원')] } }).detail).toContain('오름차순')
+  })
+
+  it('focus — 대상이나 그 안에 포커스가 있으면 지킴', () => {
+    const back = req({ type: 'focus', target: { role: 'button', name: '필터' }, expect: { focused: true } })
+    expect(verdict({ requirement: back, observation: { elements: [{ visible: true, focused: true }] } }).result).toBe('met')
+    expect(verdict({ requirement: back, observation: { elements: [{ visible: true, focused: false }] } }).result).toBe('violated')
+  })
+
+  it('timing — 나타난 시각과 사라진 시각을 기대 구간과 비교한다', () => {
+    const toast = req({ type: 'timing', steps: [{ do: 'click', target: { text: '담기' } }], target: { text: '장바구니에 담았어요' }, expect: { appearMs: 300, goneMs: [1700, 2600] } })
+    const samples = (appear: number, gone: number | null) => Array.from({ length: 60 }, (_, i) => ({ t: i * 50, visible: i * 50 >= appear && (gone === null || i * 50 < gone) }))
+    expect(verdict({ requirement: toast, observation: { samples: samples(100, 2150) } }).result).toBe('met')
+    expect(verdict({ requirement: toast, observation: { samples: samples(100, 1200) } }).detail).toContain('1200')
+    expect(verdict({ requirement: toast, observation: { samples: samples(100, null) } }).detail).toContain('사라지지 않음')
+    expect(verdict({ requirement: toast, observation: { samples: samples(500, 2150) } }).result).toBe('violated')
+    // 글자로만 찾는 대상이 끝내 나타나지 않으면 어김, 역할로 찾는 대상이면 찾지 못함
+    expect(verdict({ requirement: toast, observation: { samples: samples(99999, null) } }).result).toBe('violated')
+  })
+
+  it('motion — 시간·방향은 animationVerdict가 가른다', () => {
+    const sheet = req({ type: 'motion', steps: [{ do: 'click', target: { text: '필터' } }], target: { dialog: true }, expect: { animates: true, maxMs: 300, from: 'below' } })
+    const up: Motion = { props: ['transform'], ms: 280, shift: 400, dx: 0, dy: 400 }
+    expect(verdict({ requirement: sheet, observation: { motions: [up] } }).result).toBe('met')
+    expect(verdict({ requirement: sheet, observation: { motions: [{ ...up, ms: 450 }] } }).result).toBe('violated')
+    expect(verdict({ requirement: sheet, observation: { motions: [] } }).result).toBe('violated')
+  })
+
+  it('checks — 모두 지켜야 지킴. 하나라도 어기면 어김, 어김 없이 찾지 못함이 있으면 찾지 못함', () => {
+    const both = req({ type: 'exists', checks: [{ target: { text: 'a' }, expect: { visible: true } }, { target: { role: 'button', name: 'b' }, expect: { visible: true } }] })
+    const shown = { elements: [{ visible: true }] }
+    expect(verdict({ requirement: both, observation: { leaves: { '0': shown, '1': shown } } }).result).toBe('met')
+    const missing = verdict({ requirement: both, observation: { leaves: { '0': shown, '1': { elements: [] } } } })
+    expect(missing.result).toBe('not-found')
+    expect(missing.detail).toContain('[2]')
+    expect(verdict({ requirement: both, observation: { leaves: { '0': { elements: [{ visible: false }] }, '1': { elements: [] } } } }).result).toBe('violated')
+  })
+
+  it('anyOf — 하나라도 지키면 지킴. 다 못 지켰으면 어김이 있으면 어김, 아니면 찾지 못함', () => {
+    const pressed = req({ type: 'attr', target: { unit: ['전체'] }, anyOf: [{ property: 'aria-pressed', expect: { equals: 'true' } }, { property: 'aria-selected', expect: { equals: 'true' } }] })
+    const value = (property: string, v: string | null) => ({ elements: [{ visible: true, values: { [property]: v } }] })
+    expect(verdict({ requirement: pressed, observation: { leaves: { '0': value('aria-pressed', null), '1': value('aria-selected', 'true') } } }).result).toBe('met')
+    expect(verdict({ requirement: pressed, observation: { leaves: { '0': value('aria-pressed', 'false'), '1': value('aria-selected', null) } } }).result).toBe('violated')
+    expect(verdict({ requirement: pressed, observation: { leaves: { '0': { missing: 'x' }, '1': { missing: 'x' } } } }).result).toBe('not-found')
+  })
+})
+
+describe('animationVerdict — 조작 뒤 움직임의 시간·방향', () => {
+  const m = (extra: Partial<Motion>): Motion => ({ props: ['transform'], ms: 300, shift: 0, dx: 0, dy: 0, ...extra })
+
+  it('색만 바뀌는 전이(마우스 올림·누름의 바탕색)와 20ms 미만(동작 줄이기의 0.01ms)은 움직임으로 세지 않는다', () => {
+    expect(animationVerdict({ motions: [m({ props: ['background-color'] }), m({ ms: 0.01 })], expect: { animates: true } }).ok).toBe(false)
+    expect(animationVerdict({ motions: [m({ props: ['background-color', 'opacity'] })], expect: { animates: true } }).ok).toBe(true)
+  })
+
+  it('maxMs·minMs는 가장 긴 움직임의 길이(지연 포함)로, 허용 오차 20ms', () => {
+    expect(animationVerdict({ motions: [m({ ms: 320 })], expect: { maxMs: 300 } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ ms: 321 })], expect: { maxMs: 300 } }).ok).toBe(false)
+    expect(animationVerdict({ motions: [m({ ms: 150 }), m({ ms: 300 })], expect: { minMs: 250, maxMs: 350 } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ ms: 150 })], expect: { minMs: 250 } }).detail).toContain('150')
+  })
+
+  it('끝나지 않는 움직임(회전하는 진행 표시)은 시간에서 빼되 움직임으로는 센다', () => {
+    expect(animationVerdict({ motions: [m({ ms: null, props: ['rotate'] })], expect: { animates: true } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ ms: null })], expect: { maxMs: 300 } }).ok).toBe(false)
+  })
+
+  it('moves는 상자가 4px 넘게 자리를 옮긴 움직임이 있는가 — 같은 자리의 크기·투명도 변화는 아니다', () => {
+    expect(animationVerdict({ motions: [m({ shift: 80, dy: 80 })], expect: { moves: true } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ shift: 2, props: ['transform', 'opacity'] })], expect: { moves: true } }).ok).toBe(false)
+    expect(animationVerdict({ motions: [m({ shift: null })], expect: { moves: false } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [], expect: { moves: false } }).ok).toBe(true)
+  })
+
+  it('from은 처음 자리가 끝 자리의 어느 쪽인가 — 아래에서 올라오면 dy가 양수', () => {
+    expect(animationVerdict({ motions: [m({ shift: 300, dy: 300 })], expect: { from: 'below' } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ shift: 400, dx: 400 })], expect: { from: 'right' } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [m({ shift: 400, dx: -400 })], expect: { from: 'right' } }).ok).toBe(false)
+    expect(animationVerdict({ motions: [m({ shift: 0, dy: 0, props: ['opacity'] })], expect: { from: 'below' } }).ok).toBe(false)
+  })
+
+  it('smoothScroll은 스크롤 위치가 처음과 끝 사이 값을 3번 이상 지나야 한다', () => {
+    expect(animationVerdict({ motions: [], scroll: [0, 0, 120, 480, 900, 1100, 1100], expect: { smoothScroll: true } }).ok).toBe(true)
+    expect(animationVerdict({ motions: [], scroll: [0, 0, 1100, 1100], expect: { smoothScroll: true } }).ok).toBe(false)
+    expect(animationVerdict({ motions: [], scroll: [0, 0, 0], expect: { smoothScroll: true } }).detail).toContain('움직이지')
+  })
+})
+
+describe('visibilityWindow — 시각별 보임에서 나타난·사라진 시각', () => {
+  it('처음 보인 시각과, 마지막으로 보인 뒤 처음 안 보인 시각', () => {
+    const samples = [0, 50, 100, 150, 200, 250].map((t) => ({ t, visible: t >= 50 && t < 200 }))
+    expect(visibilityWindow({ samples })).toEqual({ appearedAt: 50, goneAt: 200, runs: 1 })
+  })
+
+  it('깜빡이면(보였다 안 보였다 다시 보임) runs가 늘고 사라진 시각은 마지막 덩어리 뒤', () => {
+    const pattern = [false, true, false, true, true, false]
+    expect(visibilityWindow({ samples: pattern.map((visible, i) => ({ t: i * 50, visible })) })).toEqual({ appearedAt: 50, goneAt: 250, runs: 2 })
+  })
+
+  it('끝까지 안 사라지면 goneAt은 null, 한 번도 안 보이면 둘 다 null', () => {
+    expect(visibilityWindow({ samples: [{ t: 0, visible: true }] })).toEqual({ appearedAt: 0, goneAt: null, runs: 1 })
+    expect(visibilityWindow({ samples: [{ t: 0, visible: false }] })).toEqual({ appearedAt: null, goneAt: null, runs: 0 })
   })
 })
 

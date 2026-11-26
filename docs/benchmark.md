@@ -327,7 +327,7 @@ node scripts/benchmark/measure.mjs --out ../suta-bench-restored                 
 `fidelity.mjs`는 요청문에 적힌 디테일을 화면이 그대로 지켰는지 잽니다. 설계는 `docs/research/2026-11-26-fidelity.md` 4절입니다.
 
 - 요청문을 낱개 요구로 나눈 목록이 `evals/benchmark/fidelity/requirements.json`에 있습니다. 요청 6개, 요구 114개입니다.
-- 요구마다 실제 브라우저(Chromium)로 `index.html`을 새로 엽니다. 앞 요구의 조작이 뒤 요구에 남지 않게 하려는 것입니다.
+- 요구마다 실제 브라우저(Chromium)로 `index.html`을 새로 엽니다. 앞 요구의 조작이 뒤 요구에 남지 않게 하려는 것입니다. 한 요구 안의 확인 여럿은 화면 크기·상태·조작이 같으면 한 페이지에서 차례로 봅니다.
 - 계산된 스타일을 봅니다. 브라우저가 CSS를 모두 적용한 뒤의 실제 값입니다. 상자 좌표·글자·속성도 함께 봅니다.
 - 대상은 CSS 선택자로 찾지 않습니다. 생성물마다 클래스 이름이 다르기 때문입니다.
   - 역할과 접근 이름으로 찾습니다. 접근 이름은 스크린 리더가 읽는 이름입니다(예: '담기' 버튼).
@@ -338,7 +338,7 @@ node scripts/benchmark/measure.mjs --out ../suta-bench-restored                 
 
 | 결과 | 뜻 |
 |---|---|
-| 지킴(met) | 기대값과 맞습니다. 길이는 1px, 색은 거리 2(RGB 채널 차이의 합)까지 봐줍니다 |
+| 지킴(met) | 기대값과 맞습니다. 허용 오차는 아래 표입니다 |
 | 어김(violated) | 기대값과 다릅니다. 차이를 함께 적습니다 |
 | 찾지 못함(not-found) | 대상이나 조작 대상을 찾지 못했습니다. 화면의 잘못인지 찾는 규칙의 모자람인지 몰라 어김과 따로 셉니다 |
 | 판정 필요(needs-judge) | 기계로 볼 수 없는 요구입니다(`type: judge`) |
@@ -351,22 +351,53 @@ node scripts/benchmark/measure.mjs --out ../suta-bench-restored                 
 
 `fidelity-summary.json`은 이 둘을 조건별로 내고, 요구 종류(`kind`)별, suta 기본값과 부딪치는 요구인지별, 요구 순서 3분위별로도 나눕니다. 찾지 못함 비율과 미지원 이유별 개수도 담습니다.
 
-지금 지원하는 범위는 요구 목록 초안이 자주 쓰는 핵심 문법뿐입니다.
+요구 하나는 확인 하나(`check`)를 가집니다. 문법은 작게 두고, 여러 확인이 필요한 요구는 묶음으로 씁니다.
 
-- 검사 종류: `style`·`exists`·`count`·`text`·`attr`·`columns`·`spacing`, 조작(`steps`)과 조작 뒤 기대값(`then`)
-- 조작: 누르기·스크롤·기다리기·키·마우스 올리기·입력·포커스·길게 누르기·끌기
-- 기대값: `px`·`color`(허용 오차 `tol`)·`equals`·`matches`·`min`·`max`·`count`·`visible`
+- 확인 종류(`type`)는 열두 가지입니다.
+  - 화면 값: `style`(계산된 스타일)·`attr`(접근성 상태·속성)·`text`(글자)·`exists`(있음·보임)·`count`(보이는 수)
+  - 배치: `columns`(열 수)·`spacing`(줄·칸 사이)·`order`(읽는 순서·같은 줄·가로로 넘김·글자 오른쪽 끝·수의 정렬)
+  - 조작 뒤: `focus`(포커스가 어디 있나)·`motion`(움직임의 길이·방향·부드러운 스크롤)·`timing`(나타난 시각·사라진 시각)
+  - 기계로 못 보는 것: `judge`(판정 모델에 줄 물음 `ask`)
+- 묶음: `checks`는 모두 지켜야, `anyOf`는 하나만 지켜도 지킴입니다. 자식은 부모의 키(화면 크기·상태·조작·대상·속성)를 물려받습니다. 구현 방식이 여럿인 요구(취소선 또는 체크 상태, `aria-pressed` 또는 `aria-checked`)는 `anyOf`로 씁니다.
+- 대상: 역할과 접근 이름(정규식 `nameMatches` 포함)·글자·되풀이 단위(`unit`)·화면에 붙은 막대(`pinned`)·열린 창(`dialog`)·뼈대(`blank`, 글자 없이 칠한 상자). 여기에 `near`·`within`·`inner`·`nth`와 거르는 조건 `containsText`(그 글자를 품음)·`live`(실시간 알림 칸 안)를 더합니다.
+- 조작: 누르기·마우스 올리기·포커스·길게 누르기·끌기(시작점 `from: "top"`)·입력·키·스크롤·기다리기. `reducedMotion: true`면 동작 줄이기를 켠 브라우저로 엽니다.
 
-초안의 요구 114개 중 지원 17개, 미지원 96개, 판정 필요 1개입니다. 미지원이 많은 것은 초안이 검사 종류(`order`·`motion`·`timing`·`focus` 등)와 뜻으로 쓴 키(`alsoVisible`·`containsEach` 등)를 넓게 썼기 때문입니다. 지원 범위는 이렇게 봅니다.
+몇 가지는 화면이 보여 주는 대로 읽습니다.
+
+- 접근성 상태(`aria-checked`·`aria-expanded`·`aria-disabled`·`aria-selected`)는 속성이 없으면 네이티브 상태를 읽습니다. 체크박스의 `checked`, `details`의 `open`, `disabled`가 그 예입니다.
+- 바탕색은 자기가 투명하면 뒤에 칠한 조상의 색을 봅니다. 흐림·필터·취소선은 조상에 줘도 보이므로 조상 값까지 봅니다.
+- 숨긴 라디오·체크박스는 보이는 `label`이 겉모양이라, `label`이 보이면 보인다고 보고 누를 때도 `label`을 누릅니다.
+- `script` 안 글자(데이터 배열)는 화면 글자로 세지 않습니다.
+
+허용 오차는 이렇습니다.
+
+| 값 | 허용 오차 |
+|---|---|
+| 상자에서 잰 폭·높이·간격 | 1px |
+| 계산된 길이(글자 크기·모서리·테두리) | 0.5px |
+| 4px보다 작은 기대값 | 기대값의 1/4(1px 선을 0px이 지키지 않게) |
+| 색 | 거리 2(RGB 채널 차이의 합) |
+| 움직임의 길이 | 20ms |
+
+`motion`은 마지막 조작 바로 앞에서 기록을 시작합니다. 프레임마다 `document.getAnimations()`와 스크립트가 바꾼 `style`을 모아 길이·속성·상자 이동을 냅니다. 색만 바뀌는 전이(마우스 올림의 바탕색)와 20ms보다 짧은 움직임은 세지 않습니다. 이 기록은 뒤에 화면 진입·스크롤 모션을 고칠 때 전후 비교에도 씁니다. `timing`은 마지막 조작 뒤 50ms마다 대상이 보이는지 잽니다.
+
+찾지 못함과 어김을 가르는 규칙도 있습니다.
+
+- 글자·뼈대처럼 화면 전체를 훑어 찾는 대상이 없으면 어김입니다. 찾는 규칙이 모자랄 수 없기 때문입니다.
+- 역할로 찾은 대상은 있는데 거르는 조건에 맞는 것이 없으면 어김입니다. 푸터는 있는데 '사업자'가 없는 경우가 그렇습니다.
+- 같은 목록의 다른 단위는 찾았는데 그 항목만 없으면 어김입니다. 되돌리기를 눌렀는데 줄이 돌아오지 않은 경우가 그렇습니다.
+- 역할로 찾는 대상 자체가 없으면 찾지 못함입니다. 화면이 역할을 빠뜨렸는지 규칙이 모자란지 모르기 때문입니다.
+
+요구 114개 중 기계로 재는 것이 111개(97%)이고 판정 필요가 3개(P01·F02 말투, I06 실존 회사 이름)입니다. 미지원은 없습니다. 뜻을 다 옮기지 못한 요구는 `check.note`에 빠진 부분을 적었습니다. 지원 범위는 이렇게 봅니다.
 
 ```bash
-node scripts/benchmark/fidelity.mjs --coverage    # 브라우저 없이 요청별 지원·미지원 수와 미지원 이유 상위
+node scripts/benchmark/fidelity.mjs --coverage    # 브라우저 없이 요청별 지원·미지원·판정 수와 미지원 이유
 ```
 
-검사기를 시험하는 견본 화면 두 개가 `evals/benchmark/fidelity/fixtures/`에 있습니다. `bakery-pickup` 요청을 지킨 판과 일부러 8곳을 어긴 판입니다. 검사기는 실행 폴더에 결과를 쓰므로, 복사해서 돌립니다.
+검사기를 시험하는 견본 화면은 `evals/benchmark/fidelity/fixtures/`에 있습니다. 요청 여섯 개마다 지킨 판이 하나씩 있고, `bakery-pickup`에는 일부러 11곳을 어긴 판도 있습니다. 검사기는 실행 폴더에 결과를 쓰므로, 복사해서 돌립니다.
 
 ```bash
 cp -r evals/benchmark/fidelity/fixtures /tmp/fidelity-fixtures
-node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # 지킨 판 9/9 지킴, 어긴 판 7곳 어김
+node scripts/benchmark/fidelity.mjs --out /tmp/fidelity-fixtures   # 지킨 판 111/111 지킴(판정 3), 어긴 판 11곳 어김
 ```
 
