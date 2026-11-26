@@ -1,0 +1,263 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — flower-landing 요청(web-prompts.json)을 지킨 판.
+  사람이 손으로 쓴 화면이다. 클래스 이름·구조는 검사기에 맞추지 않았다.
+  후기·구독자 수는 요청대로 지어 넣고 '예시'를 붙였다. 사업자 정보는 자리만 두었다.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한아름 — 꽃 정기구독</title>
+<style>
+  :root {
+    --ink: #1c1917;
+    --muted: #6b6560;
+    --line: #e7e5e4;
+    --violet: #7C3AED;
+    --pink: #DB2777;
+    --soft: #faf7f5;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink); background: #fff; line-height: 1.5;
+    word-break: keep-all;
+  }
+  .container { width: min(1120px, 100% - 48px); margin: 0 auto; }
+
+  .site-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    height: 72px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: none;
+    transition: height 200ms ease, box-shadow 200ms ease;
+  }
+  .site-header.is-compact { height: 56px; box-shadow: 0 1px 0 var(--line); }
+  .site-header .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+  .logo { font-size: 20px; font-weight: 800; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+  .nav { display: flex; gap: 28px; }
+  .nav a { color: var(--ink); text-decoration: none; font-size: 15px; }
+  .nav a:hover { color: var(--violet); }
+  .menu-button { display: none; }
+
+  .hero { padding: 168px 0 112px; text-align: center; background: var(--soft); }
+  .hero h1 { margin: 0 auto; max-width: 760px; font-size: 56px; line-height: 1.2; letter-spacing: -0.02em; }
+  .hero p { margin: 20px auto 36px; max-width: 560px; font-size: 20px; color: var(--muted); }
+  .cta {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 56px; padding: 0 32px; border-radius: 999px;
+    background: linear-gradient(135deg, #7C3AED, #DB2777);
+    color: #fff; font-size: 17px; font-weight: 700; text-decoration: none;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .cta:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(124, 58, 237, 0.28); }
+
+  section { padding: 96px 0; }
+  section h2 { margin: 0 0 40px; font-size: 36px; text-align: center; letter-spacing: -0.01em; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .steps li { padding: 32px 28px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(28, 25, 23, 0.08); }
+  .steps .num { display: block; font-size: 40px; font-weight: 800; line-height: 1; color: var(--violet); }
+  .steps h3 { margin: 20px 0 8px; font-size: 20px; }
+  .steps p { margin: 0; color: var(--muted); }
+
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start; }
+  .plan { position: relative; padding: 32px 28px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .plan.is-popular { border: 2px solid #7C3AED; }
+  .ribbon { position: absolute; top: -14px; left: 28px; padding: 4px 12px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 13px; font-weight: 700; }
+  .plan h3 { margin: 0; font-size: 20px; }
+  .plan .price { margin: 12px 0 4px; font-size: 32px; font-weight: 800; }
+  .plan .cycle { margin: 0 0 16px; color: var(--muted); }
+  .plan ul { margin: 0; padding-left: 18px; color: var(--muted); }
+
+  .stat { margin: 0 0 32px; text-align: center; font-size: 20px; }
+  .stat strong { font-size: 40px; }
+  .tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 6px; background: #f1f0ef; color: var(--muted); font-size: 12px; vertical-align: middle; }
+  .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .review { margin: 0; padding: 28px; border: 1px solid var(--line); border-radius: 16px; }
+  .review blockquote { margin: 0 0 16px; }
+  .review figcaption { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 14px; }
+
+  .faq { max-width: 760px; margin: 0 auto; border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-item h3 { margin: 0; }
+  .faq-item button {
+    display: flex; align-items: center; justify-content: space-between; width: 100%;
+    min-height: 64px; padding: 0 4px; border: 0; background: none; text-align: left;
+    font: inherit; font-size: 17px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .faq-item .chevron { transition: transform 300ms ease; }
+  .faq-item button[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+  .faq-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms ease; }
+  .faq-panel > div { overflow: hidden; }
+  .faq-panel p { margin: 0; padding: 0 4px 20px; color: var(--muted); }
+  .faq-item.is-open .faq-panel { grid-template-rows: 1fr; }
+
+  footer { padding: 40px 0 56px; border-top: 1px solid var(--line); background: var(--soft); color: var(--muted); font-size: 13px; }
+  footer p { margin: 4px 0; }
+
+  @media (max-width: 720px) {
+    .container { width: calc(100% - 32px); }
+    .nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; padding: 8px 16px 16px; background: #fff; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); }
+    .nav.is-open { display: flex; }
+    .nav a { display: flex; align-items: center; height: 48px; }
+    .menu-button { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; border: 0; background: none; cursor: pointer; }
+    .hero { padding: 120px 0 72px; }
+    .hero h1 { font-size: 36px; }
+    .hero p { font-size: 17px; }
+    section { padding: 64px 0; }
+    section h2 { font-size: 28px; }
+    .steps, .plans, .reviews { grid-template-columns: 1fr; }
+    .plan.is-popular { order: -1; margin-top: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .site-header, .cta, .faq-panel, .faq-item .chevron { transition: none; }
+    .cta:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="logo" href="#top">한아름</a>
+    <nav class="nav" id="nav" aria-label="주 메뉴">
+      <a href="#how">구독 방법</a>
+      <a href="#pricing">요금</a>
+      <a href="#reviews">후기</a>
+      <a href="#faq">자주 묻는 질문</a>
+    </nav>
+    <button class="menu-button" id="menu-button" type="button" aria-label="메뉴" aria-expanded="false" aria-controls="nav">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="container">
+      <h1>2주마다, 계절 꽃이 문 앞에</h1>
+      <p>플로리스트가 그 계절에 가장 예쁜 꽃을 골라 2주마다 집으로 보내 드려요.</p>
+      <a class="cta" href="#pricing">첫 꽃 받아보기</a>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="container">
+      <h2>구독 방법</h2>
+      <ol class="steps">
+        <li><span class="num">01</span><h3>꽃 취향 고르기</h3><p>좋아하는 색과 분위기를 알려 주세요.</p></li>
+        <li><span class="num">02</span><h3>받는 날 정하기</h3><p>평일 중 편한 요일을 고를 수 있어요.</p></li>
+        <li><span class="num">03</span><h3>문 앞에서 받기</h3><p>신선하게 포장해서 문 앞까지 가져다 드려요.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="pricing" style="background: var(--soft)">
+    <div class="container">
+      <h2>요금</h2>
+      <div class="plans">
+        <article class="plan">
+          <h3>스몰</h3>
+          <p class="price">19,900원</p>
+          <p class="cycle">2주마다</p>
+          <ul><li>한 손에 드는 작은 다발</li><li>식탁·책상에 두기 좋아요</li></ul>
+        </article>
+        <article class="plan is-popular">
+          <span class="ribbon">가장 많이 골라요</span>
+          <h3>미디엄</h3>
+          <p class="price">29,900원</p>
+          <p class="cycle">2주마다</p>
+          <ul><li>거실에 두기 좋은 다발</li><li>화병 없이도 바로 꽂아요</li></ul>
+        </article>
+        <article class="plan">
+          <h3>라지</h3>
+          <p class="price">45,900원</p>
+          <p class="cycle">2주마다</p>
+          <ul><li>풍성한 큰 다발</li><li>선물하기에도 좋아요</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews">
+    <div class="container">
+      <h2>후기</h2>
+      <p class="stat"><strong>1만 2천 명</strong>이 함께 받고 있어요<span class="tag">예시</span></p>
+      <div class="reviews">
+        <figure class="review"><blockquote>2주마다 꽃이 오니까 집 분위기가 계속 바뀌어요.</blockquote><figcaption><span>김○○</span><span class="tag">예시</span></figcaption></figure>
+        <figure class="review"><blockquote>포장이 꼼꼼해서 받자마자 꽂아도 오래가요.</blockquote><figcaption><span>이○○</span><span class="tag">예시</span></figcaption></figure>
+        <figure class="review"><blockquote>어떤 꽃이 올지 기다리는 재미가 있어요.</blockquote><figcaption><span>박○○</span><span class="tag">예시</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="container">
+      <h2>자주 묻는 질문</h2>
+      <div class="faq" id="faq-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>한아름 · 대표 ○○○</p>
+    <p>사업자등록번호 000-00-00000 · 통신판매업 신고 0000-서울○○-0000</p>
+    <p>주소 서울시 ○○구 ○○로 00</p>
+  </div>
+</footer>
+
+<script>
+  const FAQ = [
+    ['구독은 언제든 멈출 수 있나요?', '네, 다음 배송 3일 전까지 마이페이지에서 멈추거나 해지할 수 있어요.'],
+    ['받는 날을 바꿀 수 있나요?', '배송 5일 전까지 원하는 요일로 바꿀 수 있어요.'],
+    ['꽃이 상해서 오면 어떻게 하나요?', '받은 날 사진을 보내 주시면 다시 보내 드려요.'],
+    ['선물로 다른 주소에 보낼 수 있나요?', '주문할 때 받는 분 주소와 메시지를 따로 적을 수 있어요.'],
+  ]
+  const list = document.getElementById('faq-list')
+  list.innerHTML = FAQ.map(
+    ([q, a], i) => `<div class="faq-item">
+      <h3><button type="button" aria-expanded="false" aria-controls="faq-${i}" id="faq-q-${i}">${q}<svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></h3>
+      <div class="faq-panel" id="faq-${i}" role="region" aria-labelledby="faq-q-${i}"><div><p>${a}</p></div></div>
+    </div>`,
+  ).join('')
+
+  // 한 번에 하나만 열린다
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('button')
+    if (!button) return
+    const open = button.getAttribute('aria-expanded') !== 'true'
+    list.querySelectorAll('.faq-item').forEach((item) => {
+      const b = item.querySelector('button')
+      const on = open && b === button
+      b.setAttribute('aria-expanded', String(on))
+      item.classList.toggle('is-open', on)
+    })
+  })
+
+  // 머리 — 80px 넘게 내리면 56px + 아래 선
+  const header = document.getElementById('site-header')
+  const onScroll = () => header.classList.toggle('is-compact', scrollY > 80)
+  addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
+
+  // 휴대폰 메뉴
+  const menuButton = document.getElementById('menu-button')
+  const nav = document.getElementById('nav')
+  menuButton.addEventListener('click', () => {
+    const open = menuButton.getAttribute('aria-expanded') !== 'true'
+    menuButton.setAttribute('aria-expanded', String(open))
+    nav.classList.toggle('is-open', open)
+  })
+  nav.addEventListener('click', (event) => {
+    if (!event.target.closest('a')) return
+    menuButton.setAttribute('aria-expanded', 'false')
+    nav.classList.remove('is-open')
+  })
+</script>
+</body>
+</html>

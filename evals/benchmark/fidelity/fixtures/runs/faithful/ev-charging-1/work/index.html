@@ -1,0 +1,368 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — ev-charging 요청(app-prompts.json)을 지킨 판.
+  사람이 손으로 쓴 화면이다. 클래스 이름·구조는 검사기에 맞추지 않았다.
+  커넥터 데이터는 요청문에 없어 지어 넣었다(필터가 동작하게).
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 주변 충전소</title>
+<style>
+  :root {
+    --ink: #111827;
+    --muted: #6b7280;
+    --line: #E5E7EB;
+    --bg: #f9fafb;
+    --accent: #111827;
+    --free: #16A34A;
+    --busy: #F59E0B;
+    --off: #9CA3AF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    word-break: keep-all;
+  }
+
+  .search-wrap { position: sticky; top: 0; z-index: 5; padding: 12px 16px 8px; }
+  .search {
+    display: flex; align-items: center; gap: 8px;
+    height: 48px; padding: 0 14px;
+    border: 1px solid rgba(17, 24, 39, 0.08); border-radius: 24px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .search svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+  .search input { flex: 1; height: 46px; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; }
+
+  .sort { display: flex; margin: 4px 16px 0; padding: 2px; border-radius: 12px; background: #eceef1; }
+  .sort button {
+    flex: 1; height: 44px; border: 0; border-radius: 10px; background: transparent;
+    font: inherit; font-size: 14px; color: var(--muted); cursor: pointer;
+  }
+  .sort button[aria-checked="true"] { background: #fff; color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
+
+  .count { margin: 14px 16px 6px; font-size: 14px; color: var(--muted); }
+
+  .refresh {
+    height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+  }
+  .refresh .spin { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--ink); border-radius: 50%; }
+  .refresh.is-loading .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .stations { list-style: none; margin: 0; padding: 0 0 96px; background: #fff; }
+  .stations li {
+    display: flex; align-items: center; gap: 12px;
+    height: 72px; padding: 0 4px 0 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stations li:last-child { border-bottom: 0; }
+  .info { flex: 1; min-width: 0; }
+  .name { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .dot.free { background: var(--free); }
+  .dot.busy { background: var(--busy); }
+  .dot.off { background: var(--off); }
+  .meta { margin: 4px 0 0 16px; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta b { font-weight: 600; color: var(--ink); }
+  .star {
+    width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+    border: 0; background: none; color: var(--off); cursor: pointer; border-radius: 22px;
+  }
+  .star svg { width: 22px; height: 22px; }
+  .star[aria-pressed="true"] { color: #111827; }
+  .star[aria-pressed="true"] path { fill: currentColor; }
+
+  .skeleton li { gap: 0; flex-direction: column; align-items: flex-start; justify-content: center; }
+  .bar { height: 14px; border-radius: 7px; background: #e5e7eb; }
+  .bar + .bar { margin-top: 10px; height: 12px; }
+
+  .notice { padding: 72px 24px; text-align: center; }
+  .notice p { margin: 0 0 16px; font-size: 15px; }
+  .notice button {
+    height: 44px; padding: 0 20px; border: 1px solid var(--line); border-radius: 10px;
+    background: #fff; font: inherit; font-size: 15px; cursor: pointer;
+  }
+
+  .fab {
+    position: fixed; right: 16px; bottom: 24px; z-index: 6;
+    display: flex; align-items: center; gap: 6px;
+    height: 56px; padding: 0 20px;
+    border: 0; border-radius: 28px; background: var(--accent); color: #fff;
+    font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(17, 24, 39, 0.24);
+  }
+  .fab svg { width: 18px; height: 18px; }
+
+  .scrim { position: fixed; inset: 0; z-index: 9; background: rgba(17, 24, 39, 0.4); opacity: 0; transition: opacity 280ms ease; }
+  .scrim.is-open { opacity: 1; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 0 16px 24px;
+    border-radius: 16px 16px 0 0; background: #fff;
+    transform: translateY(100%);
+    transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .sheet.is-open { transform: translateY(0); }
+  .sheet.is-dragging { transition: none; }
+  .sheet-head { padding: 10px 0 4px; touch-action: none; cursor: grab; }
+  .handle { width: 36px; height: 4px; margin: 0 auto 12px; border-radius: 2px; background: var(--line); }
+  .sheet h2 { margin: 0; font-size: 18px; }
+  .sheet h3 { margin: 20px 0 10px; font-size: 14px; color: var(--muted); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button {
+    height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 22px;
+    background: #fff; font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .chips button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .apply {
+    display: block; width: 100%; height: 52px; margin-top: 24px;
+    border: 0; border-radius: 12px; background: var(--accent); color: #fff;
+    font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sheet, .scrim { transition: none; }
+    .refresh.is-loading .spin { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="search-wrap">
+  <label class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input type="search" placeholder="충전소 이름이나 주소" aria-label="충전소 검색">
+  </label>
+</div>
+
+<div class="sort" role="radiogroup" aria-label="정렬">
+  <button type="button" role="radio" aria-checked="true" data-sort="near">가까운 순</button>
+  <button type="button" role="radio" aria-checked="false" data-sort="fast">빠른 충전 우선</button>
+  <button type="button" role="radio" aria-checked="false" data-sort="cheap">요금 낮은 순</button>
+</div>
+
+<p class="count" id="count" aria-live="polite"></p>
+<div class="refresh" id="refresh" role="status"><span class="spin" aria-hidden="true"></span><span id="refresh-text"></span></div>
+<div id="content"></div>
+
+<button class="fab" id="filter-button" type="button" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+  필터
+</button>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="sheet-head" id="sheet-head">
+    <div class="handle" aria-hidden="true"></div>
+    <h2 id="sheet-title">필터</h2>
+  </div>
+  <h3>충전 속도</h3>
+  <div class="chips" data-group="speed">
+    <button type="button" aria-pressed="false" data-value="급속">급속</button>
+    <button type="button" aria-pressed="false" data-value="완속">완속</button>
+  </div>
+  <h3>커넥터</h3>
+  <div class="chips" data-group="connector">
+    <button type="button" aria-pressed="false" data-value="DC콤보">DC콤보</button>
+    <button type="button" aria-pressed="false" data-value="차데모">차데모</button>
+    <button type="button" aria-pressed="false" data-value="AC3상">AC3상</button>
+  </div>
+  <button class="apply" id="apply" type="button">적용</button>
+</div>
+
+<script>
+  const STATIONS = [
+    { name: '성수 공영주차장', km: 0.4, free: 3, total: 8, speed: '급속', price: 324, status: 'free', connectors: ['DC콤보', 'AC3상'] },
+    { name: '뚝섬역 2번 출구', km: 0.9, free: 1, total: 4, speed: '급속', price: 347, status: 'busy', connectors: ['DC콤보', '차데모'] },
+    { name: '서울숲 북문', km: 1.3, free: 0, total: 2, speed: '완속', price: 255, status: 'off', connectors: ['AC3상'] },
+    { name: '성동구청 지하', km: 2.1, free: 5, total: 10, speed: '급속', price: 310, status: 'free', connectors: ['DC콤보'] },
+    { name: '왕십리역 환승주차장', km: 3.4, free: 2, total: 12, speed: '급속', price: 335, status: 'busy', connectors: ['DC콤보', '차데모', 'AC3상'] },
+  ]
+  const STATUS = { free: '여유', busy: '혼잡', off: '점검 중' }
+  const state = new URLSearchParams(location.search).get('state')
+  const content = document.getElementById('content')
+  const count = document.getElementById('count')
+  let sort = 'near'
+  let filters = { speed: new Set(), connector: new Set() }
+  const favorites = new Set()
+
+  const starIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'
+
+  const visible = () => {
+    const list = STATIONS.filter((s) =>
+      (filters.speed.size === 0 || filters.speed.has(s.speed)) &&
+      (filters.connector.size === 0 || s.connectors.some((c) => filters.connector.has(c))))
+    if (sort === 'fast') return [...list].sort((a, b) => (a.speed === b.speed ? a.km - b.km : a.speed === '급속' ? -1 : 1))
+    if (sort === 'cheap') return [...list].sort((a, b) => a.price - b.price)
+    return [...list].sort((a, b) => a.km - b.km)
+  }
+
+  const render = () => {
+    if (state === 'loading') {
+      count.textContent = '충전소를 불러오는 중'
+      content.innerHTML = `<ul class="stations skeleton" aria-hidden="true">${'<li><div class="bar" style="width:160px"></div><div class="bar" style="width:240px"></div></li>'.repeat(5)}</ul>`
+      return
+    }
+    if (state === 'error') {
+      count.textContent = ''
+      content.innerHTML = '<div class="notice"><p>충전소 정보를 불러오지 못했어요</p><button type="button" id="retry">다시 시도</button></div>'
+      document.getElementById('retry').addEventListener('click', () => location.replace(location.pathname))
+      return
+    }
+    const list = state === 'empty' ? [] : visible()
+    count.textContent = `충전소 ${list.length}곳`
+    if (list.length === 0) {
+      content.innerHTML = '<div class="notice"><p>조건에 맞는 충전소가 없어요</p><button type="button" id="reset">필터 초기화</button></div>'
+      document.getElementById('reset').addEventListener('click', () => {
+        filters = { speed: new Set(), connector: new Set() }
+        syncChips()
+        if (state === 'empty') location.replace(location.pathname)
+        else render()
+      })
+      return
+    }
+    content.innerHTML = `<ul class="stations" id="stations">${list
+      .map(
+        (s) => `<li>
+          <div class="info">
+            <p class="name"><span class="dot ${s.status}" aria-hidden="true"></span>${s.name}</p>
+            <p class="meta"><b>${STATUS[s.status]}</b> · ${s.km}km · ${s.free}/${s.total}대 · ${s.speed} · kWh당 ${s.price}원</p>
+          </div>
+          <button class="star" type="button" aria-pressed="${favorites.has(s.name)}" aria-label="${s.name} 즐겨찾기" data-name="${s.name}">${starIcon}</button>
+        </li>`,
+      )
+      .join('')}</ul>`
+  }
+  render()
+
+  // 정렬
+  document.querySelector('.sort').addEventListener('click', (event) => {
+    const button = event.target.closest('button')
+    if (!button) return
+    sort = button.dataset.sort
+    document.querySelectorAll('.sort button').forEach((b) => b.setAttribute('aria-checked', String(b === button)))
+    render()
+  })
+
+  // 즐겨찾기 — aria-pressed로 켜짐·꺼짐을 알린다
+  content.addEventListener('click', (event) => {
+    const star = event.target.closest('.star')
+    if (!star) return
+    const on = star.getAttribute('aria-pressed') !== 'true'
+    star.setAttribute('aria-pressed', String(on))
+    if (on) favorites.add(star.dataset.name)
+    else favorites.delete(star.dataset.name)
+  })
+
+  // 필터 시트
+  const sheet = document.getElementById('sheet')
+  const scrim = document.getElementById('scrim')
+  const filterButton = document.getElementById('filter-button')
+  const syncChips = () => {
+    sheet.querySelectorAll('.chips').forEach((group) => {
+      group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(filters[group.dataset.group].has(b.dataset.value))))
+    })
+  }
+  let draft = null
+  const openSheet = () => {
+    draft = { speed: new Set(filters.speed), connector: new Set(filters.connector) }
+    sheet.hidden = false
+    scrim.hidden = false
+    sheet.getBoundingClientRect()
+    sheet.classList.add('is-open')
+    scrim.classList.add('is-open')
+    sheet.querySelector('.chips button').focus()
+  }
+  const closeSheet = () => {
+    sheet.classList.remove('is-open', 'is-dragging')
+    sheet.style.transform = ''
+    scrim.classList.remove('is-open')
+    const done = () => {
+      sheet.hidden = true
+      scrim.hidden = true
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) done()
+    else setTimeout(done, 300)
+    filterButton.focus()
+  }
+  filterButton.addEventListener('click', openSheet)
+  scrim.addEventListener('click', closeSheet)
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !sheet.hidden) closeSheet()
+  })
+  sheet.querySelectorAll('.chips').forEach((group) => {
+    group.addEventListener('click', (event) => {
+      const chip = event.target.closest('button')
+      if (!chip) return
+      const set = draft[group.dataset.group]
+      if (set.has(chip.dataset.value)) set.delete(chip.dataset.value)
+      else set.add(chip.dataset.value)
+      chip.setAttribute('aria-pressed', String(set.has(chip.dataset.value)))
+    })
+  })
+  document.getElementById('apply').addEventListener('click', () => {
+    filters = draft
+    render()
+    closeSheet()
+  })
+
+  // 손으로 끌어내려 닫기
+  const head = document.getElementById('sheet-head')
+  let dragStart = null
+  head.addEventListener('pointerdown', (event) => {
+    dragStart = event.clientY
+    head.setPointerCapture(event.pointerId)
+    sheet.classList.add('is-dragging')
+  })
+  head.addEventListener('pointermove', (event) => {
+    if (dragStart === null) return
+    sheet.style.transform = `translateY(${Math.max(0, event.clientY - dragStart)}px)`
+  })
+  const endDrag = (event) => {
+    if (dragStart === null) return
+    const moved = event.clientY - dragStart
+    dragStart = null
+    sheet.classList.remove('is-dragging')
+    if (moved > 80) closeSheet()
+    else sheet.style.transform = ''
+  }
+  head.addEventListener('pointerup', endDrag)
+  head.addEventListener('pointercancel', endDrag)
+
+  // 당겨서 새로고침 — 맨 위에서 아래로 당기면 표시가 나오고, 놓으면 잠깐 돌다가 사라진다
+  const refresh = document.getElementById('refresh')
+  const refreshText = document.getElementById('refresh-text')
+  let pullStart = null
+  content.addEventListener('touchstart', (event) => {
+    if (scrollY === 0) pullStart = event.touches[0].clientY
+  }, { passive: true })
+  content.addEventListener('touchmove', (event) => {
+    if (pullStart === null) return
+    const distance = Math.min(80, Math.max(0, event.touches[0].clientY - pullStart) / 2)
+    refresh.style.height = `${distance}px`
+    refreshText.textContent = distance >= 48 ? '놓으면 새로고침' : '당겨서 새로고침'
+  }, { passive: true })
+  content.addEventListener('touchend', () => {
+    if (pullStart === null) return
+    pullStart = null
+    if (parseFloat(refresh.style.height) >= 48) {
+      refresh.classList.add('is-loading')
+      refreshText.textContent = '새로고침 중'
+      setTimeout(() => {
+        refresh.classList.remove('is-loading')
+        refresh.style.height = '0px'
+        render()
+      }, 900)
+    } else refresh.style.height = '0px'
+  })
+</script>
+</body>
+</html>

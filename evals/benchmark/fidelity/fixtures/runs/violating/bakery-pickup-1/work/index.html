@@ -1,0 +1,166 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — bakery-pickup 요청을 일부러 11곳 어긴 판.
+  지킨 판과 구조를 다르게 썼다(고정 머리 + 창 스크롤, 카드를 감싼 div, strong·span 글자). 클래스 이름은 검사기에 맞추지 않았다.
+
+  일부러 어긴 곳(요구 id — 무엇을 어겼나):
+  1. R02 — 스크롤하면 머리가 44px이 아니라 48px로 줄어든다
+  2. R08 — 카드 모서리 12px 대신 8px
+  3. R09 — 카드 사이 세로 간격이 12px 대신 16px(가로는 12px 그대로)
+  4. R13 — 가격 글자 #C2410C 대신 #9A3412
+  5. R14 — '담기' 버튼 글자가 흰색 대신 크림색 #FFF7ED
+  6. R19 — 빈 상태 문구 '아직 준비된 빵이 없어요' 대신 '아직 준비된 메뉴가 없어요'
+  7. R20 — 한 열로 바뀌는 기준이 360px이 아니라 300px이라 320px에서도 두 열
+  8. R05 — 칩 앞 이모지 🍞 🥐 🍰 ☕를 빼먹음(1단계에서는 미지원이었고 2단계 문법(checks)으로 잡힌다)
+  9. R16 — '장바구니에 담았어요' 알림이 2초가 아니라 3초 뒤에 사라진다(timing)
+  10. R04 — 칩 줄이 가로로 넘어가지 않고 줄바꿈된다(flex-wrap, overflow 없음 — order의 scrollableX)
+  11. R06 — '전체' 칩이 골라진 것을 색으로만 보여 주고 aria-current·aria-pressed 같은 상태를 알리지 않는다(attr anyOf)
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>밀밭제과</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding-top: 56px;
+    font-family: system-ui, sans-serif;
+    background: #f5f5f4;
+    color: #1c1917;
+    word-break: keep-all;
+  }
+  body.scrolled { padding-top: 48px; }
+  .app-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+    height: 56px;
+    display: flex; align-items: center; padding: 0 16px;
+    background: #fff;
+    box-shadow: 0 1px 0 #e7e5e4;
+    transition: height .2s;
+  }
+  .app-header .title { flex: 1; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; transition: font-size .2s; }
+  body.scrolled .app-header { height: 48px; }
+  body.scrolled .app-header .title { font-size: 17px; }
+  .bag { position: relative; width: 44px; height: 44px; border: 0; background: transparent; font-size: 0; cursor: pointer; }
+  .bag::before { content: ""; position: absolute; inset: 11px; border: 2px solid #1c1917; border-radius: 4px 4px 7px 7px; }
+  .badge {
+    position: absolute; right: 0; top: 2px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ef4444; color: white;
+    font-size: 11px; line-height: 18px; text-align: center; font-weight: 700;
+  }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; }
+  .filters a {
+    display: inline-flex; align-items: center; height: 34px; padding: 0 12px;
+    border-radius: 999px; background: #fff; color: inherit; text-decoration: none; font-size: 14px;
+    border: 1px solid #e7e5e4;
+  }
+  .filters a.is-on { background: #1c1917; color: #fff; }
+
+  .products {
+    display: grid; grid-template-columns: 1fr 1fr;
+    column-gap: 12px; row-gap: 16px;
+    padding: 8px 16px 80px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    padding-bottom: 12px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .card .pic { height: 110px; border-radius: 8px 8px 0 0; background: #e7e0d6; }
+  .card strong { display: block; margin: 10px 12px 0; font-size: 15px; }
+  .card .won { display: block; margin: 2px 12px 0; color: #9A3412; font-weight: 700; }
+  .card .row { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
+  .card .btn { height: 34px; padding: 0 14px; border: 0; border-radius: 6px; background: #C2410C; color: #FFF7ED; font-weight: 600; }
+  .card.off { filter: grayscale(1); opacity: .45; }
+  .card .btn[aria-disabled="true"] { background: #a8a29e; color: #fff; }
+
+  .loading-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 16px; }
+  .loading-grid div { height: 190px; border-radius: 8px; background: linear-gradient(90deg, #eee, #f6f6f6, #eee); }
+  .nothing { margin: 64px 16px; text-align: center; color: #78716c; }
+
+  .snackbar { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #292524; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 14px; display: none; }
+  .snackbar.on { display: block; }
+  .sheet-menu { position: fixed; display: none; background: #fff; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 4px; }
+  .sheet-menu.on { display: block; }
+  .sheet-menu button { display: block; width: 140px; height: 44px; border: 0; background: none; text-align: left; padding: 0 12px; font-size: 15px; }
+
+  @media (max-width: 300px) {
+    .products, .loading-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-header">
+    <span class="title">밀밭제과</span>
+    <button class="bag" aria-label="장바구니 보기"><span class="badge" id="n">0</span></button>
+  </div>
+
+  <div class="filters">
+    <a href="#" class="is-on">전체</a>
+    <a href="#">식빵</a>
+    <a href="#">페이스트리</a>
+    <a href="#">케이크</a>
+    <a href="#">음료</a>
+  </div>
+
+  <div id="list"></div>
+  <div class="snackbar" id="snack" role="status"></div>
+  <div class="sheet-menu" id="pm"><button>찜하기</button><button>자세히 보기</button></div>
+
+<script>
+  const items = [
+    ['소금빵', '3,500원'], ['우유식빵', '5,800원'], ['크루아상', '4,200원'],
+    ['딸기 생크림 케이크', '32,000원'], ['바닐라 라떼', '5,000원'], ['앙버터', '4,800원', true],
+  ]
+  const mode = new URLSearchParams(location.search).get('state')
+  const list = document.getElementById('list')
+  if (mode === 'loading') {
+    list.innerHTML = '<div class="loading-grid">' + '<div></div>'.repeat(6) + '</div>'
+  } else if (mode === 'empty') {
+    list.innerHTML = '<p class="nothing">아직 준비된 메뉴가 없어요</p>'
+  } else {
+    list.innerHTML = '<section class="products">' + items.map(([name, price, off]) =>
+      `<div class="cell"><div class="card${off ? ' off' : ''}">
+        <div class="pic"></div>
+        <strong>${name}</strong>
+        <span class="won">${price}</span>
+        <div class="row">${off ? '<button class="btn" aria-disabled="true">품절</button>' : '<button class="btn">담기</button>'}</div>
+      </div></div>`).join('') + '</section>'
+  }
+
+  let n = 0
+  const badge = document.getElementById('n')
+  badge.style.visibility = 'hidden'
+  const snack = document.getElementById('snack')
+  list.addEventListener('click', (e) => {
+    const b = e.target.closest('.btn')
+    if (!b || b.getAttribute('aria-disabled') === 'true') return
+    n++
+    badge.textContent = n
+    badge.style.visibility = 'visible'
+    snack.textContent = '장바구니에 담았어요'
+    snack.classList.add('on')
+    setTimeout(() => snack.classList.remove('on'), 3000)
+  })
+
+  window.addEventListener('scroll', () => document.body.classList.toggle('scrolled', window.scrollY > 10))
+
+  let t
+  const pm = document.getElementById('pm')
+  list.addEventListener('touchstart', (e) => {
+    const card = e.target.closest('.card')
+    if (!card || e.target.closest('.btn')) return
+    const p = e.touches[0]
+    t = setTimeout(() => { pm.style.left = p.clientX + 'px'; pm.style.top = p.clientY + 'px'; pm.classList.add('on') }, 500)
+  })
+  list.addEventListener('touchend', () => clearTimeout(t))
+  document.addEventListener('click', (e) => { if (!pm.contains(e.target)) pm.classList.remove('on') })
+</script>
+</body>
+</html>

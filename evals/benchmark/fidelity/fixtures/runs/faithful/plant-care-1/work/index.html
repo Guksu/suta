@@ -1,0 +1,294 @@
+<!doctype html>
+<!--
+  요구 충족률 검사기(scripts/benchmark/fidelity.mjs)를 시험하는 견본 화면 — plant-care 요청(app-prompts.json)을 지킨 판.
+  사람이 손으로 쓴 화면이다. 클래스 이름·구조는 검사기에 맞추지 않았다.
+  "다음 물 주기" 날짜는 요청문에 하나(12월 3일)만 있어 나머지는 주기에서 지어 넣었다.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘 할 일</title>
+<style>
+  :root {
+    --ink: #14211a;
+    --muted: #6B7280;
+    --green: #15803D;
+    --card: #F0FDF4;
+    --line: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink); background: #fff;
+    word-break: keep-all;
+  }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 16px 16px; }
+  h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+  .date { margin: 4px 0 0; font-size: 15px; color: var(--muted); }
+  .ring { position: relative; width: 56px; height: 56px; flex: none; }
+  .ring svg { width: 56px; height: 56px; transform: rotate(-90deg); }
+  .ring .track { stroke: var(--line); }
+  .ring .value { stroke: var(--green); transition: stroke-dashoffset 300ms ease; }
+  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+
+  .plants { list-style: none; margin: 0; padding: 0 16px 120px; display: flex; flex-direction: column; gap: 8px; }
+  .plant { position: relative; border-radius: 16px; overflow: hidden; }
+  .later {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 112px;
+    border: 0; background: #374151; color: #fff;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .face {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    min-height: 76px; padding: 12px 16px 12px 8px;
+    background: var(--card);
+    touch-action: pan-y;
+    transition: transform 200ms ease;
+  }
+  .face.is-dragging { transition: none; }
+  .check {
+    width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+    border: 0; background: none; cursor: pointer; border-radius: 22px;
+  }
+  .check .box { width: 24px; height: 24px; border: 2px solid #86a594; border-radius: 50%; display: grid; place-items: center; transition: background-color 150ms ease, border-color 150ms ease; }
+  .check svg { width: 14px; height: 14px; opacity: 0; }
+  .check[aria-checked="true"] .box { background: var(--green); border-color: var(--green); }
+  .check[aria-checked="true"] svg { opacity: 1; }
+  .name { margin: 0; font-size: 16px; font-weight: 600; text-decoration-color: transparent; transition: text-decoration-color 200ms ease, color 200ms ease; }
+  .plant.is-done .name { text-decoration-line: line-through; text-decoration-color: currentColor; color: #4b6355; }
+  .where { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .next { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+
+  .empty { padding: 96px 16px; text-align: center; color: var(--muted); }
+
+  .toast {
+    position: fixed; left: 16px; right: 16px; bottom: 24px; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 6px 6px 6px 16px; border-radius: 12px;
+    background: #1f2937; color: #fff; font-size: 14px;
+  }
+  .toast[hidden] { display: none; }
+  .toast button { height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: #bbf7d0; font: inherit; font-weight: 700; cursor: pointer; }
+
+  .backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px; background: rgba(0, 0, 0, 0.4); }
+  .backdrop[hidden] { display: none; }
+  .modal { width: 100%; max-width: 320px; padding: 28px 20px 20px; border-radius: 16px; background: #fff; text-align: center; animation: pop 240ms ease-out; }
+  .modal h2 { margin: 0 0 20px; font-size: 18px; }
+  .modal button { width: 100%; height: 48px; border: 0; border-radius: 12px; background: var(--green); color: #fff; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+  @keyframes pop { from { opacity: 0; transform: scale(0.96); } }
+  .confetti { position: fixed; inset: 0; z-index: 31; pointer-events: none; overflow: hidden; }
+  .confetti i { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; animation: fall 1100ms ease-in forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .face, .name, .ring .value, .check .box { transition: none; }
+    .modal { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>오늘 물 줄 식물</h1>
+    <p class="date">11월 26일 수요일</p>
+  </div>
+  <div class="ring" role="progressbar" aria-label="오늘 물 주기 진행" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" id="ring">
+    <svg viewBox="0 0 56 56" aria-hidden="true">
+      <circle class="track" cx="28" cy="28" r="24" fill="none" stroke-width="5"/>
+      <circle class="value" id="ring-value" cx="28" cy="28" r="24" fill="none" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+    <span id="ring-text">2/5</span>
+  </div>
+</header>
+
+<main id="content"></main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <span id="toast-text"></span>
+  <button type="button" id="undo">되돌리기</button>
+</div>
+
+<div class="backdrop" id="done-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="done-title">
+    <h2 id="done-title">오늘 할 일을 모두 마쳤습니다</h2>
+    <button type="button" id="done-ok">확인</button>
+  </div>
+</div>
+
+<script>
+  const PLANTS = [
+    { name: '몬스테라', room: '거실', every: 7, next: '12월 3일', done: true },
+    { name: '스투키', room: '침실', every: 21, next: '12월 17일', done: false },
+    { name: '보스턴고사리', room: '욕실', every: 3, next: '11월 29일', done: false },
+    { name: '올리브나무', room: '베란다', every: 10, next: '12월 6일', done: false },
+    { name: '필레아', room: '책상', every: 5, next: '12월 1일', done: true },
+  ]
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+  const state = new URLSearchParams(location.search).get('state')
+  const content = document.getElementById('content')
+  let plants = state === 'empty' ? [] : PLANTS.map((p, i) => ({ ...p, order: i }))
+  let celebrated = false
+
+  // 받침(을·를)은 마지막 글자의 받침으로 고른다
+  const objectParticle = (word) => {
+    const code = word.charCodeAt(word.length - 1) - 0xac00
+    return code >= 0 && code <= 11171 && code % 28 !== 0 ? '을' : '를'
+  }
+
+  // 마친 카드는 아래로 — 같은 묶음 안에서는 처음 순서
+  const sorted = () => [...plants].sort((a, b) => Number(a.done) - Number(b.done) || a.order - b.order)
+
+  const updateRing = () => {
+    const done = plants.filter((p) => p.done).length
+    const total = plants.length
+    document.getElementById('ring-text').textContent = `${done}/${total}`
+    document.getElementById('ring').setAttribute('aria-valuenow', String(done))
+    document.getElementById('ring').setAttribute('aria-valuemax', String(total))
+    const length = 2 * Math.PI * 24
+    const value = document.getElementById('ring-value')
+    value.style.strokeDasharray = `${length}`
+    value.style.strokeDashoffset = `${total === 0 ? length : length * (1 - done / total)}`
+  }
+
+  const cardHtml = (p) => `<li class="plant${p.done ? ' is-done' : ''}" data-name="${p.name}">
+      <button class="later" type="button" tabindex="-1">내일로 미루기</button>
+      <div class="face">
+        <button class="check" type="button" role="checkbox" aria-checked="${p.done}" aria-label="${p.name} 물 주기 마침">
+          <span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 8.5 3 3 6-7"/></svg></span>
+        </button>
+        <div>
+          <p class="name">${p.name}</p>
+          <p class="where">${p.room} · ${p.every}일마다</p>
+          <p class="next">다음 물 주기: ${p.next}</p>
+        </div>
+      </div>
+    </li>`
+
+  const render = () => {
+    updateRing()
+    if (plants.length === 0) {
+      content.innerHTML = '<p class="empty">오늘은 물 줄 식물이 없습니다</p>'
+      return
+    }
+    content.innerHTML = `<ul class="plants" id="plants">${sorted().map(cardHtml).join('')}</ul>`
+  }
+  render()
+
+  // 순서가 바뀔 때 카드가 미끄러지듯 — 바뀌기 전 자리를 재고(FLIP), 새 자리에서 그 차이만큼 되돌렸다가 0으로 옮긴다
+  const reorder = () => {
+    const list = document.getElementById('plants')
+    const before = new Map([...list.children].map((li) => [li.dataset.name, li.getBoundingClientRect().top]))
+    const items = new Map([...list.children].map((li) => [li.dataset.name, li]))
+    for (const p of sorted()) list.appendChild(items.get(p.name))
+    if (reduce.matches) return
+    for (const li of list.children) {
+      const delta = before.get(li.dataset.name) - li.getBoundingClientRect().top
+      if (Math.abs(delta) > 1) li.animate([{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }], { duration: 280, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' })
+    }
+  }
+
+  const celebrate = () => {
+    celebrated = true
+    const backdrop = document.getElementById('done-backdrop')
+    backdrop.hidden = false
+    document.getElementById('done-ok').focus()
+    if (reduce.matches) return
+    const confetti = document.createElement('div')
+    confetti.className = 'confetti'
+    confetti.setAttribute('aria-hidden', 'true')
+    const colors = ['#15803D', '#86efac', '#fde68a', '#fca5a5']
+    for (let i = 0; i < 24; i += 1) {
+      const piece = document.createElement('i')
+      piece.style.left = `${(i * 37) % 100}%`
+      piece.style.background = colors[i % colors.length]
+      piece.style.animationDelay = `${(i % 6) * 60}ms`
+      confetti.appendChild(piece)
+    }
+    document.body.appendChild(confetti)
+    setTimeout(() => confetti.remove(), 1600)
+  }
+  document.getElementById('done-ok').addEventListener('click', () => {
+    document.getElementById('done-backdrop').hidden = true
+  })
+
+  // 체크 — 마친 상태, 취소선, 링 숫자를 함께 바꾸고 순서를 옮긴다
+  content.addEventListener('click', (event) => {
+    const check = event.target.closest('.check')
+    if (!check) return
+    const li = check.closest('.plant')
+    const plant = plants.find((p) => p.name === li.dataset.name)
+    plant.done = !plant.done
+    check.setAttribute('aria-checked', String(plant.done))
+    li.classList.toggle('is-done', plant.done)
+    updateRing()
+    reorder()
+    if (!celebrated && plants.every((p) => p.done)) setTimeout(celebrate, reduce.matches ? 0 : 300)
+  })
+
+  // 왼쪽으로 밀면 '내일로 미루기'
+  const OPEN = -112
+  let drag = null
+  content.addEventListener('pointerdown', (event) => {
+    const face = event.target.closest('.face')
+    if (!face || event.target.closest('.check')) return
+    document.querySelectorAll('.face').forEach((other) => {
+      if (other !== face) other.style.transform = ''
+    })
+    const current = parseFloat(face.style.transform.replace('translateX(', '')) || 0
+    drag = { face, startX: event.clientX, startY: event.clientY, base: current, horizontal: null }
+  })
+  content.addEventListener('pointermove', (event) => {
+    if (!drag) return
+    const dx = event.clientX - drag.startX
+    const dy = event.clientY - drag.startY
+    if (drag.horizontal === null && Math.hypot(dx, dy) > 6) drag.horizontal = Math.abs(dx) > Math.abs(dy)
+    if (!drag.horizontal) return
+    drag.face.classList.add('is-dragging')
+    drag.face.style.transform = `translateX(${Math.min(0, Math.max(OPEN - 24, drag.base + dx))}px)`
+  })
+  const endSwipe = () => {
+    if (!drag) return
+    const { face } = drag
+    face.classList.remove('is-dragging')
+    const x = parseFloat(face.style.transform.replace('translateX(', '')) || 0
+    face.style.transform = x < OPEN / 2 ? `translateX(${OPEN}px)` : ''
+    const later = face.parentElement.querySelector('.later')
+    later.tabIndex = x < OPEN / 2 ? 0 : -1
+    drag = null
+  }
+  content.addEventListener('pointerup', endSwipe)
+  content.addEventListener('pointercancel', endSwipe)
+
+  // 미루기와 되돌리기
+  const toast = document.getElementById('toast')
+  let toastTimer = 0
+  let postponed = null
+  content.addEventListener('click', (event) => {
+    const later = event.target.closest('.later')
+    if (!later) return
+    const name = later.closest('.plant').dataset.name
+    const index = plants.findIndex((p) => p.name === name)
+    postponed = { plant: plants[index], index }
+    plants.splice(index, 1)
+    render()
+    document.getElementById('toast-text').textContent = `${name}${objectParticle(name)} 내일로 미뤘습니다`
+    toast.hidden = false
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => {
+      toast.hidden = true
+      postponed = null
+    }, 5000)
+  })
+  document.getElementById('undo').addEventListener('click', () => {
+    if (!postponed) return
+    plants.splice(postponed.index, 0, postponed.plant)
+    postponed = null
+    clearTimeout(toastTimer)
+    toast.hidden = true
+    render()
+  })
+</script>
+</body>
+</html>
