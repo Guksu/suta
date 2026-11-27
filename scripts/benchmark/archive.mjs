@@ -101,7 +101,7 @@ if (list) {
         condition,
         id,
         meta: JSON.parse(readFileSync(metaPath, 'utf8')),
-        trace: existsSync(streamPath) ? traceOf(readFileSync(streamPath, 'utf8').split('\n')) : [],
+        trace: existsSync(streamPath) ? traceOf(readFileSync(streamPath, 'utf8').split('\n'), { root: resolve(out) }) : [],
         files,
       })
     }

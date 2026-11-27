@@ -25,18 +25,31 @@ export type Bundle = { schemaVersion: 1; name: string; archivedAt: string; runs:
 
 const TARGET_MAX = 200
 
-/** 실행 폴더까지의 절대 경로를 지운다 — 누가 어디서 돌렸는지는 기록할 것이 아니다 */
-const withoutRunDir = (text: string) => text.replace(/[^\s"']*\/runs\/[^/\s]+\/[^/\s]+\/(plugin|work)/g, '$1')
+const escapeRe = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const targetOf = (input: Record<string, unknown>) => {
+/**
+ * 실행한 사람의 폴더 경로를 지운다 — 누가 어디서 돌렸는지는 기록할 것이 아니다.
+ * 시험 실행에서 세 가지 모양이 나왔다: 실행 폴더 아래의 plugin·work, 실행 폴더 자체(cd로 옮겨 간 명령),
+ * 자식 세션이 받은 임시 폴더(작업 폴더 경로를 이름에 품는다 — …-runs-<조건>-<id>-work/<세션 id>/scratchpad).
+ * root(run.mjs의 --out)를 알면 그 아래 남은 경로도 <out>으로 바꾼다
+ */
+const withoutRunDir = ({ text, root }: { text: string; root?: string }) => {
+  const cleaned = text
+    .replace(/[^\s"']*-runs-[^/\s"']+-work\/[0-9a-f-]{36}(?:\/scratchpad)?/g, 'scratch')
+    .replace(/[^\s"']*\/runs\/[^/\s]+\/[^/\s]+\/(plugin|work)/g, '$1')
+    .replace(/[^\s"']*\/runs\/[^/\s"';]+\/[^/\s"';]+/g, '.')
+  return root ? cleaned.replace(new RegExp(escapeRe(root.replace(/\/+$/, '')), 'g'), '<out>') : cleaned
+}
+
+const targetOf = ({ input, root }: { input: Record<string, unknown>; root?: string }) => {
   const raw = [input.file_path, input.path, input.command, input.skill, input.pattern, input.url].find((v) => typeof v === 'string' && v.length > 0)
   if (typeof raw !== 'string') return ''
-  const text = withoutRunDir(raw.trim())
+  const text = withoutRunDir({ text: raw.trim(), root })
   return text.length > TARGET_MAX ? `${text.slice(0, TARGET_MAX)}…` : text
 }
 
 /** stream-json 줄들 → 도구 사용 순서. 내용(쓴 파일 본문 등)은 버리고 무엇을 대상으로 했는지만 남긴다 */
-export const traceOf = (lines: string[]): TraceStep[] => {
+export const traceOf = (lines: string[], { root }: { root?: string } = {}): TraceStep[] => {
   const steps: TraceStep[] = []
   for (const line of lines) {
     let event: { type?: string; message?: { content?: { type?: string; name?: string; input?: Record<string, unknown> }[] } }
@@ -48,19 +61,35 @@ export const traceOf = (lines: string[]): TraceStep[] => {
     if (event?.type !== 'assistant') continue
     for (const block of event.message?.content ?? []) {
       if (block.type !== 'tool_use' || !block.name) continue
-      steps.push({ tool: block.name, target: targetOf(block.input ?? {}) })
+      steps.push({ tool: block.name, target: targetOf({ input: block.input ?? {}, root }) })
     }
   }
   return steps
 }
 
-/** 스킬 문서(.md) 가운데 읽은 것 — 스킬 폴더 기준 경로, 처음 읽은 순서. 쓰기·고치기는 읽은 것이 아니다 */
+/**
+ * 스킬 문서(.md) 가운데 읽은 것 — 스킬 폴더 기준 경로, 처음 읽은 순서. 쓰기·고치기는 읽은 것이 아니다.
+ * 시험 실행에서 본 읽는 길 세 가지를 센다: 스킬 도구로 부름(SKILL.md가 대화에 실린다), 전체 경로로 읽음,
+ * 스킬 폴더로 옮겨 간(cd) 뒤 상대 경로로 읽음
+ */
 export const docsReadOf = (trace: TraceStep[]): string[] => {
   const docs: string[] = []
+  const add = (doc: string) => {
+    if (!docs.includes(doc)) docs.push(doc)
+  }
   for (const step of trace) {
     if (step.tool === 'Write' || step.tool === 'Edit') continue
-    for (const match of step.target.matchAll(/plugin\/skills\/suta\/([^\s"']+?\.md)/g)) {
-      if (!docs.includes(match[1])) docs.push(match[1])
+    if (step.tool === 'Skill') {
+      if (/(^|:)suta$/.test(step.target)) add('SKILL.md')
+      continue
+    }
+    for (const match of step.target.matchAll(/plugin\/skills\/suta\/([^\s"';]+?\.md)/g)) add(match[1])
+    const moved = step.target.match(/\bcd\s+["']?[^\s"';&]*plugin\/skills\/suta((?:\/[^\s"';&/]+)*)\/?["']?/)
+    if (!moved) continue
+    const base = moved[1].replace(/^\//, '')
+    const rest = step.target.slice((moved.index ?? 0) + moved[0].length)
+    for (const match of rest.matchAll(/(?<![\w/.-])([\w.-]+(?:\/[\w.-]+)*\.md)\b/g)) {
+      if (!match[1].startsWith('plugin/')) add(base ? `${base}/${match[1]}` : match[1])
     }
   }
   return docs

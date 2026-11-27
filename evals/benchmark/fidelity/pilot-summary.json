@@ -1,0 +1,1316 @@
+{
+  "spec": "evals/benchmark/fidelity/requirements.json",
+  "runs": 4,
+  "overall": {
+    "counts": {
+      "met": 75,
+      "violated": 1,
+      "notFound": 0,
+      "needsJudge": 0,
+      "unsupported": 0,
+      "total": 76
+    },
+    "strict": 0.9868421052631579,
+    "lenient": 0.9868421052631579,
+    "notFoundRate": 0,
+    "byKind": {
+      "색": {
+        "counts": {
+          "met": 8,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 8
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "모션": {
+        "counts": {
+          "met": 4,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 4
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "구성": {
+        "counts": {
+          "met": 6,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 6
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "문구": {
+        "counts": {
+          "met": 2,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 2
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "상태": {
+        "counts": {
+          "met": 17,
+          "violated": 1,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 18
+        },
+        "strict": 0.9444444444444444,
+        "lenient": 0.9444444444444444
+      },
+      "반응형": {
+        "counts": {
+          "met": 12,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 12
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "수치": {
+        "counts": {
+          "met": 10,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 10
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "데이터": {
+        "counts": {
+          "met": 2,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 2
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "상호작용": {
+        "counts": {
+          "met": 12,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 12
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "접근성": {
+        "counts": {
+          "met": 2,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 2
+        },
+        "strict": 1,
+        "lenient": 1
+      }
+    },
+    "byConflict": {
+      "conflict": {
+        "counts": {
+          "met": 4,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 4
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      "plain": {
+        "counts": {
+          "met": 71,
+          "violated": 1,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 72
+        },
+        "strict": 0.9861111111111112,
+        "lenient": 0.9861111111111112
+      }
+    },
+    "byTercile": [
+      {
+        "counts": {
+          "met": 26,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 26
+        },
+        "strict": 1,
+        "lenient": 1
+      },
+      {
+        "counts": {
+          "met": 25,
+          "violated": 1,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 26
+        },
+        "strict": 0.9615384615384616,
+        "lenient": 0.9615384615384616
+      },
+      {
+        "counts": {
+          "met": 24,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 24
+        },
+        "strict": 1,
+        "lenient": 1
+      }
+    ],
+    "unsupportedReasons": []
+  },
+  "byCondition": {
+    "baseline": {
+      "counts": {
+        "met": 38,
+        "violated": 0,
+        "notFound": 0,
+        "needsJudge": 0,
+        "unsupported": 0,
+        "total": 38
+      },
+      "strict": 1,
+      "lenient": 1,
+      "notFoundRate": 0,
+      "byKind": {
+        "색": {
+          "counts": {
+            "met": 4,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 4
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "모션": {
+          "counts": {
+            "met": 2,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 2
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "구성": {
+          "counts": {
+            "met": 3,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 3
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "문구": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "상태": {
+          "counts": {
+            "met": 9,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 9
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "반응형": {
+          "counts": {
+            "met": 6,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 6
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "수치": {
+          "counts": {
+            "met": 5,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 5
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "데이터": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "상호작용": {
+          "counts": {
+            "met": 6,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 6
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "접근성": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        }
+      },
+      "byConflict": {
+        "conflict": {
+          "counts": {
+            "met": 2,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 2
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "plain": {
+          "counts": {
+            "met": 36,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 36
+          },
+          "strict": 1,
+          "lenient": 1
+        }
+      },
+      "byTercile": [
+        {
+          "counts": {
+            "met": 13,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 13
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        {
+          "counts": {
+            "met": 13,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 13
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        {
+          "counts": {
+            "met": 12,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 12
+          },
+          "strict": 1,
+          "lenient": 1
+        }
+      ],
+      "unsupportedReasons": []
+    },
+    "suta": {
+      "counts": {
+        "met": 37,
+        "violated": 1,
+        "notFound": 0,
+        "needsJudge": 0,
+        "unsupported": 0,
+        "total": 38
+      },
+      "strict": 0.9736842105263158,
+      "lenient": 0.9736842105263158,
+      "notFoundRate": 0,
+      "byKind": {
+        "색": {
+          "counts": {
+            "met": 4,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 4
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "모션": {
+          "counts": {
+            "met": 2,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 2
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "구성": {
+          "counts": {
+            "met": 3,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 3
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "문구": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "상태": {
+          "counts": {
+            "met": 8,
+            "violated": 1,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 9
+          },
+          "strict": 0.8888888888888888,
+          "lenient": 0.8888888888888888
+        },
+        "반응형": {
+          "counts": {
+            "met": 6,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 6
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "수치": {
+          "counts": {
+            "met": 5,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 5
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "데이터": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "상호작용": {
+          "counts": {
+            "met": 6,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 6
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "접근성": {
+          "counts": {
+            "met": 1,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 1
+          },
+          "strict": 1,
+          "lenient": 1
+        }
+      },
+      "byConflict": {
+        "conflict": {
+          "counts": {
+            "met": 2,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 2
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        "plain": {
+          "counts": {
+            "met": 35,
+            "violated": 1,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 36
+          },
+          "strict": 0.9722222222222222,
+          "lenient": 0.9722222222222222
+        }
+      },
+      "byTercile": [
+        {
+          "counts": {
+            "met": 13,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 13
+          },
+          "strict": 1,
+          "lenient": 1
+        },
+        {
+          "counts": {
+            "met": 12,
+            "violated": 1,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 13
+          },
+          "strict": 0.9230769230769231,
+          "lenient": 0.9230769230769231
+        },
+        {
+          "counts": {
+            "met": 12,
+            "violated": 0,
+            "notFound": 0,
+            "needsJudge": 0,
+            "unsupported": 0,
+            "total": 12
+          },
+          "strict": 1,
+          "lenient": 1
+        }
+      ],
+      "unsupportedReasons": []
+    }
+  },
+  "byConditionRequest": {
+    "baseline": {
+      "bakery-pickup": {
+        "counts": {
+          "met": 20,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 20
+        },
+        "strict": 1,
+        "lenient": 1,
+        "notFoundRate": 0,
+        "byKind": {
+          "색": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "모션": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "구성": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "문구": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상태": {
+            "counts": {
+              "met": 4,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 4
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "반응형": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "수치": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "데이터": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상호작용": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byConflict": {
+          "conflict": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "plain": {
+            "counts": {
+              "met": 18,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 18
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byTercile": [
+          {
+            "counts": {
+              "met": 7,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 7
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 7,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 7
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        ],
+        "unsupportedReasons": []
+      },
+      "meeting-room": {
+        "counts": {
+          "met": 18,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 18
+        },
+        "strict": 1,
+        "lenient": 1,
+        "notFoundRate": 0,
+        "byKind": {
+          "구성": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "수치": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상태": {
+            "counts": {
+              "met": 5,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 5
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "색": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "접근성": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "반응형": {
+            "counts": {
+              "met": 4,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 4
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상호작용": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byConflict": {
+          "conflict": {
+            "counts": {
+              "met": 0,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 0
+            },
+            "strict": null,
+            "lenient": null
+          },
+          "plain": {
+            "counts": {
+              "met": 18,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 18
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byTercile": [
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        ],
+        "unsupportedReasons": []
+      }
+    },
+    "suta": {
+      "bakery-pickup": {
+        "counts": {
+          "met": 19,
+          "violated": 1,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 20
+        },
+        "strict": 0.95,
+        "lenient": 0.95,
+        "notFoundRate": 0,
+        "byKind": {
+          "색": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "모션": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "구성": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "문구": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상태": {
+            "counts": {
+              "met": 3,
+              "violated": 1,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 4
+            },
+            "strict": 0.75,
+            "lenient": 0.75
+          },
+          "반응형": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "수치": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "데이터": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상호작용": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byConflict": {
+          "conflict": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "plain": {
+            "counts": {
+              "met": 17,
+              "violated": 1,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 18
+            },
+            "strict": 0.9444444444444444,
+            "lenient": 0.9444444444444444
+          }
+        },
+        "byTercile": [
+          {
+            "counts": {
+              "met": 7,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 7
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 1,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 7
+            },
+            "strict": 0.8571428571428571,
+            "lenient": 0.8571428571428571
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        ],
+        "unsupportedReasons": []
+      },
+      "meeting-room": {
+        "counts": {
+          "met": 18,
+          "violated": 0,
+          "notFound": 0,
+          "needsJudge": 0,
+          "unsupported": 0,
+          "total": 18
+        },
+        "strict": 1,
+        "lenient": 1,
+        "notFoundRate": 0,
+        "byKind": {
+          "구성": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "수치": {
+            "counts": {
+              "met": 2,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 2
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상태": {
+            "counts": {
+              "met": 5,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 5
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "색": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "접근성": {
+            "counts": {
+              "met": 1,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 1
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "반응형": {
+            "counts": {
+              "met": 4,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 4
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          "상호작용": {
+            "counts": {
+              "met": 3,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 3
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byConflict": {
+          "conflict": {
+            "counts": {
+              "met": 0,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 0
+            },
+            "strict": null,
+            "lenient": null
+          },
+          "plain": {
+            "counts": {
+              "met": 18,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 18
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        },
+        "byTercile": [
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          },
+          {
+            "counts": {
+              "met": 6,
+              "violated": 0,
+              "notFound": 0,
+              "needsJudge": 0,
+              "unsupported": 0,
+              "total": 6
+            },
+            "strict": 1,
+            "lenient": 1
+          }
+        ],
+        "unsupportedReasons": []
+      }
+    }
+  }
+}

@@ -27,6 +27,27 @@ describe('traceOf — 대화 기록에서 도구 사용 순서만 남긴다', ()
     expect(step.target).not.toContain('someone')
   })
 
+  it('실행 폴더 자체로 옮겨 간 명령과 자식 세션의 임시 폴더 경로도 지운다(시험 실행에서 남았다)', () => {
+    const root = '/home/someone/bench'
+    const scratch = '/tmp/claude-0/-home-someone-bench-runs-suta-login-1-work/7e1e692e-08b7-475b-b127-be0bd20fac11/scratchpad'
+    const trace = traceOf(
+      [
+        toolLine({ name: 'Bash', input: { command: `cd ${RUN_DIR}; node plugin/skills/suta/scripts/audit.mjs work/index.html` } }),
+        toolLine({ name: 'Bash', input: { command: `S="${scratch}"; node $S/check.mjs` } }),
+        toolLine({ name: 'Read', input: { file_path: `${scratch}/shot.png` } }),
+        toolLine({ name: 'Bash', input: { command: `ls ${root}/notes` } }),
+      ],
+      { root },
+    )
+    expect(trace.map((step) => step.target)).toEqual([
+      'cd .; node plugin/skills/suta/scripts/audit.mjs work/index.html',
+      'S="scratch"; node $S/check.mjs',
+      'scratch/shot.png',
+      'ls <out>/notes',
+    ])
+    expect(JSON.stringify(trace)).not.toContain('someone')
+  })
+
   it('긴 명령은 200자에서 자르고, 깨진 줄·도구가 아닌 줄은 건너뛴다', () => {
     const trace = traceOf(['{깨진 줄', JSON.stringify({ type: 'result', subtype: 'success' }), toolLine({ name: 'Bash', input: { command: 'x'.repeat(500) } })])
     expect(trace).toHaveLength(1)
@@ -49,6 +70,18 @@ describe('docsReadOf — 스킬 문서 가운데 무엇을 읽었는가', () => 
       { tool: 'Read', target: 'plugin/skills/suta/patterns/switch/assets/switch.css' },
     ])
     expect(docs).toEqual(['SKILL.md', 'references/defaults.md', 'patterns/switch/PATTERN.md'])
+  })
+
+  it('스킬 도구로 스킬을 부르면 SKILL.md를 읽은 것이다', () => {
+    expect(docsReadOf([{ tool: 'Skill', target: 'suta:suta' }, { tool: 'Skill', target: 'other' }])).toEqual(['SKILL.md'])
+  })
+
+  it('스킬 폴더로 옮겨 간 뒤 상대 경로로 읽은 문서도 센다', () => {
+    const docs = docsReadOf([
+      { tool: 'Bash', target: 'cd plugin/skills/suta/patterns; wc -c sticky-header/PATTERN.md toast-stack/PATTERN.md; cat sticky-header/PATTERN.md' },
+      { tool: 'Bash', target: 'cd plugin/skills/suta && cat references/detail.md' },
+    ])
+    expect(docs).toEqual(['patterns/sticky-header/PATTERN.md', 'patterns/toast-stack/PATTERN.md', 'references/detail.md'])
   })
 })
 

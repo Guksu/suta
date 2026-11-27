@@ -233,7 +233,7 @@ const helpers = () => {
   const all = (roots) => roots.flatMap((rootEl) => [rootEl, ...rootEl.querySelectorAll('*')]).filter((el) => !SKIP.has(el.tagName) && !el.closest('svg title'))
   // 글자를 품은 가장 깊은 요소들 — 자식 요소도 품고 있으면 자식이 대상이다
   const deepest = (roots, hit) => {
-    const hits = new Set(all(roots).filter((el) => hit(norm(textOf(el)))))
+    const hits = new Set(all(roots).filter((el) => hit(norm(textOf(el)), el)))
     return [...hits].filter((el) => ![...el.children].some((child) => hits.has(child)))
   }
   const painted = (cs) =>
@@ -542,7 +542,10 @@ const byUnits = async ({ page, anchors, pools, scope }) => {
         // 앵커는 낱말 경계로 찾는다 — "식빵"이 "우유식빵"에 걸리지 않게(앞뒤가 글자가 아니어야 한다).
         // 숫자는 붙어도 된다 — 탭 이름과 개수를 띄우지 않고 이어 쓰면(전체<span>12</span>) 글자가 "전체12"가 된다
         const re = new RegExp(`(^|[^\\p{L}])${escaped}($|[^\\p{L}])`, 'u')
-        for (const el of fid.deepest(scope ?? [document.body], (t) => re.test(t))) {
+        // 요소 자신의 글자 마디가 앵커와 같아도 찾은 것이다 — 라벨 뒤에 표시를 띄우지 않고 붙이면
+        // (연락처<span>필수</span>) 요소 글자가 "연락처필수"가 되어 낱말 경계로는 놓친다(시험 실행의 두 조건 모두에서 났다)
+        const ownText = (el) => [...el.childNodes].some((node) => node.nodeType === 3 && fid.norm(node.textContent) === anchor)
+        for (const el of fid.deepest(scope ?? [document.body], (t, el) => re.test(t) || ownText(el))) {
           if (!fid.isShown(el)) continue
           const t = fid.norm(fid.textOf(el))
           const chain = []
@@ -755,6 +758,18 @@ const runSteps = async ({ ctx, steps, beforeLast }) => {
     }
     // 조작에 반응하는 처리(이벤트 처리·상태 갱신)가 한 번은 돌 틈
     if (step.do !== 'wait' && !(last && beforeLast)) await page.waitForTimeout(50)
+  }
+  // 조작이 일으킨 전환이 끝난 값을 본다 — 50ms 뒤에 바로 읽으면 120ms짜리 바탕색 전환의 중간색(#137870)을 읽어
+  // 지킨 화면이 실행마다 지킴·어김을 오갔다(시험 실행). 움직임·시각을 재는 확인(beforeLast)은 기다리지 않는다.
+  // 전환만 기다린다 — 되풀이되는 애니메이션(뼈대 깜빡임)은 끝나지 않는다. 최대 1초
+  if (!beforeLast && steps.length > 0) {
+    await page
+      .evaluate(() => {
+        const running = document.getAnimations().filter((a) => a instanceof CSSTransition && a.playState === 'running')
+        const cap = new Promise((resolve) => setTimeout(resolve, 1000))
+        return Promise.race([Promise.all(running.map((a) => a.finished.catch(() => {}))), cap]).then(() => null)
+      })
+      .catch(() => {})
   }
   return null
 }
