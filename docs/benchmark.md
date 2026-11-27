@@ -304,6 +304,11 @@ node scripts/benchmark/archive.mjs --out ../suta-bench --name <이름>          
 node scripts/benchmark/fidelity.mjs --out ../suta-bench                          # 요구 충족률(fidelity 요청 세트만, 선택) → fidelity-summary.json
 ```
 
+### 받은 자료와 지난 버전(2026-11부터)
+
+- 요청 세트에 `seed`(`[{ "from": "demo/public/photos", "to": "photos" }]`)를 두면 실행마다 작업 폴더에 그 파일을 미리 넣습니다. 실제 프로젝트처럼 사진이 있는 상황을 만들려는 것입니다. 두 조건이 같은 파일을 받습니다.
+- `run.mjs --plugin-root <폴더>`는 suta 조건에 그 폴더의 플러그인을 싣습니다. 지난 버전과 견줄 때 `git archive <커밋> skills .claude-plugin`으로 푼 폴더를 줍니다.
+
 ### 생성물 보존(2026-11부터)
 
 실행 폴더는 저장소 밖이라 측정이 끝나면 사라집니다. 2026-11 이전 실행은 집계 JSON과 비교 이미지만 남아서, 화면을 다시 열어 볼 수 없습니다. `archive.mjs`는 실행마다 세 가지를 한 파일로 묶어 저장소에 둡니다.

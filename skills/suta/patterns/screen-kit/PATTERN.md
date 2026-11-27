@@ -215,7 +215,7 @@ CSS 세 개(목록이면 앞 둘, 예약이면 첫째와 셋째)와 `content-art
 </fieldset>
 ```
 
-시간 칸은 `slotRange.ts`의 `pickSlotRange`를 눌릴 때마다 불러 구간을 바꾸고, 각 칸의 `aria-pressed`를 `inSlotRange`로 다시 쓴다. 날짜 띠는 `<button class="kit-day" aria-pressed="true|false">`에 `<span class="kit-day-week">`·`<span class="kit-day-date">`를 넣는다.
+시간 칸은 `slotRange.ts`의 `pickSlotRange`를 눌릴 때마다 불러 구간을 바꾸고, 각 칸의 `aria-pressed`를 `inSlotRange`로 다시 쓴다. 날짜 띠는 `<button class="kit-day" aria-pressed="true|false">`에 `<span class="kit-day-week">`·`<span class="kit-day-date">`를 넣는다. 월·요일 전체 이름이 필요하면 `aria-label`로 보이는 글자를 덮지 말고 `<span class="kit-sr">11월</span>`처럼 낭독 전용 글자를 덧붙인다 — 보이는 "토 28"과 다른 접근 이름("11월 28일 토요일")은 음성 명령으로 누를 수 없다(axe `label-content-name-mismatch`, 0.21 시험 실행에서 7곳).
 
 ## 글꼴 불러오기
 

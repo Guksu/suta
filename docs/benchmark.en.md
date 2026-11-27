@@ -304,6 +304,11 @@ node scripts/benchmark/archive.mjs --out ../suta-bench --name <name>            
 node scripts/benchmark/fidelity.mjs --out ../suta-bench                          # request fidelity (fidelity prompt set only, optional) → fidelity-summary.json
 ```
 
+### Provided files and earlier versions (since 2026-11)
+
+- A request set with `seed` (`[{ "from": "demo/public/photos", "to": "photos" }]`) copies those files into each run's work folder first, so the run starts with photos as a real project would. Both conditions get the same files.
+- `run.mjs --plugin-root <folder>` loads the plugin from that folder for the suta condition. To compare with an earlier version, pass a folder unpacked with `git archive <commit> skills .claude-plugin`.
+
 ### Keeping the generated output (since 2026-11)
 
 The run folder lives outside the repository and is gone once measuring ends. Runs before 2026-11 left only the aggregate JSON and comparison images, so their pages cannot be reopened. `archive.mjs` packs three things per run into one file in the repository.
