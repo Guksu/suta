@@ -849,9 +849,9 @@ const reorder = useDragReorder({ onReorder: move })
   {
     slug: 'screen-kit',
     title: '화면 바탕 부품 한 벌',
-    description: '목록·예약 화면을 새로 지을 때 먼저 깔 부품. 쪽 머리 큰 제목·탭 줄·상자 없는 상품 칸·사진 틀(사진이 없으면 콘텐츠 그림)·날짜 띠·시간 칸·입력칸 묶음·요약 패널',
+    description: '목록·예약·상세·설정·대시보드 화면을 새로 지을 때 먼저 깔 부품. 쪽 머리 큰 제목·상자 없는 상품 칸·사진 틀(사진이 없으면 콘텐츠 그림)·날짜 띠·시간 칸·입력칸 묶음·요약 패널·사진 머리·옵션 구역·하단 고정 바·폭 가득한 설정 행·답 머리·지표 줄·상자 없는 표',
     titleEn: 'Screen base kit',
-    descriptionEn: 'Parts to lay down first when building a list or booking screen: a big page title, tab row, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots, stacked fields and a summary panel',
+    descriptionEn: 'Parts to lay down first when building a list, booking, detail, settings or dashboard screen: a big page title, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots, stacked fields, summary panel, photo header, option sections, a bottom action bar, full-width settings rows, an answer head, a metric strip and a boxless table',
     category: '표면과 스타일',
     usage: `import { PageHead, PhotoFrame, ProductCell } from './ScreenKit' // screen-kit*.css를 함께 불러온다
 import { Illustration } from './Illustration' // layout-principles — content-art.css도 함께

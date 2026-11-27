@@ -1,0 +1,515 @@
+/* screen-kit — 대시보드 부품: 답 머리(라벨 + 큰 수치 + 비교 한 줄 + 기간)·지표 줄·두 열 판·구역 머리·
+ * 막대 줄(CSS)·상자 없는 표·상태 표시·사진 있는 순위 목록. screen-kit.css(바탕)와 함께 쓴다.
+ *
+ * 화면이 답하는 값 하나(오늘 매출)를 56으로 가장 크게 두고, 나머지는 카드가 아니라 선과 여백으로 나눈다.
+ * 기준 없이 만든 대시보드는 같은 크기의 지표 카드 4~5장 + 그림자 패널 + 색 많은 차트였다(화면 관례 "대시보드·리포트").
+ *
+ * 근거의 한계: 수상작 조사(46쪽)는 공개 화면이라 로그인 뒤 화면(대시보드)을 보지 못했다. 값은 목록·예약에서 통한 원칙과
+ * 사용자가 승인한 초안에서 왔다. 화면 관례의 "옅은 바탕 + 흰 패널" 방식과 다르다 — 메뉴가 많은 관리 도구는 그쪽이 맞을 수 있다. */
+
+/* ---------------- 답 머리 — 라벨(16/600 보조) + 큰 수치(56/700) + 비교 한 줄, 오른쪽 기간 ---------------- */
+.kit-answer {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4, 16px) var(--space-6, 24px);
+  padding: var(--space-6, 24px) var(--_inline) 0;
+}
+
+.kit-answer-main {
+  min-inline-size: 0;
+}
+
+.kit-answer-label {
+  margin: 0;
+  font-size: var(--text-body, 16px);
+  font-weight: var(--weight-semibold, 600);
+  line-height: var(--leading-body, 1.5);
+  color: var(--color-text-secondary, #525252);
+}
+
+/* 큰 수치 — 화면 틀 폭의 11%로 36~56 사이(320 폭에서 아홉 자리 금액이 한 줄에 든다). 자간 −3%는 큰 숫자가 성기지 않게 */
+.kit-answer-value {
+  margin: var(--space-2, 8px) 0 0;
+  font-size: var(--kit-answer-size, clamp(36px, 11cqi, 56px));
+  font-weight: var(--weight-bold, 700);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* 비교 한 줄 — 무엇과 비교했는지 + 차이(부호와 함께). 차이만 주 글자색 굵게 */
+.kit-answer-compare {
+  margin: var(--space-2, 8px) 0 0;
+  font-size: var(--text-body, 16px);
+  line-height: var(--leading-body, 1.5);
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-answer-compare b {
+  font-weight: var(--weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text, #1c1c1c);
+}
+
+/* ---------------- 기간 고르기 — 알약 글자 버튼, 고른 것은 옅은 바탕 + 굵게 ---------------- */
+.kit-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 4px);
+}
+
+/* 보이는 알약은 36, 누르는 영역은 ::after로 위아래 44 */
+.kit-period {
+  position: relative;
+  min-block-size: 36px;
+  padding: 0 var(--space-3, 12px);
+  border: 0;
+  border-radius: var(--radius-full, 999px);
+  background: none;
+  color: var(--color-text-secondary, #525252);
+  font: inherit;
+  font-size: var(--text-small, 14px);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kit-period::after {
+  position: absolute;
+  inset: -4px 0;
+  content: '';
+}
+
+.kit-period[aria-pressed='true'] {
+  background: var(--color-canvas, #f3f3f3);
+  color: var(--color-text, #1c1c1c);
+  font-weight: var(--weight-semibold, 600);
+}
+
+.kit-period:focus-visible {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* ---------------- 지표 줄 — 카드가 아니라 위아래 1px 선 + 칸 사이 세로 선 ----------------
+ * 선은 격자 바탕(선 색) + 1px 간격 + 칸의 흰 바탕으로 그린다 — 칸 수·줄 수와 상관없이 칸 사이에만 선이 생긴다.
+ * 좁으면 2열, 화면 틀 600px 이상이면 한 줄 */
+.kit-metrics {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: var(--space-8, 32px) var(--_inline) 0;
+  padding: 0;
+  border-block: 1px solid var(--color-line, #e6e6e6);
+  background: var(--color-line, #e6e6e6);
+}
+
+.kit-metric {
+  min-inline-size: 0;
+  padding: var(--space-4, 16px);
+  background: var(--color-surface, #fff);
+}
+
+/* 첫 열은 왼쪽 여백 없이 — 글자가 위 제목과 같은 왼쪽 선에서 시작한다 */
+.kit-metric:nth-child(2n + 1) {
+  padding-inline-start: 0;
+}
+
+/* 칸 수가 홀수면 마지막 칸이 줄을 채운다(빈 칸이 선 색으로 남지 않게) */
+.kit-metric:last-child:nth-child(2n + 1) {
+  grid-column: 1 / -1;
+}
+
+.kit-metric dt,
+.kit-metric-label {
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-metric dd {
+  margin: 0;
+}
+
+.kit-metric-value {
+  margin-block-start: var(--space-1, 4px);
+  font-size: var(--text-title, 24px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere; /* 긴 금액이 칸 밖으로 잘리지 않게 — 줄이 바뀌는 쪽이 낫다 */
+}
+
+.kit-metric-sub {
+  margin-block-start: 2px;
+  font-size: var(--text-caption, 12px);
+  line-height: var(--leading-body, 1.5);
+  color: var(--color-text-tertiary, #686868);
+}
+
+/* ---------------- 두 열 판 — 본문 | 320. 좁으면 한 열 ----------------
+ * 두 열의 길이가 크게 다르면 짧은 쪽 아래가 빈다. 짧은 쪽에 요청에 없는 구역을 더하지 않는다 —
+ * 짧은 목록을 비슷한 길이의 구역(그래프) 옆에 두고, 긴 구역(표)은 .kit-board-full로 두 열에 걸친다 */
+.kit-board {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-10, 40px);
+  align-items: start;
+  padding: var(--space-10, 40px) var(--_inline) var(--space-16, 64px);
+}
+
+/* 구역 머리 — 제목 20/700 + 오른쪽 보조(단위·전체 보기) */
+.kit-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1, 4px) var(--space-4, 16px);
+  margin-block-end: var(--space-5, 20px);
+}
+
+.kit-block-title {
+  margin: 0;
+  font-size: var(--text-heading, 20px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  letter-spacing: -0.01em;
+}
+
+.kit-block-aside {
+  margin: 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+a.kit-block-aside {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-min, 44px);
+  margin-block: calc((var(--tap-min, 44px) - 1.5em) / -2);
+  color: var(--color-text-secondary, #525252);
+  text-decoration: none;
+}
+
+a.kit-block-aside:focus-visible {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* ---------------- 막대 줄 — 차트 라이브러리 없이 CSS로 그리는 단순 막대 ----------------
+ * 무채색 막대 + 강조할 하나만 주 글자색. 값은 막대 위 12, 축 글자 12, 단위는 구역 머리에.
+ * 그림 전체가 role="img"이고 이름(aria-label)이 값을 말한다 — 안쪽 글자는 화면 낭독기가 따로 읽지 않는다.
+ * 높이는 칸마다 --kit-chart-value(가장 큰 값에 대한 0~1 비율)로 넘긴다 */
+.kit-chart {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  column-gap: var(--space-1, 4px);
+  margin: 0;
+}
+
+.kit-chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1, 4px);
+  min-inline-size: 0;
+  block-size: var(--kit-chart-height, 240px);
+}
+
+/* 막대가 쓸 수 있는 높이 = 칸 높이 − 값 글자 줄 − 축 글자 줄 − 간격 */
+.kit-chart-bar {
+  flex: none;
+  inline-size: min(40px, 72%);
+  block-size: calc(var(--kit-chart-value, 0) * (100% - 52px));
+  border-radius: 3px 3px 0 0;
+  background: var(--kit-chart-bar, #d9d9d9);
+}
+
+.kit-chart-value,
+.kit-chart-label {
+  font-size: var(--text-caption, 12px);
+  line-height: 18px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary, #686868);
+}
+
+.kit-chart-label {
+  margin-block-start: var(--space-1, 4px);
+}
+
+.kit-chart-col[data-emphasis] .kit-chart-bar {
+  background: var(--kit-chart-emphasis, var(--color-text, #1c1c1c));
+}
+
+.kit-chart-col[data-emphasis] .kit-chart-value,
+.kit-chart-col[data-emphasis] .kit-chart-label {
+  font-weight: var(--weight-semibold, 600);
+  color: var(--color-text, #1c1c1c);
+}
+
+/* ---------------- 상자 없는 표 — 머리 13 옅은 글자, 행 사이 1px 선, 금액 오른쪽 정렬 ---------------- */
+.kit-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body, 16px);
+}
+
+.kit-table th {
+  padding: 0 var(--space-4, 16px) var(--space-2, 8px) 0;
+  border-block-end: 1px solid var(--color-line, #e6e6e6);
+  font-size: var(--text-caption, 12px);
+  font-weight: var(--weight-regular, 400);
+  color: var(--color-text-tertiary, #686868);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.kit-table td {
+  padding: var(--space-4, 16px) var(--space-4, 16px) var(--space-4, 16px) 0;
+  border-block-end: 1px solid var(--color-line, #e6e6e6);
+  vertical-align: baseline;
+}
+
+.kit-table th:last-child,
+.kit-table td:last-child {
+  padding-inline-end: 0;
+}
+
+/* 숫자 칸 — 오른쪽 정렬 + 자릿수 맞춤. 핵심 값(.kit-table-key)도 숫자면 함께 단다 */
+.kit-table .kit-table-num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 보조 칸(시각 같은) — 보조 글자색 */
+.kit-table .kit-table-sub {
+  color: var(--color-text-secondary, #525252);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 상태 표시 — 글자가 기본, 손봐야 할 것만 점 + 굵게(색만으로 알리지 않는다) ---------------- */
+.kit-status {
+  font-size: var(--text-caption, 12px);
+  color: var(--color-text-secondary, #525252);
+  white-space: nowrap;
+}
+
+.kit-status[data-attention] {
+  font-weight: var(--weight-semibold, 600);
+  color: var(--color-text, #1c1c1c);
+}
+
+.kit-status[data-attention]::before {
+  display: inline-block;
+  inline-size: 6px;
+  block-size: 6px;
+  margin-inline-end: var(--space-2, 8px);
+  border-radius: var(--radius-full, 999px);
+  background: var(--kit-attention, var(--color-danger, #c8341f));
+  vertical-align: 2px;
+  content: '';
+}
+
+/* ---------------- 사진 있는 순위 목록 — 56 사진 + 이름·보조 + 값 ---------------- */
+.kit-ranks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kit-rank {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  padding-block: var(--space-3, 12px);
+}
+
+.kit-rank > .kit-frame {
+  flex: none;
+  inline-size: 56px;
+}
+
+.kit-rank-text {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.kit-rank-name {
+  display: block;
+  font-size: var(--text-body, 16px);
+}
+
+.kit-rank-sub {
+  display: block;
+  font-size: var(--text-caption, 12px);
+  color: var(--color-text-tertiary, #686868);
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-rank-value {
+  flex: none;
+  font-weight: var(--weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .kit-period:not([aria-pressed='true']):hover {
+    background: var(--kit-period-hover, #f8f8f8);
+    color: var(--color-text, #1c1c1c);
+  }
+}
+
+/* 움직임이 없는 부품이다. 막대가 자라는 등장 효과를 더하면 transform(scaleY)으로, 여기서 끈다 */
+@media (prefers-reduced-motion: reduce) {
+  .kit-chart-bar,
+  .kit-period {
+    transition: none;
+  }
+}
+
+/* 고대비(forced-colors)에서는 배경이 지워져 막대가 사라진다 — 시스템 색으로 다시 칠한다 */
+@media (forced-colors: active) {
+  .kit-chart-bar {
+    background: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .kit-chart-col[data-emphasis] .kit-chart-bar {
+    background: Highlight;
+  }
+
+  .kit-period[aria-pressed='true'] {
+    border: 1px solid Highlight;
+  }
+}
+
+/* 좁은 화면(화면 틀 600px 미만) — 표의 행마다 "이름 + 핵심 값 / 나머지 값 한 줄" 목록으로 다시 놓는다.
+ * 열을 빼지 않는다(재측정에서 모바일 표의 열을 뺀 실행은 판정 4번 모두 졌다). 머리 행은 낭독 전용으로 남긴다.
+ * 행 안의 ::after(폭 100%, order 2)가 줄을 끊어 이름·핵심 값(0·1)과 나머지(3)를 두 줄로 나눈다 */
+@container kit (width < 600px) {
+  .kit-table,
+  .kit-table tbody {
+    display: block;
+  }
+
+  .kit-table thead {
+    position: absolute;
+    display: block;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .kit-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px var(--space-2, 8px);
+    padding-block: var(--space-4, 16px);
+    border-block-end: 1px solid var(--color-line, #e6e6e6);
+  }
+
+  .kit-table tr::after {
+    flex-basis: 100%;
+    order: 2;
+    content: '';
+  }
+
+  .kit-table td {
+    display: block;
+    order: 3;
+    padding: 0;
+    border: 0;
+    font-size: var(--text-caption, 12px);
+    color: var(--color-text-tertiary, #686868);
+  }
+
+  .kit-table td.kit-table-name {
+    flex: 1 1 0;
+    order: 0;
+    min-inline-size: 0;
+    font-size: var(--text-body, 16px);
+    color: var(--color-text, #1c1c1c);
+  }
+
+  .kit-table td.kit-table-key {
+    flex: none;
+    order: 1;
+    font-size: var(--text-body, 16px);
+    font-weight: var(--weight-semibold, 600);
+    color: var(--color-text, #1c1c1c);
+  }
+
+  /* 나머지 값 사이 가운뎃점 */
+  .kit-table td:not(.kit-table-name, .kit-table-key) ~ td:not(.kit-table-name, .kit-table-key)::before {
+    margin-inline-end: var(--space-2, 8px);
+    color: var(--color-text-tertiary, #686868);
+    font-weight: var(--weight-regular, 400);
+    content: '·';
+  }
+}
+
+@container kit (min-width: 600px) {
+  .kit-metrics {
+    grid-template-columns: none;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+  }
+
+  .kit-metric {
+    padding: var(--space-5, 20px) var(--space-6, 24px);
+  }
+
+  .kit-metric:nth-child(2n + 1) {
+    padding-inline-start: var(--space-6, 24px);
+  }
+
+  .kit-metric:first-child {
+    padding-inline-start: 0;
+  }
+
+  .kit-metric:last-child:nth-child(2n + 1) {
+    grid-column: auto;
+  }
+
+  .kit-chart {
+    column-gap: var(--space-6, 24px);
+  }
+}
+
+@container kit (min-width: 768px) {
+  .kit-answer {
+    padding-block-start: var(--space-12, 48px);
+  }
+
+  .kit-metrics {
+    margin-block-start: var(--space-10, 40px);
+  }
+
+  .kit-board {
+    row-gap: var(--space-14, 56px);
+    padding-block: var(--space-12, 48px) var(--space-24, 96px);
+  }
+}
+
+@container kit (min-width: 960px) {
+  .kit-board {
+    grid-template-columns: minmax(0, 1fr) var(--kit-board-aside, 320px);
+    column-gap: var(--kit-board-gap, 72px);
+  }
+
+  .kit-board-full {
+    grid-column: 1 / -1;
+  }
+}

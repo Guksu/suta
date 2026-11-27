@@ -7,6 +7,9 @@ import type { IllustrationName } from '@skills/layout-principles/assets/illustra
 import '@skills/layout-principles/assets/content-art.css'
 import { photoSrc, type DishId } from '../../shared/dishes'
 import { defineCopy, useDemoLang } from '../../demoLang'
+import { DetailScreen } from './DetailScreen'
+import { SettingsScreen } from './SettingsScreen'
+import { DashboardScreen } from './DashboardScreen'
 import './screen-kit-demo.css'
 
 /* ---------------- 데이터 — 언어와 무관한 값(사진·가격·분류·칸 번호)은 밖에, 보이는 문구는 COPY 두 벌에 ---------------- */
@@ -70,10 +73,16 @@ const COPY = defineCopy({
     controlsLabel: '보기 옵션',
     listWidth: '메뉴 목록 틀',
     formWidth: '예약 폼 틀',
+    detailWidth: '메뉴 상세 틀',
+    settingsWidth: '설정 틀',
+    dashboardWidth: '매출 대시보드 틀',
     widths: { phone: '휴대폰 390', wide: '넓게' },
-    note: '두 화면 모두 이 패턴의 CSS만으로 그렸습니다. 사진이 없는 메뉴(들기름 막국수·김치만두)는 회색 칸이 아니라 콘텐츠 그림입니다. 틀 폭을 바꾸면 쪽 제목·격자 열·입력칸 배치가 창이 아니라 틀의 폭을 따라 바뀝니다(컨테이너 쿼리). 예약 폼은 연락처를 비우고 예약하기를 누르면 오류 상태가 됩니다.',
+    note: '다섯 화면 모두 이 패턴의 CSS만으로 그렸습니다(스위치는 switch, 수량은 quantity-stepper 패턴). 사진이 없는 메뉴(들기름 막국수·김치만두)는 회색 칸이 아니라 콘텐츠 그림입니다. 틀 폭을 바꾸면 쪽 제목·격자 열·입력칸·표가 창이 아니라 틀의 폭을 따라 바뀝니다(컨테이너 쿼리). 대시보드를 휴대폰 틀로 두면 표가 행마다 "메뉴 + 금액 / 나머지 한 줄" 목록이 됩니다. 상세·설정을 넓게 두면 옅은 바탕 가운데의 흰 열이 됩니다.',
     listCaption: '메뉴 목록 — 쪽 머리 · 탭 줄 · 목록 머리 · 상자 없는 상품 칸',
     formCaption: '예약 폼 — 사진 카드 · 날짜 띠 · 시간 칸 · 입력칸 묶음 · 요약 패널',
+    detailCaption: '메뉴 상세 — 사진 머리 · 이름 묶음 · 옵션 구역 · 하나 고르는 칸 · 체크 행 · 수량 줄 · 하단 고정 바',
+    settingsCaption: '설정 — 상단 바 · 쪽 머리 · 프로필 줄 · 묶음 이름 · 폭 가득한 행(스위치·현재 값) · 글자 링크',
+    dashboardCaption: '매출 대시보드 — 답 머리 · 기간 · 지표 줄 · 막대 줄 · 순위 목록 · 상자 없는 표',
     shop: '성수 국수집',
     cart: (count: number) => `장바구니, 담은 메뉴 ${count}개`,
     listTitle: '오늘의 국수',
@@ -137,10 +146,16 @@ const COPY = defineCopy({
     controlsLabel: 'View options',
     listWidth: 'Menu list frame',
     formWidth: 'Booking form frame',
+    detailWidth: 'Dish detail frame',
+    settingsWidth: 'Settings frame',
+    dashboardWidth: 'Sales dashboard frame',
     widths: { phone: 'Phone 390', wide: 'Wide' },
-    note: 'Both screens are drawn with this pattern’s CSS alone. Dishes without a photo (perilla oil buckwheat noodles, kimchi dumplings) get a content illustration instead of a gray box. Change the frame width and the page title, grid columns and field layout follow the frame, not the window (container queries). Clear the phone number and press Book to see the error state.',
+    note: 'All five screens are drawn with this pattern’s CSS alone (the switch and the stepper come from the switch and quantity-stepper patterns). Dishes without a photo (perilla oil buckwheat noodles, kimchi dumplings) get a content illustration instead of a gray box. Change the frame width and the page title, grid columns, fields and table follow the frame, not the window (container queries). Put the dashboard in the phone frame and the table turns into a list: items and amount, then the rest on one line. Put the detail or settings screen in the wide frame and it becomes a white column on a light background.',
     listCaption: 'Menu list: page head, tab row, list head, boxless product cells',
     formCaption: 'Booking form: photo cards, date strip, time slots, field group, summary panel',
+    detailCaption: 'Dish detail: photo header, name block, option sections, single-choice cells, check rows, quantity row, bottom action bar',
+    settingsCaption: 'Settings: top bar, page head, profile row, group labels, full-width rows (switches, current values), text links',
+    dashboardCaption: 'Sales dashboard: answer head, period, metric strip, bar row, ranked list, boxless table',
     shop: 'Seongsu Noodle House',
     cart: (count: number) => `Cart, ${count} items`,
     listTitle: 'Today’s noodles',
@@ -505,6 +520,9 @@ export const ScreenKitDemo = () => {
   const t = COPY[useDemoLang()]
   const [listWidth, setListWidth] = useState<FrameWidth>('phone')
   const [formWidth, setFormWidth] = useState<FrameWidth>('wide')
+  const [detailWidth, setDetailWidth] = useState<FrameWidth>('phone')
+  const [settingsWidth, setSettingsWidth] = useState<FrameWidth>('phone')
+  const [dashboardWidth, setDashboardWidth] = useState<FrameWidth>('wide')
 
   const widthControl = ({ legend, name, value, onChange }: { legend: string; name: string; value: FrameWidth; onChange: (next: FrameWidth) => void }) => (
     <fieldset>
@@ -523,6 +541,9 @@ export const ScreenKitDemo = () => {
       <section className="controls" aria-label={t.controlsLabel}>
         {widthControl({ legend: t.listWidth, name: 'skd-list-width', value: listWidth, onChange: setListWidth })}
         {widthControl({ legend: t.formWidth, name: 'skd-form-width', value: formWidth, onChange: setFormWidth })}
+        {widthControl({ legend: t.detailWidth, name: 'skd-detail-width', value: detailWidth, onChange: setDetailWidth })}
+        {widthControl({ legend: t.settingsWidth, name: 'skd-settings-width', value: settingsWidth, onChange: setSettingsWidth })}
+        {widthControl({ legend: t.dashboardWidth, name: 'skd-dashboard-width', value: dashboardWidth, onChange: setDashboardWidth })}
         <p className="controls-note">{t.note}</p>
       </section>
 
@@ -537,6 +558,27 @@ export const ScreenKitDemo = () => {
         <figcaption>{t.formCaption}</figcaption>
         <div className="skd-frame" data-width={formWidth}>
           <BookingForm />
+        </div>
+      </figure>
+
+      <figure className="skd-figure">
+        <figcaption>{t.detailCaption}</figcaption>
+        <div className="skd-frame" data-width={detailWidth} data-screen="detail">
+          <DetailScreen />
+        </div>
+      </figure>
+
+      <figure className="skd-figure">
+        <figcaption>{t.settingsCaption}</figcaption>
+        <div className="skd-frame" data-width={settingsWidth} data-screen="settings">
+          <SettingsScreen />
+        </div>
+      </figure>
+
+      <figure className="skd-figure">
+        <figcaption>{t.dashboardCaption}</figcaption>
+        <div className="skd-frame" data-width={dashboardWidth} data-screen="dashboard">
+          <DashboardScreen />
         </div>
       </figure>
     </div>

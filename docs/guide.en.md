@@ -258,7 +258,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | Pattern | What it does | Demo |
 |---|---|---|
 | [Glassmorphism surface](../skills/suta/patterns/glass-surface/PATTERN.md) | Translucent cards, nav and modals that blur what is behind, falling back to an opaque surface where blur is unsupported. Pressable glass renders as a link or button (`as`) | [Demo](https://guksu.github.io/suta/#/glass-surface) |
-| [Screen base kit](../skills/suta/patterns/screen-kit/PATTERN.md) | Parts to lay down first when building a list or booking screen without a design system: a big page title (28/40), tab row, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots (with a range-picking core), stacked fields and a summary panel. Wide-screen values follow the screen frame's width (container queries) | [Demo](https://guksu.github.io/suta/#/screen-kit) |
+| [Screen base kit](../skills/suta/patterns/screen-kit/PATTERN.md) | Parts to lay down first when building a list, booking, detail, settings or dashboard screen without a design system: a big page title (28/40), tab row, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots (with a range-picking core), stacked fields and a summary panel; for detail screens a photo header, option sections, check rows and a bottom action bar; for settings a profile row and full-width rows (with a slot for switches); for dashboards an answer head (56), metric strip, CSS bar row and a table that turns into a list on narrow screens. One CSS file per screen type; wide-screen values follow the screen frame's width (container queries) | [Demo](https://guksu.github.io/suta/#/screen-kit) |
 
 ### Principles and review
 

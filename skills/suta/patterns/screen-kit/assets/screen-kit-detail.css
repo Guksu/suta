@@ -1,0 +1,382 @@
+/* screen-kit — 상세 부품: 사진 머리(폭 가득 + 위에 뜬 원 버튼 + 장수)·이름 묶음·옵션 구역·하나 고르는 칸·
+ * 여러 개 고르는 체크 행·수량 줄·하단 고정 바. screen-kit.css(바탕)와 함께 쓴다.
+ *
+ * 상세 화면의 관례(layout-principles 화면 관례 "상세")를 그대로 깐다 — 폭 가득 사진 → 이름·가격 → 8px 띠 →
+ * 옵션 구역(구역 사이 1px 선) → 하단 고정 바(행동 + 합계). 옵션을 카드 상자에 담지 않는다. 고르는 칸은 회색 채움,
+ * 고른 것은 주 글자색 채움 + 굵게, 여러 개는 체크 행이다.
+ *
+ * 근거의 한계: 상 받은 공개 화면 조사(46쪽)에 상세의 옵션·하단 바는 없었다. 값은 목록·예약에서 통한 원칙
+ * (큰 제목 하나, 상자 대신 선과 여백, 사진이 색을 맡는다)과 화면 관례의 상세 값, 사용자가 승인한 초안에서 왔다. */
+
+/* ---------------- 사진 머리 — 화면 폭 가득, 위에 뜬 원 버튼 ----------------
+ * 사진은 .kit-frame(비율 1). 버튼은 사진 위에 떠 있어 흰 원 + 가장 낮은 그림자 — 밝은 사진 위에서도 자리가 보인다 */
+.kit-hero {
+  --kit-frame-ratio: var(--kit-hero-ratio, 1);
+  position: relative;
+}
+
+.kit-hero-bar {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 8px);
+  /* 노치·상태 표시줄 아래로 — 웹뷰가 화면 맨 위까지 그릴 때 */
+  padding: calc(var(--space-2, 8px) + env(safe-area-inset-top, 0px)) max(var(--space-2, 8px), calc(var(--_inline) - 8px)) 0;
+  pointer-events: none; /* 버튼 사이 빈 곳은 사진(확대·넘기기)이 받는다 */
+}
+
+.kit-hero-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+}
+
+.kit-hero-button {
+  display: grid;
+  place-items: center;
+  inline-size: var(--tap-min, 44px);
+  block-size: var(--tap-min, 44px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full, 999px);
+  background: color-mix(in srgb, var(--color-surface, #fff) 92%, transparent);
+  color: var(--color-text, #1c1c1c);
+  box-shadow: var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2));
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.kit-hero-button:focus-visible {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* 사진 장수("1 / 3") — 오른쪽 아래 어두운 알약. 흰 글자는 어떤 사진 위에서도 4.5:1 이상(바탕 72% 검정) */
+.kit-hero-count {
+  position: absolute;
+  inset-inline-end: var(--space-4, 16px);
+  inset-block-end: var(--space-4, 16px);
+  padding: 2px var(--space-2, 8px);
+  border-radius: var(--radius-full, 999px);
+  background: rgb(28 28 28 / 0.72);
+  color: #fff;
+  font-size: var(--text-caption, 12px);
+  line-height: var(--leading-body, 1.5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 이름 묶음 — 이름 26/700(화면의 큰 제목) → 가격 22/700 → 설명 → 한 줄 메타 ---------------- */
+.kit-info {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  padding: var(--space-5, 20px) var(--_inline) var(--space-6, 24px);
+}
+
+.kit-info-name {
+  margin: 0;
+  font-size: var(--kit-info-name-size, 26px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* 가격은 이름 바로 아래 — 설명 뒤로 밀지 않는다(화면 관례 "상세") */
+.kit-info-price {
+  margin: var(--space-2, 8px) 0 0;
+  font-size: var(--kit-info-price-size, 22px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-info-desc {
+  max-inline-size: var(--measure, 65ch);
+  margin: var(--space-3, 12px) 0 0;
+  font-size: var(--text-body, 16px);
+  line-height: var(--leading-body, 1.5);
+  color: var(--color-text-secondary, #525252);
+}
+
+/* 한 줄 메타 — 사실 둘셋(픽업 시각·남은 수량). 숫자만 주 글자색 굵게 */
+.kit-info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 4px) var(--space-4, 16px);
+  margin: var(--space-4, 16px) 0 0;
+  padding: 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+  list-style: none;
+}
+
+.kit-info-meta b {
+  font-weight: var(--weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text, #1c1c1c);
+}
+
+/* ---------------- 옵션 구역 — 구역 사이 1px 선, 상자로 감싸지 않는다 ---------------- */
+.kit-option {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  padding: var(--space-6, 24px) var(--_inline);
+}
+
+.kit-option + .kit-option {
+  border-block-start: 1px solid var(--color-line, #e6e6e6);
+}
+
+.kit-option-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1, 4px) var(--space-4, 16px);
+  margin-block-end: var(--space-3, 12px);
+}
+
+.kit-option-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+}
+
+/* 고르는 법 — "하나 선택"·"여러 개 선택"·"필수" */
+.kit-option-hint {
+  margin: 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+/* ---------------- 하나 고르는 칸 — 숨긴 라디오 + 회색 채움 칸 ----------------
+ * 라디오라 화살표 키·폼 제출은 브라우저가 한다. 고른 칸은 주 글자색 채움 + 굵게(색만으로 알리지 않는다) */
+.kit-picks {
+  display: grid;
+  grid-template-columns: repeat(var(--kit-pick-columns, 2), minmax(0, 1fr));
+  gap: var(--space-2, 8px);
+}
+
+.kit-pick {
+  position: relative;
+  display: block;
+  min-inline-size: 0;
+  cursor: pointer;
+}
+
+.kit-pick-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kit-pick-face {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 var(--space-1, 4px);
+  min-block-size: var(--control-height, 48px);
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border-radius: var(--kit-pick-radius, var(--radius-control, 8px));
+  background: var(--color-canvas, #f3f3f3);
+  color: var(--color-text, #1c1c1c);
+  font-size: var(--text-body, 16px);
+  line-height: var(--leading-tight, 1.3);
+  text-align: center;
+}
+
+.kit-pick-extra {
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-pick-input:checked + .kit-pick-face {
+  background: var(--kit-pick-on, var(--color-text, #1c1c1c));
+  color: var(--kit-pick-on-text, var(--color-surface, #fff));
+  font-weight: var(--weight-semibold, 600);
+}
+
+.kit-pick-input:focus-visible + .kit-pick-face {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* 고를 수 없는 칸 — 채움을 빼고 옅은 글자 + 줄(시간 칸과 같은 규칙) */
+.kit-pick-input:disabled + .kit-pick-face {
+  background: none;
+  color: var(--color-text-tertiary, #686868);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* ---------------- 여러 개 고르는 체크 행 — 실제 체크 상자 + 이름 + 오른쪽 추가 금액 ----------------
+ * 행 전체가 라벨이라 어디를 눌러도 켜진다. 상자는 숨긴 input 옆의 그림이고, 테두리는 흰 면 3.45:1(그림 대비 3:1 이상) */
+.kit-checks {
+  margin: 0;
+  padding: 0;
+}
+
+.kit-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  min-block-size: 52px;
+  cursor: pointer;
+}
+
+.kit-check + .kit-check {
+  border-block-start: 1px solid var(--color-line, #e6e6e6);
+}
+
+.kit-check-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kit-check-box {
+  position: relative;
+  flex: none;
+  inline-size: 22px;
+  block-size: 22px;
+  border: 1.5px solid var(--kit-check-line, #8a8a8a);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+}
+
+/* 체크 표시 — 두 변만 그린 사각형을 45도 돌린 것(아이콘 파일 없이) */
+.kit-check-box::after {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 6px;
+  inline-size: 6px;
+  block-size: 11px;
+  border: solid var(--kit-pick-on-text, var(--color-surface, #fff));
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  opacity: 0;
+  content: '';
+}
+
+.kit-check-input:checked + .kit-check-box {
+  border-color: var(--kit-pick-on, var(--color-text, #1c1c1c));
+  background: var(--kit-pick-on, var(--color-text, #1c1c1c));
+}
+
+.kit-check-input:checked + .kit-check-box::after {
+  opacity: 1;
+}
+
+.kit-check-input:focus-visible + .kit-check-box {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+.kit-check-name {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: var(--text-body, 16px);
+}
+
+.kit-check-price {
+  flex: none;
+  font-size: var(--text-body, 16px);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-check:has(.kit-check-input:disabled) {
+  cursor: not-allowed;
+}
+
+.kit-check-input:disabled ~ .kit-check-name,
+.kit-check-input:disabled ~ .kit-check-price {
+  color: var(--color-text-tertiary, #686868);
+  text-decoration: line-through;
+}
+
+/* ---------------- 수량 줄 — 왼쪽 제목, 오른쪽 끝 스테퍼 ----------------
+ * 자리와 모양만 정한다. 스테퍼(길게 누르면 빨라지기·직접 입력·최소·최대)는 quantity-stepper 패턴을 이 줄에 넣는다 */
+.kit-qty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 8px) var(--space-4, 16px);
+}
+
+/* ---------------- 하단 고정 바 — 버튼 하나에 행동 이름 + 합계 ----------------
+ * 기본은 sticky: 화면 맨 끝 요소로 두면 스크롤하는 동안 화면 아래에 붙고, 끝까지 내리면 제자리(마지막 내용 아래)로 와서
+ * 내용을 가리지 않는다. 앱 셸처럼 창에 고정해야 하면 data-fixed + 본문 끝의 .kit-actionbar-space(바 높이 + 안전 영역) */
+.kit-actionbar {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--z-sticky, 30);
+  padding: var(--space-3, 12px) var(--_inline) calc(var(--space-3, 12px) + env(safe-area-inset-bottom, 0px));
+  border-block-start: 1px solid var(--color-line, #e6e6e6);
+  background: var(--color-surface, #fff);
+}
+
+.kit-actionbar[data-fixed] {
+  position: fixed;
+  inset-inline: 0;
+}
+
+.kit-actionbar-space {
+  block-size: calc(var(--kit-actionbar-height, 77px) + env(safe-area-inset-bottom, 0px));
+}
+
+.kit-actionbar .kit-button {
+  --kit-button-height: var(--kit-actionbar-button-height, 52px);
+  justify-content: space-between;
+  inline-size: 100%;
+  padding-inline: var(--space-5, 20px);
+}
+
+.kit-actionbar-total {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .kit-hero-button:hover {
+    background: var(--color-surface, #fff);
+  }
+
+  .kit-pick-input:not(:checked, :disabled) + .kit-pick-face:hover {
+    background: var(--kit-pick-hover, #e8e8e8);
+  }
+}
+
+/* 움직임이 없는 부품이다. 규칙에 따라 블록을 두고, 앞으로 전환을 더하면 여기서 끈다 */
+@media (prefers-reduced-motion: reduce) {
+  .kit-pick-face,
+  .kit-check-box {
+    transition: none;
+  }
+}
+
+/* 고대비(forced-colors)에서는 배경이 지워진다 — 고른 칸·체크 상자를 시스템 색으로 다시 그린다 */
+@media (forced-colors: active) {
+  .kit-pick-face {
+    border: 1px solid ButtonText;
+  }
+
+  .kit-pick-input:checked + .kit-pick-face,
+  .kit-check-input:checked + .kit-check-box {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}
