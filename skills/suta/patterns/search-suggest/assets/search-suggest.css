@@ -3,8 +3,8 @@
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .suggest-root {
-  --_duration: var(--suggest-duration, 160ms);
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--suggest-duration, var(--motion-duration-fast, 150ms));
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: relative;
 }
 
@@ -58,13 +58,13 @@
   color: var(--suggest-color, var(--color-text, #1c1c1c));
   cursor: pointer;
   overflow-wrap: anywhere; /* 띄어쓰기 없는 긴 제안(주소·URL)이 패널을 옆으로 밀지 않게 */
-  transition: opacity 120ms linear;
+  transition: opacity var(--motion-duration-instant, 100ms) var(--motion-ease-linear, linear);
 }
 
 /* 다음 응답을 기다리는 동안 앞선 목록은 남겨 두고 흐리게만 한다 — 200ms 안에 오면 흐려지기 전에 바뀐다 */
 .suggest-panel[aria-busy='true'] .suggest-option {
   opacity: 0.55;
-  transition-delay: 200ms;
+  transition-delay: 200ms; /* 토큰 밖: 응답 대기 문턱 — 코어의 loadingDelayMs(200)와 짝이다 */
 }
 
 /* 마우스 hover와 키보드 이동이 같은 표시를 쓴다 — 지금 무엇이 선택될지가 한 가지로만 보인다 */

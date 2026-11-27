@@ -90,8 +90,8 @@
 }
 
 .kit-period:focus-visible {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ---------------- 지표 줄 — 카드가 아니라 위아래 1px 선 + 칸 사이 세로 선 ----------------
@@ -197,8 +197,8 @@ a.kit-block-aside {
 }
 
 a.kit-block-aside:focus-visible {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ---------------- 막대 줄 — 차트 라이브러리 없이 CSS로 그리는 단순 막대 ----------------
@@ -360,7 +360,7 @@ a.kit-block-aside:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .kit-period:not([aria-pressed='true']):hover {
     background: var(--kit-period-hover, #f8f8f8);
     color: var(--color-text, #1c1c1c);

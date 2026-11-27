@@ -8,13 +8,14 @@
  * 폭은 항상 가장 넓은 레이어 기준으로 고정된다. */
 
 .loading-button {
-  --_duration: var(--loading-button-duration, 200ms);
+  --_duration: var(--loading-button-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
   /* 나가는 레이어는 들어오는 레이어보다 빨리 지워진다 — 아래 주석 참고.
    * 나감(90ms) + 들어옴(200ms) = 290ms로, UI 모션 예산 300ms 안에 들어온다 */
   --_leave: calc(var(--_duration) * 0.45);
-  /* 누름은 즉각 반응이어야 한다 — 상태 전환과 같은 속도로 두면 굼떠 보인다 */
-  --_press: 140ms;
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* 누름은 즉각, 복귀는 여유 있게 — 눌림 토큰 한 짝(press-feedback과 같은 값). 상태 전환과 같은 속도로 두면 굼떠 보인다 */
+  --_press: var(--motion-duration-press, 60ms);
+  --_release: var(--motion-duration-release, 220ms);
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   --_bg: var(--loading-button-bg, #1c1c1c);
   display: inline-grid;
   place-items: center;
@@ -30,12 +31,13 @@
   line-height: 1.2;
   cursor: pointer;
   transition:
-    background var(--_duration) ease,
-    transform var(--_press) var(--_ease-out);
+    background var(--_duration) var(--_ease-out),
+    transform var(--_release) var(--_ease-out);
 }
 
 .loading-button:active {
-  transform: scale(0.97);
+  transform: scale(var(--motion-press-scale, 0.96));
+  transition-duration: var(--_duration), var(--_press);
 }
 
 /* 호버는 마우스처럼 정밀한 포인터에서만, 누를 수 있는 상태(idle)에서만 — 면의 톤이 한 단계 밝아진다.
@@ -52,7 +54,7 @@
 
 .loading-button[data-status='error'] {
   background: var(--loading-button-error, #c8341f);
-  animation: loading-button-shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  animation: loading-button-shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97); /* 토큰 밖: 흔들림의 길이·감쇠 곡선 */
 }
 
 /* 진행 중에는 커서로도 "지금은 못 누른다"를 알린다. 클릭은 막지 않는다 —
@@ -68,9 +70,11 @@
 }
 
 /* 잠김(disabled prop) — 폼이 덜 채워졌을 때처럼 아직 누를 수 없는 버튼.
- * 같은 자리·같은 크기로 흐리게만 두고, 눌림·호버 반응을 뺀다 */
+ * 같은 자리·같은 크기로 두고, 흐리게(불투명도) 하지 않고 잠김 색으로 바꾼다 — 흐리면 흰 글자가 2.6:1이 된다.
+ * 눌림·호버 반응을 뺀다 */
 .loading-button:disabled {
-  opacity: 0.45;
+  background: var(--disabled-surface, var(--color-canvas, #f3f3f3));
+  color: var(--disabled-text, var(--color-text-tertiary, #686868));
   cursor: not-allowed;
 }
 
@@ -79,10 +83,11 @@
   transform: none;
 }
 
-/* 포커스 링은 버튼 바깥(바탕 위)에 그려진다 — 글자색(흰색)이 아니라 버튼 면의 색을 따라야 밝은 바탕에서 보인다 */
+/* 포커스 링은 버튼 바깥(바탕 위)에 그려진다 — 글자색(흰색)이 아니라 링 토큰(강조색)을 따라야 밝은 바탕에서 보인다.
+ * 토큰 파일이 없으면 버튼 면의 색 */
 .loading-button:focus-visible {
-  outline: 2px solid var(--loading-button-focus, var(--_bg));
-  outline-offset: 3px;
+  outline: var(--focus-ring-width, 2px) solid var(--loading-button-focus, var(--focus-ring-color, var(--_bg)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 레이어는 전부 같은 칸(1/1)에 쌓이고, 현재 상태의 것만 보인다.
@@ -97,7 +102,7 @@
   transform: translateY(6px);
   pointer-events: none;
   transition:
-    opacity var(--_leave) ease,
+    opacity var(--_leave) var(--_ease-out),
     transform var(--_leave) var(--_ease-out);
 }
 
@@ -117,7 +122,7 @@
   border: 2px solid rgb(255 255 255 / 0.35);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: loading-button-spin 700ms linear infinite;
+  animation: loading-button-spin 700ms var(--motion-ease-linear, linear) infinite; /* 토큰 밖: 스피너 한 바퀴 — 회전 주기다 */
 }
 
 /* 체크마크는 그려지듯 나타난다 — 획 길이(24)만큼 밀어 놨다가 0으로 당긴다 */
@@ -127,7 +132,7 @@
 }
 
 .loading-button[data-status='success'] .loading-button-check path {
-  animation: loading-button-draw 320ms var(--_ease-out) 60ms forwards;
+  animation: loading-button-draw var(--motion-duration-slow, 350ms) var(--_ease-out) 60ms forwards; /* 토큰 밖: 지연 60ms — 초록 면이 먼저 깔린 뒤 */
 }
 
 /* 상태 안내 문구 — 눈에는 안 보이고 스크린 리더에만 읽힌다.

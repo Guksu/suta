@@ -77,6 +77,12 @@ export const SCRIM = 'rgb(0 0 0 / 0.5)'
  */
 export const LAYER = { sticky: 30, overlay: 40, popover: 50, viewer: 90, toast: 100 } as const
 
+/**
+ * 상호작용 상태 — --focus-ring-*·--hover-mix·--disabled-*. 링은 2px 실선을 바깥 2px에(잘리는 칸만 안쪽 −2px),
+ * 색은 강조색. 호버는 면을 주 글자색과 5% 섞는다. 잠김은 불투명도가 아니라 색(옅은 바탕 + 옅은 글자)이다.
+ */
+export const STATE = { focusRingWidthPx: 2, focusRingOffsetPx: 2, focusRingInsetPx: -2, hoverMixPercent: 5 } as const
+
 /** 크기의 하한·상한 */
 export const LIMITS = {
   /** 글자 크기 하한 — 보조 글자도 이 아래로 줄이지 않는다 */

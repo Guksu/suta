@@ -5,10 +5,10 @@
 
 .check {
   --_size: var(--check-size, 22px);
-  --_duration: var(--check-duration, 200ms);
+  --_duration: var(--check-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
   --_accent: var(--check-accent, #1c1c1c);
   --_border: var(--check-border, #8a8a8a);
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   /* 누르는 영역 — 박스(22px)와 한 줄 라벨은 손가락에 낮다. 위아래 안쪽 여백으로 44px까지 넓히고, 같은 크기의 음수 바깥 여백으로
    * 자리는 그대로 둔다(레이아웃이 밀리지 않는다). 여백도 label이라 눌러도 같은 입력이 토글된다 */
   --_hit: max(0px, (44px - var(--_size)) / 2);
@@ -47,8 +47,8 @@
   border-radius: 6px;
   background: transparent;
   transition:
-    background var(--_duration) ease,
-    border-color var(--_duration) ease,
+    background var(--_duration) var(--_ease-out),
+    border-color var(--_duration) var(--_ease-out),
     transform var(--_duration) var(--_ease-out);
 }
 
@@ -77,7 +77,7 @@
   border-radius: 50%;
   background: var(--check-mark, #fff);
   transform: scale(0);
-  transition: transform var(--_duration) cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--_duration) var(--motion-ease-overshoot, cubic-bezier(0.34, 1.56, 0.64, 1));
 }
 
 .check-input:checked + .check-box {
@@ -141,8 +141,8 @@
 }
 
 .check-input:focus-visible + .check-box {
-  outline: 2px solid var(--_accent);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--check-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 .check:has(.check-input:disabled) {

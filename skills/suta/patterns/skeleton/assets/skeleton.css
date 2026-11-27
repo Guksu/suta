@@ -7,7 +7,7 @@
   /* 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다 */
   --_skeleton-base: var(--skeleton-base, rgb(128 128 128 / 0.16));
   --_skeleton-sheen: var(--skeleton-sheen, rgb(128 128 128 / 0.24));
-  --_skeleton-speed: var(--skeleton-speed, 1.4s);
+  --_skeleton-speed: var(--skeleton-speed, 1.4s); /* 토큰 밖: 빛줄기 한 번의 주기 — 움직임의 길이가 아니라 반복 주기다 */
   position: relative;
   overflow: hidden;
   background: var(--_skeleton-base);
@@ -25,7 +25,7 @@
   transform: translateX(-100%);
   background: linear-gradient(90deg, transparent, var(--_skeleton-sheen), transparent);
   /* 등속 이동(마퀴류)이므로 linear가 맞다 — 이징을 주면 반짝임이 출렁인다 */
-  animation: skeleton-sheen var(--_skeleton-speed) linear infinite;
+  animation: skeleton-sheen var(--_skeleton-speed) var(--motion-ease-linear, linear) infinite;
 }
 
 @keyframes skeleton-sheen {

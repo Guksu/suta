@@ -3,12 +3,13 @@
 
 .reveal {
   /* 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
-   * 600ms: 상호작용 UI(300ms 예산)가 아니라 스크롤 콘텐츠 연출이라 길게 허용 */
-  --_reveal-duration: var(--reveal-duration, 600ms);
+   * page(420ms): 구역 크기의 등장이라 가장 긴 단계를 쓴다. 0.22까지는 600ms였다 — 토큰 파일이 "500ms 위는 기다리는 느낌"으로 정한 선을 넘었고,
+   * 스태거가 더해지면(30ms × 9) 마지막 항목이 0.9초 뒤에야 자리를 잡았다 */
+  --_reveal-duration: var(--reveal-duration, var(--motion-duration-page, 420ms));
   --_reveal-delay: var(--reveal-delay, 0ms);
   transition:
-    opacity var(--_reveal-duration) cubic-bezier(0.22, 1, 0.36, 1) var(--_reveal-delay),
-    transform var(--_reveal-duration) cubic-bezier(0.22, 1, 0.36, 1) var(--_reveal-delay);
+    opacity var(--_reveal-duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) var(--_reveal-delay),
+    transform var(--_reveal-duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) var(--_reveal-delay);
 }
 
 .reveal[data-revealed='false'] {

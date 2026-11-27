@@ -4,8 +4,8 @@
  * 조상에서 설정한 값이 상속되지 못하고 무시되기 때문이다(자기 선언 > 상속값). */
 
 .fx {
-  --_fx-duration: var(--fx-duration, 300ms);
-  --_fx-ease: var(--fx-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  --_fx-duration: var(--fx-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_fx-ease: var(--fx-ease, var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)));
   transition:
     opacity var(--_fx-duration) var(--_fx-ease),
     transform var(--_fx-duration) var(--_fx-ease),

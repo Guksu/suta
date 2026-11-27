@@ -203,13 +203,14 @@
   text-decoration: line-through;
 }
 
+/* 칸(누르는 영역 44px) 대신 날짜 원에 링을 그린다 — 고른 날은 원이 채워지므로 링이 같은 원을 둘러야 어느 날인지 읽힌다 */
 .kit-day:focus-visible {
   outline: none;
 }
 
 .kit-day:focus-visible .kit-day-date {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ---------------- 시간 칸 — 구간(오전·오후) 라벨 + 칸 격자 ----------------
@@ -256,7 +257,7 @@
 }
 
 /* 마우스를 올린 칸 — 고른 칸·잠긴 칸 규칙보다 앞에 두어 그 둘이 이긴다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .kit-slot:hover {
     background: var(--kit-slot-hover, #e8e8e8);
   }
@@ -285,8 +286,8 @@
 }
 
 .kit-slot:focus-visible {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ---------------- 입력칸 묶음 — 한 면에 쌓고 1px 선으로 나눈다 ----------------
@@ -339,7 +340,7 @@
 }
 
 .kit-field:focus-within {
-  box-shadow: inset 0 0 0 2px var(--color-accent, #1c1c1c);
+  box-shadow: inset 0 0 0 var(--focus-ring-width, 2px) var(--focus-ring-color, var(--color-accent, #1c1c1c));
 }
 
 /* 오류 — 라벨·안내가 오류 빨강, 칸 안쪽 1px 빨강 선, 칸 아래 한 줄(무엇을 어떻게 고칠지) */

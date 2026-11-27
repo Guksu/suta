@@ -28,8 +28,8 @@
   text-align: center;
   /* 칸이 커지는 것이 아니라 테두리만 굵어지게 — 여섯 칸이 서로 밀지 않는다 */
   transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease;
+    border-color var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 채워진 칸은 테두리를 진하게 — 어디까지 입력했는지 눈으로 셀 수 있다 */
@@ -37,6 +37,7 @@
   border-color: var(--otp-filled-border, #8a8a8a);
 }
 
+/* 링 대신 테두리가 강조색으로 바뀌고 옅은 3px 띠가 둘러진다 — 칸의 테두리가 곧 경계라 링을 하나 더 두지 않는다 */
 .otp-cell:focus {
   outline: none;
   border-color: var(--_accent);
@@ -60,7 +61,7 @@
 /* 흔들림 — shakeCore가 data-shake를 붙였다 animationend에 뗀다.
  * 감쇠형(6→3→1.5px)이라 "튕겨 나가는" 느낌이 아니라 "거부당한" 느낌으로 읽힌다 */
 .otp-group[data-shake] {
-  animation: otp-shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  animation: otp-shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97); /* 토큰 밖: 흔들림의 길이·감쇠 곡선 */
 }
 
 .otp-group[data-shake] .otp-cell {
@@ -77,8 +78,8 @@
 /* 고대비(forced-colors)에서는 테두리 색이 모두 같은 시스템 색이 되고 그림자가 지워져 포커스한 칸이 보이지 않는다 — 외곽선으로 알린다 */
 @media (forced-colors: active) {
   .otp-cell:focus {
-    outline: 2px solid Highlight;
-    outline-offset: 1px;
+    outline: var(--focus-ring-width, 2px) solid Highlight;
+    outline-offset: var(--focus-ring-offset, 2px);
   }
 }
 

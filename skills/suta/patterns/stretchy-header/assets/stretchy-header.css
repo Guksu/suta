@@ -19,7 +19,7 @@
 
 .stretchy-header {
   --_height: var(--stretch-height, 240px);
-  --_duration: var(--stretch-duration, 300ms);
+  --_duration: var(--stretch-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
   position: relative;
   height: var(--_height);
   /* 패럴랙스로 이미지가 투명해질 때 비치는 색 — "어두워진다"는 이 배경이 만든다 */
@@ -53,7 +53,7 @@
 
 /* 놓았을 때만 전환 — scale 1로 스르륵 복귀 */
 .stretchy-header-image[data-stretch='release'] {
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 제목 오버레이 — 하단 그라디언트 위에 흰 글자. 헤더 박스와 함께 움직인다(패럴랙스 대상 아님) */

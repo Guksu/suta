@@ -5,7 +5,7 @@
 .like-btn {
   /* 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다 */
   --_like-color: var(--like-color, #ff3040);
-  --_like-pop-duration: var(--like-pop-duration, 400ms);
+  --_like-pop-duration: var(--like-pop-duration, 400ms); /* 토큰 밖: 400ms — 커졌다 넘치고 돌아오는 세 박자의 길이. page(420)는 화면 전환의 값이라 묶지 않았다 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +27,7 @@
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
-  transition: stroke 150ms ease;
+  transition: stroke var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .like-btn[aria-pressed='true'] .like-heart {
@@ -38,7 +38,7 @@
 /* 팝은 방금 좋아요가 됐을 때만 — 이미 좋아요인 채로 그려진 버튼은 data-pop="false"로 막는다.
  * (속성이 없으면 팝한다: aria-pressed만 바꾸는 순수 JS 사용이 그대로 동작한다) */
 .like-btn[aria-pressed='true']:not([data-pop='false']) .like-heart {
-  animation: like-pop var(--_like-pop-duration) cubic-bezier(0.22, 1, 0.36, 1);
+  animation: like-pop var(--_like-pop-duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 수가 한 자리 늘어도(9 → 10) 옆 글자가 덜 밀리게 고정폭 숫자를 쓴다 */
@@ -77,7 +77,7 @@
   fill: #fff;
   filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.35));
   pointer-events: none;
-  animation: burst-heart 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: burst-heart 900ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) forwards; /* 토큰 밖: 900ms — 큰 하트가 떠올라 사라지는 연출 길이 */
 }
 
 @keyframes burst-heart {

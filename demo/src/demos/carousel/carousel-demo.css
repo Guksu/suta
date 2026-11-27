@@ -41,3 +41,8 @@
   outline-offset: 2px;
 }
 
+/* 포커스 링 — 패턴의 링은 강조색(거의 검정)을 따른다. 이 데모는 어두운 셸 위라 링이 묻히므로,
+ * 셸이 패턴 공개 변수에 잇는 사이트 파랑을 링 토큰에도 잇는다(이 데모 안에서만) */
+.playground:has(.carousel-dots) {
+  --focus-ring-color: var(--demo-pattern-accent);
+}

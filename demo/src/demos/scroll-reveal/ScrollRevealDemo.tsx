@@ -14,7 +14,7 @@ const COPY = defineCopy({
     stagger: '연쇄 간격',
     threshold: '공개 시점',
     visibleAt: (percent: number) => `${percent}% 보일 때`,
-    note: '연쇄 간격은 30~80ms가 권장값입니다. 옵션을 바꾼 뒤 아래 버튼으로 처음부터 다시 보세요.',
+    note: '연쇄 간격은 모션 토큰의 스태거 30ms(20~50ms)가 기본입니다. 옵션을 바꾼 뒤 아래 버튼으로 처음부터 다시 보세요.',
     replay: '처음부터 다시 보기',
     hint: '아래로 스크롤하세요 — 섹션이 뷰포트에 들어올 때 순차 공개됩니다.',
     scroll: '스크롤',
@@ -30,7 +30,7 @@ const COPY = defineCopy({
     stagger: 'Stagger',
     threshold: 'Reveal point',
     visibleAt: (percent: number) => `at ${percent}% visible`,
-    note: 'A stagger of 30 to 80ms works best. After changing options, use the button below to replay from the start.',
+    note: 'The default stagger is the motion token\'s 30ms (20 to 50ms works). After changing options, use the button below to replay from the start.',
     replay: 'Replay from the start',
     hint: 'Scroll down. Each section is revealed in turn as it enters the viewport.',
     scroll: 'Scroll',
@@ -44,9 +44,9 @@ export const ScrollRevealDemo = () => {
   const t = COPY[useDemoLang()]
   // key를 바꿔 전체를 리마운트하는 리플레이 장치 — 데모 전용, 스킬 코드와 무관
   const [replayKey, setReplayKey] = useState(0)
-  const [durationMs, setDurationMs] = useState(600)
+  const [durationMs, setDurationMs] = useState(420)
   const [distancePx, setDistancePx] = useState(24)
-  const [staggerMs, setStaggerMs] = useState(80)
+  const [staggerMs, setStaggerMs] = useState(30)
   const [threshold, setThreshold] = useState(0.15)
 
   // SKILL.md의 커스터마이즈 포인트(CSS 변수·props)를 그대로 노출한다 — 데모 전용 장치
@@ -66,7 +66,7 @@ export const ScrollRevealDemo = () => {
             type="range"
             min={200}
             max={1200}
-            step={100}
+            step={20}
             value={durationMs}
             onChange={(e) => setDurationMs(Number(e.target.value))}
           />
@@ -94,7 +94,7 @@ export const ScrollRevealDemo = () => {
             type="range"
             min={0}
             max={200}
-            step={20}
+            step={10}
             value={staggerMs}
             onChange={(e) => setStaggerMs(Number(e.target.value))}
           />

@@ -13,8 +13,8 @@
 ::view-transition-group(card-expand),
 ::view-transition-group(card-expand-media),
 ::view-transition-group(card-expand-title) {
-  animation-duration: var(--card-expand-duration, 420ms);
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-duration: var(--card-expand-duration, var(--motion-duration-page, 420ms));
+  animation-timing-function: var(--motion-ease-drawer, cubic-bezier(0.32, 0.72, 0, 1));
 }
 
 /* 루트 사진 두 장(카드·상세)은 **교차 페이드하지 않는다**. 종횡비가 다른 두 장을 겹쳐 섞으면
@@ -30,8 +30,8 @@
  * 모서리는 카드의 둥근 값에서 0(상세)으로, 닫을 때는 반대로 변한다 */
 ::view-transition-image-pair(card-expand) {
   overflow: clip;
-  animation-duration: var(--card-expand-duration, 420ms);
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-duration: var(--card-expand-duration, var(--motion-duration-page, 420ms));
+  animation-timing-function: var(--motion-ease-drawer, cubic-bezier(0.32, 0.72, 0, 1));
   animation-fill-mode: both;
 }
 
@@ -48,7 +48,7 @@
  * ease-in 페이드라 초반엔 상세가 그대로 보이고 마지막 한 토막에서만 카드로 바뀐다 */
 :root[data-card-expand='close']::view-transition-old(card-expand) {
   z-index: 1;
-  animation: card-expand-fade-out var(--card-expand-duration, 420ms) cubic-bezier(0.7, 0, 1, 1) both;
+  animation: card-expand-fade-out var(--card-expand-duration, var(--motion-duration-page, 420ms)) cubic-bezier(0.7, 0, 1, 1) both; /* 토큰 밖: 가속 곡선 — 움직임이 아니라 교차 시점을 끝으로 미루는 페이드다 */
 }
 
 :root[data-card-expand='close']::view-transition-image-pair(card-expand) {
@@ -118,7 +118,7 @@
 
 /* 본문은 상자가 다 자란 뒤에 나타난다 — 자라는 동안 글자까지 같이 늘어나면 어지럽다 */
 .card-expand-detail-body {
-  animation: card-expand-body-in 260ms ease-out 200ms both;
+  animation: card-expand-body-in var(--motion-duration-base, 250ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) 200ms both; /* 토큰 밖: 지연 200ms — 상자가 절반쯤 자란 뒤 */
 }
 
 @keyframes card-expand-body-in {
@@ -155,15 +155,17 @@
   inset: -6px;
 }
 
-/* 포커스를 코드로만 받는 자리(상세 루트·돌아갈 카드가 사라졌을 때의 컨테이너) — 누르는 요소가 아니므로 링을 그리지 않는다 */
+/* 포커스를 코드로만 받는 자리(상세 루트·돌아갈 카드가 사라졌을 때의 컨테이너) — 누르는 요소가 아니므로 링을 그리지 않는다.
+ * 대신하는 표시: 낭독기가 상세 제목부터 읽고, Tab의 첫 자리인 닫기 버튼에 링이 그려진다 */
 .card-expand-detail:focus,
 .card-expand-container:focus {
   outline: none;
 }
 
+/* 링 색은 강조색이 아니라 버튼 글자색(--card-expand-close-color, 기본 흰색) — 사진 위 어두운 원이라 강조색 링은 사진에 묻힌다 */
 .card-expand-close:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid currentColor;
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ── 3. 모션 민감 사용자 ────────────────────────────────────────────────── */

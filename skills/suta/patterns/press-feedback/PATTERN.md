@@ -40,7 +40,7 @@ React·Vue 등 어디서든 className만 붙이면 된다 — 래퍼 없음.
 |---|---|---|
 | 잠긴 요소를 누른다(`disabled`·`aria-disabled="true"`) | 줄지도 어두워지지도 떠오르지도 않는다. 브라우저는 `disabled` 버튼에도 `:active`를 붙이므로 따로 꺼야 한다 | `assets` |
 | 키보드로 누른다 | `<button>`은 Space를 누르고 있는 동안 `:active`가 붙어 마우스와 같은 반응이 난다. Enter는 `:active` 없이 바로 실행되어 반응이 없다. 키보드에서 "닿았다"를 알리는 것은 눌림이 아니라 포커스 링이다 | 브라우저 동작. 포커스 링은 `프로젝트` |
-| 포커스 링이 있는 요소에 붙인다 | 이 패턴은 `outline`을 만들지도 지우지도 않는다. 프로젝트의 `:focus-visible` 링(`outline: 2px solid` + `outline-offset: 2px`)이 요소와 함께 줄었다 돌아온다 | `프로젝트` |
+| 포커스 링이 있는 요소에 붙인다 | 이 패턴은 `outline`을 만들지도 지우지도 않는다. 프로젝트의 `:focus-visible` 링(링 토큰 `--focus-ring-width`·`--focus-ring-offset`, 2px·2px)이 요소와 함께 줄었다 돌아온다 | `프로젝트` |
 | 누르는 카드 안에 누르는 버튼이 있다 | 안쪽 버튼을 누르면 안쪽만 반응한다. `:active`는 조상에도 붙어서, 막지 않으면 카드까지 함께 줄어든다 | `assets` — `.pressable:has(.pressable:active)` |
 | 요소에 이미 `transform`이 있다(가운데 정렬·회전) | 그 값을 유지한 채 줄어든다 | `assets` — `scale`·`translate` 개별 속성 |
 | 요소에 이미 `transition`이 있다 | `transition`은 합쳐지지 않고 나중에 선언된 쪽만 남는다. 프로젝트의 선언이 이기면 눌림이 전이 없이 뚝 끊긴다 | `프로젝트` — 그 선언에 `scale`·`translate`·`filter` 전이를 함께 적는다 |
@@ -53,8 +53,8 @@ React·Vue 등 어디서든 className만 붙이면 된다 — 래퍼 없음.
 
 | 대상 | 방법 |
 |------|------|
-| 눌림 배율 | `--press-scale` (기본 0.96 — 작은 버튼 0.94, 큰 카드 0.98이 무난) |
-| 복귀 속도 | `--press-release` (기본 220ms) |
+| 눌림 배율 | `--press-scale` (기본 0.96 = 토큰 `--motion-press-scale` — 작은 버튼 0.94, 큰 카드 0.98이 무난) |
+| 복귀 속도 | `--press-release` (기본 220ms = 토큰 `--motion-duration-release`. 누름 60ms는 `--motion-duration-press`) |
 | 어두워지는 정도 | `--press-dim` (기본 0.92 — `pressable-dim`과 동작 줄이기에서 쓰는 `brightness()` 값) |
 
 ## 함께 쓰는 패턴

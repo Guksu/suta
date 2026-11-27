@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { COLOR, FONT, GAP, LAYER, LEADING, LIMITS, RADIUS, RATIO, SCRIM, SHADOW, SPACE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
+import { COLOR, FONT, GAP, LAYER, LEADING, LIMITS, RADIUS, RATIO, SCRIM, SHADOW, SPACE, STATE, TEXT, WEIGHT, contrastRatio, groupGapOk, isOnGrid, nearestSpace, toPx } from '@skills/layout-principles/assets/layoutTokens'
 import { oklchOf } from '@skills/layout-principles/assets/palette'
 
 // vitest는 demo/에서 돈다 — 정본 CSS를 파일로 읽어 TS 상수와 비교한다(두 벌이 어긋나면 검사기와 화면이 다른 척도를 쓴다)
@@ -209,5 +209,32 @@ describe('layoutTokens — 층(그림자·스크림·겹치는 순서)', () => {
   it('겹치는 순서는 붙은 것 < 덮는 것 < 가리키는 것 < 뷰어 < 알림이고, 단계 사이에 스크림·시트가 들어갈 틈(2 이상)이 있다', () => {
     const order = [LAYER.sticky, LAYER.overlay, LAYER.popover, LAYER.viewer, LAYER.toast]
     for (let i = 1; i < order.length; i += 1) expect(order[i] - order[i - 1]).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe('layoutTokens — 상호작용 상태 한 벌', () => {
+  it('포커스 링·호버·잠김 토큰이 CSS와 일치한다', () => {
+    expect(cssVar('--focus-ring-width')).toBe(`${STATE.focusRingWidthPx}px`)
+    expect(cssVar('--focus-ring-offset')).toBe(`${STATE.focusRingOffsetPx}px`)
+    expect(cssVar('--focus-ring-offset-inset')).toBe(`${STATE.focusRingInsetPx}px`)
+    expect(cssVar('--focus-ring-color')).toBe('var(--color-accent)')
+    expect(cssVar('--focus-ring-color-inverse')).toBe('var(--color-on-accent)')
+    expect(cssVar('--hover-mix')).toBe(`${STATE.hoverMixPercent}%`)
+    expect(cssVar('--disabled-surface')).toBe('var(--color-canvas)')
+    expect(cssVar('--disabled-text')).toBe('var(--color-text-tertiary)')
+  })
+
+  it('포커스 링 간격은 바깥 하나·안쪽 하나뿐이고 굵기와 크기가 같다', () => {
+    expect(STATE.focusRingOffsetPx).toBe(STATE.focusRingWidthPx)
+    expect(STATE.focusRingInsetPx).toBe(-STATE.focusRingWidthPx)
+  })
+
+  it('잠긴 글자는 잠긴 면 위에서 4.5:1 이상이다 — 흐리게(불투명도) 하지 않고 색을 바꾸는 이유', () => {
+    expect(contrastRatio(COLOR.textTertiary, COLOR.canvas)).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('기본 링 색(강조색 = 거의 검정)은 흰 면·옅은 바탕에서 3:1 이상이다(WCAG 1.4.11)', () => {
+    expect(contrastRatio(COLOR.accent, COLOR.surface)).toBeGreaterThanOrEqual(3)
+    expect(contrastRatio(COLOR.accent, COLOR.canvas)).toBeGreaterThanOrEqual(3)
   })
 })

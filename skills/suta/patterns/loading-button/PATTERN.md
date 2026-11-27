@@ -104,11 +104,11 @@ button.addEventListener('click', () => action.run(placeOrder))
 | 완료 표시 중에 또 누른다 | 1.2초 동안은 실행하지 않는다. 같은 주문이 두 번 나가지 않는다. `aria-disabled="true"`, 커서는 기본 화살표다 | `assets` |
 | 응답이 끝내 오지 않는다 | 코어에는 시간 제한이 없어 스피너가 계속 돈다. `onAction` 안에서 제한 시간(예: 10초)을 두고 예외를 던지면 실패 표시로 간다 | `프로젝트` — `fetch(url, { signal: AbortSignal.timeout(10000) })` |
 | 진행 중에 화면을 떠난다(언마운트) | 늦게 온 응답은 상태를 바꾸지 않는다. 요청 자체는 취소되지 않는다 | 상태 보호는 `assets` — `destroy`. 요청 취소는 `프로젝트`(`AbortController`) |
-| 아직 누를 수 없다(폼이 덜 채워짐·품절) | `disabled`를 준다. 같은 자리·같은 크기에 불투명도 0.45, 커서 `not-allowed`, 눌림·호버 반응 없음. 왜 잠겼는지는 버튼 위 한 줄로 적는다 | 모습은 `assets`. 이유 문구는 `프로젝트` |
+| 아직 누를 수 없다(폼이 덜 채워짐·품절) | `disabled`를 준다. 같은 자리·같은 크기에 잠김 색(`--disabled-surface`·`--disabled-text`, 옅은 바탕 + 옅은 글자 5:1 — 흐리게 하면 흰 글자가 2.6:1), 커서 `not-allowed`, 눌림·호버 반응 없음. 왜 잠겼는지는 버튼 위 한 줄로 적는다 | 모습은 `assets`. 이유 문구는 `프로젝트` |
 | 폼 안에 둔다 | 기본은 `type="button"`이라 폼을 제출하지 않는다. `type="submit"`을 주면 버튼 클릭과 입력칸의 Enter가 모두 `onAction`을 부르고, 잠긴 동안에는 폼 제출도 막는다(`preventDefault`). 폼의 `onSubmit`에서 기본 동작을 막는 일은 따로 해야 한다 | 잠금은 `assets`. 폼 제출 흐름이 중심이면 `프로젝트`가 훅을 `onSubmit`에 건다 |
 | 문구가 길거나 화면이 320px이다 | 버튼 폭은 네 상태 문구 중 가장 긴 것이 정하고, 상태가 바뀌어도 변하지 않는다. 부모보다 길면 줄이 꺾인다. 높이는 최소 44px이다. 상태 문구는 원래 라벨과 비슷한 길이로 쓴다 | 폭 고정·44px는 `assets`. 문구 길이는 `프로젝트` |
 | 마우스를 올린다 | 정밀 포인터에서만, 누를 수 있을 때만 면이 한 단계 밝아진다(흰색 14% 섞음). 밝은 버튼은 `--loading-button-hover`로 색을 준다 | `assets` |
-| 키보드로 닿는다 | 포커스 링 2px이 버튼 밖 3px에 그려진다. 색은 글자색이 아니라 버튼 면의 색이다. 진행 중에도 포커스는 버튼에 남는다 | `assets` — `--loading-button-focus` |
+| 키보드로 닿는다 | 포커스 링 2px이 버튼 밖 2px에 그려진다(링 토큰). 색은 글자색이 아니라 링 토큰(강조색), 토큰 파일이 없으면 버튼 면의 색이다. 진행 중에도 포커스는 버튼에 남는다 | `assets` — `--loading-button-focus` |
 | 고대비 모드(`forced-colors: active`) | 배경색이 사라지므로 테두리 1px(`ButtonText`)로 경계를 그린다. 스피너는 `GrayText` 고리에 `ButtonText` 한 칸이다. 완료와 실패는 색이 아니라 문구로 구분된다 | `assets` |
 
 ## 커스터마이즈 포인트
@@ -119,7 +119,7 @@ button.addEventListener('click', () => action.run(placeOrder))
 | 최소 로딩 시간 | `minLoadingMs` | 400ms |
 | 완료·실패 표시 유지 | `successHoldMs`·`errorHoldMs` | 1200ms / 1800ms |
 | 색 | `--loading-button-bg`·`--loading-button-success`·`--loading-button-error` | 거의 검정 / 짙은 초록 / 빨강 — 강조색 토큰(`--color-accent`)에 연결한다 |
-| 호버·포커스 링 색 | `--loading-button-hover`·`--loading-button-focus` | 면 색에 흰색 14% / 면 색 |
+| 호버·포커스 링 색 | `--loading-button-hover`·`--loading-button-focus` | 면 색에 흰색 14% / `--focus-ring-color`(없으면 면 색) |
 | 전환 속도 | `--loading-button-duration` | 200ms |
 
 시간 값은 실행할 때마다 다시 읽는다. 한 번 누른 뒤에 prop을 바꿔도 다음 실행부터 반영된다(순수 JS는 `action.setOptions({ minLoadingMs })`).
@@ -129,7 +129,7 @@ button.addEventListener('click', () => action.run(placeOrder))
 - `patterns/form-shake-error` — 실패한 이유를 보여 줄 때. 버튼은 "실패"만 말하고, 무엇이 틀렸는지는 그 칸 아래의 오류 줄이 말한다.
 - `patterns/toast-stack` — 완료한 뒤 화면이 바뀌는 흐름. 버튼의 완료 표시는 화면과 함께 사라지므로 이동한 화면에서 토스트 한 줄로 알린다.
 - `patterns/skeleton` — 버튼이 아니라 화면 내용을 기다릴 때. 버튼을 눌러 생긴 대기는 이 패턴이 맡는다.
-- `patterns/press-feedback` — 이 버튼에는 붙이지 않는다. 눌림(97% 축소)이 이미 들어 있다.
+- `patterns/press-feedback` — 이 버튼에는 붙이지 않는다. 눌림(눌림 토큰 — 96% 축소, 누름 60ms·복귀 220ms)이 이미 들어 있다.
 
 ## 주의사항
 

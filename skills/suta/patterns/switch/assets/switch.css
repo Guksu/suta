@@ -9,7 +9,7 @@
   --_w: var(--switch-width, 44px);
   --_h: var(--switch-height, 26px);
   --_pad: 3px;
-  --_duration: var(--switch-duration, 200ms);
+  --_duration: var(--switch-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
   --_dir: 1; /* 썸이 켜질 때 가는 방향 — 오른쪽에서 왼쪽으로 쓰는 글에서는 -1 */
   /* 누르는 영역 — 트랙은 26px라 손가락에는 낮다. 위아래 안쪽 여백으로 44px까지 넓히고, 같은 크기의 음수 바깥 여백으로
    * 자리는 그대로 둔다(레이아웃이 밀리지 않는다). 여백도 label이라 눌러도 같은 입력이 토글된다 */
@@ -43,7 +43,7 @@
   background: var(--switch-off-bg, #e5e5e5);
   /* 옅은 트랙만으로는 흰 바탕과 구별이 약하다 — 테두리(#8a8a8a, 3.45:1)가 스위치의 윤곽을 알린다 */
   box-shadow: inset 0 0 0 1px var(--switch-off-border, #8a8a8a);
-  transition: background var(--_duration) ease, box-shadow var(--_duration) ease;
+  transition: background var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .switch-thumb {
@@ -55,7 +55,7 @@
   border-radius: 999px;
   background: #fff;
   box-shadow: var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2));
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .switch-input:checked + .switch-track {
@@ -77,8 +77,8 @@
 }
 
 .switch-input:focus-visible + .switch-track {
-  outline: 2px solid var(--switch-on-bg, var(--color-accent, #1c1c1c));
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--switch-on-bg, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 .switch:has(.switch-input:disabled) {

@@ -8,8 +8,8 @@
   --_height: var(--bottom-nav-height, 56px);
   --_color: var(--bottom-nav-color, #686868);
   --_current: var(--bottom-nav-current, #1c1c1c);
-  --_duration: var(--bottom-nav-duration, 250ms);
-  --_ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--bottom-nav-duration, var(--motion-duration-base, 250ms));
+  --_ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 
   position: fixed;
   inset-inline: 0;
@@ -71,15 +71,17 @@
 }
 
 .bottom-nav-link:focus-visible {
-  outline: 2px solid var(--_current);
-  outline-offset: -4px;
+  /* 탭은 바 높이를 가득 채운 칸이 나란히 붙어 있다 — 링을 안쪽에 그려야 이웃 탭과 바 밖으로 넘지 않는다.
+   * --bottom-nav-current를 준 프로젝트는 링도 그 색을 따른다 */
+  outline: var(--focus-ring-width, 2px) solid var(--bottom-nav-current, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
   border-radius: 8px;
 }
 
 .bottom-nav-icon {
   position: relative;
   display: inline-flex;
-  transition: transform 100ms var(--_ease);
+  transition: transform var(--motion-duration-instant, 100ms) var(--_ease);
 }
 
 /* 누르는 순간 살짝 줄어든다 — 탭했다는 피드백 */

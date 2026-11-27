@@ -5,7 +5,7 @@
  * --stack-peek·--stack-fan-gap은 컴포넌트가 컨테이너에 써 두는 값이다 — 카드 안 제목 줄 높이를 peek에 맞출 때 읽어라. */
 
 .card-stack {
-  --_duration: var(--stack-duration, 420ms);
+  --_duration: var(--stack-duration, var(--motion-duration-page, 420ms));
   position: relative;
   /* 선택 모드에서 나머지 카드는 컨테이너 아래로 내려가 윗가장자리만 보인다 — 잘라야 "지갑 밑에 꽂힌" 모양이 된다 */
   overflow: hidden;
@@ -29,27 +29,28 @@
   /* 윗가장자리가 보이는 쪽이므로 배율을 줄여도 윗선이 제자리에 있어야 겹침 간격이 흔들리지 않는다 */
   transform-origin: 50% 0;
   /* 드로어 커브 — 빠르게 나와서 부드럽게 정착한다. transform만 전환(레이아웃 속성 금지) */
-  transition: transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform var(--_duration) var(--motion-ease-drawer, cubic-bezier(0.32, 0.72, 0, 1));
   /* 그림자는 위쪽으로 — 앞 카드가 뒤 카드 윗가장자리에 얹힌 깊이감 */
   box-shadow:
     0 -1px 0 rgba(255, 255, 255, 0.08),
     0 -8px 20px rgba(0, 0, 0, 0.28);
 }
 
-/* overflow:hidden 컨테이너 안이라 바깥 outline은 잘린다 — 안쪽으로 그린다 */
+/* overflow:hidden 컨테이너 안이라 바깥 outline은 잘린다 — 안쪽으로 그린다.
+ * 카드 면이 어두운 그림이라 강조색(거의 검정) 링은 묻힌다 — 면 위 링 색(--focus-ring-color-inverse)을 쓴다 */
 .card-stack-card:focus-visible {
-  outline: 2px solid var(--stack-focus-color, #fff);
-  outline-offset: -4px;
+  outline: var(--focus-ring-width, 2px) solid var(--stack-focus-color, var(--focus-ring-color-inverse, var(--color-on-accent, #fff)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 /* 펼칠 때는 위에서부터 순서대로, 접을 때는 아래(앞) 카드부터 거꾸로 — 항상 "가까운 카드가 먼저" 움직인다.
- * 지연은 240ms에서 멈춘다 — 카드가 수십 장이면 마지막 카드가 몇 초 뒤에야 움직이기 시작한다 */
+ * 지연은 9번째 카드에서 멈춘다(스태거 30ms × 8 = 240ms) — 카드가 수십 장이면 마지막 카드가 몇 초 뒤에야 움직이기 시작한다 */
 .card-stack[data-mode='fanned'] .card-stack-card {
-  transition-delay: min(calc(var(--stack-index, 0) * 30ms), 240ms);
+  transition-delay: calc(min(var(--stack-index, 0), 8) * var(--motion-stagger, 30ms));
 }
 
 .card-stack[data-mode='stacked'] .card-stack-card {
-  transition-delay: min(calc((var(--stack-count, 1) - 1 - var(--stack-index, 0)) * 30ms), 240ms);
+  transition-delay: calc(min(var(--stack-count, 1) - 1 - var(--stack-index, 0), 8) * var(--motion-stagger, 30ms));
 }
 
 /* 접히거나 선택으로 넘어갈 때는 컨테이너가 낮아진다 — 높이를 바로 줄이면 아직 내려가 있는 카드가 아래에서 잘린다.

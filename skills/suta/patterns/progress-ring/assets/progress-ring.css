@@ -7,9 +7,9 @@
  * 값이 바뀌면 stroke-dashoffset의 CSS transition이 알아서 따라간다 — 프레임 루프가 없다. */
 
 .progress-ring {
-  --_duration: var(--ring-duration, 600ms);
+  --_duration: var(--ring-duration, 600ms); /* 토큰 밖: 600ms — 값이 바뀔 때 호를 따라가는 길이, 화면 요소의 이동이 아니다 */
   /* 끝에서 부드럽게 감속 — 목표 도달을 "안착"처럼 보이게 */
-  --_ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --_ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: relative;
   display: inline-grid;
   place-items: center;
@@ -56,7 +56,7 @@
   transition: none;
   transform-box: view-box;
   transform-origin: center;
-  animation: progress-ring-spin 1s linear infinite;
+  animation: progress-ring-spin 1s var(--motion-ease-linear, linear) infinite; /* 토큰 밖: 회전 주기 */
 }
 
 /* 가운데 슬롯 — 숫자·아이콘·버튼. 링 위에 겹쳐 둔다 */

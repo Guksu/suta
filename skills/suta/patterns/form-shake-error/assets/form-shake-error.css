@@ -4,7 +4,7 @@
  * 흔들림은 translateX만 쓴다(레이아웃 애니메이션 없음). 진폭이 줄어드는 감쇠 키프레임이라 "튕기고 멈춘다". */
 
 [data-shake] {
-  animation: field-shake var(--shake-duration, 400ms) cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: field-shake var(--shake-duration, 400ms) cubic-bezier(0.36, 0.07, 0.19, 0.97) both; /* 토큰 밖: 흔들림의 길이·감쇠 곡선 — 왕복 횟수가 정하는 값이라 이동 시간 단계와 뜻이 다르다 */
 }
 
 @keyframes field-shake {
@@ -35,10 +35,10 @@
 
 /* 에러 메시지 — grid 0fr↔1fr로 높이 없이/있음 전이 + 아래에서 올라오는 슬라이드 */
 .field-error {
-  --_duration: var(--error-duration, 200ms);
+  --_duration: var(--error-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: grid-template-rows var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .field-error[data-visible='true'] {
@@ -58,8 +58,8 @@
   opacity: 0;
   transform: translateY(-4px);
   transition:
-    opacity var(--_duration) ease,
-    transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+    opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .field-error[data-visible='true'] .field-error-text {

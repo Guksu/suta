@@ -35,7 +35,7 @@ import './scroll-reveal.css'
 const Features = ({ items }: { items: string[] }) => (
   <section>
     {items.map((text, i) => (
-      <ScrollReveal key={text} delayMs={i * 80}>
+      <ScrollReveal key={text} delayMs={Math.min(i, 9) * 30}>
         <article className="card">{text}</article>
       </ScrollReveal>
     ))}
@@ -51,7 +51,7 @@ const Features = ({ items }: { items: string[] }) => (
 import { revealOnScroll } from './revealOnScroll.js'
 
 document.querySelectorAll('.reveal').forEach((el, i) => {
-  el.style.setProperty('--reveal-delay', `${(i % 3) * 80}ms`)
+  el.style.setProperty('--reveal-delay', `${(i % 3) * 30}ms`)
   revealOnScroll({ element: el })
 })
 // SPA에서 요소를 제거할 때는 반환된 cleanup()을 호출해 옵저버를 해제한다
@@ -67,7 +67,7 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
 | 요소가 화면보다 훨씬 길다(긴 글 한 덩어리, 낮은 가로 화면) | 보이는 비율이 `threshold`에 닿을 수 없는 길이면 화면에 걸치는 순간 공개한다. 기본 0.15에서는 화면 높이의 6.7배보다 긴 요소가 그렇다 | `assets` — `revealOnScroll` |
 | `once: false`인 요소가 경계에서 오르내린다 | `threshold`를 넘을 때 공개하고, 화면에서 완전히 벗어났을 때만 다시 감춘다. 경계에서 깜빡이지 않는다 | `assets` — `revealOnScroll` |
 | 첫 화면(스크롤 전)에 보이는 요소 | 쓰지 않는다. 첫 페인트에 `opacity: 0`으로 시작해 가장 큰 콘텐츠가 그려지는 시점(LCP)이 늦어진다 | `프로젝트` |
-| 항목이 많은 격자·목록에 연쇄 지연을 준다 | 지연을 줄 번호가 아니라 열 번호로 준다(`(i % 3) * 80`). `i * 80`은 20번째 항목이 1.6초 뒤에 나온다 | `프로젝트` — `delayMs` |
+| 항목이 많은 격자·목록에 연쇄 지연을 준다 | 간격은 모션 토큰의 스태거(30ms), 10개까지만 벌린다(`Math.min(i, 9) * 30`). 격자는 줄 번호가 아니라 열 번호로 준다(`(i % 3) * 30`). 상한 없이 `i * 80`을 주면 20번째 항목이 1.6초 뒤에 나온다 | `프로젝트` — `delayMs` |
 | 항목이 수백 개다 | 항목마다 옵저버가 하나씩 생긴다. 항목 하나하나가 아니라 구역(섹션·묶음) 단위로 감싼다 | `프로젝트` |
 | 인쇄하거나 스크립트가 꺼져 있다 | 감춘 요소가 그대로 보인다. `@media print, (scripting: none)`이 `opacity: 1`로 되돌린다 | `assets` — `scroll-reveal.css` |
 | `IntersectionObserver`가 없다(구형 환경) | 감추지 않고 바로 `data-revealed="true"`로 둔다 | `assets` — `revealOnScroll` |
@@ -78,10 +78,10 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
 
 | 대상 | 방법 |
 |------|------|
-| 지속 시간·이동 거리 | CSS 변수 `--reveal-duration`·`--reveal-distance` |
+| 지속 시간·이동 거리 | CSS 변수 `--reveal-duration`(기본 420ms = 토큰 `page`)·`--reveal-distance` |
 | 공개 시점 | `threshold`(요소의 몇 %가 보일 때, 기본 0.15), `rootMargin`(경계 보정 — 미리 공개하려면 `'0px 0px -10% 0px'`) |
 | 반복 여부 | `once`(기본 true — 한 번 공개 후 유지). false면 벗어날 때 다시 감춤 |
-| 연쇄 간격 | `delayMs` — 한 줄 안의 순서 × 30~80ms가 무난(초과하면 굼뜨게 느껴진다) |
+| 연쇄 간격 | `delayMs` — 순서 × 30ms(토큰 `--motion-stagger`), 10개까지. 20~50ms 밖은 산만하거나 굼뜨다 |
 
 ## 함께 쓰는 패턴
 

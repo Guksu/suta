@@ -125,7 +125,7 @@ window.addEventListener('resize', remeasure)
 
 - **인디케이터와 탭은 같은 offsetParent 안에 있어야 한다** — `.tab-bar`의 `position: relative`가 그 좌표계다. 제거하면 위치가 틀어진다.
 - 첫 배치의 `immediate`는 `transition: none`을 건 채로 배치를 한 번 읽어 스타일을 확정한다. 이 읽기(`getBoundingClientRect()`)를 지우면 페이지 진입 때 밑줄이 0에서 미끄러져 오는 가짜 이동이 보인다.
-- 스크롤 줄(`data-scroll`)은 밖으로 나간 포커스 링을 자른다. CSS가 링을 탭 안쪽(`outline-offset: -2px`)에 그린다 — 프로젝트의 포커스 스타일이 `box-shadow` 링이면 안쪽 그림자(`inset`)로 바꾼다.
+- 탭 포커스 링은 CSS가 링 토큰으로 그린다(`--tab-focus`로 색을 바꾼다). 스크롤 줄(`data-scroll`)은 밖으로 나간 포커스 링을 자른다. CSS가 링을 탭 안쪽(`--focus-ring-offset-inset`, −2px)에 그린다 — 프로젝트의 포커스 스타일이 `box-shadow` 링이면 안쪽 그림자(`inset`)로 바꾼다.
 - 화면이 떠 있는 채로 `dir`만 바꾸면 탭 크기가 그대로라 다시 재지 않는다. 방향을 바꾼 뒤 `immediate: true`로 한 번 부른다(React는 탭 줄에 `key`를 준다).
 - **reduced-motion 대응 내장** — 슬라이드를 끄고 즉시 점프로 위치 표시만 유지한다. 줄 스크롤도 바로 옮긴다. 블록 제거 금지.
 - scaleX 방식은 인디케이터에 둥근 모서리·그라데이션을 주면 늘어나 보인다 — 그런 장식이 필요하면 이 패턴 범위 밖(FLIP 계열)이다.

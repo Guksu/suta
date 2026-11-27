@@ -17,8 +17,8 @@
 /* fixed인 이유: 부모의 overflow:hidden 안에 갇히면 메뉴가 잘린다. 좌표는 코어가 화면 기준으로 계산해 넣는다.
  * transform이 걸린 조상 안에서는 fixed도 그 조상 기준이 된다 — 그래서 코어가 popover로 맨 위 층에 올린다. */
 .menu-panel {
-  --_duration: var(--menu-duration, 140ms);
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--menu-duration, var(--motion-duration-fast, 150ms));
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: fixed;
   /* popover의 브라우저 기본값(inset: 0 + margin: auto = 화면 가운데)을 걷는다. top·left는 코어가 인라인으로 쓴다 */
   inset: auto;
@@ -68,22 +68,24 @@
   cursor: pointer;
 }
 
-/* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다 */
+/* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다.
+ * 화살표 키로 옮길 때도 :focus라 바탕이 표시를 대신하고, 키보드일 때만 아래 :focus-visible 링을 더한다 */
 .menu-item:focus {
   outline: none;
   background: var(--menu-active-bg, var(--color-canvas, #f3f3f3));
 }
 
 /* hover는 가리킬 수 있는 포인터에서만 — 터치에서는 누른 항목에 hover가 남는다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .menu-item:hover {
     background: var(--menu-active-bg, var(--color-canvas, #f3f3f3));
   }
 }
 
 .menu-item:focus-visible {
-  outline: 2px solid var(--menu-focus, #1c1c1c);
-  outline-offset: -2px;
+  /* 메뉴 항목은 메뉴 폭을 가득 채운다 — 메뉴의 둥근 모서리에 잘리지 않게 안쪽에 그린다 */
+  outline: var(--focus-ring-width, 2px) solid var(--menu-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 .menu-item[data-danger='true'] {
