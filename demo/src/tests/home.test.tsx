@@ -32,7 +32,7 @@ describe('데모 첫 화면', () => {
     const order = (element: HTMLElement) => Array.from(main.querySelectorAll('*')).indexOf(element)
     const caseSection = screen.getByRole('region', { name: /대표 사례/ })
     const install = screen.getByRole('region', { name: /설치/ })
-    const patterns = screen.getByRole('region', { name: /패턴 57종/ })
+    const patterns = screen.getByRole('region', { name: /패턴 58종/ })
     expect(order(caseSection)).toBeLessThan(order(patterns))
     expect(order(install)).toBeLessThan(order(patterns))
   })
@@ -49,7 +49,7 @@ describe('데모 첫 화면', () => {
 
   it('패턴 목록 밖의 본문에서 직접 확인할 수 있는 데모(축하 오버레이·모달·레이아웃 검사)로 이어진다', () => {
     openHome('ko')
-    const patterns = screen.getByRole('region', { name: /패턴 57종/ })
+    const patterns = screen.getByRole('region', { name: /패턴 58종/ })
     const hrefs = Array.from(screen.getByRole('main').querySelectorAll('a'))
       .filter((link) => !patterns.contains(link))
       .map((link) => link.getAttribute('href'))

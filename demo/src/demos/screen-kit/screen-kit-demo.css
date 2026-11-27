@@ -1,0 +1,166 @@
+/* screen-kit 데모 — 화면 안쪽은 패턴 CSS(screen-kit*.css)만으로 그린다. 이 파일은 데모 틀(휴대폰·넓은 틀)과
+ * 화면의 바깥 틀(가게 머리·사이트 머리)만 맡는다. 값은 layout-tokens.css의 토큰만 쓴다 */
+
+.skd-figure {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.skd-figure figcaption {
+  font-size: var(--text-small);
+  color: var(--text-dim);
+}
+
+/* 밝은 앱 화면 — 셸은 어두운 바탕이라 입력칸·스크롤 막대를 밝게 다시 그린다 */
+.skd-frame {
+  /* clip — hidden과 달리 스크롤 칸을 만들지 않아, 넓은 틀 안의 요약 패널이 창을 기준으로 붙어 따라온다(sticky) */
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-text);
+  color-scheme: light;
+  /* 강조색은 거의 검정 — 받은 브랜드색이 없다. "국수집이라 주황"은 업종에서 떠올린 색이라 근거가 아니다(tone.md 3절) */
+  --color-accent: #1c1c1c;
+  --color-on-accent: #ffffff;
+  --color-accent-text: #1c1c1c;
+}
+
+/* 휴대폰 틀 — 390 폭, 안에서 스크롤. 머리가 이 틀의 위에 붙는다 */
+.skd-frame[data-width='phone'] {
+  inline-size: 100%;
+  max-inline-size: 390px;
+  max-block-size: 760px;
+  margin-inline: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 넓은 틀 — 넓은 창에서는 데모 본문 열(880) 밖으로 넓혀 실제 데스크톱 폭(최대 1120)을 보인다 */
+.skd-frame[data-width='wide'] {
+  --skd-wide: min(1120px, calc(100vw - 256px - var(--space-8)));
+
+  inline-size: 100%;
+}
+
+@media (min-width: 1180px) {
+  .skd-frame[data-width='wide'] {
+    inline-size: var(--skd-wide);
+    margin-inline: calc((100% - var(--skd-wide)) / 2);
+  }
+}
+
+/* ---------------- 앱 화면의 머리(가게 이름 + 장바구니) ---------------- */
+.skd-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: 52px;
+  padding-inline: var(--page-inline) var(--space-2);
+  background: var(--color-surface);
+}
+
+.skd-shop {
+  font-weight: var(--weight-semibold);
+}
+
+.skd-cart {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: var(--tap-min);
+  block-size: var(--tap-min);
+  color: inherit;
+}
+
+.skd-cart:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.skd-cart-count {
+  position: absolute;
+  top: var(--space-1);
+  right: 2px;
+  min-inline-size: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: var(--color-on-accent);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- 웹 페이지의 사이트 머리(로고 + 주 메뉴) ---------------- */
+.skd-site-inner {
+  max-inline-size: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--page-inline);
+}
+
+.skd-site-head {
+  border-block-end: 1px solid var(--color-line);
+}
+
+.skd-site-head .skd-site-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-8);
+  min-block-size: 64px;
+}
+
+.skd-logo {
+  font-size: var(--text-heading);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.skd-site-nav {
+  display: flex;
+  gap: var(--space-6);
+  overflow-x: auto;
+  font-size: var(--text-small);
+  scrollbar-width: none;
+}
+
+.skd-site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-min);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.skd-site-nav a[aria-current='page'] {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.skd-site-nav a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* 사이트 머리와 같은 왼쪽 선 — 여백은 바깥 틀(.skd-site-inner)이 가진다 */
+.skd-flush {
+  --kit-inline: 0;
+}
+
+.skd-site form {
+  padding-block-end: var(--space-16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skd-frame {
+    scroll-behavior: auto;
+  }
+}

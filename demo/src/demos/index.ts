@@ -56,6 +56,7 @@ import { LayoutPrinciplesDemo } from './layout-principles/LayoutPrinciplesDemo'
 import { LayoutAuditDemo } from './layout-audit/LayoutAuditDemo'
 import { GlassNavDemo } from './glass-nav/GlassNavDemo'
 import { BottomNavDemo } from './bottom-nav/BottomNavDemo'
+import { ScreenKitDemo } from './screen-kit/ScreenKitDemo'
 
 export type DemoCategory = '등장과 전환' | '로딩과 진행' | '피드백' | '내비게이션' | '제스처' | '컨트롤' | '표면과 스타일' | '원칙과 검토'
 
@@ -844,6 +845,36 @@ const reorder = useDragReorder({ onReorder: move })
 
 <dialog className="glass glass-modal">…</dialog>`,
     Component: GlassSurfaceDemo,
+  },
+  {
+    slug: 'screen-kit',
+    title: '화면 바탕 부품 한 벌',
+    description: '목록·예약 화면을 새로 지을 때 먼저 깔 부품. 쪽 머리 큰 제목·탭 줄·상자 없는 상품 칸·사진 틀(사진이 없으면 콘텐츠 그림)·날짜 띠·시간 칸·입력칸 묶음·요약 패널',
+    titleEn: 'Screen base kit',
+    descriptionEn: 'Parts to lay down first when building a list or booking screen: a big page title, tab row, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots, stacked fields and a summary panel',
+    category: '표면과 스타일',
+    usage: `import { PageHead, PhotoFrame, ProductCell } from './ScreenKit' // screen-kit*.css를 함께 불러온다
+import { Illustration } from './Illustration' // layout-principles — content-art.css도 함께
+
+<main className="kit-screen">
+  <PageHead title="오늘의 국수" sub="성수점 · 주문하면 15분 뒤 픽업" />
+  <ul className="kit-grid">
+    <ProductCell
+      name="잔치국수"
+      price="7,000원"
+      onAdd={() => add('janchi')}
+      media={<PhotoFrame src="/photos/janchi.webp" alt="" />}
+    />
+    <ProductCell
+      name="김치만두"
+      price="7,500원"
+      onAdd={() => add('kimchi')}
+      // 사진이 없으면 회색 칸 + 아이콘이 아니라 콘텐츠 그림
+      media={<PhotoFrame art={{ scene: 'dish', tone: 'clay' }} alt=""><Illustration name="dumpling" /></PhotoFrame>}
+    />
+  </ul>
+</main>`,
+    Component: ScreenKitDemo,
   },
   {
     slug: 'segmented-control',

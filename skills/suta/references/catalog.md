@@ -99,6 +99,7 @@
 | 패턴 | 무엇을 하나 |
 |---|---|
 | [`glass-surface`](../patterns/glass-surface/PATTERN.md) | 뒤 배경이 흐릿하게 비치는 반투명 유리판 글라스모피즘(glassmorphism) 카드·헤더·내비게이션 바를 구현한다. |
+| [`screen-kit`](../patterns/screen-kit/PATTERN.md) | 목록·예약 화면의 바탕 부품 한 벌(screen kit)을 구현한다. |
 
 ### 원칙과 검토
 

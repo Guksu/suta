@@ -394,7 +394,7 @@
   - 상품 카드마다 BEST·NEW 색 알약을 단다.
   - 별을 노랑·주황으로 칠해 유채색을 하나 더 늘린다.
   - 마이를 이름·메뉴 세 줄로 끝낸다.
-- **관련 패턴**: `bottom-nav`, `carousel`, `tab-indicator`, `bottom-sheet`, `quantity-stepper`, `like-pop`(찜), `cart-fly`(담기), `infinite-scroll`, `skeleton`, `toast-stack`.
+- **관련 패턴**: `screen-kit`(쪽 머리·탭 줄·상자 없는 상품 칸·사진 틀), `bottom-nav`, `carousel`, `tab-indicator`, `bottom-sheet`, `quantity-stepper`, `like-pop`(찜), `cart-fly`(담기), `infinite-scroll`, `skeleton`, `toast-stack`.
 
 ### 폼·로그인·인증
 

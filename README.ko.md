@@ -1,13 +1,13 @@
 # suta
 
-Claude Code와 Codex가 React UI를 만들 때 쓰는 스킬입니다. 키보드로 쓸 수 있고, 포커스가 제자리로 돌아오고, 좁은 화면에서 넘치지 않고, 동작 줄이기 설정을 따르는 UI를 만들게 돕습니다. 프로젝트에 복사해 쓰는 UI 패턴 57종과 편집 후 검사가 함께 들어 있습니다.
+Claude Code와 Codex가 React UI를 만들 때 쓰는 스킬입니다. 키보드로 쓸 수 있고, 포커스가 제자리로 돌아오고, 좁은 화면에서 넘치지 않고, 동작 줄이기 설정을 따르는 UI를 만들게 돕습니다. 프로젝트에 복사해 쓰는 UI 패턴 58종과 편집 후 검사가 함께 들어 있습니다.
 
 [English](README.md) · [라이브 데모](https://guksu.github.io/suta/) · [설치](#설치) · [상세 안내](docs/guide.md)
 
 ## 무엇이 들어 있나
 
 - **레이아웃·상호작용 기준.** 키보드 조작, 대화상자를 열고 닫을 때의 포커스 이동과 복귀, 320~390px 넘침, 글자 대비, 동작 줄이기. 프로젝트에 디자인 체계가 있어도 적용합니다. 색·카드·화면 구성 같은 suta의 기본값은 디자인 기준이 없는 프로젝트에서만 쓰고, 기존 토큰과 컴포넌트는 그대로 둡니다. 기준이 없는 새 화면에는 화면 유형 24종의 관례와 업종에 맞춘 글자 크기·글꼴을 쓰고, 맞는 유형이 없으면 화면이 맡은 일(고르기·살피기·넣기·지켜보기)에서 뼈대를 잡습니다.
-- **패턴 57종.** 모달, 바텀시트, 토스트, 드롭다운, 셀렉트, 폼 입력, 제스처 등. 패턴마다 의존성 없는 TypeScript 코어, React 래퍼, CSS가 있고 키보드·스크린 리더 처리가 들어 있습니다. 컴포넌트 패턴 53종의 설명서에는 붙인 뒤 생기는 상황(빠른 응답, 실패, 긴 글자, 잠김, 고대비)을 어떻게 처리하는지 적은 표가 있습니다. 그림자 3단계와 겹치는 순서 5단계는 토큰으로 맞췄습니다. [데모에서 만져 보기](https://guksu.github.io/suta/)
+- **패턴 58종.** 모달, 바텀시트, 토스트, 드롭다운, 셀렉트, 폼 입력, 제스처 등. 패턴마다 의존성 없는 TypeScript 코어, React 래퍼, CSS가 있고 키보드·스크린 리더 처리가 들어 있습니다. 컴포넌트 패턴 53종의 설명서에는 붙인 뒤 생기는 상황(빠른 응답, 실패, 긴 글자, 잠김, 고대비)을 어떻게 처리하는지 적은 표가 있습니다. 그림자 3단계와 겹치는 순서 5단계는 토큰으로 맞췄습니다. [데모에서 만져 보기](https://guksu.github.io/suta/)
 - **편집 후 검사.** Claude Code·Codex 플러그인으로 설치하면 파일을 고칠 때마다 검사합니다. 11px 미만 글자, 장식 그림 안의 버튼, 화면보다 넓어지는 grid 틀, 레이아웃 속성 애니메이션, 동작 줄이기 누락 같은 error는 file:line과 함께 에이전트에게 돌려보냅니다. 스타일 경고는 알리기만 합니다.
 
 ## 같은 요청으로 잰 결과
@@ -100,8 +100,8 @@ npx skills add Guksu/suta --skill suta
 [릴리스](https://github.com/Guksu/suta/releases) · [화면 비교](docs/comparisons.md) · [벤치마크](docs/benchmark.md) · [기여하기](docs/guide.md#기여하기)
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-57%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-1365%20passing-555555)
+![Patterns](https://img.shields.io/badge/suta-58%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-1395%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## 라이선스

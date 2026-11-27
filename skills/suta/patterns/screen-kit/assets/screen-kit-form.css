@@ -1,0 +1,518 @@
+/* screen-kit — 예약·입력 부품: 본문 + 요약 두 열, 구역 머리, 사진 카드(고르는 큰 칸), 날짜 띠, 시간 칸,
+ * 입력칸 묶음, 요약 패널. screen-kit.css(바탕)와 함께 쓴다.
+ *
+ * 칸마다 테두리 상자를 씌우지 않는다. 고르는 칸은 옅은 회색 채움(시간)·글자(날짜)·사진(장소)으로, 고른 것은 강조색으로,
+ * 입력칸은 한 면에 쌓고 1px 선으로 나눈다. AI 예약 폼은 같은 모양의 테두리 상자가 세 층(장소·날짜·시간)으로 이어져
+ * 37개였다. 요약 패널은 테두리 없이 옅은 바탕 면이고, 답(날짜·시간)과 합계를 크게 둔다.
+ *
+ * 근거의 한계: 입력칸 묶음·요약 패널은 상 받은 공개 화면에서 1쪽(의사 찾기 폼)에서만 봤다. 값은 그 1쪽과 사용자가 승인한
+ * 초안에서 왔다 — 프로젝트에 입력칸 모양이 있으면 그것을 쓴다. */
+
+/* ---------------- 본문 + 요약 두 열 ----------------
+ * 좁으면 한 열(요약이 본문 아래), 화면 틀 960px 이상이면 본문 | 요약(340). 요약은 스크롤해도 따라온다 */
+.kit-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8, 32px);
+  align-items: start;
+}
+
+/* ---------------- 구역 — 구역 사이는 선 한 줄 + 간격, 상자로 감싸지 않는다 ---------------- */
+.kit-section {
+  padding-block: var(--space-8, 32px);
+  border-block-start: 1px solid var(--color-line, #e6e6e6);
+}
+
+.kit-section:first-child {
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.kit-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1, 4px) var(--space-4, 16px);
+  margin-block-end: var(--space-4, 16px);
+}
+
+.kit-section-title {
+  margin: 0;
+  font-size: var(--text-heading, 20px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  letter-spacing: -0.01em;
+}
+
+/* 고르는 법·조건 한 줄 */
+.kit-section-hint {
+  margin: 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+/* ---------------- 사진 카드 — 장소·상품처럼 사진으로 고르는 큰 칸 ----------------
+ * 상자 없이 사진 틀 + 이름 + 보조 줄. 고른 것은 사진 둘레 강조색 윤곽선(outline + 간격)과 글자 표시 —
+ * 색만으로 알리지 않는다. 입력은 숨긴 라디오라 화살표 키·폼 제출은 브라우저가 한다 */
+.kit-choices {
+  display: grid;
+  grid-template-columns: repeat(var(--kit-choice-columns, 2), minmax(0, 1fr));
+  gap: var(--space-6, 24px) var(--space-4, 16px);
+  min-inline-size: 0; /* fieldset의 기본 최소 폭(내용 폭)이 좁은 화면에서 격자를 밀어내지 않게 */
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kit-choice {
+  position: relative;
+  display: block;
+  min-inline-size: 0;
+  cursor: pointer;
+}
+
+.kit-choice-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kit-choice .kit-frame {
+  --kit-frame-radius: var(--kit-choice-radius, var(--radius-control, 8px));
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+}
+
+.kit-choice-input:checked ~ .kit-frame {
+  outline-color: var(--color-accent, #1c1c1c);
+}
+
+/* 키보드 포커스는 선택과 다른 모양 — 선택 윤곽선 바깥에 주 글자색 고리를 한 겹 더하고 이름에 밑줄.
+ * 라디오는 화살표로 옮기면 바로 골라지므로, 포커스가 선택 윤곽선과 같은 모양이면 어디에 포커스가 있는지 모른다 */
+.kit-choice-input:focus-visible ~ .kit-frame {
+  box-shadow:
+    0 0 0 7px var(--color-surface, #fff),
+    0 0 0 9px var(--color-text, #1c1c1c);
+}
+
+.kit-choice-input:focus-visible ~ .kit-choice-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.kit-choice-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2, 8px);
+  margin-block-start: var(--space-3, 12px);
+  font-weight: var(--weight-semibold, 600);
+}
+
+/* 고른 칸의 글자 표시("선택됨") — 고르지 않은 칸에서는 숨긴다. 라디오의 상태는 낭독기가 읽으므로 aria-hidden */
+.kit-choice-mark {
+  display: none;
+  font-size: var(--text-caption, 12px);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--kit-accent-text, var(--color-accent-text, var(--color-accent, #1c1c1c)));
+}
+
+.kit-choice-input:checked ~ .kit-choice-name .kit-choice-mark {
+  display: inline;
+}
+
+.kit-choice-meta {
+  display: block;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-secondary, #525252);
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-choice-input:disabled ~ * {
+  opacity: 0.5;
+}
+
+.kit-choice:has(.kit-choice-input:disabled) {
+  cursor: not-allowed;
+}
+
+/* ---------------- 날짜 띠 — 요일 글자 + 숫자, 고른 날은 강조색 원 ---------------- */
+.kit-days {
+  display: grid;
+  grid-template-columns: repeat(var(--kit-day-count, 7), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kit-day {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1, 4px);
+  inline-size: 100%;
+  padding: var(--space-2, 8px) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.kit-day-week {
+  font-size: var(--text-caption, 12px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+/* 숫자 원 — 44, 좁은 칸(320 폭에서 칸 41)에서는 칸에 맞춰 줄어든다 */
+.kit-day-date {
+  display: grid;
+  place-items: center;
+  inline-size: min(44px, 100%);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full, 999px);
+  font-size: var(--text-heading, 20px);
+  font-weight: var(--weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-day[aria-pressed='true'] .kit-day-date,
+.kit-day[aria-checked='true'] .kit-day-date {
+  background: var(--color-accent, #1c1c1c);
+  color: var(--color-on-accent, #fff);
+}
+
+.kit-day[aria-pressed='true'] .kit-day-week,
+.kit-day[aria-checked='true'] .kit-day-week {
+  font-weight: var(--weight-semibold, 600);
+  color: var(--kit-accent-text, var(--color-accent-text, var(--color-accent, #1c1c1c)));
+}
+
+/* 쉬는 날 — 옅은 글자 + 줄. 색만으로 알리지 않는다 */
+.kit-day:disabled {
+  color: var(--color-text-tertiary, #686868);
+  cursor: not-allowed;
+}
+
+.kit-day:disabled .kit-day-date {
+  font-weight: var(--weight-regular, 400);
+  text-decoration: line-through;
+}
+
+.kit-day:focus-visible {
+  outline: none;
+}
+
+.kit-day:focus-visible .kit-day-date {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* ---------------- 시간 칸 — 구간(오전·오후) 라벨 + 칸 격자 ----------------
+ * 촘촘한 격자라 칸마다 테두리를 두면 선이 칸보다 많아진다. 옅은 회색 채움 칩, 고른 칸은 강조색 채움 + 굵은 글자,
+ * 고를 수 없는 칸은 채움 없이 옅은 글자 + 줄(disabled). 회색 채움이 "잠김"으로 읽히지 않게, 잠긴 칸에서 채움을 뺀다 */
+.kit-slot-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2, 8px);
+}
+
+.kit-slot-band + .kit-slot-band {
+  margin-block-start: var(--space-4, 16px);
+}
+
+.kit-slot-label {
+  margin: 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+.kit-slots {
+  display: grid;
+  grid-template-columns: repeat(var(--_slot-cols, 4), minmax(0, 1fr));
+  gap: var(--space-2, 8px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  --_slot-cols: var(--kit-slot-columns, 4);
+}
+
+.kit-slot {
+  inline-size: 100%;
+  min-block-size: var(--tap-min, 44px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control, 8px);
+  background: var(--color-canvas, #f3f3f3);
+  color: var(--color-text, #1c1c1c);
+  font: inherit;
+  font-size: var(--text-body, 16px);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* 마우스를 올린 칸 — 고른 칸·잠긴 칸 규칙보다 앞에 두어 그 둘이 이긴다 */
+@media (hover: hover) {
+  .kit-slot:hover {
+    background: var(--kit-slot-hover, #e8e8e8);
+  }
+
+  .kit-day:hover {
+    background: none;
+  }
+
+  .kit-day:not(:disabled, [aria-pressed='true'], [aria-checked='true']):hover .kit-day-date {
+    background: var(--color-canvas, #f3f3f3);
+  }
+}
+
+.kit-slot[aria-pressed='true'],
+.kit-slot[aria-checked='true'] {
+  background: var(--color-accent, #1c1c1c);
+  color: var(--color-on-accent, #fff);
+  font-weight: var(--weight-semibold, 600);
+}
+
+.kit-slot:disabled {
+  background: none;
+  color: var(--color-text-tertiary, #686868);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.kit-slot:focus-visible {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: 2px;
+}
+
+/* ---------------- 입력칸 묶음 — 한 면에 쌓고 1px 선으로 나눈다 ----------------
+ * 좁은 화면: 라벨 위·입력 아래(칸 높이 64). 화면 틀 480px 이상: 라벨 왼쪽 열(120) + 입력.
+ * 입력칸 자체에는 테두리가 없고, 묶음 둘레 1px + 칸 사이 1px 선이 칸을 나눈다 */
+.kit-fields {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--kit-fields-line, var(--color-line, #e6e6e6));
+  border-radius: var(--kit-fields-radius, var(--radius-control, 8px));
+  background: var(--color-surface, #fff);
+}
+
+.kit-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 0 var(--space-4, 16px);
+  min-block-size: 64px;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+}
+
+.kit-field + .kit-field {
+  border-block-start: 1px solid var(--kit-fields-line, var(--color-line, #e6e6e6));
+}
+
+.kit-field-label {
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-secondary, #525252);
+}
+
+/* 입력칸 — 16px(이보다 작으면 iOS가 초점을 받을 때 화면을 확대한다), 테두리 없음 */
+.kit-field-input {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 32px;
+  padding: 0;
+  border: 0;
+  outline: none; /* 포커스는 칸(행) 전체의 링으로 보인다 — 아래 :focus-within */
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-body, 16px);
+  resize: none;
+}
+
+.kit-field-input::placeholder {
+  color: var(--color-text-tertiary, #686868);
+}
+
+.kit-field:focus-within {
+  box-shadow: inset 0 0 0 2px var(--color-accent, #1c1c1c);
+}
+
+/* 오류 — 라벨·안내가 오류 빨강, 칸 안쪽 1px 빨강 선, 칸 아래 한 줄(무엇을 어떻게 고칠지) */
+.kit-field[data-invalid] {
+  box-shadow: inset 0 0 0 1px var(--color-danger, #c8341f);
+}
+
+.kit-field[data-invalid]:focus-within {
+  box-shadow: inset 0 0 0 2px var(--color-danger, #c8341f);
+}
+
+.kit-field[data-invalid] .kit-field-label {
+  color: var(--color-danger, #c8341f);
+}
+
+.kit-field-message {
+  grid-column: 1 / -1;
+  margin: 0 0 var(--space-1, 4px);
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+.kit-field[data-invalid] .kit-field-message {
+  color: var(--color-danger, #c8341f);
+}
+
+/* ---------------- 요약 패널 — 테두리 없는 옅은 바탕 면 ----------------
+ * 답(날짜·시간)을 24/700, 합계를 32/700. 버튼은 52 높이로 폭 가득 */
+.kit-summary {
+  --_pad: var(--kit-summary-padding, var(--space-6, 24px));
+  padding: var(--_pad);
+  border-radius: var(--kit-summary-radius, var(--radius-card, 12px));
+  background: var(--color-canvas, #f3f3f3);
+}
+
+.kit-summary-title {
+  margin: 0 0 var(--space-4, 16px);
+  font-size: var(--text-small, 14px);
+  font-weight: var(--weight-semibold, 600);
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-summary-answer {
+  margin: 0;
+  font-size: var(--text-title, 24px);
+  font-weight: var(--weight-bold, 700);
+  line-height: var(--leading-tight, 1.3);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 아직 고르지 않았을 때의 답 자리 — 같은 자리·작은 글자로 할 일을 적는다 */
+.kit-summary-answer[data-empty] {
+  font-size: var(--text-body, 16px);
+  font-weight: var(--weight-regular, 400);
+  letter-spacing: 0;
+  color: var(--color-text-tertiary, #686868);
+}
+
+.kit-summary-sub {
+  margin: var(--space-1, 4px) 0 0;
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-secondary, #525252);
+}
+
+/* 항목별 내역 — 라벨 왼쪽, 값 오른쪽 한 열 */
+.kit-summary-rows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2, 8px) var(--space-4, 16px);
+  margin: var(--space-6, 24px) 0 0;
+  padding-block-start: var(--space-4, 16px);
+  border-block-start: 1px solid var(--kit-summary-line, #dcdcdc);
+  font-size: var(--text-small, 14px);
+}
+
+/* dt·dd를 묶은 div는 격자에서 없는 것처럼 — 라벨·값이 바로 두 열에 놓인다 */
+.kit-summary-rows > div {
+  display: contents;
+}
+
+.kit-summary-rows dt {
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-summary-rows dd {
+  margin: 0;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.kit-summary-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-4, 16px);
+  margin: var(--space-4, 16px) 0 var(--space-6, 24px);
+  font-size: var(--text-small, 14px);
+  color: var(--color-text-secondary, #525252);
+}
+
+.kit-summary-total output,
+.kit-summary-total b {
+  font-size: var(--text-display, 32px);
+  font-weight: var(--weight-bold, 700);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text, #1c1c1c);
+}
+
+.kit-summary .kit-button {
+  --kit-button-height: var(--kit-summary-button-height, 52px);
+  inline-size: 100%;
+}
+
+/* 버튼 아래 한 줄(취소 조건·잠긴 이유) */
+.kit-summary-note {
+  margin: var(--space-3, 12px) 0 0;
+  font-size: var(--text-caption, 12px);
+  color: var(--color-text-tertiary, #686868);
+}
+
+/* 움직임이 없는 부품이다. 규칙에 따라 블록을 두고, 앞으로 전환을 더하면 여기서 끈다 */
+@media (prefers-reduced-motion: reduce) {
+  .kit-slot,
+  .kit-day,
+  .kit-choice .kit-frame {
+    transition: none;
+  }
+}
+
+@container kit (min-width: 480px) {
+  .kit-slot-band {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: var(--space-4, 16px);
+  }
+
+  .kit-slot-label {
+    line-height: var(--tap-min, 44px);
+  }
+
+  .kit-slots {
+    --_slot-cols: var(--kit-slot-columns-wide, 6);
+  }
+
+  .kit-field {
+    grid-template-columns: 120px minmax(0, 1fr);
+    min-block-size: 56px;
+  }
+
+  .kit-field-message {
+    grid-column: 2;
+  }
+
+  .kit-choices {
+    grid-template-columns: repeat(var(--kit-choice-columns-wide, 3), minmax(0, 1fr));
+  }
+}
+
+@container kit (min-width: 960px) {
+  .kit-split {
+    grid-template-columns: minmax(0, 1fr) var(--kit-aside-width, 340px);
+    gap: var(--kit-split-gap, 72px);
+  }
+
+  .kit-split > .kit-summary,
+  .kit-split > aside {
+    position: sticky;
+    inset-block-start: var(--kit-sticky-top, var(--space-6, 24px));
+  }
+
+  .kit-summary {
+    --_pad: var(--kit-summary-padding-wide, var(--space-8, 32px));
+  }
+}

@@ -11,7 +11,7 @@ suta — AI 슬롭(AI가 만든 티가 나는 UI)을 없애는 설치형 에이�
 | 진입 스킬 | `skills/suta/SKILL.md` | UI 요청마다 읽힌다. description + 우선순위(요구 → 기존 디자인 체계 → 사용 문제 → suta 기본값)·사용 문제의 선·사실 정보·읽을 문서 표·끝내기 전 확인·패턴 색인(자동 생성 — `npm run catalog`) |
 | 진입 스킬 참조 문서 | `skills/suta/references/` | 특정 작업에서만 읽는다. `defaults.md`(디자인 기준이 없을 때의 기본값·값 표)·`checklist.md`(기준이 없을 때·화면 유형별 확인)·`catalog.md`(패턴 한 줄 설명, 자동 생성). SKILL.md의 "읽을 문서" 표가 언제 읽는지 정한다 |
 | 통합 검사·훅 | `skills/suta/scripts/` | `audit.mjs`(레이아웃·모션 검사를 한 번에) + `post-edit-hook.mjs`(편집 후 검사 훅) + 순수 로직(`auditAll.ts`·`hookCore.ts`) |
-| 패턴 57종 | `skills/suta/patterns/{패턴}/` | `PATTERN.md`(설명서) + `assets/`(바닐라 코어 .ts 의존성 0 + React 래퍼 .tsx + CSS) + `references/`(상세) |
+| 패턴 58종 | `skills/suta/patterns/{패턴}/` | `PATTERN.md`(설명서) + `assets/`(바닐라 코어 .ts 의존성 0 + React 래퍼 .tsx + CSS) + `references/`(상세) |
 
 패턴 문서는 `SKILL.md`가 아니라 `PATTERN.md`다. 하위 폴더에 SKILL.md가 있으면 도구가 패턴마다 별도 스킬로 등록한다. 그러면 스킬 목록 길이 예산을 넘기고 진입 스킬과 경쟁한다(검사 스크립트가 막는다).
 

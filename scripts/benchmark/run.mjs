@@ -11,7 +11,10 @@
  *
  * 사용: node scripts/benchmark/run.mjs --out <폴더> [--repeats 2] [--concurrency 3] [--only id,id]
  *                                     [--conditions baseline,suta] [--model 이름] [--effort 수준] [--budget 4]
- *                                     [--prompts evals/benchmark/app-prompts.json]
+ *                                     [--prompts evals/benchmark/app-prompts.json] [--plugin-root <폴더>]
+ * --plugin-root: suta 조건이 실을 플러그인의 뿌리(기본은 이 저장소). 지난 버전과 견줄 때 그 버전을 풀어 둔 폴더를 준다.
+ * 요청 세트의 seed: [{ "from": "demo/public/photos", "to": "photos" }] — 실행마다 작업 폴더에 미리 넣어 둘 파일(받은 사진처럼).
+ *   두 조건이 같은 파일을 받는다. from은 이 저장소 기준 경로다.
  * 다음 단계: measure.mjs(측정) → report.mjs(집계) → archive.mjs(생성물 보존 — 이 폴더는 저장소 밖이라 사라진다)
  */
 import { spawn } from 'node:child_process'
@@ -37,6 +40,7 @@ const only = option('only', '')
 const model = option('model', '')
 const effort = option('effort', '')
 const budget = option('budget', '4')
+const pluginRoot = resolve(option('plugin-root', root))
 const TIMEOUT_MS = 20 * 60 * 1000
 
 const spec = JSON.parse(readFileSync(resolve(root, option('prompts', 'evals/benchmark/prompts.json')), 'utf8'))
@@ -46,8 +50,8 @@ const prompts = spec.prompts.filter((p) => !only || only.split(',').includes(p.i
 // (한 실행이 플러그인 파일을 고쳐도 다른 실행에 번지지 않게)
 const copyPlugin = (dir) => {
   mkdirSync(dir, { recursive: true })
-  cpSync(join(root, '.claude-plugin'), join(dir, '.claude-plugin'), { recursive: true })
-  cpSync(join(root, 'skills'), join(dir, 'skills'), { recursive: true })
+  cpSync(join(pluginRoot, '.claude-plugin'), join(dir, '.claude-plugin'), { recursive: true })
+  cpSync(join(pluginRoot, 'skills'), join(dir, 'skills'), { recursive: true })
 }
 
 // 이 하네스를 Claude Code 세션 안에서 돌리면 자식 claude가 부모 세션의 정보(세션 ID·추가 CLAUDE.md 폴더·생각 수준 등)를
@@ -138,6 +142,8 @@ const runOne = ({ prompt, condition, rep }) =>
     rmSync(dir, { recursive: true, force: true })
     const work = join(dir, 'work')
     mkdirSync(work, { recursive: true })
+    // 받은 자료(사진 등)를 작업 폴더에 미리 둔다 — 실제 프로젝트에는 사진이 있다. 없으면 두 조건 모두 빈 사진 자리를 만든다
+    for (const seed of spec.seed ?? []) cpSync(resolve(root, seed.from), join(work, seed.to), { recursive: true })
     const argv = [
       '-p',
       '--output-format', 'stream-json',
