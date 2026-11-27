@@ -1,13 +1,13 @@
 # suta
 
-A skill for Claude Code and Codex that helps them build React UI that works with a keyboard, returns focus where it should, doesn't overflow on small screens and respects reduced motion. It comes with 57 UI patterns you copy into your project and a check that runs after each edit.
+A skill for Claude Code and Codex that helps them build React UI that works with a keyboard, returns focus where it should, doesn't overflow on small screens and respects reduced motion. It comes with 58 UI patterns you copy into your project and a check that runs after each edit.
 
 [한국어](README.ko.md) · [Live demo](https://guksu.github.io/suta/) · [Install](#installation) · [Full guide](docs/guide.en.md)
 
 ## What you get
 
 - **Rules for layout and interaction problems.** Keyboard access, focus moving into and back out of dialogs, overflow at 320–390px, text contrast and reduced motion. These apply even when the project has its own design system. suta's visual defaults (color, cards, screen structure) apply only to projects without a design standard; existing tokens and components are kept. New screens without a standard get conventions for 24 screen types and type sizes and fonts chosen by industry. When no screen type fits, the skeleton comes from the job the screen does (choosing, inspecting, entering, monitoring).
-- **57 patterns.** Modal, bottom sheet, toast, dropdown, select, form inputs, gestures and more. Each is a dependency-free TypeScript core, a React wrapper and CSS, with keyboard and screen-reader handling. The manuals of the 53 component patterns include a table of what happens after you add the pattern (fast responses, failures, long text, disabled state, forced colors) and who handles it. Three shadow steps and five stacking steps are shared as tokens. [Try them in the demo](https://guksu.github.io/suta/).
+- **58 patterns.** Modal, bottom sheet, toast, dropdown, select, form inputs, gestures and more. Each is a dependency-free TypeScript core, a React wrapper and CSS, with keyboard and screen-reader handling. The manuals of the 53 component patterns include a table of what happens after you add the pattern (fast responses, failures, long text, disabled state, forced colors) and who handles it. Three shadow steps and five stacking steps are shared as tokens. [Try them in the demo](https://guksu.github.io/suta/).
 - **A post-edit check.** As a Claude Code or Codex plugin, suta checks each edited file. Errors such as text under 11px, a button inside a decorative picture, a grid shell wider than the screen, layout-property animation or a missing reduced-motion block go back to the agent with file:line. Style warnings are only reported.
 
 ## Measured on the same requests
@@ -100,8 +100,8 @@ I use suta in my own work and will keep fixing issues and updating the guideline
 [Releases](https://github.com/Guksu/suta/releases) · [Screen comparisons](docs/comparisons.en.md) · [Benchmark](docs/benchmark.en.md) · [Contributing](docs/guide.en.md#contributing)
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
-![Patterns](https://img.shields.io/badge/suta-57%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-1368%20passing-555555)
+![Patterns](https://img.shields.io/badge/suta-58%20patterns-1b1e24)
+![Tests](https://img.shields.io/badge/tests-1395%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## License

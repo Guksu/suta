@@ -91,7 +91,7 @@ export const hexOfOklch = (color: Oklch): string => {
 /**
  * 강조색 진단 — 레퍼런스 31곳의 강조색은 밝기 0.58~0.76, 채도 0.16~0.22(사분위)였다.
  * - muddy: 밝기 0.55 미만 + 채도 0.03~0.12 — 거의 검정처럼 읽혀 선택 상태·주 버튼이 묻힌다(레퍼런스 1곳, 브랜드색)
- * - neutral: 무채색 강조색 — 근거 없는 화면의 기본값으로는 되지만, 서비스 성격이 있으면 색을 고른다
+ * - neutral: 무채색 강조색 — 근거 없는 화면의 기본값이다. 받은 브랜드색·로고·사진의 색이 있을 때만 색으로 바꾼다
  * - pastel: 밝기 0.78 이상 + 채도 0.12 미만 — 비활성 버튼처럼 보인다
  */
 export const accentIssues = (hex: string): AccentIssue[] => {
@@ -175,7 +175,7 @@ export const buildPalette = ({ accent, tint = 'pure' }: { accent: string; tint?:
     notes.push(`탁한 강조색이다(${fmt(tone)}) — 거의 검정처럼 읽혀 선택 상태·주 버튼이 묻힌다. 레퍼런스 31곳의 강조색은 밝기 0.58~0.76, 채도 0.16~0.22였다. 브랜드색이 아니면 같은 색상각에서 채도를 올린다(예: ${suggestion}).`)
   }
   if (issues.includes('pastel')) notes.push(`옅은 파스텔이다(${fmt(tone)}) — 채운 버튼이 비활성처럼 보인다. 채도를 올리거나 더 짙은 같은 계열을 쓴다.`)
-  if (issues.includes('neutral')) notes.push('무채색 강조색이다 — 서비스 이름·업종·내용에 근거가 있으면 색을 고른다(tone.md 3절).')
+  if (issues.includes('neutral')) notes.push('무채색 강조색이다 — 받은 브랜드색·로고·사진의 색이 있을 때만 색으로 바꾼다. 업종에서 떠올린 색은 근거가 아니다(tone.md 3절).')
 
   const tokens: Record<string, string> = {
     '--color-accent': fill,

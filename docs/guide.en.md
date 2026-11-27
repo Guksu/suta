@@ -1,10 +1,10 @@
 # suta: full guide
 
-The short introduction and install steps are in the [README](../README.md). This guide covers every install option, how it works, the post-edit check, all 57 patterns, the repository layout, development and contributing.
+The short introduction and install steps are in the [README](../README.md). This guide covers every install option, how it works, the post-edit check, all 58 patterns, the repository layout, development and contributing.
 
 한국어: [guide.md](guide.md)
 
-Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [Updating](#updating) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [57 patterns](#57-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
+Contents: [Overview](#overview) · [What it removes](#what-it-removes) · [Installation](#installation) · [Updating](#updating) · [How it works](#how-it-works) · [Post-edit check](#post-edit-check) · [58 patterns](#58-patterns) · [Layout](#layout) · [Repository structure](#repository-structure) · [Development](#development) · [Contributing](#contributing)
 
 ## Overview
 
@@ -45,7 +45,7 @@ In the table below, the color, card, font and copy rows are defaults for project
 | Modals that leave focus, Esc and background scroll alone | Focus moves in and returns, Esc closes, the background is locked |
 | Drag-to-dismiss that doesn't follow the finger | Follows the finger and decides from the release velocity |
 | A lone spinner for loading, double submits on rapid taps | Skeletons that hold the layout, buttons locked while pending |
-| Code written from scratch every time | 57 patterns copied into the project and adapted to it |
+| Code written from scratch every time | 58 patterns copied into the project and adapted to it |
 
 The screen-type skeletons come from 1,116 screens collected from 31 Korean reference apps. 12 of them were not app screens (for example, another app's screen or a capture taken mid-transition), so the counts use the remaining 1,104. Other docs in this repository quote one number or the other for this reason.
 
@@ -147,7 +147,7 @@ The skill and pattern documentation is written in Korean. One recorded check use
 
 To call it explicitly, use `/suta:suta` in Claude Code or `$suta` in Codex. To make every UI task use it, add a line such as "Follow the suta skill for UI work" to the project's `AGENTS.md` or `CLAUDE.md`.
 
-> A **skill** is a manual an AI agent reads. suta holds 57 patterns inside one skill and reads only the ones it needs, so it doesn't crowd the agent's skill list even next to other skills.
+> A **skill** is a manual an AI agent reads. suta holds 58 patterns inside one skill and reads only the ones it needs, so it doesn't crowd the agent's skill list even next to other skills.
 
 ### Post-edit check
 
@@ -167,7 +167,7 @@ Installed as a Claude Code or Codex plugin, suta runs layout and motion checks o
 - Mark an intended exception with a comment above the line that gives the reason (`/* layout-audit-ignore: tiny-text — chart axis ticks */`).
 - To turn it off, set the environment variable `SUTA_HOOK=off`. It needs Node 22.18 or later. On older versions it passes without checking. It never blocks an edit.
 
-## 57 patterns
+## 58 patterns
 
 Each name links to the pattern's manual, which is written in Korean. The demo link on the right opens the working screen.
 
@@ -258,6 +258,7 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 | Pattern | What it does | Demo |
 |---|---|---|
 | [Glassmorphism surface](../skills/suta/patterns/glass-surface/PATTERN.md) | Translucent cards, nav and modals that blur what is behind, falling back to an opaque surface where blur is unsupported. Pressable glass renders as a link or button (`as`) | [Demo](https://guksu.github.io/suta/#/glass-surface) |
+| [Screen base kit](../skills/suta/patterns/screen-kit/PATTERN.md) | Parts to lay down first when building a list or booking screen without a design system: a big page title (28/40), tab row, boxless product cells, photo frames (an illustration when there is no photo), date strip, time slots (with a range-picking core), stacked fields and a summary panel. Wide-screen values follow the screen frame's width (container queries) | [Demo](https://guksu.github.io/suta/#/screen-kit) |
 
 ### Principles and review
 
@@ -311,7 +312,7 @@ Pattern code can be copied one pattern at a time. Logic shared by several patter
 
 ```text
 suta/
-├─ skills/suta/                     The installed skill: SKILL.md + combined audit (scripts/) + 57 patterns (patterns/)
+├─ skills/suta/                     The installed skill: SKILL.md + combined audit (scripts/) + 58 patterns (patterns/)
 ├─ .claude-plugin/                  Claude Code marketplace and plugin info (the repo root is the plugin, with the post-edit check hook)
 ├─ .codex-plugin/                   Codex plugin info (skill + post-edit check hook)
 ├─ .agents/plugins/                 Codex marketplace info
