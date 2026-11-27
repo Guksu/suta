@@ -320,7 +320,7 @@ node scripts/benchmark/fidelity.mjs --out ../suta-bench                         
 대화 기록 전체와 캡처는 넣지 않습니다. 캡처는 묶음을 풀고 측정을 다시 돌리면 나옵니다.
 
 ```bash
-node scripts/benchmark/archive.mjs --list <이름>                                  # 실행마다 읽은 스킬 문서와 도구 사용 수
+node scripts/benchmark/archive.mjs --list <이름>                                  # 실행마다 스킬 폴더에서 읽은 파일과 도구 사용 수
 node scripts/benchmark/archive.mjs --restore <이름> --out ../suta-bench-restored  # runs/<조건>/<id>/ 배치로 풀기(빈 폴더에만)
 node scripts/benchmark/measure.mjs --out ../suta-bench-restored                   # 풀어 놓은 산출물을 다시 측정·캡처
 ```
