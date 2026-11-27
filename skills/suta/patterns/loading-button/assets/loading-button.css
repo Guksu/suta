@@ -8,7 +8,7 @@
  * 폭은 항상 가장 넓은 레이어 기준으로 고정된다. */
 
 .loading-button {
-  --_duration: var(--loading-button-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--loading-button-duration, var(--motion-duration-fast-plus, 200ms));
   /* 나가는 레이어는 들어오는 레이어보다 빨리 지워진다 — 아래 주석 참고.
    * 나감(90ms) + 들어옴(200ms) = 290ms로, UI 모션 예산 300ms 안에 들어온다 */
   --_leave: calc(var(--_duration) * 0.45);

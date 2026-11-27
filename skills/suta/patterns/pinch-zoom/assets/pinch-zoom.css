@@ -4,7 +4,7 @@
  * 제스처 중 위치는 코어가 인라인 transform으로 쓰고(transition none), 놓은 뒤 복귀는 여기의 transition이 담당한다. */
 
 .pinch {
-  --_duration: var(--pinch-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--pinch-duration, var(--motion-duration-base-plus, 300ms));
   position: relative;
   touch-action: pan-y; /* 한 손가락 세로 스크롤은 브라우저에, 두 손가락은 코어에 */
 }

@@ -1,6 +1,6 @@
 /* wheel-picker — iOS 드럼(휠) 피커. 스크롤·스냅·관성은 브라우저 네이티브(scroll-snap),
  * 3D 기울기·흐림은 createWheel.ts가 inline transform/opacity로 찍는다.
- * 커스터마이즈: --wheel-item-height(36px), --wheel-visible(5, 홀수), --wheel-highlight-bg, --wheel-perspective.
+ * 커스터마이즈: --wheel-item-height(36px), --wheel-visible(5, 홀수), --wheel-highlight-bg, --wheel-perspective, --wheel-disabled-color.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .wheel {
@@ -74,11 +74,15 @@
   font-weight: 600;
 }
 
-/* 조작을 받지 않는 휠 — 값은 보이되 흐리게, 굴리기·클릭은 통과시키지 않는다(키보드는 래퍼가 tabindex -1로 뺀다) */
+/* 조작을 받지 않는 휠 — 값은 보이되 잠김 글자색으로, 굴리기·클릭은 통과시키지 않는다(키보드는 래퍼가 tabindex -1로 뺀다).
+ * 0.4로 흐리면 가운데 값이 2.5:1이었다. 위아래 항목은 원래대로 원근 흐림(JS)이 더해진다 */
 .wheel-track[aria-disabled='true'] {
   overflow-y: hidden;
   pointer-events: none;
-  opacity: 0.4;
+}
+
+.wheel-track[aria-disabled='true'] .wheel-item {
+  color: var(--wheel-disabled-color, var(--disabled-text, var(--color-text-tertiary, #686868)));
 }
 
 /* 고대비 모드는 box-shadow와 옅은 배경을 지운다 — 포커스는 outline으로, 선택 띠는 위아래 선으로 보인다 */

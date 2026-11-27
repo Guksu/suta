@@ -29,6 +29,25 @@
   --swipe-action-accent-bg: var(--demo-pattern-accent);
   --range-accent: var(--demo-pattern-accent);
   --switch-on-bg: var(--demo-pattern-accent);
+  /* 잠김 색 — 패턴 기본값(--disabled-text #686868·--disabled-surface #f3f3f3)은 밝은 면 기준이라 어두운 셸에서는
+   * 글자가 3.1:1로 묻히고 면이 밝은 상자로 튄다. 셸의 옅은 글자색(6.9:1)과 더 어두운 바탕에 잇는다.
+   * 밝은 면 데모(press-feedback 상태 한 벌·screen-kit)는 이 패턴들을 잠그지 않고 공용 토큰을 그대로 쓴다 */
+  --check-disabled-text: var(--text-dim);
+  --switch-disabled-text: var(--text-dim);
+  --menu-disabled-color: var(--text-dim);
+  --select-disabled-text: var(--text-dim);
+  --select-disabled-bg: var(--bg);
+  --field-disabled-text: var(--text-dim);
+  --field-disabled-bg: var(--bg);
+  --otp-disabled-text: var(--text-dim);
+  --otp-disabled-bg: var(--bg);
+  --qty-disabled-text: var(--text-dim);
+  --qty-disabled-bg: var(--bg);
+  --upload-disabled-text: var(--text-dim);
+  --upload-disabled-bg: var(--bg);
+  --segment-disabled-text: var(--text-dim);
+  --segment-disabled-bg: var(--bg);
+  --wheel-disabled-color: var(--text-dim);
 }
 
 * {

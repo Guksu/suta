@@ -1,7 +1,7 @@
 /* floating-label — 라벨이 플레이스홀더 자리에 있다가 포커스/입력 시 떠오르는 입력 필드.
  * 판정은 CSS만으로: :focus(포커스 중) 또는 :not(:placeholder-shown)(값 있음)이면 라벨이 떠 있다.
  * 전제: input의 placeholder가 " "(한 칸 공백)이어야 :placeholder-shown이 성립한다.
- * 커스터마이즈: --field-duration, --field-border, --field-accent, --field-label-color, --field-error. */
+ * 커스터마이즈: --field-duration, --field-border, --field-accent, --field-label-color, --field-error, --field-disabled-bg, --field-disabled-text. */
 
 .field {
   --_duration: var(--field-duration, var(--motion-duration-fast, 150ms));
@@ -100,13 +100,20 @@
   color: var(--_error);
 }
 
-/* 꺼진 입력 — color: inherit가 브라우저의 흐린 글자색을 덮으므로 직접 흐리게 한다 */
-.field:has(.field-input:disabled) {
-  opacity: 0.5;
+/* 꺼진 입력 — color: inherit가 브라우저의 흐린 글자색을 덮으므로 직접 정한다.
+ * 흐리게(불투명도) 하지 않고 옅은 바탕 + 잠김 글자색 — 0.5로 흐리면 값이 3.3:1, 라벨·도움말이 2.1:1이 된다.
+ * -webkit-text-fill-color·opacity: 1은 Safari가 꺼진 입력에 덧씌우는 흐림을 걷는다 */
+.field-input:disabled {
+  background: var(--field-disabled-bg, var(--disabled-surface, var(--color-canvas, #f3f3f3)));
+  color: var(--field-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
+  cursor: not-allowed;
 }
 
-.field-input:disabled {
-  cursor: not-allowed;
+.field-input:disabled + .field-label,
+.field:has(.field-input:disabled) .field-message {
+  color: var(--field-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
 }
 
 /* 오른쪽에서 왼쪽으로 쓰는 글(dir="rtl") — 라벨이 입력 글자와 같은 쪽(오른쪽)에서 시작한다.
@@ -128,10 +135,6 @@
   .field-input:focus {
     outline: var(--focus-ring-width, 2px) solid Highlight;
     outline-offset: var(--focus-ring-offset, 2px);
-  }
-
-  .field:has(.field-input:disabled) {
-    opacity: 1;
   }
 
   .field-input:disabled,

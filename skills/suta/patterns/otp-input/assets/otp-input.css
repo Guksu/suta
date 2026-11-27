@@ -1,5 +1,5 @@
 /* otp-input — 인증번호 칸 입력.
- * 커스터마이즈: --otp-cell-size, --otp-gap, --otp-radius, --otp-accent, --otp-error.
+ * 커스터마이즈: --otp-cell-size, --otp-gap, --otp-radius, --otp-accent, --otp-error, --otp-disabled-bg, --otp-disabled-text.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 포커스 이동·붙여넣기 분배는 코어가 하고, 여기 있는 것은 칸의 모습과 흔들림이다. */
 
@@ -53,8 +53,13 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--otp-error, var(--color-danger, #c8341f)) 25%, transparent);
 }
 
+/* 잠김(disabled — 확인 중에는 잠그지 않는다, PATTERN.md) — 흐리게(불투명도) 하지 않고 옅은 바탕 + 잠김 글자색. 0.55로 흐리면 숫자가 3.8:1이 된다.
+ * -webkit-text-fill-color·opacity: 1은 Safari가 꺼진 입력에 덧씌우는 흐림을 걷는다 */
 .otp-cell:disabled {
-  opacity: 0.55;
+  background: var(--otp-disabled-bg, var(--disabled-surface, var(--color-canvas, #f3f3f3)));
+  color: var(--otp-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
   cursor: not-allowed;
 }
 

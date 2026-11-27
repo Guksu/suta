@@ -59,12 +59,14 @@
 
 /* hover는 가리킬 수 있는 기기에서만 — 터치에서는 누른 뒤에도 남는다 */
 @media (hover: hover) and (pointer: fine) {
-  .theme-toggle:hover {
+  .theme-toggle:not(:disabled):hover {
     background: var(--theme-toggle-hover-bg, color-mix(in srgb, currentColor 10%, transparent));
   }
 }
 
 .theme-toggle:disabled {
+  /* 색 토큰이 아니라 불투명도인 이유: 글자 없는 아이콘 버튼이고, 색이 currentColor라 밝은·어두운 두 테마 어디에나 놓인다.
+   * 잠김 글자색(밝은 테마의 회색)으로 바꾸면 어두운 바탕에서 묻힌다. 흐림은 둘레의 글자색을 따라 두 테마에서 같이 옅어진다 */
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -82,7 +84,7 @@
   place-items: center;
   line-height: 0; /* 상속된 줄 높이가 아이콘 아래에 여백을 만들지 않게 */
   transition:
-    opacity 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+    opacity var(--motion-duration-fast-plus, 200ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
     transform var(--motion-duration-base, 250ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 

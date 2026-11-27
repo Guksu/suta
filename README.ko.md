@@ -101,7 +101,7 @@ npx skills add Guksu/suta --skill suta
 
 [![Deploy demo](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/Guksu/suta/actions/workflows/deploy-demo.yml)
 ![Patterns](https://img.shields.io/badge/suta-58%20patterns-1b1e24)
-![Tests](https://img.shields.io/badge/tests-1448%20passing-555555)
+![Tests](https://img.shields.io/badge/tests-1452%20passing-555555)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555555)](LICENSE)
 
 ## 라이선스

@@ -174,8 +174,10 @@ UI의 유채색은 강조색 하나 + 오류 빨강까지다 — 잘 만든 서�
 | 무엇이 움직이는가 | 시간 | 이징 |
 |---|---|---|
 | 색·불투명도 상태 변화(hover·pressed·포커스 링) | 100ms | ease-out `cubic-bezier(0.22, 1, 0.36, 1)` |
-| 작은 요소의 등장·퇴장(툴팁·토글·체크) | 150ms | ease-out |
-| 컴포넌트 전환(탭·아코디언·드롭다운·토스트) | 250ms | ease-out |
+| 작은 요소의 등장·퇴장(툴팁·메뉴·입력칸 테두리) | 150ms | ease-out |
+| 컨트롤 자신의 상태 전환(스위치·체크·세그먼트·셀렉트) | 200ms | ease-out |
+| 컴포넌트 전환(탭·모달·밀어서 삭제) | 250ms | ease-out |
+| 자리를 만드는 덩어리(아코디언·토스트)·손을 뗀 뒤의 복귀 | 300ms | ease-out |
 | 화면 크기의 이동(시트·모달·사이드 패널) | 350ms | drawer `cubic-bezier(0.32, 0.72, 0, 1)` |
 | 카드 확장·구역 크기의 등장 | 420ms | drawer |
 | 페이지 전환(전환 중 입력이 잠긴다) | 250ms | ease-out |
@@ -183,7 +185,7 @@ UI의 유채색은 강조색 하나 + 오류 빨강까지다 — 잘 만든 서�
 | 살짝 넘쳤다 돌아옴(좋아요·체크 팝) | 150~250ms | overshoot `cubic-bezier(0.34, 1.56, 0.64, 1)` |
 | 축하(목표 달성·배지) | 패널 350ms · 그림 튀기 480ms · 조각 900ms 한 번 | 그림은 overshoot, 조각은 ease-out. 자주 생기는 작은 적립은 축하 대신 토스트 |
 
-퇴장은 진입 × 0.75, 스태거는 30ms(10개까지). reduced-motion에서는 1ms·80ms·120ms로 줄인다(0ms로 두면 `transitionend`가 오지 않는다).
+퇴장은 진입 × 0.75, 스태거는 30ms(10개까지). reduced-motion에서는 1ms(200ms 이하)·80ms(250~350ms)·120ms(420ms)로 줄인다(0ms로 두면 `transitionend`가 오지 않는다).
 
 이 값은 숫자로 쓰지 않고 토큰으로 쓴다 — `patterns/motion-principles/assets/motion-tokens.css`를 넣고 `var(--motion-duration-base)`·`var(--motion-ease-out)`처럼. 패턴 CSS도 같은 토큰을 거치므로(`var(--sheet-duration, var(--motion-duration-slow, 350ms))`) 토큰 파일을 넣으면 패턴이 따라온다. 패턴마다 따로 잇는 줄은 필요 없다. 전체 토큰과 고르는 원칙은 `patterns/motion-principles/PATTERN.md`에 있다.
 

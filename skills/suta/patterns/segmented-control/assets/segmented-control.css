@@ -1,10 +1,10 @@
 /* segmented-control — 네이티브 라디오 그룹 위에 얹는 iOS 세그먼트 컨트롤. 선택 칸 뒤로 thumb(알약 배경)가 미끄러진다.
- * 커스터마이즈: --segment-duration, --segment-thumb-bg, --segment-track-bg, --segment-radius.
+ * 커스터마이즈: --segment-duration, --segment-thumb-bg, --segment-track-bg, --segment-radius, --segment-disabled-bg, --segment-disabled-text.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 라디오는 숨기되 DOM에 남긴다 — 포커스·방향키 이동·폼 제출은 네이티브가 담당한다. */
 
 .segmented {
-  --_duration: var(--segment-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--segment-duration, var(--motion-duration-fast-plus, 200ms));
   --_thumb-bg: var(--segment-thumb-bg, #fff);
   --_track-bg: var(--segment-track-bg, rgba(120, 120, 128, 0.16));
   --_radius: var(--segment-radius, 999px);
@@ -89,14 +89,21 @@
   pointer-events: none;
 }
 
-/* 전체 잠금(모든 칸이 disabled): 컨트롤을 통째로 흐리게 */
+/* 전체 잠금(모든 칸이 disabled): 흐리게(불투명도) 하지 않고 옅은 바탕 + 잠김 글자색. 고른 칸의 글자도 같은 색이 되고,
+ * 알약은 그 자리에 남아 지금 값을 보인다. 0.5로 흐리면 고른 칸이 3:1, 다른 칸이 1.9:1이었다 */
 .segmented:not(:has(.segment-input:enabled)) {
-  opacity: 0.5;
+  background: var(--segment-disabled-bg, var(--disabled-surface, var(--color-canvas, #f3f3f3)));
 }
 
-/* 일부 칸만 잠금(품절 등): 그 칸의 글자만 흐리게 — 고를 수 있는 칸과 알약은 그대로 둔다 */
+.segmented:not(:has(.segment-input:enabled)) .segment-label {
+  color: var(--segment-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
+}
+
+/* 일부 칸만 잠금(품절 등): 그 칸의 글자에 잠김 색 + 가로줄 — 고를 수 있는 칸과 알약은 그대로 둔다.
+ * 고르지 않은 칸의 글자도 옅은 글자색이라 색만으로는 잠긴 칸이 갈리지 않는다. 0.4로 흐리면 1.7:1이었다 */
 .segmented:has(.segment-input:enabled) .segment-input:disabled + .segment-label {
-  opacity: 0.4;
+  color: var(--segment-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
+  text-decoration: line-through;
 }
 
 .segment:has(.segment-input:disabled) {
@@ -123,7 +130,6 @@
 
   .segment-input:disabled + .segment-label {
     color: GrayText;
-    opacity: 1;
   }
 }
 

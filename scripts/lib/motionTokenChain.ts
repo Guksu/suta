@@ -15,6 +15,7 @@
 
 export type MotionFinding = { line: number; kind: 'time' | 'ease'; value: string; text: string }
 export type StaleFallback = { line: number; token: string; fallback: string; expected: string }
+export type UnknownToken = { line: number; token: string }
 
 const EXEMPT = '토큰 밖'
 const MOTION_PROPS = /^(transition|transition-duration|transition-delay|transition-timing-function|animation|animation-duration|animation-delay|animation-timing-function)$/
@@ -142,6 +143,22 @@ export const findStaleFallbacks = ({ css, tokens }: { css: string; tokens: Recor
     if (normalize(fallback) !== normalize(tokens[token])) {
       found.push({ line: lineAt(css, match.index ?? 0), token, fallback, expected: tokens[token] })
     }
+  }
+  return found
+}
+
+/**
+ * 토큰 파일에 없는 이름을 가리키는 `var(--토큰…)` — prefix에 맞는 이름만 본다.
+ * 왜: 이름이 틀리면(`--motion-duration-fast-pluss`) 사슬은 늘 맨 끝 숫자로 떨어진다. 처음 모습은 같아 눈으로는 모르고,
+ * 토큰 파일을 넣어 값을 바꿔도 그 패턴만 따라오지 않는다. 위 두 검사는 모르는 이름을 건너뛰므로 여기서 잡는다.
+ */
+export const findUnknownTokens = ({ css, tokens, prefix }: { css: string; tokens: Record<string, string>; prefix: RegExp }): UnknownToken[] => {
+  const masked = mask(css)
+  const found: UnknownToken[] = []
+  for (const match of masked.matchAll(/var\(\s*(--[\w-]+)/g)) {
+    const token = match[1]
+    if (!prefix.test(token) || token in tokens) continue
+    found.push({ line: lineAt(css, match.index ?? 0), token })
   }
   return found
 }

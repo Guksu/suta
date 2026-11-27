@@ -17,7 +17,7 @@ iOS·Material 모두 같은 원칙을 쓴다: 작은 것은 짧게, 큰 것은 �
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/motion-tokens.css` | 토큰 정본 — 시간 5단계·이징 5종·스태거·눌림 짝·reduced-motion | 모든 프로젝트 |
+| `assets/motion-tokens.css` | 토큰 정본 — 시간 7단계·이징 5종·스태거·눌림 짝·reduced-motion | 모든 프로젝트 |
 | `assets/motionTokens.ts` | 같은 값의 TS 상수 + `durationFor`·`exitDuration`·`staggerDelay`·`cubicBezier` | JS 애니메이션(rAF·스프링)을 쓰는 프로젝트 |
 | `references/decision-table.md` | 움직임 종류 → 시간·이징·담당 패턴 대응표 | 필요할 때 |
 
@@ -42,7 +42,7 @@ iOS·Material 모두 같은 원칙을 쓴다: 작은 것은 짧게, 큰 것은 �
 }
 ```
 
-   일부 기본값은 토큰 단계와 다르다(200·300ms, 흔들림, 스피너·시머 주기, 진행 링, 카운트업). 패턴 CSS에 `/* 토큰 밖: 이유 */` 주석이 붙어 있고, 토큰을 바꿔도 따라오지 않는다. 맞추고 싶으면 그 패턴의 공개 변수에 토큰을 준다(`--switch-duration: var(--motion-duration-fast)`).
+   일부 기본값은 토큰 단계와 다르다(흔들림, 스피너·시머 주기, 진행 링, 카운트업, 축하·좋아요의 연출 길이, 코어 타이머와 짝인 지연). 패턴 CSS에 `/* 토큰 밖: 이유 */` 주석이 붙어 있고, 토큰을 바꿔도 따라오지 않는다. 맞추고 싶으면 그 패턴의 공개 변수에 토큰을 준다(`--ring-duration: var(--motion-duration-page)`).
 
 3. 직접 쓰는 CSS에서도 숫자 대신 토큰을 쓴다:
 
@@ -75,8 +75,10 @@ items.forEach((item, i) => (item.style.transitionDelay = `${staggerDelay({ index
 | 무엇이 움직이는가 | 시간 | 이징 | 예 |
 |---|---|---|---|
 | 색·불투명도 상태 변화 | `instant` 100ms | `ease-out` | hover, pressed, 포커스 링 |
-| 작은 요소 등장·퇴장 | `fast` 150ms | `ease-out` | 툴팁, 토글 손잡이, 체크 표시 |
-| 컴포넌트 전환 | `base` 250ms | `ease-out` | 탭 인디케이터, 아코디언, 드롭다운, 토스트, 모달(제자리에서 커지며 뜬다) |
+| 작은 요소 등장·퇴장 | `fast` 150ms | `ease-out` | 툴팁, 드롭다운 메뉴, 자동완성, 입력칸 테두리 |
+| 컨트롤 자신의 상태 전환 | `fast-plus` 200ms | `ease-out` | 스위치 손잡이, 체크 표시, 세그먼트 알약, 셀렉트 펼침, 끌어 놓은 항목의 정착 |
+| 컴포넌트 전환 | `base` 250ms | `ease-out` | 탭 인디케이터, 길게 누르기 메뉴, 밀어서 삭제, 모달(제자리에서 커지며 뜬다) |
+| 자리를 만드는 덩어리·손을 뗀 뒤의 복귀 | `base-plus` 300ms | `ease-out` | 아코디언, 토스트, 햄버거 패널, 당겨서 새로고침·늘어나는 머리·확대의 복귀 |
 | 화면 크기의 이동 | `slow` 350ms | `drawer` | 바텀시트, 사이드 패널 |
 | 공유 요소 확장·구역 크기의 등장 | `page` 420ms | `drawer` | 카드 확장, 카드 묶음, 스크롤 등장 |
 | 화면 전환(전환 중 입력이 잠긴다) | `base` 250ms | `ease-out` | 페이지 전환 — 길수록 "느린 앱"이 된다 |

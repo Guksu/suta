@@ -19,7 +19,7 @@
 
 .stretchy-header {
   --_height: var(--stretch-height, 240px);
-  --_duration: var(--stretch-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--stretch-duration, var(--motion-duration-base-plus, 300ms));
   position: relative;
   height: var(--_height);
   /* 패럴랙스로 이미지가 투명해질 때 비치는 색 — "어두워진다"는 이 배경이 만든다 */

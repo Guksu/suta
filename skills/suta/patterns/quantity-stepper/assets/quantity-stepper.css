@@ -1,5 +1,5 @@
 /* quantity-stepper — 장바구니 수량의 − / + 버튼.
- * 커스터마이즈: --qty-height, --qty-radius, --qty-bg, --qty-border, --qty-color, --qty-accent.
+ * 커스터마이즈: --qty-height, --qty-radius, --qty-bg, --qty-border, --qty-color, --qty-accent, --qty-disabled-bg, --qty-disabled-text.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .qty {
@@ -16,8 +16,21 @@
   overflow: hidden;
 }
 
+/* 통째로 잠김 — 흐리게(불투명도) 하지 않고 옅은 바탕 + 잠김 글자색. 0.5로 흐리면 숫자가 3.3:1이 된다.
+ * 안의 −·+도 같은 색이 된다(아래 끝에 닿은 버튼의 흐림은 여기서 걷는다 — 전부 잠겼으니 서로 구별할 것이 없다) */
 .qty[data-disabled='true'] {
-  opacity: 0.5;
+  background: var(--qty-disabled-bg, var(--disabled-surface, var(--color-canvas, #f3f3f3)));
+  color: var(--qty-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
+}
+
+.qty[data-disabled='true'] .qty-button[aria-disabled='true'] {
+  opacity: 1;
+}
+
+/* -webkit-text-fill-color·opacity: 1은 Safari가 꺼진 입력에 덧씌우는 흐림을 걷는다 */
+.qty-value:disabled {
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
 }
 
 /* 삭제 상태의 휴지통 아이콘 — 글자(−)와 같은 자리, 가운데에 */
@@ -60,13 +73,17 @@
   outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
-/* 끝에 닿은 버튼은 흐리게 — 다만 포커스는 받는다(왜 못 누르는지 알 수 있게) */
+/* 끝에 닿은 버튼은 흐리게 — 다만 포커스는 받는다(왜 못 누르는지 알 수 있게).
+ * 색 토큰이 아니라 불투명도인 이유: −·+는 글자가 아니라 아이콘이고, 바로 옆의 눌리는 버튼과 한눈에 달라 보여야 한다.
+ * 잠김 글자색(#686868)은 주 글자색과 가까워 끝에 닿았는지 잘 보이지 않는다. 버튼 이름은 aria-label이 읽는다 */
 .qty-button[aria-disabled='true'] {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.qty-button[aria-disabled='true']:hover {
+/* aria-disabled는 눌리기는 한다(:active) — 호버와 눌림 바탕을 모두 거둔다 */
+.qty-button[aria-disabled='true']:hover,
+.qty-button[aria-disabled='true']:active {
   background: none;
 }
 

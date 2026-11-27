@@ -10,7 +10,7 @@
 }
 
 .ptr-content {
-  --_duration: var(--ptr-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--ptr-duration, var(--motion-duration-base-plus, 300ms));
   transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 

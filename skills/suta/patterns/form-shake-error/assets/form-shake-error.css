@@ -35,7 +35,7 @@
 
 /* 에러 메시지 — grid 0fr↔1fr로 높이 없이/있음 전이 + 아래에서 올라오는 슬라이드 */
 .field-error {
-  --_duration: var(--error-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--error-duration, var(--motion-duration-fast-plus, 200ms));
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));

@@ -133,8 +133,15 @@
   font-variant-numeric: tabular-nums;
 }
 
-.kit-choice-input:disabled ~ * {
+/* 고를 수 없는 카드 — 이름·보조 줄은 흐리게(불투명도) 하지 않고 잠김 글자색으로(0.5로 흐리면 2.4~3.3:1).
+ * 사진은 글자가 아니라 불투명도로 옅게 둔다 — 사진의 색을 바꿀 수는 없다 */
+.kit-choice-input:disabled ~ .kit-frame {
   opacity: 0.5;
+}
+
+.kit-choice-input:disabled ~ .kit-choice-name,
+.kit-choice-input:disabled ~ .kit-choice-meta {
+  color: var(--disabled-text, var(--color-text-tertiary, #686868));
 }
 
 .kit-choice:has(.kit-choice-input:disabled) {

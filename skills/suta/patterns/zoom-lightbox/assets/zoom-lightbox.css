@@ -15,7 +15,7 @@
   appearance: none;
   background: var(--zoom-backdrop, rgba(0, 0, 0, 0.8));
   opacity: 0;
-  transition: opacity 300ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 300ms — 확대 이동(코어 durationMs 350)보다 조금 먼저 깔린다. base·slow 모두 50ms 차이 */
+  transition: opacity var(--motion-duration-base-plus, 300ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 확대 이동(코어 durationMs 350)보다 조금 먼저 깔린다 */
   z-index: var(--z-viewer, 90);
   cursor: zoom-out;
 }
