@@ -25,6 +25,11 @@
   --color-accent: #1c1c1c;
   --color-on-accent: #ffffff;
   --color-accent-text: #1c1c1c;
+  /* 데모 셸은 패턴 공개 변수를 사이트 파랑에 잇는다(styles.css) — 이 틀 안의 앱 화면은 강조색 토큰을 따르게 되돌린다.
+   * 켜진 스위치도 강조색(거의 검정)이다. 받은 브랜드색이 없으면 스위치 때문에 색을 새로 정하지 않는다 */
+  --switch-on-bg: var(--color-accent);
+  --qty-accent: var(--color-accent);
+  --qty-height: 2.75rem;
 }
 
 /* 휴대폰 틀 — 390 폭, 안에서 스크롤. 머리가 이 틀의 위에 붙는다 */
@@ -137,6 +142,14 @@
   min-block-size: var(--tap-min);
   color: var(--color-text-secondary);
   text-decoration: none;
+  white-space: nowrap;
+}
+
+/* 로그인한 사람 — 머리 오른쪽 끝, 좁으면 줄을 바꿔 아래로 */
+.skd-who {
+  margin-inline-start: auto;
+  font-size: var(--text-small);
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
 

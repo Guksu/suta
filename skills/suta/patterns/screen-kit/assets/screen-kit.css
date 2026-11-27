@@ -1,5 +1,6 @@
-/* screen-kit — 화면 바탕 부품 한 벌(바탕): 화면 틀(컨테이너)·쪽 머리·탭 줄·버튼·사진 틀.
- * 목록 화면은 screen-kit-list.css, 예약·입력 화면은 screen-kit-form.css를 함께 불러온다.
+/* screen-kit — 화면 바탕 부품 한 벌(바탕): 화면 틀(컨테이너)·쪽 머리·탭 줄·버튼·사진 틀·상단 바·구역 띠·앱 화면 열.
+ * 화면 유형마다 파일 하나를 함께 불러온다 — 목록 screen-kit-list.css, 예약·입력 screen-kit-form.css,
+ * 상세 screen-kit-detail.css, 설정 screen-kit-settings.css, 대시보드 screen-kit-dashboard.css.
  *
  * 왜 있는가: 디자인 기준 없이 만든 화면은 사진 자리가 회색 칸 + 아이콘이고, 가장 큰 글자가 본문의 1.1~2배라 평평하고,
  * 칸마다 테두리·그림자 상자를 씌운다. 상 받은 서비스 화면 46쪽을 재 보면 반대였다 — 사진이 첫 화면의 56~68%,
@@ -187,12 +188,79 @@
   background-color: var(--color-canvas, #f3f3f3);
 }
 
+/* ---------------- 상단 바 — 뒤로 같은 아이콘 버튼 한 줄(상세·설정처럼 들어온 화면) ----------------
+ * 아이콘 버튼은 44 칸이라 글리프(24)가 칸 안쪽 10px에 있다 — 바의 여백을 그만큼 줄여 글리프가 본문 왼쪽 선에 맞는다 */
+.kit-topbar {
+  --_inline: var(--kit-inline, var(--page-inline, 16px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: 52px;
+  padding-inline: max(0px, calc(var(--_inline) - 10px));
+}
+
+/* 상단 바 바로 아래의 쪽 머리는 위 여백을 줄인다 — 바가 이미 위 여백 노릇을 한다 */
+.kit-topbar + .kit-head {
+  padding-block-start: var(--space-1, 4px);
+}
+
+.kit-icon-button {
+  display: grid;
+  place-items: center;
+  inline-size: var(--tap-min, 44px);
+  block-size: var(--tap-min, 44px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full, 999px);
+  background: none;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kit-icon-button:focus-visible {
+  outline: 2px solid var(--color-accent, #1c1c1c);
+  outline-offset: -2px;
+}
+
+/* ---------------- 구역 띠 — 큰 구역 사이 8px 옅은 바탕(상세의 정보 ↔ 옵션, 설정의 묶음 사이) ---------------- */
+.kit-band {
+  block-size: var(--kit-band, var(--band, 8px));
+  background: var(--color-canvas, #f3f3f3);
+}
+
+/* ---------------- 앱 화면 열 — 모바일로 만든 화면(상세·설정)을 넓은 창에서 열 때 ----------------
+ * 좁으면 아무것도 하지 않는다. 화면 틀 768px 이상이면 옅은 바탕 가운데의 흰 열(560)이 되고 위아래를 띄운다.
+ * 화면 끝까지 붙은 흰 띠는 모바일 화면을 그대로 늘인 것처럼 보인다(layout-principles 화면 관례 "넓은 화면에서 모바일 화면").
+ * 열도 이름 있는 컨테이너 kit이다 — 안쪽 부품의 넓은 화면 값이 화면 틀이 아니라 열의 폭을 본다.
+ * 스크롤 칸을 만들지 않아(overflow 없음) 안의 하단 고정 바(sticky)가 창을 기준으로 붙는다 */
+.kit-column {
+  --_column-side: max(0px, calc((100% - var(--kit-column-width, 560px)) / 2));
+  container: kit / inline-size;
+}
+
+/* 넓을 때의 흰 면 — 쿼리 밖에 둔다. ::before는 열(컨테이너)의 자식이라 쿼리 안에 두면 열 자신의 폭(560)을 물어 켜지지 않는다.
+ * 켜고 끄는 것은 열이 넘겨주는 --_column-panel(넓을 때만 '')이다 */
+.kit-column::before {
+  position: absolute;
+  z-index: -1;
+  inset-block: var(--space-12, 48px);
+  inset-inline: var(--_column-side);
+  border-radius: var(--radius-card, 12px);
+  background: var(--color-surface, #fff);
+  content: var(--_column-panel, none);
+}
+
 /* 마우스를 올렸을 때 — 손가락에는 hover가 없어 마우스가 있는 기기에서만.
  * 배경을 명시해 두어 프로젝트의 전역 button:hover 배경이 새어 들지 않는다 */
 @media (hover: hover) {
   .kit-tab:hover {
     background: none;
     color: var(--color-text, #1c1c1c);
+  }
+
+  .kit-icon-button:hover {
+    background: var(--color-canvas, #f3f3f3);
   }
 
   .kit-button:hover:not(:disabled) {
@@ -227,5 +295,15 @@
   .kit-head-sub {
     margin-block-start: var(--space-2, 8px);
     font-size: var(--text-body, 16px);
+  }
+
+  /* 열 자신이 옅은 바탕이 되고, 가운데 흰 면은 ::before가 그린다 — 화면 틀의 바탕을 바꾸려면 틀 자신을 물어야 하는데,
+   * 컨테이너 쿼리는 자기 자신을 묻지 못한다. 안쪽 부품은 열의 내용 폭(560)을 보므로 모바일 값 그대로 그려진다 */
+  .kit-column {
+    --_column-panel: '';
+    position: relative;
+    isolation: isolate;
+    padding: var(--space-12, 48px) var(--_column-side);
+    background: var(--color-canvas, #f3f3f3);
   }
 }

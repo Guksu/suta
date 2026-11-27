@@ -19,7 +19,7 @@ describe('사진 틀과 콘텐츠 그림(.art)을 같은 요소에 쓴다', () =
   // .art(content-art.css)가 그리는 데 쓰는 속성 — 틀이 이 속성을 덮으면 접시·그림이 사라지거나 가운데에서 벗어난다
   const ART_OWNED = ['display', 'background', 'background-color', 'background-image', 'aspect-ratio', 'border-radius', 'overflow', 'position']
 
-  it.each(['screen-kit.css', 'screen-kit-list.css', 'screen-kit-form.css'])('%s — .art에도 걸리는 틀 규칙은 .art가 그리는 속성을 건드리지 않는다', (file) => {
+  it.each(['screen-kit.css', 'screen-kit-list.css', 'screen-kit-form.css', 'screen-kit-detail.css', 'screen-kit-settings.css', 'screen-kit-dashboard.css'])('%s — .art에도 걸리는 틀 규칙은 .art가 그리는 속성을 건드리지 않는다', (file) => {
     const css = readFileSync(resolve(assetsDir, file), 'utf8')
     const offenders = rulesOf(css).flatMap(({ selectors, properties }) =>
       selectors
