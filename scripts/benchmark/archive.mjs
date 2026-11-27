@@ -12,7 +12,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { gunzipSync, gzipSync } from 'node:zlib'
-import { bundleOf, docsReadOf, keepFile, restorePlan, traceOf } from '../lib/runArchive.ts'
+import { bundleOf, docsReadOf, keepFile, restorePlan, skillFilesRead, traceOf } from '../lib/runArchive.ts'
 
 const root = new URL('../..', import.meta.url).pathname
 const artifacts = join(root, 'evals/benchmark/artifacts')
@@ -53,8 +53,8 @@ if (list) {
   const bundle = readBundle(list)
   console.log(`${bundle.name} — ${bundle.archivedAt}, 실행 ${bundle.runs.length}개`)
   for (const run of bundle.runs) {
-    const docs = docsReadOf(run.trace)
-    console.log(`${run.condition}/${run.id} — 파일 ${Object.keys(run.files).length}개, 도구 ${run.trace.length}번, 읽은 스킬 문서: ${docs.length > 0 ? docs.join(', ') : '없음'}`)
+    const docs = run.read ?? docsReadOf(run.trace)
+    console.log(`${run.condition}/${run.id} — 파일 ${Object.keys(run.files).length}개, 도구 ${run.trace.length}번, 읽은 스킬 파일: ${docs.length > 0 ? docs.join(', ') : '없음'}`)
   }
 } else if (restore) {
   if (!out) usage()
@@ -97,11 +97,13 @@ if (list) {
         else skipped += 1
       }
       const streamPath = join(dir, 'stream.jsonl')
+      const lines = existsSync(streamPath) ? readFileSync(streamPath, 'utf8').split('\n') : []
       runs.push({
         condition,
         id,
         meta: JSON.parse(readFileSync(metaPath, 'utf8')),
-        trace: existsSync(streamPath) ? traceOf(readFileSync(streamPath, 'utf8').split('\n'), { root: resolve(out) }) : [],
+        trace: traceOf(lines, { root: resolve(out) }),
+        read: skillFilesRead(lines, { root: resolve(out) }),
         files,
       })
     }

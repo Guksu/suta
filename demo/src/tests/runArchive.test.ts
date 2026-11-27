@@ -1,4 +1,4 @@
-import { bundleOf, docsReadOf, keepFile, restorePlan, traceOf, type ArchivedRun } from '../../../scripts/lib/runArchive'
+import { bundleOf, docsReadOf, keepFile, restorePlan, skillFilesRead, traceOf, type ArchivedRun } from '../../../scripts/lib/runArchive'
 
 const toolLine = ({ name, input }: { name: string; input: Record<string, unknown> }) =>
   JSON.stringify({ type: 'assistant', message: { content: [{ type: 'tool_use', name, input }] } })
@@ -61,7 +61,7 @@ describe('traceOf — 대화 기록에서 도구 사용 순서만 남긴다', ()
 })
 
 describe('docsReadOf — 스킬 문서 가운데 무엇을 읽었는가', () => {
-  it('플러그인 안의 .md를 읽은 것만, 중복 없이 읽은 순서로', () => {
+  it('플러그인 안의 파일을 읽은 것만, 중복 없이 읽은 순서로', () => {
     const docs = docsReadOf([
       { tool: 'Read', target: 'plugin/skills/suta/SKILL.md' },
       { tool: 'Read', target: 'plugin/skills/suta/references/defaults.md' },
@@ -69,19 +69,48 @@ describe('docsReadOf — 스킬 문서 가운데 무엇을 읽었는가', () => 
       { tool: 'Write', target: 'work/notes.md' },
       { tool: 'Read', target: 'plugin/skills/suta/patterns/switch/assets/switch.css' },
     ])
-    expect(docs).toEqual(['SKILL.md', 'references/defaults.md', 'patterns/switch/PATTERN.md'])
+    expect(docs).toEqual(['SKILL.md', 'references/defaults.md', 'patterns/switch/PATTERN.md', 'patterns/switch/assets/switch.css'])
   })
 
   it('스킬 도구로 스킬을 부르면 SKILL.md를 읽은 것이다', () => {
     expect(docsReadOf([{ tool: 'Skill', target: 'suta:suta' }, { tool: 'Skill', target: 'other' }])).toEqual(['SKILL.md'])
   })
 
+  it('셸 변수에 스킬 폴더를 담아 읽은 문서도 센다 — 변수 이름이 기록에 남아야 한다(시험 실행에서 놓쳤다)', () => {
+    const [step] = traceOf([toolLine({ name: 'Bash', input: { command: `S=${RUN_DIR}/plugin/skills/suta; sed -n '46,67p' $S/patterns/screen-kit/PATTERN.md; cat "\${S}/references/defaults.md"` } })])
+    expect(step.target.startsWith('S=plugin/skills/suta;')).toBe(true)
+    expect(docsReadOf([step])).toEqual(['patterns/screen-kit/PATTERN.md', 'references/defaults.md'])
+  })
+
+  it('문서가 아닌 스킬 파일(CSS·코드)도 읽은 것으로 센다', () => {
+    const docs = docsReadOf([
+      { tool: 'Bash', target: 'S=plugin/skills/suta; cat $S/patterns/screen-kit/assets/screen-kit.css $S/patterns/screen-kit/assets/slotRange.ts' },
+      { tool: 'Read', target: 'plugin/skills/suta/patterns/switch/assets/switch.css' },
+    ])
+    expect(docs).toEqual(['patterns/screen-kit/assets/screen-kit.css', 'patterns/screen-kit/assets/slotRange.ts', 'patterns/switch/assets/switch.css'])
+  })
+
+  it('크기만 세거나(wc)·목록만 보거나(ls)·검사를 돌린 것(node)은 읽은 것이 아니고, 별표가 든 경로는 세지 않는다', () => {
+    const docs = docsReadOf([
+      { tool: 'Bash', target: 'S=plugin/skills/suta; wc -c $S/references/*.md $S/references/design.md; ls $S/patterns/screen-kit; node $S/scripts/audit.mjs work/index.html; grep -n "상세" $S/references/checklist.md | head' },
+    ])
+    expect(docs).toEqual(['references/checklist.md'])
+  })
+
   it('스킬 폴더로 옮겨 간 뒤 상대 경로로 읽은 문서도 센다', () => {
     const docs = docsReadOf([
-      { tool: 'Bash', target: 'cd plugin/skills/suta/patterns; wc -c sticky-header/PATTERN.md toast-stack/PATTERN.md; cat sticky-header/PATTERN.md' },
+      { tool: 'Bash', target: 'cd plugin/skills/suta/patterns; wc -c sticky-header/PATTERN.md toast-stack/PATTERN.md; cat sticky-header/PATTERN.md toast-stack/PATTERN.md' },
       { tool: 'Bash', target: 'cd plugin/skills/suta && cat references/detail.md' },
     ])
     expect(docs).toEqual(['patterns/sticky-header/PATTERN.md', 'patterns/toast-stack/PATTERN.md', 'references/detail.md'])
+  })
+})
+
+describe('skillFilesRead — 줄이지 않은 명령에서 센다', () => {
+  it('200자를 넘는 명령의 뒤쪽에서 읽은 파일도 센다(줄인 기록으로는 빠진다)', () => {
+    const lines = [toolLine({ name: 'Bash', input: { command: `S=${RUN_DIR}/plugin/skills/suta; cat $S/references/defaults.md; echo ${'x'.repeat(220)}; cat $S/patterns/screen-kit/PATTERN.md` } })]
+    expect(docsReadOf(traceOf(lines))).toEqual(['references/defaults.md'])
+    expect(skillFilesRead(lines)).toEqual(['references/defaults.md', 'patterns/screen-kit/PATTERN.md'])
   })
 })
 

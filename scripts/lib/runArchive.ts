@@ -17,6 +17,8 @@ export type ArchivedRun = {
   id: string
   meta: Record<string, unknown>
   trace: TraceStep[]
+  /** 스킬 폴더에서 읽은 파일(전체 명령에서 센 것). 없으면 trace에서 다시 센다 — 줄인 기록이라 덜 잡힌다 */
+  read?: string[]
   /** 작업 폴더 기준 상대 경로 → 내용 */
   files: Record<string, string>
 }
@@ -34,22 +36,23 @@ const escapeRe = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
  * root(run.mjs의 --out)를 알면 그 아래 남은 경로도 <out>으로 바꾼다
  */
 const withoutRunDir = ({ text, root }: { text: string; root?: string }) => {
+  // 경로는 '/'에서 시작한다 — 앞의 `S=` 같은 변수 이름까지 지우면 뒤의 `$S/...`가 무엇을 가리키는지 알 수 없다
   const cleaned = text
-    .replace(/[^\s"']*-runs-[^/\s"']+-work\/[0-9a-f-]{36}(?:\/scratchpad)?/g, 'scratch')
-    .replace(/[^\s"']*\/runs\/[^/\s]+\/[^/\s]+\/(plugin|work)/g, '$1')
-    .replace(/[^\s"']*\/runs\/[^/\s"';]+\/[^/\s"';]+/g, '.')
+    .replace(/(^|[\s"'=(:])\/[^\s"']*-runs-[^/\s"']+-work\/[0-9a-f-]{36}(?:\/scratchpad)?/g, '$1scratch')
+    .replace(/(^|[\s"'=(:])\/[^\s"']*\/runs\/[^/\s]+\/[^/\s]+\/(plugin|work)/g, '$1$2')
+    .replace(/(^|[\s"'=(:])\/[^\s"']*\/runs\/[^/\s"';]+\/[^/\s"';]+/g, '$1.')
   return root ? cleaned.replace(new RegExp(escapeRe(root.replace(/\/+$/, '')), 'g'), '<out>') : cleaned
 }
 
-const targetOf = ({ input, root }: { input: Record<string, unknown>; root?: string }) => {
+const fullTargetOf = ({ input, root }: { input: Record<string, unknown>; root?: string }) => {
   const raw = [input.file_path, input.path, input.command, input.skill, input.pattern, input.url].find((v) => typeof v === 'string' && v.length > 0)
-  if (typeof raw !== 'string') return ''
-  const text = withoutRunDir({ text: raw.trim(), root })
-  return text.length > TARGET_MAX ? `${text.slice(0, TARGET_MAX)}…` : text
+  return typeof raw === 'string' ? withoutRunDir({ text: raw.trim(), root }) : ''
 }
 
+const shorten = (text: string) => (text.length > TARGET_MAX ? `${text.slice(0, TARGET_MAX)}…` : text)
+
 /** stream-json 줄들 → 도구 사용 순서. 내용(쓴 파일 본문 등)은 버리고 무엇을 대상으로 했는지만 남긴다 */
-export const traceOf = (lines: string[], { root }: { root?: string } = {}): TraceStep[] => {
+const stepsOf = ({ lines, root }: { lines: string[]; root?: string }): TraceStep[] => {
   const steps: TraceStep[] = []
   for (const line of lines) {
     let event: { type?: string; message?: { content?: { type?: string; name?: string; input?: Record<string, unknown> }[] } }
@@ -61,21 +64,31 @@ export const traceOf = (lines: string[], { root }: { root?: string } = {}): Trac
     if (event?.type !== 'assistant') continue
     for (const block of event.message?.content ?? []) {
       if (block.type !== 'tool_use' || !block.name) continue
-      steps.push({ tool: block.name, target: targetOf({ input: block.input ?? {}, root }) })
+      steps.push({ tool: block.name, target: fullTargetOf({ input: block.input ?? {}, root }) })
     }
   }
   return steps
 }
 
+export const traceOf = (lines: string[], { root }: { root?: string } = {}): TraceStep[] =>
+  stepsOf({ lines, root }).map((step) => ({ tool: step.tool, target: shorten(step.target) }))
+
+/** 스킬 폴더에서 읽은 파일 — 줄이지 않은 명령 전체에서 센다. 줄인 기록(trace)으로 세면 긴 명령의 뒤쪽에서 읽은 파일이 빠진다 */
+export const skillFilesRead = (lines: string[], { root }: { root?: string } = {}): string[] => docsReadOf(stepsOf({ lines, root }))
+
+/** 읽는 것이 아닌 명령 — 크기 세기·목록·실행 */
+const NOT_READING = new Set(['wc', 'ls', 'node', 'echo', 'which', 'mkdir', 'find', 'test'])
+
 /**
- * 스킬 문서(.md) 가운데 읽은 것 — 스킬 폴더 기준 경로, 처음 읽은 순서. 쓰기·고치기는 읽은 것이 아니다.
- * 시험 실행에서 본 읽는 길 세 가지를 센다: 스킬 도구로 부름(SKILL.md가 대화에 실린다), 전체 경로로 읽음,
- * 스킬 폴더로 옮겨 간(cd) 뒤 상대 경로로 읽음
+ * 스킬 폴더에서 읽은 파일(문서·CSS·코드) — 스킬 폴더 기준 경로, 처음 읽은 순서. 쓰기·고치기는 읽은 것이 아니다.
+ * 시험 실행에서 본 읽는 길을 센다: 스킬 도구로 부름(SKILL.md가 대화에 실린다), 전체 경로, 스킬 폴더로 옮겨 간(cd) 뒤의 상대 경로,
+ * 스킬 폴더를 담은 셸 변수(S=…; sed -n 1,40p $S/…). 변수 길을 세지 않던 때에는 부품 문서를 읽은 실행을 "진입 문서만 읽었다"고 잘못 셌다.
+ * 별표가 든 경로와 wc·ls·node 같은 명령의 인자는 읽은 것으로 치지 않는다
  */
 export const docsReadOf = (trace: TraceStep[]): string[] => {
   const docs: string[] = []
   const add = (doc: string) => {
-    if (!docs.includes(doc)) docs.push(doc)
+    if (!/[*{]/.test(doc) && !docs.includes(doc)) docs.push(doc)
   }
   for (const step of trace) {
     if (step.tool === 'Write' || step.tool === 'Edit') continue
@@ -83,13 +96,26 @@ export const docsReadOf = (trace: TraceStep[]): string[] => {
       if (/(^|:)suta$/.test(step.target)) add('SKILL.md')
       continue
     }
-    for (const match of step.target.matchAll(/plugin\/skills\/suta\/([^\s"';]+?\.md)/g)) add(match[1])
-    const moved = step.target.match(/\bcd\s+["']?[^\s"';&]*plugin\/skills\/suta((?:\/[^\s"';&/]+)*)\/?["']?/)
-    if (!moved) continue
-    const base = moved[1].replace(/^\//, '')
-    const rest = step.target.slice((moved.index ?? 0) + moved[0].length)
-    for (const match of rest.matchAll(/(?<![\w/.-])([\w.-]+(?:\/[\w.-]+)*\.md)\b/g)) {
-      if (!match[1].startsWith('plugin/')) add(base ? `${base}/${match[1]}` : match[1])
+    // 변수에 담은 스킬 폴더를 펼친다
+    let text = step.target
+    for (const assign of step.target.matchAll(/\b(\w+)=["']?(plugin\/skills\/suta[^\s"';&|]*)/g)) {
+      text = text.split('${' + assign[1] + '}').join(assign[2]).replace(new RegExp('\\$' + assign[1] + '\\b', 'g'), assign[2])
+    }
+    let cwd: string | null = null
+    for (const raw of text.split(/;|&&|\|\||\||\n/)) {
+      const segment = raw.trim()
+      const command = segment.split(/\s+/)[0] ?? ''
+      if (command === 'cd') {
+        const moved = segment.match(/plugin\/skills\/suta((?:\/[^\s"']+)*)/)
+        cwd = moved ? moved[1].replace(/^\/|\/$/g, '') : null
+        continue
+      }
+      if (NOT_READING.has(command)) continue
+      for (const match of segment.matchAll(/plugin\/skills\/suta\/([^\s"';,)]+\.(?:md|css|tsx?))(?![\w.])/g)) add(match[1])
+      if (cwd === null) continue
+      for (const match of segment.matchAll(/(?<![\w/.$*{}-])([\w.-]+(?:\/[\w.*{},-]+)*\.(?:md|css|tsx?))(?![\w.])/g)) {
+        if (!match[1].startsWith('plugin/')) add(cwd ? `${cwd}/${match[1]}` : match[1])
+      }
     }
   }
   return docs

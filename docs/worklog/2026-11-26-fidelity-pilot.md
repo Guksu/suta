@@ -34,7 +34,7 @@
 - 보존 단계(`archive.mjs`)를 실제 산출물에 처음 썼고 결함 둘을 고쳤다(테스트 먼저, 10 → 13개).
   - 실행 폴더 경로가 남았다: 실행 폴더 자체로 `cd`한 명령, 자식 세션의 임시 폴더 경로. 둘 다 지우고, `--out` 폴더 아래 남은 경로는 `<out>`으로 바꾼다. 다시 묶은 묶음에 절대 경로가 없는 것을 확인했다.
   - 읽은 스킬 문서를 놓쳤다: 스킬 도구로 부른 것(SKILL.md)과, 스킬 폴더로 옮겨 간 뒤 상대 경로로 읽은 것을 센다.
-- 묶음에서 본 것: suta 두 실행 모두 `references/`의 문서(defaults·detail·design·checklist)를 하나도 읽지 않았다. 빵집 픽업은 패턴 문서 넷(sticky-header·long-press-menu·toast-stack·skeleton), 회의실 예약은 SKILL.md뿐이다.
+- 묶음에서 본 것: suta 두 실행 모두 `references/`의 문서(defaults·detail·design·checklist)를 하나도 읽지 않았다. 빵집 픽업은 패턴 문서 넷(sticky-header·long-press-menu·toast-stack·skeleton), 회의실 예약은 SKILL.md뿐이다. (2026-11-27 다시 셈: 결론은 같다 — 빵집 픽업은 패턴 문서만, 회의실 예약은 SKILL.md만. 이때의 스킬은 0.20이라 `screen-kit`이 없었다.)
 - 산출물 보존: `evals/benchmark/artifacts/fidelity-pilot.json.gz`(30KB). 집계: `evals/benchmark/fidelity/pilot-summary.json`.
 - 화면: 줄 머리 AS-IS는 suta 없이, TO-BE는 suta다. 위 두 줄은 빵집 픽업(390px 첫 화면과 품절 카드), 아래 두 줄은 회의실 예약(1280px).
 

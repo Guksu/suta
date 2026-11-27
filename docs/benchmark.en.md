@@ -320,7 +320,7 @@ The run folder lives outside the repository and is gone once measuring ends. Run
 The full transcript and the screenshots are not included. Screenshots come back when you unpack the bundle and measure again.
 
 ```bash
-node scripts/benchmark/archive.mjs --list <name>                                  # skill docs read and tool calls per run
+node scripts/benchmark/archive.mjs --list <name>                                  # skill files read and tool calls per run
 node scripts/benchmark/archive.mjs --restore <name> --out ../suta-bench-restored  # unpack into runs/<condition>/<id>/ (empty folder only)
 node scripts/benchmark/measure.mjs --out ../suta-bench-restored                   # measure and capture the unpacked output again
 ```
