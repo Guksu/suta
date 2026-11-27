@@ -5,7 +5,7 @@
  * 위치는 코어가 인라인 transform으로 쓴다. 여기 있는 것은 "비켜 주는 이동"과 "들어올린 모습"이다. */
 
 .reorder-list {
-  --_duration: var(--reorder-duration, 200ms); /* 토큰 밖: 200ms — 코어의 정착 시간(settleMs 200)과 짝이다. fast·base 모두 50ms 차이 */
+  --_duration: var(--reorder-duration, var(--motion-duration-fast-plus, 200ms)); /* 코어의 정착 시간(settleMs 200)과 짝이다 — 토큰을 260ms 넘게 늘리면 settleMs도 맞춘다(상한 settleMs + 60에 끊긴다) */
   --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   list-style: none;
   margin: 0;

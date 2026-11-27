@@ -68,7 +68,7 @@ button.addEventListener('pointercancel', held.stop)
 |---|---|---|
 | 20까지 올려야 한다 | 누르고 있으면 0.4초 뒤부터 반복되고, 간격이 160ms에서 45ms까지 줄어든다. 짧게 한 번 누르면 한 칸만 오른다 | `assets` — `createHoldRepeat` |
 | 누른 채 손가락이 버튼 밖으로 나가거나, 창이 포커스를 잃거나, 누르는 동안 `disabled`가 된다 | 반복이 멈춘다(`pointerleave`·`pointercancel`·창의 `blur`). 마우스 오른쪽·가운데 버튼은 받지 않는다. 메뉴가 뜨면 `pointerup`이 오지 않아 끝까지 올라간다 | `assets` — `QuantityStepper.tsx` |
-| 최솟값·최댓값에 닿는다 | 그 버튼이 흐려지고(`opacity: 0.35`) `aria-disabled="true"`가 된다. `disabled`가 아니라서 포커스는 받는다. 왜 못 누르는지 알 수 있다 | `assets` |
+| 최솟값·최댓값에 닿는다 | 그 버튼이 흐려지고(`opacity: 0.35` — 글자 없는 아이콘이라 옆 버튼과 한눈에 갈리게 불투명도로 둔다) `aria-disabled="true"`가 된다. 호버·눌림 바탕도 나지 않는다. `disabled`가 아니라서 포커스는 받는다. 왜 못 누르는지 알 수 있다 | `assets` |
 | 수량 1에서 −를 누른다(`onBelowMin`을 준 경우) | −가 휴지통 아이콘이 되고 이름이 "{label} 삭제"로 읽힌다. 삭제는 새로 누른 한 번에만 일어난다. 길게 눌러 1까지 내려온 누름이나 Enter 반복 입력은 삭제로 넘어가지 않는다 | `assets`. 지운 뒤의 "되돌리기"는 `프로젝트` |
 | 키보드나 화면 낭독기로 버튼을 누른다 | Enter·Space로 한 칸 바뀐다. 숫자 칸에서는 ↑·↓로 바뀐다. 바뀐 값은 숨긴 `role="status"` 요소로 낭독된다. 누르고 있는 동안에는 낭독하지 않고 뗐을 때 멎은 값만 읽는다 | `assets` — 버튼이 `pointerdown`과 `click`을 모두 받는다 |
 | 숫자를 직접 친다 | 다 치면(blur·Enter) 범위로 가둔 뒤 눈금에 맞춘다. 999를 치면 최댓값이 되고 그 값을 낭독한다. 비웠거나 글자만 쳤으면 원래 값으로 돌아간다. Escape는 치던 것을 버린다 | `assets` |

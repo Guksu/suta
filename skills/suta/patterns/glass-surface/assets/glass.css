@@ -76,8 +76,8 @@
 .glass-interactive {
   cursor: pointer;
   transition:
-    background 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
-    border-color 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+    background var(--motion-duration-fast-plus, 200ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    border-color var(--motion-duration-fast-plus, 200ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .glass-interactive:focus-visible {

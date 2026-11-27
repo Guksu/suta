@@ -5,13 +5,16 @@
  * 두 파일의 값이 어긋나면 화면마다 속도가 달라지므로, 값을 바꿀 때는 둘 다 바꾼다(테스트가 비교한다).
  */
 
-export type MotionSize = 'instant' | 'fast' | 'base' | 'slow' | 'page'
+/** 7단계 — -plus는 앞 단계보다 한 걸음 긴 사이 단계(이름만 보고 순서를 안다) */
+export type MotionSize = 'instant' | 'fast' | 'fast-plus' | 'base' | 'base-plus' | 'slow' | 'page'
 
 /** 무엇이 움직이는가 → 진입 시간(ms) */
 export const DURATION: Record<MotionSize, number> = {
   instant: 100, // 색·불투명도 상태 변화
   fast: 150, // 작은 요소의 등장·퇴장
+  'fast-plus': 200, // 컨트롤 자신의 상태 전환(스위치·체크·세그먼트·셀렉트)
   base: 250, // 컴포넌트 전환
+  'base-plus': 300, // 자리를 만들며 들어오는 덩어리·손을 뗀 뒤의 복귀
   slow: 350, // 화면 크기의 이동
   page: 420, // 공유 요소 확장·구역 크기의 등장 (페이지 전환은 base — 전환 중 입력이 잠긴다)
 }

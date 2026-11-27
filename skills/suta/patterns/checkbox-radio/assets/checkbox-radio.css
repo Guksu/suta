@@ -1,11 +1,11 @@
 /* checkbox-radio — 네이티브 input 위에 얹는 체크박스·라디오. 체크마크는 stroke-dashoffset으로 그려지고, 라디오 도트는 스케일로 맺힌다.
- * 커스터마이즈: --check-size, --check-duration, --check-accent, --check-border, --check-mark, --check-error.
+ * 커스터마이즈: --check-size, --check-duration, --check-accent, --check-border, --check-mark, --check-error, --check-disabled-text.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 입력은 숨기되 DOM에 남긴다 — 포커스·Space·화살표 이동·폼 제출은 네이티브가 담당한다. */
 
 .check {
   --_size: var(--check-size, 22px);
-  --_duration: var(--check-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--check-duration, var(--motion-duration-fast-plus, 200ms));
   --_accent: var(--check-accent, #1c1c1c);
   --_border: var(--check-border, #8a8a8a);
   --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
@@ -145,9 +145,15 @@
   outline-offset: var(--focus-ring-offset, 2px);
 }
 
+/* 잠김 — 라벨 글자는 흐리게(불투명도) 하지 않고 잠김 색으로 바꾼다. 흐리면 주 글자가 3.3:1이 된다.
+ * 박스는 글자 없는 그림이라 불투명도로 흐린다 — 고른 채로 잠긴 칸도 강조색이 옅어질 뿐 모양이 그대로 남는다 */
 .check:has(.check-input:disabled) {
-  opacity: 0.5;
+  color: var(--check-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
   cursor: not-allowed;
+}
+
+.check-input:disabled + .check-box {
+  opacity: 0.5;
 }
 
 /* 고대비(forced-colors)에서는 배경색이 지워져 고른 박스와 고르지 않은 박스가 같아 보인다(라디오 도트는 사라진다).
@@ -182,6 +188,7 @@
   }
 
   .check-input:disabled + .check-box {
+    opacity: 1;
     border-color: GrayText;
   }
 

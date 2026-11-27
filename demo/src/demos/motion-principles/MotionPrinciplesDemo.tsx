@@ -7,7 +7,7 @@ import './motion-principles-demo.css'
 
 type EaseKey = keyof typeof EASE
 
-const SIZES: MotionSize[] = ['instant', 'fast', 'base', 'slow', 'page']
+const SIZES: MotionSize[] = ['instant', 'fast', 'fast-plus', 'base', 'base-plus', 'slow', 'page']
 
 const COPY = defineCopy({
   ko: {

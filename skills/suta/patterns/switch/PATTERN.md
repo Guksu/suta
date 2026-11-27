@@ -69,7 +69,7 @@ document.querySelector('.switch-input').addEventListener('change', (e) => {
 | 스위치만 두고 이름은 다른 칸에 있다 | `aria-label`이나 `aria-labelledby`로 이름을 준다. 이름이 없으면 낭독기가 "스위치, 꺼짐"만 읽는다 | `assets` — 나머지 props가 input으로 간다 |
 | 손가락으로 누른다 | 누르는 영역의 높이가 44px다. 트랙은 26px이고, label의 위아래 안쪽 여백 9px이 나머지를 채운다. 같은 크기의 음수 바깥 여백이 있어 자리는 26px 그대로다 | `assets` |
 | 스위치를 세로로 촘촘히 쌓는다 | 간격이 18px보다 좁으면 넓힌 영역이 서로 겹치고, 겹친 곳은 아래 스위치가 받는다. 설정 목록은 행 높이 48px 이상으로 둔다 | 프로젝트 |
-| 지금은 바꿀 수 없다(`disabled`) | 전체가 `opacity: 0.5`, 커서는 `not-allowed`, 눌림 스퀴시가 없다. 왜 꺼져 있는지는 라벨이나 아래 한 줄에 적는다 | `assets`(모양) · 프로젝트(이유) |
+| 지금은 바꿀 수 없다(`disabled`) | 라벨 글자는 잠김 색(`--switch-disabled-text` → `--disabled-text`, 흰 면 5.7:1), 트랙·손잡이는 그림이라 `opacity: 0.5`. 커서는 `not-allowed`, 눌림 스퀴시가 없다. 왜 꺼져 있는지는 라벨이나 아래 한 줄에 적는다 | `assets`(모양) · 프로젝트(이유) |
 | 라벨이 길어 두 줄로 꺾인다 | 트랙은 줄지 않고(`flex: none`) 라벨만 꺾인다. 트랙은 라벨의 세로 가운데에 선다 | `assets` |
 | 고대비 모드(`forced-colors`) | 배경색과 그림자가 지워져 트랙과 썸이 사라진다. 시스템 색으로 다시 그린다. 꺼짐은 테두리만 있는 트랙과 채운 썸, 켜짐은 `Highlight`로 채운 트랙이다 | `assets` |
 | 오른쪽에서 왼쪽으로 쓰는 글(`dir="rtl"`) | 꺼짐이 오른쪽, 켜짐이 왼쪽으로 뒤집힌다 | `assets` |

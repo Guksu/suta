@@ -1,4 +1,4 @@
-import { findUnchainedMotion, findStaleFallbacks, parseTokenDefaults } from '../../../scripts/lib/motionTokenChain'
+import { findUnchainedMotion, findStaleFallbacks, findUnknownTokens, parseTokenDefaults } from '../../../scripts/lib/motionTokenChain'
 
 const TOKENS = `
 :root {
@@ -108,5 +108,19 @@ describe('motionTokenChain — 사슬 끝 숫자가 토큰 기본값과 같은�
 
   it('모르는 토큰과 사슬이 다시 변수로 끝나는 경우는 보지 않는다', () => {
     expect(findStaleFallbacks({ css: '.a {\n  color: var(--motion-unknown, 1ms);\n  --_d: var(--motion-duration-fast, var(--y));\n}', tokens })).toEqual([])
+  })
+})
+
+describe('motionTokenChain — 토큰 파일에 없는 이름을 가리키는가', () => {
+  const tokens = parseTokenDefaults(TOKENS)
+
+  it('토큰 파일에 없는 --motion- 이름은 잡는다 — 철자가 틀리면 사슬이 늘 맨 끝 숫자로 떨어져 토큰을 바꿔도 따라오지 않는다', () => {
+    const css = '.a {\n  --_d: var(--x, var(--motion-duration-fast-pluss, 200ms));\n  transition: o var(--motion-duration-slow, 350ms);\n}'
+    expect(findUnknownTokens({ css, tokens, prefix: /^--motion-/ })).toEqual([{ line: 2, token: '--motion-duration-fast-pluss' }])
+  })
+
+  it('접두사가 다른 변수와 주석 안의 이름은 보지 않는다', () => {
+    const css = '/* var(--motion-old, 1ms) */\n.a {\n  --_d: var(--sheet-duration, var(--motion-duration-fast, 150ms));\n  color: var(--color-text);\n}'
+    expect(findUnknownTokens({ css, tokens, prefix: /^--motion-/ })).toEqual([])
   })
 })

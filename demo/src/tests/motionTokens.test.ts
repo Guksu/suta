@@ -7,10 +7,32 @@ const css = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/motion-
 const cssVar = (name: string) => css.match(new RegExp(`${name}:\\s*([^;]+);`))?.[1].trim()
 
 describe('motionTokens — CSS 토큰과 TS 상수가 같은 값이다', () => {
-  it('시간 5단계가 CSS와 일치한다', () => {
+  it('시간 7단계가 CSS와 일치한다', () => {
+    expect(Object.keys(DURATION)).toHaveLength(7)
     for (const [size, ms] of Object.entries(DURATION)) {
       expect(cssVar(`--motion-duration-${size}`)).toBe(`${ms}ms`)
     }
+  })
+
+  it('단계 이름의 순서가 시간의 순서다 — fast-plus는 fast와 base 사이, base-plus는 base와 slow 사이', () => {
+    const order = ['instant', 'fast', 'fast-plus', 'base', 'base-plus', 'slow', 'page'] as const
+    expect(Object.keys(DURATION)).toEqual([...order])
+    const values = order.map((size) => DURATION[size])
+    expect(values).toEqual([...values].sort((a, b) => a - b))
+    expect(DURATION['fast-plus']).toBe(200)
+    expect(DURATION['base-plus']).toBe(300)
+  })
+
+  it('동작 줄이기의 줄인 값도 단계 순서를 지키고, 새 단계는 이웃 단계와 같은 규칙을 따른다', () => {
+    const block = css.slice(css.indexOf('@media (prefers-reduced-motion'))
+    const reduced = (size: string) => Number(block.match(new RegExp(`--motion-duration-${size}:\\s*(\\d+)ms`))?.[1])
+    const order = ['instant', 'fast', 'fast-plus', 'base', 'base-plus', 'slow', 'page']
+    const values = order.map(reduced)
+    expect(values.every((value) => Number.isFinite(value) && value > 0)).toBe(true)
+    expect(values).toEqual([...values].sort((a, b) => a - b))
+    // 작은 컨트롤의 상태 변화(instant·fast·fast-plus)는 거의 즉시, 컴포넌트 이상(base·base-plus·slow)은 짧은 페이드
+    expect(reduced('fast-plus')).toBe(reduced('fast'))
+    expect(reduced('base-plus')).toBe(reduced('base'))
   })
 
   it('이징·퇴장 비율·스태거가 CSS와 일치한다', () => {

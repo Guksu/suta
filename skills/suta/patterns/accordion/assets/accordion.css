@@ -3,7 +3,7 @@
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .accordion {
-  --_duration: var(--accordion-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--accordion-duration, var(--motion-duration-base-plus, 300ms));
   --_border: var(--accordion-border, var(--color-line, #e6e6e6));
 }
 

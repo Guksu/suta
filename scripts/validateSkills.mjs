@@ -20,7 +20,7 @@
  *  - 공유 코어 복사본 동기: 첫 줄에 `@shared-core {파일} origin: {패턴}` 헤더가 있는 assets 파일은 원본과 내용이 같아야 한다
  *  - 모션 토큰 사슬: assets/*.css의 transition·animation 계열과 --변수 값의 시간·이징이 var(--x, var(--motion-…, 기본값))으로 토큰을 거치거나,
  *    같은 줄에 "토큰 밖" 주석으로 이유를 적어야 한다(동작 줄이기 블록은 빼고). 사슬 맨 끝의 숫자는 토큰 파일의 값과 같아야 한다
- *    (--motion-·--focus-ring-·--hover-·--disabled-). 판정은 scripts/lib/motionTokenChain.ts
+ *    (--motion-·--focus-ring-·--hover-·--disabled-), 그 이름은 토큰 파일에 있어야 한다. 판정은 scripts/lib/motionTokenChain.ts
  * 문서·지침
  *  - README.md·README.ko.md 배지 숫자(패턴 수, 테스트 수)가 실제와 일치
  *  - AGENTS.md 존재, CLAUDE.md가 @AGENTS.md를 가져옴, .claude/skills/add-skill이 .agents/skills/add-skill을 가리킴,
@@ -31,7 +31,7 @@ import { join, relative } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { expectedDocuments } from './buildCatalog.mjs'
-import { findStaleFallbacks, findUnchainedMotion, parseTokenDefaults } from './lib/motionTokenChain.ts'
+import { findStaleFallbacks, findUnchainedMotion, findUnknownTokens, parseTokenDefaults } from './lib/motionTokenChain.ts'
 
 const hash = (text) => createHash('sha256').update(text).digest('hex')
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
@@ -209,6 +209,9 @@ for (const name of readdirSync(patternsDir).sort()) {
     }
     for (const stale of findStaleFallbacks({ css, tokens: tokenDefaults }).filter(({ token }) => CHAINED_TOKENS.test(token))) {
       errors.push(`${path}:${stale.line}: var(${stale.token}, ${stale.fallback})의 기본값이 토큰 값 ${stale.expected}과 다름 — 토큰 파일을 넣을 때와 안 넣을 때 화면이 달라진다`)
+    }
+    for (const unknown of findUnknownTokens({ css, tokens: tokenDefaults, prefix: CHAINED_TOKENS })) {
+      errors.push(`${path}:${unknown.line}: ${unknown.token}은(는) 토큰 파일에 없는 이름 — 사슬이 늘 맨 끝 숫자로 떨어져 토큰을 바꿔도 따라오지 않는다`)
     }
   }
 }

@@ -1,5 +1,5 @@
 /* file-upload — 파일을 끌어다 놓는 영역과 목록.
- * 커스터마이즈: --upload-accent, --upload-border, --upload-bg, --upload-radius, --upload-error.
+ * 커스터마이즈: --upload-accent, --upload-border, --upload-bg, --upload-radius, --upload-error, --upload-disabled-bg, --upload-disabled-text.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .upload-root {
@@ -27,8 +27,11 @@
   background: var(--upload-drag-bg, color-mix(in srgb, var(--_accent) 8%, transparent));
 }
 
+/* 잠김(개수가 다 찼거나 disabled) — 흐리게(불투명도) 하지 않고 옅은 바탕 + 잠김 글자색으로 바꾼다.
+ * 0.55로 흐리면 안내 글자가 3.8:1, 제한 줄이 2.3:1이 된다. 점선 테두리는 그대로 두어 자리를 지킨다 */
 .upload-zone[data-disabled='true'] {
-  opacity: 0.55;
+  background: var(--upload-disabled-bg, var(--disabled-surface, var(--color-canvas, #f3f3f3)));
+  color: var(--upload-disabled-text, var(--disabled-text, var(--color-text-tertiary, #686868)));
 }
 
 /* 라벨이 영역 전체를 덮는다 — 클릭도 키보드도 파일 선택으로 이어진다 */
@@ -87,7 +90,7 @@
   padding: 0.5rem;
   border: 1px solid var(--upload-border, #d4d4d4);
   border-radius: 12px; /* 끌어 놓는 칸과 같은 카드 반경 — 파일 행도 카드다 */
-  animation: upload-item-in 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+  animation: upload-item-in var(--motion-duration-fast-plus, 200ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .upload-item[data-error='true'] {
@@ -150,7 +153,7 @@
   height: 100%;
   background: var(--_accent);
   transform-origin: left center;
-  transition: transform 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 200ms — 진행 이벤트 사이를 메우는 길이(초당 수십 번 온다) */
+  transition: transform var(--motion-duration-fast-plus, 200ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 진행 이벤트 사이를 메우는 길이(초당 수십 번 온다) */
 }
 
 /* 실패한 행의 "다시 시도" — 글자 버튼. 높이는 누르는 영역 44px을 채운다 */

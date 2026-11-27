@@ -1,6 +1,6 @@
 /* dropdown-menu — ⋯ 버튼을 누르면 아래(또는 위)로 펼쳐지는 액션 메뉴.
  * 커스터마이즈: --menu-bg, --menu-border, --menu-radius, --menu-duration, --menu-min-width, --menu-max-width,
- * --menu-max-height, --menu-danger.
+ * --menu-max-height, --menu-danger, --menu-disabled-color.
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다.
  * 위치(top·left)는 코어가 인라인으로 쓴다. 여기 있는 것은 모양과 등장 방향이다. */
 
@@ -92,10 +92,11 @@
   color: var(--menu-danger, var(--color-danger, #c8341f));
 }
 
-/* 비활성은 흐리게 하되 요소는 남긴다(disabled가 아니라 aria-disabled) — 스크린 리더가 존재와 이유를 읽는다.
- * 방향키는 건너뛴다 */
+/* 비활성은 요소를 남긴다(disabled가 아니라 aria-disabled) — 스크린 리더가 존재와 이유를 읽는다. 방향키는 건너뛴다.
+ * 흐리게(불투명도) 하지 않고 잠김 색으로 바꾼다 — 0.45로 흐리면 글자가 2.85:1, 위험 항목(빨강)은 2.07:1이 된다.
+ * 위험 항목도 같은 색이 된다: 지금 누를 수 없다는 것이 먼저이고, 무엇을 하는 항목인지는 글자가 말한다 */
 .menu-item[aria-disabled='true'] {
-  opacity: 0.45;
+  color: var(--menu-disabled-color, var(--disabled-text, var(--color-text-tertiary, #686868)));
   cursor: not-allowed;
 }
 
@@ -116,7 +117,6 @@
   .menu-item[aria-disabled='true'],
   .menu-item[aria-disabled='true']:hover,
   .menu-item[aria-disabled='true']:focus {
-    opacity: 1;
     background: Canvas;
     color: GrayText;
   }

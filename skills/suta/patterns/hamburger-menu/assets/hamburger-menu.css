@@ -7,7 +7,7 @@
   --_bar-width: var(--hamburger-bar-width, 22px);
   --_bar-height: var(--hamburger-bar-height, 2px);
   --_gap: var(--hamburger-gap, 7px);
-  --_duration: var(--hamburger-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--hamburger-duration, var(--motion-duration-base-plus, 300ms));
   position: relative;
   width: 44px; /* 최소 터치 타깃 */
   height: 44px;
@@ -60,7 +60,7 @@
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--drawer-duration, 300ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  transition: opacity var(--drawer-duration, var(--motion-duration-base-plus, 300ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   z-index: var(--z-overlay, 40);
 }
 
@@ -70,7 +70,7 @@
 }
 
 .drawer {
-  --_duration: var(--drawer-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  --_duration: var(--drawer-duration, var(--motion-duration-base-plus, 300ms));
   position: fixed;
   top: 0;
   bottom: 0;

@@ -1051,13 +1051,13 @@ const { containerRef, screenRef, underlayRef, dimRef } = useEdgeSwipeBack({
     title: '모션 원칙과 토큰',
     description: '앱 전체의 시간·이징·스태거·reduced-motion 기준을 토큰 한 벌로. 이징을 나란히 비교하고 시간 단계를 골라 본다',
     titleEn: 'Motion principles & tokens',
-    descriptionEn: 'One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses',
+    descriptionEn: 'One token set of 7 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses',
     category: '원칙과 검토',
     usage: `/* motion-tokens.css를 전역에서 불러오면 패턴이 따라온다 — 패턴 CSS가 토큰을 거친다
    var(--sheet-duration, var(--motion-duration-slow, 350ms)) */
 :root {
   --motion-duration-slow: 400ms; /* 시트·사이드 패널이 함께 길어진다 */
-  --toast-duration: var(--motion-duration-base); /* "토큰 밖" 기본값(300ms)을 토큰에 맞출 때만 */
+  --toast-duration: var(--motion-duration-base); /* 토스트만 한 단계 짧게(기본은 base-plus 300ms) */
 }
 
 .card {
