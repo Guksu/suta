@@ -96,7 +96,7 @@ export const SwipeToDeleteDemo = () => {
   const [items, setItems] = useState<readonly CartItem[]>(INITIAL)
   const [orders, setOrders] = useState<Order[]>([...INITIAL_ORDERS])
   const [actionWidth, setActionWidth] = useState(88)
-  const [durationMs, setDurationMs] = useState(260)
+  const [durationMs, setDurationMs] = useState(250)
   // 문구 대신 id를 기억한다 — 언어를 바꿔도 마지막 삭제·주문 기록이 새 언어로 다시 그려진다
   const [lastDeleted, setLastDeleted] = useState<CartItem['id']>()
   const [orderLog, setOrderLog] = useState<OrderLog>()
@@ -137,7 +137,7 @@ export const SwipeToDeleteDemo = () => {
           <span>
             {t.duration} <code>--swipe-duration</code>
           </span>
-          <input type="range" min={100} max={600} step={20} value={durationMs} onChange={(e) => setDurationMs(Number(e.target.value))} />
+          <input type="range" min={100} max={600} step={10} value={durationMs} onChange={(e) => setDurationMs(Number(e.target.value))} />
           <output>{durationMs}ms</output>
         </label>
         <p className="controls-note">{t.note}</p>

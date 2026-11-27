@@ -19,8 +19,8 @@
  *   </header> */
 
 .gnav {
-  --_duration: var(--gnav-duration, 250ms);
-  --_ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--gnav-duration, var(--motion-duration-base, 250ms));
+  --_ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   --_blur: var(--gnav-blur, 16px);
   --_tint: var(--gnav-tint, rgba(255, 255, 255, 0.14));
   --_border: var(--gnav-border, rgba(255, 255, 255, 0.3));
@@ -117,22 +117,23 @@
 }
 
 /* 가리킬 수 있는 기기에서만 hover — 터치에서는 누른 뒤에도 남는다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .gnav-links a:hover {
     opacity: 1;
   }
 }
 
-/* 포커스 링은 안쪽으로 긋는다 — 링크 줄이 overflow: hidden이라 바깥 링은 위아래가 잘려 보이지 않는다 */
+/* 포커스 링은 안쪽으로 긋는다 — 링크 줄이 overflow: hidden이라 바깥 링은 위아래가 잘려 보이지 않는다.
+ * 링 색은 강조색이 아니라 글자색 — 유리 머리는 사진·어두운 바탕 위에도 놓여 글자색이 곧 그 바탕에서 보이는 색이다 */
 .gnav-links a:focus-visible {
   opacity: 1;
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
+  outline: var(--focus-ring-width, 2px) solid currentColor;
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 .gnav-brand:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
+  outline: var(--focus-ring-width, 2px) solid currentColor;
+  outline-offset: var(--focus-ring-offset, 2px);
   border-radius: 4px;
 }
 

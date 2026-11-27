@@ -36,7 +36,7 @@
 .viewer-chrome {
   position: absolute;
   opacity: calc(1 - var(--dismiss-progress, 0) * 3.3);
-  transition: opacity 120ms linear;
+  transition: opacity var(--motion-duration-instant, 100ms) var(--motion-ease-linear, linear);
 }
 
 .viewer-close {
@@ -52,10 +52,10 @@
   cursor: pointer;
 }
 
-/* 열리면 포커스가 닫기 버튼으로 온다 — 어두운 배경 위라 흰 선으로 보인다 */
+/* 열리면 포커스가 닫기 버튼으로 온다 — 뷰어 바탕은 테마와 상관없이 늘 검정이라 링 토큰(강조색) 대신 흰 선이다 */
 .viewer-close:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid #fff;
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 모션 민감 사용자: 손가락 추종은 유지, 열림/복귀 스프링은 SwipeDismissViewer.tsx가 임계 감쇠·고강성으로 바꿔 즉시 정착.

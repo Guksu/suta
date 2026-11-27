@@ -50,13 +50,19 @@
   background-color: rgba(128, 128, 128, 0.35);
   background-clip: content-box;
   cursor: pointer;
-  transition: background-color 150ms ease, scale 150ms ease;
+  transition: background-color var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), scale var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* background 단축 속성을 쓰지 않는다 — background-clip이 border-box로 되돌아가 점이 누르는 칸(24px) 전체로 번진다 */
 .carousel-dot[data-active='true'] {
   background-color: currentColor;
   scale: 1.25;
+}
+
+/* 포커스 링 — 누르는 칸(24px, 투명 테두리)의 바깥에 그린다 */
+.carousel-dot:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--carousel-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 모션 민감 사용자: 도트 강조 전이를 즉시로. 스냅 스크롤 자체는 사용자의 손짓이라 그대로 둔다 */

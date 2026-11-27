@@ -111,7 +111,7 @@ wheel.setIndex(7, { behavior: 'instant' }) // 초기 값 — 첫 배치는 애�
 | 가운데 항목 색 / 나머지 색 | `--wheel-active-color` / `--wheel-item-color` (기본 inherit) |
 | 원근 강도 | `--wheel-perspective` (기본 600px — 작을수록 원통이 도드라진다) |
 | 거리당 기울기 | `createWheel({ degPerItem })` (기본 20도 — 18~22도가 읽히면서 원통으로 보이는 범위) |
-| 포커스 링 | `--wheel-focus-ring` (기본 currentColor) |
+| 포커스 링 | `--wheel-focus-ring` (기본 링 토큰 `--focus-ring-color`, 굵기 `--focus-ring-width`) |
 | 정지 판정 대기 | `createWheel({ settleMs })` (기본 150ms — `scrollend` 미지원 브라우저에서만 쓰인다) |
 
 ## 함께 쓰는 패턴

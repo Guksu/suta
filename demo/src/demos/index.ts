@@ -108,7 +108,7 @@ const Toast = ({ open, message }) => (
 import './scroll-reveal.css'
 
 {items.map((text, i) => (
-  <ScrollReveal key={text} delayMs={i * 80}>
+  <ScrollReveal key={text} delayMs={Math.min(i, 9) * 30}>
     <article className="card">{text}</article>
   </ScrollReveal>
 ))}`,
@@ -1053,12 +1053,11 @@ const { containerRef, screenRef, underlayRef, dimRef } = useEdgeSwipeBack({
     titleEn: 'Motion principles & tokens',
     descriptionEn: 'One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses',
     category: '원칙과 검토',
-    usage: `/* motion-tokens.css를 전역에서 불러온 뒤, 스킬들의 공개 변수를 토큰에 연결 */
+    usage: `/* motion-tokens.css를 전역에서 불러오면 패턴이 따라온다 — 패턴 CSS가 토큰을 거친다
+   var(--sheet-duration, var(--motion-duration-slow, 350ms)) */
 :root {
-  --sheet-duration: var(--motion-duration-slow);
-  --toast-duration: var(--motion-duration-base);
-  --tooltip-duration: var(--motion-duration-fast);
-  --fx-ease: var(--motion-ease-out);
+  --motion-duration-slow: 400ms; /* 시트·사이드 패널이 함께 길어진다 */
+  --toast-duration: var(--motion-duration-base); /* "토큰 밖" 기본값(300ms)을 토큰에 맞출 때만 */
 }
 
 .card {

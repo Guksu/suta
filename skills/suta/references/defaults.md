@@ -177,9 +177,21 @@ UI의 유채색은 강조색 하나 + 오류 빨강까지다 — 잘 만든 서�
 | 작은 요소의 등장·퇴장(툴팁·토글·체크) | 150ms | ease-out |
 | 컴포넌트 전환(탭·아코디언·드롭다운·토스트) | 250ms | ease-out |
 | 화면 크기의 이동(시트·모달·사이드 패널) | 350ms | drawer `cubic-bezier(0.32, 0.72, 0, 1)` |
-| 화면 전환·카드 확장 | 420ms | drawer |
+| 카드 확장·구역 크기의 등장 | 420ms | drawer |
+| 페이지 전환(전환 중 입력이 잠긴다) | 250ms | ease-out |
 | 한 자리에서 다른 자리로(재배치·스냅) | 거리 기준 | in-out `cubic-bezier(0.65, 0, 0.35, 1)` |
 | 살짝 넘쳤다 돌아옴(좋아요·체크 팝) | 150~250ms | overshoot `cubic-bezier(0.34, 1.56, 0.64, 1)` |
-| 축하(목표 달성·배지) | 패널 320ms · 그림 튀기 480ms · 조각 900ms 한 번 | 그림은 overshoot, 조각은 ease-out. 자주 생기는 작은 적립은 축하 대신 토스트 |
+| 축하(목표 달성·배지) | 패널 350ms · 그림 튀기 480ms · 조각 900ms 한 번 | 그림은 overshoot, 조각은 ease-out. 자주 생기는 작은 적립은 축하 대신 토스트 |
 
-퇴장은 진입 × 0.75, 스태거는 30ms. reduced-motion에서는 1ms·80ms·120ms로 줄인다(0ms로 두면 `transitionend`가 오지 않는다). 전체 토큰과 고르는 원칙은 `patterns/motion-principles/PATTERN.md`에 있다.
+퇴장은 진입 × 0.75, 스태거는 30ms(10개까지). reduced-motion에서는 1ms·80ms·120ms로 줄인다(0ms로 두면 `transitionend`가 오지 않는다).
+
+이 값은 숫자로 쓰지 않고 토큰으로 쓴다 — `patterns/motion-principles/assets/motion-tokens.css`를 넣고 `var(--motion-duration-base)`·`var(--motion-ease-out)`처럼. 패턴 CSS도 같은 토큰을 거치므로(`var(--sheet-duration, var(--motion-duration-slow, 350ms))`) 토큰 파일을 넣으면 패턴이 따라온다. 패턴마다 따로 잇는 줄은 필요 없다. 전체 토큰과 고르는 원칙은 `patterns/motion-principles/PATTERN.md`에 있다.
+
+상태 한 벌도 토큰에서 가져온다.
+
+| 상태 | 값 | 토큰 |
+|---|---|---|
+| 포커스 링 | 2px 실선, 바깥 2px(잘리는 칸만 안쪽 −2px), 강조색 — 강조색이 거의 검정이면 링도 검정. 강조색 면·어두운 사진 위는 `--focus-ring-color-inverse` | `layout-tokens.css`의 `--focus-ring-width`·`-offset`·`-offset-inset`·`-color` |
+| 호버 | 정밀 포인터(`(hover: hover) and (pointer: fine)`)에서만, 면을 주 글자색과 5% 섞는다 | `--hover-mix` |
+| 눌림 | 0.96, 누름 60ms·복귀 220ms | `motion-tokens.css`의 `--motion-press-scale`·`--motion-duration-press`·`-release` |
+| 잠김 | 흐리게 하지 않고 옅은 바탕 + 옅은 글자(5:1), 이유는 옆에 글로 | `--disabled-surface`·`--disabled-text` |

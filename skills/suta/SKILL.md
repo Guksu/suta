@@ -87,7 +87,8 @@ AI에게 UI를 맡기면 어디서 본 듯한 결과가 나온다(카드로 감�
    - JavaScript 프로젝트면 타입 표기만 벗긴다. 로직은 그대로다.
    - React가 아니면 코어(.ts)와 CSS만 쓰고, 상태 연결은 그 프레임워크의 방식으로 한다.
    - 다른 패턴의 코드가 필요하면 import 경로로 엮지 말고 그 파일을 함께 복사한다.
-   - 패턴의 공개 변수(`--sheet-duration` 같은)는 프로젝트 토큰에 잇는다. 프로젝트에 기준이 없으면 `patterns/layout-principles/assets/layout-tokens.css`와 `patterns/motion-principles/assets/motion-tokens.css`를 함께 넣는다.
+   - 패턴 CSS는 토큰을 거친다(`var(--sheet-duration, var(--motion-duration-slow, 350ms))`). 기준이 없으면 `patterns/layout-principles/assets/layout-tokens.css`와 `patterns/motion-principles/assets/motion-tokens.css`를 함께 넣는다 — 넣으면 패턴이 따라온다. 프로젝트 토큰이 있으면 그 값을 이 토큰 이름에 잇는다.
+   - 직접 만드는 컨트롤의 포커스 링·호버·잠김은 `layout-tokens.css`(`--focus-ring-*`·`--hover-mix`·`--disabled-*`), 눌림은 `motion-tokens.css`(`--motion-duration-press`·`-release`·`--motion-press-scale`)에서 가져온다.
 7. **요소를 끝까지 만든다.** 요청한 요소마다 실제 같은 데이터, 값의 종류에 맞는 조작, 상태 한 벌(눌림·포커스·선택·잠김·진행·오류 — 고른 것은 색에 체크 표시나 굵기를 더한다), 값 옆의 단위와 기준, 누른 뒤의 반응을 갖춘다(`references/detail.md`). 놓인 것(카드·목록)은 그림자 없이 두고, 닫히는 것(메뉴·토스트)만 무채색 그림자로 띄우고, 덮는 것(시트·모달)은 뒤에 스크림을 깐다(`patterns/layout-principles/references/elevation.md`). 화면이 비어 보여도 구역을 더해 채우지 않는다.
 8. **검사한다.** `node <이 스킬 폴더>/scripts/audit.mjs <바꾼 파일·폴더>`를 실행해 error가 0이 될 때까지 고친다. warn은 위 우선순위대로 판단한다. Node 22.18 이상이 필요하고, 실행할 수 없으면 `patterns/layout-audit/PATTERN.md`·`patterns/motion-audit/PATTERN.md`의 규칙표로 직접 확인한다.
    - 플러그인으로 설치했으면 파일 편집 도구(Write·Edit)로 고칠 때마다 같은 검사가 돌고, 방금 바꾼 줄의 error만 돌려받는다. 파일에 원래 있던 문제로는 멈추지 않는다.

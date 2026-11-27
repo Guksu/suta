@@ -3,7 +3,7 @@
  * 기본값은 --_ 내부 변수의 폴백으로 둔다 — 요소 자신에 선언하면 조상 설정이 상속되지 못한다. */
 
 .accordion {
-  --_duration: var(--accordion-duration, 300ms);
+  --_duration: var(--accordion-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
   --_border: var(--accordion-border, var(--color-line, #e6e6e6));
 }
 
@@ -38,9 +38,15 @@
   cursor: pointer;
 }
 
+/* 포커스 링 — 행 전체 폭의 버튼이라 바깥 링이 이웃 행 선에 겹치지 않게 안쪽에 그린다 */
+.accordion-trigger:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--accordion-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
+}
+
 .accordion-chevron {
   flex: none;
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .accordion-trigger[aria-expanded='true'] .accordion-chevron {
@@ -54,7 +60,7 @@
   grid-template-rows: 0fr;
   visibility: hidden; /* 닫힌 패널 안의 링크·버튼이 Tab 포커스를 받지 않게 */
   transition:
-    grid-template-rows var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
+    grid-template-rows var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
     visibility 0s var(--_duration); /* 닫힘 애니메이션이 끝난 뒤에 숨긴다 */
 }
 
@@ -62,7 +68,7 @@
   grid-template-rows: 1fr;
   visibility: visible;
   transition:
-    grid-template-rows var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
+    grid-template-rows var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
     visibility 0s;
 }
 

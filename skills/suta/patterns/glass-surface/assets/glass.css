@@ -76,8 +76,8 @@
 .glass-interactive {
   cursor: pointer;
   transition:
-    background 200ms ease,
-    border-color 200ms ease;
+    background 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+    border-color 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
 }
 
 .glass-interactive:focus-visible {
@@ -86,7 +86,7 @@
 }
 
 /* hover는 가리킬 수 있는 기기에서만 — 터치에서는 누른 뒤에도 진해진 채 남는다. 잠긴 유리는 반응하지 않는다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .glass-interactive:hover:not(:disabled, [aria-disabled='true']) {
     background: color-mix(in srgb, var(--_tint), #fff 12%);
     border-color: color-mix(in srgb, var(--_border), #fff 20%);
@@ -105,9 +105,10 @@
   cursor: not-allowed;
 }
 
+/* 링 색은 글자색 — 유리는 어떤 바탕 위에도 놓이고, 글자색은 그 바탕에서 읽히게 고른 색이다 */
 .glass-interactive:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid currentColor;
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* ---- 불투명 폴백 — 네 경우 모두 같은 결과: 흐림 없이 진한 단색 판 ----

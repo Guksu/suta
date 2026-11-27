@@ -83,7 +83,7 @@ type LogKey = keyof (typeof COPY)['ko']['log']
 export const ModalDialogDemo = () => {
   const t = COPY[useDemoLang()]
   const [which, setWhich] = useState<Which>(null)
-  const [durationMs, setDurationMs] = useState(240)
+  const [durationMs, setDurationMs] = useState(250)
   // 문구 대신 키를 기억한다 — 언어를 바꿔도 마지막 기록이 새 언어로 다시 그려진다
   const [log, setLog] = useState<LogKey>('intro')
 
@@ -104,7 +104,7 @@ export const ModalDialogDemo = () => {
             type="range"
             min={100}
             max={600}
-            step={20}
+            step={10}
             value={durationMs}
             onChange={(e) => setDurationMs(Number(e.target.value))}
           />

@@ -40,23 +40,24 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  transition: background 120ms ease;
+  transition: background var(--motion-duration-instant, 100ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* hover는 마우스처럼 올려 둘 수 있는 포인터에서만 — 터치에서는 누른 뒤에도 hover가 남아 버튼이 눌린 채로 보인다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .qty-button:hover {
-    background: var(--qty-hover, rgb(0 0 0 / 0.05));
+    background: var(--qty-hover, color-mix(in srgb, transparent, var(--color-text, #1c1c1c) var(--hover-mix, 5%)));
   }
 }
 
 .qty-button:active {
-  background: var(--qty-active, rgb(0 0 0 / 0.1));
+  background: var(--qty-active, color-mix(in srgb, transparent, var(--color-text, #1c1c1c) calc(var(--hover-mix, 5%) * 2)));
 }
 
+/* 버튼과 값 칸이 한 줄 테두리 안에 붙어 있다 — 링을 안쪽에 그려 이웃 칸과 겹치지 않게 */
 .qty-button:focus-visible {
-  outline: 2px solid var(--qty-accent, #1c1c1c);
-  outline-offset: -2px;
+  outline: var(--focus-ring-width, 2px) solid var(--qty-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 /* 끝에 닿은 버튼은 흐리게 — 다만 포커스는 받는다(왜 못 누르는지 알 수 있게) */
@@ -94,17 +95,17 @@
 }
 
 .qty-value:focus {
-  outline: 2px solid var(--qty-accent, #1c1c1c);
-  outline-offset: -2px;
+  outline: var(--focus-ring-width, 2px) solid var(--qty-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 /* 값이 바뀌면 방향대로 밀려 들어온다 — 올라갔는지 내려갔는지가 눈에 남는다 */
 .qty-value[data-bump='up'] {
-  animation: qty-bump-up 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: qty-bump-up var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .qty-value[data-bump='down'] {
-  animation: qty-bump-down 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: qty-bump-down var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 @keyframes qty-bump-up {

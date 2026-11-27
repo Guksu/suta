@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { DURATION, EASE, EXIT_RATIO, STAGGER_MS, cubicBezier, durationFor, exitDuration, staggerDelay } from '@skills/motion-principles/assets/motionTokens'
+import { DURATION, EASE, EXIT_RATIO, PRESS, STAGGER_MS, cubicBezier, durationFor, exitDuration, staggerDelay } from '@skills/motion-principles/assets/motionTokens'
 
 // vitest는 demo/에서 돈다 — 정본 CSS를 파일로 읽어 TS 상수와 비교한다(두 벌이 어긋나면 화면마다 속도가 달라진다)
 const css = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/motion-principles/assets/motion-tokens.css'), 'utf8')
@@ -20,6 +20,13 @@ describe('motionTokens — CSS 토큰과 TS 상수가 같은 값이다', () => {
     expect(cssVar('--motion-ease-overshoot')).toBe(EASE.overshoot)
     expect(cssVar('--motion-exit-ratio')).toBe(String(EXIT_RATIO))
     expect(cssVar('--motion-stagger')).toBe(`${STAGGER_MS}ms`)
+  })
+
+  it('눌림 짝(누름·복귀·배율)이 CSS와 일치하고, 누름이 복귀보다 짧다', () => {
+    expect(cssVar('--motion-duration-press')).toBe(`${PRESS.inMs}ms`)
+    expect(cssVar('--motion-duration-release')).toBe(`${PRESS.outMs}ms`)
+    expect(cssVar('--motion-press-scale')).toBe(String(PRESS.scale))
+    expect(PRESS.inMs).toBeLessThan(PRESS.outMs)
   })
 
   it('CSS에 reduced-motion 블록이 있고 시간을 0ms로 두지 않는다', () => {

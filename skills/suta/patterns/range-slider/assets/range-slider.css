@@ -74,7 +74,7 @@
   box-shadow: var(--range-thumb-shadow, var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2)));
   cursor: grab;
   pointer-events: auto;
-  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--motion-duration-instant, 100ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .range-input::-moz-range-thumb {
@@ -86,7 +86,7 @@
   box-shadow: var(--range-thumb-shadow, var(--shadow-low, 0 1px 3px rgb(0 0 0 / 0.2)));
   cursor: grab;
   pointer-events: auto;
-  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--motion-duration-instant, 100ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 잡는 순간 살짝 커진다 — 손가락 아래에서 무엇을 쥐었는지 보이게 */
@@ -101,13 +101,13 @@
 }
 
 .range-input:focus-visible::-webkit-slider-thumb {
-  outline: 2px solid var(--range-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--range-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 .range-input:focus-visible::-moz-range-thumb {
-  outline: 2px solid var(--range-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--range-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 잠금: 손잡이와 채움을 흐리게 하고 잡는 커서를 거둔다. input이 disabled라 Tab과 끌기는 브라우저가 막는다 */

@@ -4,7 +4,7 @@
  * 제스처 중 위치는 코어가 인라인 transform으로 쓰고(transition none), 놓은 뒤 복귀는 여기의 transition이 담당한다. */
 
 .pinch {
-  --_duration: var(--pinch-duration, 300ms);
+  --_duration: var(--pinch-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
   position: relative;
   touch-action: pan-y; /* 한 손가락 세로 스크롤은 브라우저에, 두 손가락은 코어에 */
 }
@@ -18,7 +18,7 @@
 .pinch-target {
   display: block;
   /* 복귀 커브 — 빠르게 출발해 부드럽게 정착 */
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 배경 딤 — 코어가 쓰는 --pinch-progress(0~1)에 비례. 항상 DOM에 있고 pointer-events가 없어 스크롤을 막지 않는다 */
@@ -29,7 +29,7 @@
   opacity: 0;
   pointer-events: none;
   z-index: -1; /* .pinch 안에서 이미지 뒤, 페이지 위 — .pinch[data-zooming]의 z-index 덕에 형제보다 앞 */
-  transition: opacity var(--_duration) ease; /* settling·해제 시 페이드 */
+  transition: opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)); /* settling·해제 시 페이드 */
 }
 
 .pinch[data-zooming] .pinch-backdrop {

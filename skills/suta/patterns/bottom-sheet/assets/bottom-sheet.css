@@ -9,7 +9,7 @@
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--sheet-duration, 350ms) ease;
+  transition: opacity var(--sheet-duration, var(--motion-duration-slow, 350ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   z-index: var(--z-overlay, 40);
 }
 
@@ -19,7 +19,7 @@
 }
 
 .bottom-sheet {
-  --_duration: var(--sheet-duration, 350ms);
+  --_duration: var(--sheet-duration, var(--motion-duration-slow, 350ms));
   position: fixed;
   left: 0;
   right: 0;
@@ -38,7 +38,7 @@
   visibility: hidden;
   /* 드로어 전용 커브 — 빠르게 나와서 부드럽게 정착한다 */
   transition:
-    transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1),
+    transform var(--_duration) var(--motion-ease-drawer, cubic-bezier(0.32, 0.72, 0, 1)),
     visibility 0s linear var(--_duration);
   /* 백드롭과 같은 순서다 — 같은 값이면 문서 순서대로 쌓인다(백드롭 → 시트). 시트를 +1로 올리면
    * 시트 위에 연 둘째 시트의 백드롭이 첫 시트 아래에 깔려, 첫 시트가 어두워지지 않고 그대로 눌린다 */
@@ -51,11 +51,12 @@
   transform: translateY(0);
   visibility: visible;
   transition:
-    transform var(--_duration) cubic-bezier(0.32, 0.72, 0, 1),
+    transform var(--_duration) var(--motion-ease-drawer, cubic-bezier(0.32, 0.72, 0, 1)),
     visibility 0s;
 }
 
-/* 열릴 때 포커스는 시트 자신이 받는다 — 시트는 누르는 요소가 아니므로 포커스 링을 그리지 않는다 */
+/* 열릴 때 포커스는 시트 자신이 받는다 — 시트는 누르는 요소가 아니므로 포커스 링을 그리지 않는다.
+ * 대신하는 표시: 화면 낭독기는 시트 제목부터 읽고, Tab을 누르면 시트 안 첫 컨트롤에 링이 그려진다 */
 .bottom-sheet:focus {
   outline: none;
 }

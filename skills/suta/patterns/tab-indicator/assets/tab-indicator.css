@@ -25,9 +25,15 @@
   white-space: nowrap;
 }
 
+/* 탭 포커스 링 — 탭 버튼은 프로젝트의 것이지만 줄은 이 패턴의 것이라 링도 여기서 정한다 */
+.tab-bar > :focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--tab-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
 /* 스크롤 줄은 밖으로 나간 포커스 링을 자른다 — 링을 탭 안쪽에 그린다 */
 .tab-bar[data-scroll='true'] > :focus-visible {
-  outline-offset: -2px;
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 .tab-indicator {
@@ -42,7 +48,7 @@
   /* 코어가 자리를 주기 전(서버에서 그린 직후, 선택된 탭이 없을 때)에는 보이지 않는다 — 왼쪽 끝에 1px 점이 남지 않게 */
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform var(--tab-indicator-duration, 250ms) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--tab-indicator-duration, var(--motion-duration-base, 250ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   pointer-events: none;
 }
 

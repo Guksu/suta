@@ -264,9 +264,9 @@ Each name links to the pattern's manual, which is written in Korean. The demo li
 
 | Pattern | What it does | Demo |
 |---|---|---|
-| [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger and reduced-motion, plus rules for which value each kind of movement uses | [Demo](https://guksu.github.io/suta/#/motion-principles) |
+| [Motion principles & tokens](../skills/suta/patterns/motion-principles/PATTERN.md) | One token set of 5 durations, 5 easings, stagger, a press pair and reduced-motion, plus rules for which value each kind of movement uses. Pattern CSS reads its durations and easings through these tokens, so adding the token file is enough | [Demo](https://guksu.github.io/suta/#/motion-principles) |
 | [Motion audit](../skills/suta/patterns/motion-audit/PATTERN.md) | Scans CSS and JS for layout-property animations, missing reduced-motion, out-of-range durations and more, reports them as `file:line` and points to the pattern that fixes each | [Demo](https://guksu.github.io/suta/#/motion-audit) |
-| [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius, color, shadow and stacking order (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
+| [Layout principles & tokens](../skills/suta/patterns/layout-principles/PATTERN.md) | Layout principles, conventions per screen type and one token set for spacing, type, weight, radius, color, shadow, stacking order and interaction states (contents listed below the table) | [Demo](https://guksu.github.io/suta/#/layout-principles) |
 | [Layout audit](../skills/suta/patterns/layout-audit/PATTERN.md) | Scans CSS, JSX and HTML for nested cards, sub-11px text, effect overuse, colored glow shadows, four or more shadow values, off-scale spacing, centered paragraphs, pastel tinted surfaces, too many hue families, muddy accents, accent pairs short of 4.5:1, slate grays beside a warm accent, emoji used as icons, leftover demo copy, mixed Korean endings, 01·02·03 numbered feature lists, real buttons inside product mockup images, icon buttons that stack vertically, grid frames that grow wider than the screen, screen-reader text leaking out of scroll areas, mobile-webview pitfalls (100vh, input zoom, disabled zoom) and more, reports them as `file:line` with the principle that fixes each | [Demo](https://guksu.github.io/suta/#/layout-audit) |
 
 The layout principles pattern contains these parts.
@@ -281,6 +281,7 @@ The layout principles pattern contains these parts.
 - Font guidance: one Korean UI font (`--font-sans`), with a display face only for short titles, plus body size, display weight and tracking, serif (`--font-serif`) and monospace (`--font-mono`) chosen by industry and reading conditions (measured on 48 websites in 9 industries).
 - Copy guidance (Korean): one voice (해요체) and the shapes of buttons, dialogs, errors, empty states and toasts, drawn from 7,539 UI strings in well-made apps.
 - One token set for spacing, type, weight, radius, color, font, shadow and stacking order.
+- One set of interaction states: focus ring (2px, 2px outside, or −2px inside for clipped cells, in the accent color), hover (fine pointers only, the surface mixed 5% darker) and disabled (not faded with opacity, but a pale surface with tertiary text). The patterns' focus rings use these tokens.
 - Elevation standard (`elevation.md`): four layers (resting, stuck, floating, covering), three shadow steps plus a scrim, and five stacking steps, with values measured on 47 public websites.
 - Before and after versions of eleven typical AI-made screens.
 

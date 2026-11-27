@@ -46,7 +46,7 @@
   background: var(--theme-toggle-bg, transparent);
   color: var(--theme-toggle-color, currentColor);
   cursor: pointer;
-  transition: background 160ms ease;
+  transition: background var(--motion-duration-fast, 150ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 보이는 원은 36px이지만 누르는 영역은 44px이다 — 원 밖 4px까지 버튼이 받는다 */
@@ -58,7 +58,7 @@
 }
 
 /* hover는 가리킬 수 있는 기기에서만 — 터치에서는 누른 뒤에도 남는다 */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .theme-toggle:hover {
     background: var(--theme-toggle-hover-bg, color-mix(in srgb, currentColor 10%, transparent));
   }
@@ -69,9 +69,10 @@
   cursor: not-allowed;
 }
 
+/* 링 색은 강조색이 아니라 버튼 글자색 — 테마를 바꾸는 버튼이라 두 테마의 글자색을 따라야 어느 쪽에서도 보인다 */
 .theme-toggle:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
+  outline: var(--focus-ring-width, 2px) solid currentColor;
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 해와 달은 같은 칸에 겹쳐 두고 회전하며 교대한다 — 자리를 옮기지 않으므로 버튼이 흔들리지 않는다 */
@@ -81,8 +82,8 @@
   place-items: center;
   line-height: 0; /* 상속된 줄 높이가 아이콘 아래에 여백을 만들지 않게 */
   transition:
-    opacity 200ms ease,
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)), /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
+    transform var(--motion-duration-base, 250ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .theme-toggle[data-theme-state='light'] .theme-toggle-icon[data-icon='moon'],

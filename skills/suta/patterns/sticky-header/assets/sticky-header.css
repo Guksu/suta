@@ -4,7 +4,7 @@
  * 움직이는 것은 opacity·transform(GPU)뿐이다. */
 
 .sticky-header {
-  --_duration: var(--header-duration, 250ms);
+  --_duration: var(--header-duration, var(--motion-duration-base, 250ms));
   position: sticky;
   top: 0;
   z-index: var(--z-sticky, 30);
@@ -26,8 +26,8 @@
   opacity: 0;
   transform: translateY(6px);
   transition:
-    opacity var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
-    transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+    opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .sticky-header[data-collapsed='true'] .sticky-header-title {
@@ -43,7 +43,7 @@
   height: 12px;
   background: linear-gradient(var(--header-shadow, rgb(0 0 0 / 0.1)), transparent);
   opacity: 0;
-  transition: opacity var(--_duration) ease;
+  transition: opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   pointer-events: none;
 }
 

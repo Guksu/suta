@@ -62,7 +62,7 @@ TS가 아닌 프로젝트에 복사할 때는 타입 표기를 벗겨 .js·.jsx�
 | 상품 격자 | `.kit-grid` | 모바일 2열(가로 12·세로 28), 화면 틀 600px 3열, 900px 4열(가로 24·세로 40). 세로 간격이 가로의 2배 이상이라 글이 위 사진에 붙어 읽힌다 |
 | 상품 칸 | `.kit-cell` · `-media` · `-name` · `-price` · `-discount` · `-original` · `-note` · `-add` · `-flag` · `-soldout` · `-link` | 테두리·그림자·바탕 없음. 사진 → 이름 15/400 두 줄 말줄임 → 가격 16/700 주 글자색(할인율만 `--color-danger`, 정가 12 옅은 글자 취소선) → 보조 줄 12. 담기는 사진 오른쪽 아래 36 원(누르는 영역 44). 품절은 사진 흐리게 + "품절" 표시 + 옅은 글자(흰 면 5.6:1) |
 | 사진 틀 | `.kit-frame` | `aspect-ratio`(기본 1) + `object-fit: cover` + 옅은 무채색 바탕 + 모서리 0. 사진이 없으면 같은 요소에 `art art--{장면} art--{색}` |
-| 버튼 | `.kit-button` · `.kit-button-outline` | 높이 48, 16/600, 모서리 `--radius-control`. 채운 버튼은 주 행동 하나. 잠기면 회색 면 |
+| 버튼 | `.kit-button` · `.kit-button-outline` | 높이 48, 16/600, 모서리 `--radius-control`. 채운 버튼은 주 행동 하나. 잠기면 회색 면(`--disabled-*`). 포커스·호버·눌림은 상태 토큰(`--focus-ring-*`·`--hover-mix`·`--motion-press-scale`) |
 | 본문 + 요약 | `.kit-split` | 좁으면 한 열, 화면 틀 960px 이상이면 본문 \| 340 패널(간격 72), 패널은 `position: sticky` |
 | 구역 | `.kit-section` · `-head` · `-title` · `-hint` | 구역 사이는 1px 선 + 위아래 32. 구역 제목 20/700, 고르는 법 한 줄 14 |
 | 사진 카드 | `.kit-choices` · `.kit-choice` · `-input` · `-name` · `-mark` · `-meta` | 숨긴 라디오 + 사진 틀(모서리 8) + 이름 + 보조 줄. 고른 것은 사진 둘레 강조색 2px 윤곽선(간격 3) + "선택됨" 글자 |

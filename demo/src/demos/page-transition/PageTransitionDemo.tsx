@@ -87,7 +87,7 @@ const COPY = defineCopy({
 
 export const PageTransitionDemo = () => {
   const t = COPY[useDemoLang()]
-  const [durationMs, setDurationMs] = useState(280)
+  const [durationMs, setDurationMs] = useState(250)
   const [shiftPercent, setShiftPercent] = useState(30)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stack = usePageStack<Screen>({ initial: { name: 'list' }, scrollRef, syncHistory: true })
@@ -118,7 +118,7 @@ export const PageTransitionDemo = () => {
           <span>
             {t.duration} <code>--page-transition-duration</code>
           </span>
-          <input type="range" min={120} max={700} step={20} value={durationMs} onChange={(e) => setDurationMs(Number(e.target.value))} />
+          <input type="range" min={120} max={700} step={10} value={durationMs} onChange={(e) => setDurationMs(Number(e.target.value))} />
           <output>{durationMs}ms</output>
         </label>
         <label>

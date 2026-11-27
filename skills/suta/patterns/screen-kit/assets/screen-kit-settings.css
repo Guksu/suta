@@ -76,8 +76,8 @@
 /* 행이 링크·버튼이라 포커스 링은 행 안쪽에 — 이웃 행·띠에 걸리지 않게 */
 .kit-profile:focus-visible,
 .kit-row-link:focus-visible {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: -2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 /* ---------------- 묶음 — 작은 옅은 이름 + 행들 + 아래 안내 한 줄 ---------------- */
@@ -212,11 +212,11 @@
 }
 
 .kit-text-link:focus-visible {
-  outline: 2px solid var(--color-accent, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-accent, #1c1c1c));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .kit-profile:hover,
   .kit-row-link:hover,
   .kit-row-switch:hover {

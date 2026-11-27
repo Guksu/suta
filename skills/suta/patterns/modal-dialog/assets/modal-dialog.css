@@ -4,8 +4,8 @@
  * 진입은 transition이 아니라 animation이다 — display:none→block로 바뀌는 순간에는 transition이 걸리지 않는다. */
 
 .modal {
-  --_duration: var(--modal-duration, 240ms);
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--modal-duration, var(--motion-duration-base, 250ms));
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   width: var(--modal-width, min(420px, calc(100vw - 32px)));
   max-height: min(80vh, 640px);
   padding: 0;
@@ -24,7 +24,7 @@
 
 .modal[open]::backdrop {
   background: var(--modal-backdrop, var(--scrim, rgb(0 0 0 / 0.5)));
-  animation: modal-backdrop-in var(--_duration) ease;
+  animation: modal-backdrop-in var(--_duration) var(--_ease-out);
 }
 
 /* 닫힘 — data-closing 동안 역방향 재생, 끝나면 JS가 dialog.close()를 부른다 (Modal.tsx) */
@@ -33,7 +33,7 @@
 }
 
 .modal[data-closing]::backdrop {
-  animation: modal-backdrop-out calc(var(--_duration) * 0.75) ease forwards;
+  animation: modal-backdrop-out calc(var(--_duration) * 0.75) var(--_ease-out) forwards;
 }
 
 .modal-body {

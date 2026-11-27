@@ -5,8 +5,8 @@
  * 위치는 코어가 인라인 transform으로 쓴다. 여기 있는 것은 "비켜 주는 이동"과 "들어올린 모습"이다. */
 
 .reorder-list {
-  --_duration: var(--reorder-duration, 200ms);
-  --_ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--reorder-duration, 200ms); /* 토큰 밖: 200ms — 코어의 정착 시간(settleMs 200)과 짝이다. fast·base 모두 50ms 차이 */
+  --_ease-out: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   list-style: none;
   margin: 0;
   padding: 0;
@@ -55,8 +55,8 @@
 }
 
 [data-reorder-handle]:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--reorder-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
   border-radius: 6px;
 }
 

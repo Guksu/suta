@@ -116,7 +116,7 @@ window.addEventListener('scroll', () => setOpen(false), true)
 |------|------|
 | 누르고 있어야 하는 시간 | `delayMs` (기본 450ms — 300 아래면 스크롤하려던 손가락이 메뉴를 열고, 700 위면 고장 난 줄 안다) |
 | 이동 허용치 | `moveTolerancePx` (기본 10px — 손가락 떨림은 통과, 스크롤 시작은 취소) |
-| 떠오름·등장 속도 | `--lpm-duration` (기본 220ms, 이징 `cubic-bezier(0.22, 1, 0.36, 1)` 내장) |
+| 떠오름·등장 속도 | `--lpm-duration` (기본 250ms = 토큰 `base`, 이징은 `--motion-ease-out`) |
 | 뒤 흐림 강도 | `--lpm-blur` (기본 12px — 0이면 어둡게만 됨) |
 | 백드롭 색 | `--lpm-tint` (기본 검정 35%) |
 | 메뉴 배경·모서리·글자색 | `--lpm-menu-bg`(기본은 면 토큰 `--color-surface`의 92%, 없으면 흰색)·`--lpm-radius`·`--lpm-menu-color`(기본 `--color-text`). 가리킨 항목은 글자색을 8%로 깔아 어두운 면에서도 보인다(`--lpm-menu-active-bg`) |

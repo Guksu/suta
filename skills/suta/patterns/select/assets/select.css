@@ -5,7 +5,7 @@
  * 패널은 언마운트하지 않고 data-open으로만 여닫는다 — 닫힘 애니메이션이 공짜가 된다. */
 
 .select {
-  --_duration: var(--select-duration, 200ms);
+  --_duration: var(--select-duration, 200ms); /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
   --_bg: var(--select-bg, var(--color-surface, #fff));
   --_border: var(--select-border, #d4d4d4);
   position: relative; /* 패널의 offsetParent — 트리거 기준 좌표계를 만든다 */
@@ -37,6 +37,12 @@
   overflow-wrap: anywhere;
 }
 
+/* 포커스는 늘 트리거에 있다(옵션은 aria-activedescendant로 가리킨다) — 링도 트리거에만 */
+.select-trigger:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--select-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
 .select-trigger:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -53,7 +59,7 @@
 
 .select-chevron {
   flex: none;
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 열림 상태 표현은 aria-expanded 하나 — 시각과 접근성이 같은 속성이라 어긋날 수 없다 */
@@ -82,8 +88,8 @@
   visibility: hidden;
   transform: translateY(-6px) scale(0.98);
   transition:
-    opacity var(--_duration) ease,
-    transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
     visibility 0s var(--_duration); /* 퇴장이 끝난 뒤에 숨긴다 */
 }
 
@@ -92,8 +98,8 @@
   visibility: visible;
   transform: none;
   transition:
-    opacity var(--_duration) ease,
-    transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
     visibility 0s;
 }
 

@@ -5,8 +5,8 @@
 
 /* 트리거(길게 누를 항목을 감싸는 상자) */
 .lpm-item {
-  --_duration: var(--lpm-duration, 220ms);
-  --_ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--lpm-duration, var(--motion-duration-base, 250ms));
+  --_ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: relative;
   border-radius: var(--lpm-radius, 16px);
   /* 터치 브라우저의 기본 길게누르기 동작(링크 미리보기·이미지 저장·텍스트 선택)을 막는다.
@@ -21,8 +21,8 @@
 }
 
 .lpm-item:focus-visible {
-  outline: 2px solid var(--lpm-focus, #1c1c1c);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--lpm-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 /* 열린 항목은 복제본이 아니라 원본 자체를 백드롭 위로 띄운다.
@@ -36,7 +36,7 @@
 
 /* 전체 화면 백드롭 — 뒤를 흐리고 어둡게 해서 떠오른 항목만 또렷하게 남긴다 */
 .lpm-backdrop {
-  --_duration: var(--lpm-duration, 220ms);
+  --_duration: var(--lpm-duration, var(--motion-duration-base, 250ms));
   --_blur: var(--lpm-blur, 12px);
   position: fixed;
   inset: 0;
@@ -44,14 +44,14 @@
   background: var(--lpm-tint, rgb(0 0 0 / 0.35));
   -webkit-backdrop-filter: blur(var(--_blur));
   backdrop-filter: blur(var(--_blur));
-  animation: lpm-fade-in var(--_duration) ease-out;
+  animation: lpm-fade-in var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* fixed인 이유: 떠오른 항목이 transform 중이라 그 안에 두면 좌표가 틀어진다.
  * 대신 좌표는 래퍼가 화면 기준으로 계산해 넣는다. */
 .lpm-menu {
-  --_duration: var(--lpm-duration, 220ms);
-  --_ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--lpm-duration, var(--motion-duration-base, 250ms));
+  --_ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: fixed;
   z-index: calc(var(--z-overlay, 40) + 2);
   min-width: var(--lpm-menu-min-width, 12rem);
@@ -105,7 +105,8 @@
   cursor: pointer;
 }
 
-/* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다 */
+/* 마우스 hover와 키보드 focus가 같은 표시를 쓴다 — 지금 무엇이 실행될지가 한 가지로만 보인다.
+ * :focus의 outline: none은 이 바탕이 대신하고, 키보드일 때는 아래 :focus-visible 링을 더한다 */
 .lpm-menu-item:hover,
 .lpm-menu-item:focus {
   outline: none;
@@ -113,9 +114,10 @@
   background: var(--lpm-menu-active-bg, color-mix(in srgb, currentColor 8%, transparent));
 }
 
+/* 메뉴 폭을 가득 채운 항목 — 메뉴의 둥근 모서리에 잘리지 않게 안쪽에 그린다 */
 .lpm-menu-item:focus-visible {
-  outline: 2px solid var(--lpm-focus, #1c1c1c);
-  outline-offset: -2px;
+  outline: var(--focus-ring-width, 2px) solid var(--lpm-focus, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset-inset, -2px);
 }
 
 /* 되돌리기 어려운 항목(삭제·숨기기) — 붉은 글자 */
@@ -137,8 +139,8 @@
 @media (forced-colors: active) {
   .lpm-menu-item:hover,
   .lpm-menu-item:focus {
-    outline: 2px solid Highlight;
-    outline-offset: -2px;
+    outline: var(--focus-ring-width, 2px) solid Highlight;
+    outline-offset: var(--focus-ring-offset-inset, -2px);
   }
   .lpm-menu-item[aria-disabled='true'] {
     color: GrayText;

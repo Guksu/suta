@@ -33,19 +33,19 @@
 }
 
 .celebration[open] {
-  animation: celebration-panel-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: celebration-panel-in var(--motion-duration-slow, 350ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) both;
 }
 
 .celebration[open]::backdrop {
-  animation: celebration-fade-in 200ms ease-out both;
+  animation: celebration-fade-in 200ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) both; /* 토큰 밖: 200ms — fast(150)·base(250) 모두 50ms 차이라 옮기지 않았다 */
 }
 
 .celebration[data-closing] {
-  animation: celebration-panel-out 240ms ease-out forwards;
+  animation: celebration-panel-out var(--motion-duration-base, 250ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) forwards;
 }
 
 .celebration[data-closing]::backdrop {
-  animation: celebration-fade-out 240ms ease-out forwards;
+  animation: celebration-fade-out var(--motion-duration-base, 250ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) forwards;
 }
 
 /* 보상 그림과 조각이 놓이는 자리 — 그림이 화면의 1순위다 */
@@ -67,7 +67,7 @@
   border-radius: 50%;
   background: var(--_figure-disc);
   color: var(--_figure-ink);
-  animation: celebration-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms both;
+  animation: celebration-pop 480ms var(--motion-ease-overshoot, cubic-bezier(0.34, 1.56, 0.64, 1)) 80ms both; /* 토큰 밖: 480ms·지연 80ms — 패널이 선 뒤 한 번 튀는 길이(page보다 60ms 길다) */
 }
 
 .celebration-figure svg {
@@ -93,7 +93,7 @@
 }
 
 .celebration-burst[data-motion='burst'] .celebration-piece {
-  animation: celebration-burst 900ms cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay, 0ms) both;
+  animation: celebration-burst 900ms var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) var(--delay, 0ms) both; /* 토큰 밖: 900ms — 조각이 흩어져 떨어지는 길이, 화면 요소의 이동이 아니다 */
 }
 
 .celebration-piece--dot {
@@ -153,9 +153,10 @@
   cursor: pointer;
 }
 
+/* 링 색은 버튼 면 색(분위기 색)과 같다 — 바깥 간격으로 면과 떨어져 보인다 */
 .celebration-action:focus-visible {
-  outline: 2px solid var(--_tone-accent);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--_tone-accent, var(--focus-ring-color, var(--color-accent, #1c1c1c)));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 @keyframes celebration-panel-in {

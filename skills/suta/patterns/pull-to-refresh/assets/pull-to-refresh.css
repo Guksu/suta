@@ -10,8 +10,8 @@
 }
 
 .ptr-content {
-  --_duration: var(--ptr-duration, 300ms);
-  transition: transform var(--_duration) cubic-bezier(0.22, 1, 0.36, 1);
+  --_duration: var(--ptr-duration, 300ms); /* 토큰 밖: 300ms — base(250)·slow(350) 모두 50ms 차이라 옮기지 않았다 */
+  transition: transform var(--_duration) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* 인디케이터 — 당김 진행률에 따라 나타나며 회전하고, 새로고침 중에는 계속 돈다 */
@@ -31,7 +31,7 @@
 }
 
 .ptr-container[data-refreshing='true'] .ptr-indicator {
-  animation: ptr-spin 800ms linear infinite;
+  animation: ptr-spin 800ms var(--motion-ease-linear, linear) infinite; /* 토큰 밖: 회전 주기 */
 }
 
 @keyframes ptr-spin {

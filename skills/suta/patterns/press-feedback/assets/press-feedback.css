@@ -1,22 +1,22 @@
 /* press-feedback — 버튼 눌림 피드백. CSS만으로 완결(JS 코어 없음).
  * 커스터마이즈: --press-scale(눌림 배율), --press-release(복귀 시간), --press-dim(어두워지는 정도).
  * 비대칭 타이밍이 핵심이다: 누름은 즉각(60ms), 복귀는 여유 있게(스프링 느낌) —
- * 대칭으로 두면 눌림이 굼떠 보인다.
+ * 대칭으로 두면 눌림이 굼떠 보인다. 세 값은 모션 토큰의 눌림 짝(--motion-duration-press·-release, --motion-press-scale)이 정본이다.
  *
  * 축소와 리프트는 transform이 아니라 개별 속성 scale·translate로 한다 —
  * 요소에 이미 transform(가운데 정렬·회전 등)이 있어도 덮어쓰지 않고 그 위에 겹친다. */
 
 .pressable {
   transition:
-    scale var(--press-release, 220ms) cubic-bezier(0.22, 1, 0.36, 1),
-    translate var(--press-release, 220ms) cubic-bezier(0.22, 1, 0.36, 1),
-    filter var(--press-release, 220ms) ease;
+    scale var(--press-release, var(--motion-duration-release, 220ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    translate var(--press-release, var(--motion-duration-release, 220ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    filter var(--press-release, var(--motion-duration-release, 220ms)) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   will-change: transform; /* motion-audit-ignore: will-change-global — 눌림 즉시 반응해야 해 레이어를 미리 둔다(작은 요소) */
 }
 
 .pressable:active {
-  scale: var(--press-scale, 0.96);
-  transition-duration: 60ms; /* 누르는 순간은 즉각 반응 */
+  scale: var(--press-scale, var(--motion-press-scale, 0.96));
+  transition-duration: var(--motion-duration-press, 60ms); /* 누르는 순간은 즉각 반응 */
 }
 
 /* 변형: 어두워짐 동반 — 면적이 큰 카드형 버튼에 */

@@ -18,6 +18,9 @@
  *  - frontmatter name = 폴더명, description 80~300자·명령문 없음, 본문이 참조하는 assets/·references/ 경로 실재
  *  - 데모 레지스트리(demo/src/demos/index.ts)와 패턴 폴더가 서로 빠짐없이 짝지어짐
  *  - 공유 코어 복사본 동기: 첫 줄에 `@shared-core {파일} origin: {패턴}` 헤더가 있는 assets 파일은 원본과 내용이 같아야 한다
+ *  - 모션 토큰 사슬: assets/*.css의 transition·animation 계열과 --변수 값의 시간·이징이 var(--x, var(--motion-…, 기본값))으로 토큰을 거치거나,
+ *    같은 줄에 "토큰 밖" 주석으로 이유를 적어야 한다(동작 줄이기 블록은 빼고). 사슬 맨 끝의 숫자는 토큰 파일의 값과 같아야 한다
+ *    (--motion-·--focus-ring-·--hover-·--disabled-). 판정은 scripts/lib/motionTokenChain.ts
  * 문서·지침
  *  - README.md·README.ko.md 배지 숫자(패턴 수, 테스트 수)가 실제와 일치
  *  - AGENTS.md 존재, CLAUDE.md가 @AGENTS.md를 가져옴, .claude/skills/add-skill이 .agents/skills/add-skill을 가리킴,
@@ -28,6 +31,7 @@ import { join, relative } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { expectedDocuments } from './buildCatalog.mjs'
+import { findStaleFallbacks, findUnchainedMotion, parseTokenDefaults } from './lib/motionTokenChain.ts'
 
 const hash = (text) => createHash('sha256').update(text).digest('hex')
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
@@ -188,6 +192,27 @@ for (const name of readdirSync(patternsDir).sort()) {
     }
   }
 }
+// 모션 토큰 사슬 — 패턴 CSS가 숫자로 끝나면 프로젝트가 토큰 파일을 넣어도 패턴이 따라오지 않는다(0.22까지 토큰 참조 0개, 기본 시간 14종).
+// 토큰 단계와 다른 값은 같은 줄의 "토큰 밖" 주석으로 이유를 남긴다. 사슬 끝 숫자가 토큰과 다르면 토큰 파일 유무에 따라 화면이 달라진다
+const TOKEN_FILES = ['motion-principles/assets/motion-tokens.css', 'layout-principles/assets/layout-tokens.css']
+const tokenDefaults = Object.assign({}, ...TOKEN_FILES.map((file) => parseTokenDefaults(readFileSync(join(patternsDir, file), 'utf8'))))
+const CHAINED_TOKENS = /^--(motion|focus-ring|hover|disabled)-/
+for (const name of readdirSync(patternsDir).sort()) {
+  const assetsDir = join(patternsDir, name, 'assets')
+  if (!existsSync(assetsDir)) continue
+  for (const file of readdirSync(assetsDir).filter((entry) => entry.endsWith('.css'))) {
+    const path = `${name}/assets/${file}`
+    if (TOKEN_FILES.includes(path)) continue
+    const css = readFileSync(join(assetsDir, file), 'utf8')
+    for (const found of findUnchainedMotion(css)) {
+      errors.push(`${path}:${found.line}: ${found.kind === 'time' ? '시간' : '이징'} ${found.value}이(가) 모션 토큰을 거치지 않음 — var(--x, var(--motion-…, ${found.value}))로 잇거나, 토큰 단계와 다른 이유를 같은 줄에 "/* 토큰 밖: 이유 */"로 적는다`)
+    }
+    for (const stale of findStaleFallbacks({ css, tokens: tokenDefaults }).filter(({ token }) => CHAINED_TOKENS.test(token))) {
+      errors.push(`${path}:${stale.line}: var(${stale.token}, ${stale.fallback})의 기본값이 토큰 값 ${stale.expected}과 다름 — 토큰 파일을 넣을 때와 안 넣을 때 화면이 달라진다`)
+    }
+  }
+}
+
 // 반대 방향 — 데모 레지스트리에만 있고 패턴 폴더가 없으면 카탈로그에서 빠진다
 for (const [, slug] of registry.matchAll(/slug: '([^']+)'/g)) {
   if (!existsSync(join(patternsDir, slug, 'PATTERN.md'))) errors.push(`데모 레지스트리의 ${slug}: 패턴 폴더(skills/${SKILL}/patterns/${slug}) 없음`)

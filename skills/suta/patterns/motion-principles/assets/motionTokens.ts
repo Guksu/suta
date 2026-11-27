@@ -13,7 +13,7 @@ export const DURATION: Record<MotionSize, number> = {
   fast: 150, // 작은 요소의 등장·퇴장
   base: 250, // 컴포넌트 전환
   slow: 350, // 화면 크기의 이동
-  page: 420, // 화면 전환·공유 요소 확장
+  page: 420, // 공유 요소 확장·구역 크기의 등장 (페이지 전환은 base — 전환 중 입력이 잠긴다)
 }
 
 /** 퇴장 = 진입 × 0.75 — 결과를 이미 아는 사용자를 기다리게 하지 않는다 */
@@ -26,6 +26,9 @@ export const EASE = {
   overshoot: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
   linear: 'linear',
 } as const
+
+/** 눌림 짝 — --motion-duration-press·--motion-duration-release·--motion-press-scale. 누름은 즉각, 복귀는 여유 있게 */
+export const PRESS = { inMs: 60, outMs: 220, scale: 0.96 } as const
 
 /** 스프링(spring-physics 패턴)으로 같은 느낌을 낼 때의 프리셋 — stiffness·damping */
 export const SPRING = {
