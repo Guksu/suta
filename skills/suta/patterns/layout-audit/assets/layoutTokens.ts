@@ -53,9 +53,13 @@ export const COLOR = {
   success: '#13795b',
   rise: '#d0262d',
   fall: '#1b64da',
-  reward: '#b07d00',
-  rewardSilver: '#7b8088',
-  rewardBronze: '#a8662b',
+  /* 보상 색은 두 톤 — 밝은 채움(원판)과 그 위 아이콘·숫자의 짙은 잉크. 채움은 흰 면과 3:1이 안 되어 채움만으로 선·글자를 그리지 않는다 */
+  reward: '#ffc233',
+  rewardSilver: '#a9b4c5',
+  rewardBronze: '#e07f42',
+  rewardInk: '#6b4100',
+  rewardSilverInk: '#2f3948',
+  rewardBronzeInk: '#4d1f00',
 } as const
 
 /**

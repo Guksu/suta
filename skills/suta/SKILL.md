@@ -34,7 +34,7 @@ AI에게 UI를 맡기면 어디서 본 듯한 결과가 나온다(카드로 감�
 검사(`scripts/audit.mjs`)도 이 선으로 나뉜다.
 
 - **error는 모두 사용 문제다.** 기존 코드에서도 고친다.
-- **warn 중 사용 문제**는 `tiny-text`·`accent-contrast`·`viewport-height`·`input-zoom`·`zoom-disabled`·`image-distort`·`table-squeeze`와 모션의 `infinite-loop`(장식용 반복)·`js-interval-anim`·`will-change-global`이다. 편집 후 검사는 이것을 `[사용 문제]`로 표시한다. 기존 체계에서도 고친다.
+- **warn 중 사용 문제**는 `tiny-text`·`accent-contrast`·`viewport-height`·`input-zoom`·`zoom-disabled`·`image-distort`·`table-squeeze`·`cvd-pair`와 모션의 `infinite-loop`(장식용 반복)·`js-interval-anim`·`will-change-global`이다. 편집 후 검사는 이것을 `[사용 문제]`로 표시한다. 기존 체계에서도 고친다.
 - **나머지 warn은 취향·관례다.** 디자인 기준이 없는 화면에서만 고친다. 기존 체계의 값에서 난 것은 그대로 두고 보고에 적는다.
 - `meta-copy`(화면에 남은 개발·데모 문구)는 아래 "사실 정보"를 따른다.
 

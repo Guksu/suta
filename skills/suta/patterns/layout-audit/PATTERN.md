@@ -24,14 +24,15 @@ warn은 두 종류다. 아래 규칙표의 "종류" 열이 그 구분이다.
 
 | 파일 | 층 | 복사 대상 |
 |------|-----|----------|
-| `assets/auditLayout.ts` | 코어 — 규칙 30개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
+| `assets/auditLayout.ts` | 코어 — 규칙 31개, `auditLayout(sources)` → `Finding[]`, `formatFindings`, `summarize` | 모든 프로젝트 |
 | `assets/auditCore.ts` | 공통 코어 — 결과 형식, CSS 블록 자르기, 예외 주석 | 함께 복사 |
 | `assets/layoutTokens.ts` | 간격 척도·글자 하한 — `layout-principles`와 같은 파일 | 함께 복사 |
+| `assets/cvd.ts` | 색각 이상 시뮬레이션과 색 짝 거리(`cvd-pair`) — `layout-principles`와 같은 파일 | 함께 복사 |
 | `assets/audit.mjs` | CLI — 폴더 재귀, `--json`, `--warn-only`, error가 있으면 exit 1 | Node 22.18+ |
 
 ## 사용 방법
 
-1. `assets/` 네 파일을 프로젝트(예: `tools/layout-audit/`)에 복사한다.
+1. `assets/` 다섯 파일을 프로젝트(예: `tools/layout-audit/`)에 복사한다.
 2. 검사한다. 한 번에 넘긴 파일끼리는 클래스를 공유한다. CSS의 `.card`가 상자이면 TSX의 `className="card"`도 상자로 안다.
 
 ```bash
@@ -82,7 +83,7 @@ console.log(formatFindings(findings))
 | `centered-text-block` | warn · 취향 | 문단의 가운데 정렬 — CSS는 문단·설명류 선택자, JSX·HTML은 `text-center` 안에서 글자로 적힌 부분이 40자 이상인 `<p>`(`{설명}` 같은 식은 길이를 몰라 세지 않는다) | P6 |
 | `image-distort` | warn · 사용 | `object-fit: fill`·`object-fill` | P9 |
 | `tinted-surface` | warn · 취향 | 옅은 유채색 바탕(연노랑·살구·연분홍·연민트·연파랑) — CSS `background`·변수 정의, Tailwind `bg-{색}-50~200`, 인라인 스타일. 반투명 색은 흰 면 위에 얹은 색으로 판정한다. OKLCH 밝기 0.9 이상 + 채도 0.012 이상 0.13 미만이 기준이다. slate 같은 푸른 회색은 회색으로, 카카오 노랑 같은 채운 색(채도 0.13 이상)은 버튼 색으로 둔다. 강조색의 선택 바탕 변수(`--color-accent-soft` 등)는 허용한 자리라 세지 않는다. 파일마다 한 번 요약 | P5·`tone.md` |
-| `hue-count` | warn · 취향 | 한 파일의 유채색 계열(빨강·주황·노랑·초록·청록·파랑·보라·분홍) 3종 이상 — 모든 색 속성·변수 정의·Tailwind 색 이름에서 센다. 다크 모드의 같은 계열은 하나로 센다. 시세의 등락 색 변수(`--color-rise`·`--color-fall`처럼 이름에 rise·fall·up·down)와 보상 색 변수(`--color-reward`처럼 이름에 reward·medal·coin·gold·silver·bronze)는 빼고 센다 | `tone.md` |
+| `hue-count` | warn · 취향 | 한 파일의 유채색 계열(빨강·주황·노랑·초록·청록·파랑·보라·분홍) 3종 이상 — 모든 색 속성·변수 정의·Tailwind 색 이름에서 센다. 다크 모드의 같은 계열은 하나로 센다. 시세의 등락 색 변수(`--color-rise`·`--color-fall`처럼 이름에 rise·fall·up·down)와 보상 색 변수(`--color-reward`·잉크 `--color-reward-ink`처럼 이름에 reward·medal·coin·gold·silver·bronze)는 빼고 센다 | `tone.md` |
 | `emoji-icon` | warn · 취향 | JSX·HTML에 그림으로 그려지는 이모지(🏠 🛒 ❤️). 아이콘·사진 자리의 이모지는 기기마다 모양이 달라 AI가 만든 화면의 표시다. ★ ✓ × → © 같은 글자 기호와 주석은 뺀다. 파일마다 한 번 요약 | `tone.md` |
 | `viewport-height` | warn · 사용 | `height`·`min-height`·`max-height: 100vh`와 Tailwind `h-screen`·`min-h-screen` — 같은 블록·요소에 `dvh`·`svh` 짝이 없을 때. 모바일 브라우저·웹뷰에서 아래가 잘린다 | 웹뷰 |
 | `input-zoom` | warn · 사용 | 글자 입력칸(`input`·`textarea`·`select`, 이름이 `input`·`textarea`로 끝나는 클래스, Tailwind `text-sm`을 단 입력칸)의 16px 미만 글자. iOS는 초점이 갈 때 화면을 확대한다. 체크·라디오·버튼 입력, placeholder, `@media (pointer: fine)`·넓은 화면 묶음은 뺀다 | 웹뷰 |
@@ -99,10 +100,11 @@ console.log(formatFindings(findings))
 | `hidden-text-escape` | error · 사용 | 화면 높이 틀(`height: 100dvh`, Tailwind `h-dvh`·`h-screen`)이 있는 파일에서 숨김 글자(`.sr-only`·`.visually-hidden`, `position: absolute`)를 쓰는데, 세로 스크롤 칸(`overflow-y: auto`)에 `position`·`contain`이 없다. 숨김 글자가 스크롤 칸이 아니라 페이지 기준으로 놓여 칸 밖으로 새고, 페이지가 길어져 입력 줄 아래가 빈다(suta 0.15 채팅방 3번). HTML이면 그 칸의 마크업 자식이나 행을 그려 넣는 스크립트에 숨김 글자가 있을 때만 잡는다. 벤치 산출물 383개 중 4개를 잡았고 그중 3개가 실제로 샜다 | 렌더 |
 | `legend-on-border` | error · 사용 | 위쪽에만 테두리(구역 사이 띠·구분선)를 준 `fieldset` 안에 `legend`가 있다. 브라우저는 `legend`를 `fieldset`의 테두리 선 위에 그려서 제목이 띠에 걸쳐 겹쳐 보인다. 같은 파일 묶음의 CSS에서 `fieldset`이나 그 클래스에 `border-top`·`border-block(-start)`이 있고 네 변 테두리는 없을 때, Tailwind는 `border-t`가 있고 `border`가 없을 때 알린다. `legend`를 떼어 낸 경우(`float`, `position: absolute`, `display: contents`, `sr-only`)와 네 변 테두리(묶음 상자)는 뺀다 | `fieldset`은 `border: 0; margin: 0; padding: 0; min-width: 0`으로 걷고 띠·구분선은 바깥 요소나 `fieldset::before`에 둔다. 또는 `legend`에 `float: left; width: 100%`를 주고 다음 요소에 `clear: both`를 준다. 묶음 이름을 낭독기에 전하는 태그라 `div`로 바꾸지 않는다 |
 | `table-squeeze` | warn · 사용 | 열이 4개 이상인 표(`table`)에 좁은 화면 규칙이 없다. 표의 CSS가 검사 범위에 있는데, 미디어·컨테이너 쿼리 안에서 표의 `display`를 바꾸는 규칙도 없고 옆으로 넘기는 장치(표 자신의 `min-width` 400px 이상이나 `width: max-content` + 넘기는 칸 `overflow-x: auto`)도 없을 때 알린다. 390px에서 열이 그대로 좁아져 이름이 두세 줄로 꺾이고 행 높이가 들쭉날쭉해진다. 표의 CSS가 보이지 않으면(다른 파일을 함께 검사하지 않았거나 유틸리티 클래스만 쓴 경우) 판단하지 않는다 | 좁은 화면에서 행마다 "이름 + 핵심 값 / 나머지 값 한 줄"로 다시 놓는다. `@media`에서 `table`·`tbody`를 `display: block`, `tr`을 `display: grid`로 두고 머리 행은 숨김 글자로 남긴다. 값은 빼지 않는다. 옆으로 넘기려면 표에 `min-width`를 주고 감싼 칸에 `overflow-x: auto`를 주되 이름·핵심 값 열이 첫 화면 안에 있어야 한다 |
+| `cvd-pair` | warn · 사용 | 뜻이 반대인 색 짝(오류 ↔ 완료, 상승 ↔ 하락, 금·은·동)이 색각 이상에서 가까워진다. 짝은 이름으로만 짓는다 — 변수 이름(`--color-danger`·`--color-success`·`--color-rise`·`--color-fall`·`--color-reward*`, 흔한 이름 `error`·`positive`·`negative`·`up`·`down`·`gold`·`silver`·`bronze`)이나 선택자의 뜻 단어(`.dot.is-ok`·`.dot.is-error`). 이름으로 짝을 못 지으면 판단하지 않는다. 두 가지를 잡는다. ① 한 블록에 함께 정의된 같은 틀의 짝(`--color-reward`·`--color-reward-bronze`)이 정상 시각에서도 OKLab 거리 0.1 미만. ② 한 요소의 두 상태(선택자에서 뜻 단어만 다르다)를 면·선·그림 색(`background`·`border`·`fill`·`stroke`·`outline`·`box-shadow`)으로 가르는데, 적색·녹색 계열(Viénot 1999)이나 청색 계열(Brettel 1997) 시뮬레이션에서 거리 0.12 미만이고 밝기 차 0.1 미만. 정의만 있는 토큰 파일은 색각 이상 쪽으로는 알리지 않는다(suta 토큰의 오류 ↔ 완료 0.11은 "색만으로 쓰지 않는다"는 약속으로 쓴다). 글자 색(`color`)과 글자를 담는 요소(버튼·배지·칩·토스트)는 상태 글자가 함께 바뀌어 세지 않는다. 옅은 바탕 짝(밝기 0.9 이상)도 뺀다. 이름에 `ink`가 든 변수(`--color-reward-ink` 등 보상 원판 위 아이콘·숫자의 잉크)는 정의 짝에서도, 그 변수로 칠한 쓰임에서도 뺀다 — 1~3위는 원판 채움이 가르고 잉크는 그 위 글자색이다. 문턱은 판단값이다. 정적 검사라 점 옆의 글자·아이콘은 보지 못한다 — 다른 신호가 있으면 예외 주석. 고치는 법은 색을 바꾸기보다 다른 신호(아이콘 모양·글자·부호·선 모양·위치)를 함께 두거나 밝기 차를 벌리는 것이다(WCAG 1.4.1, `layout-principles/references/tone.md` 2절) |
 
 **콘텐츠 그림:** `.art`·`.art--장면` 선택자(`layout-principles/assets/content-art.css`의 사진 대역)와 `--art-*` 변수는 사진처럼 내용이다. 색(`hue-count`·`tinted-surface`)·효과(`effect-overuse`)·반경(`radius-variety`)·상자(`nested-card`)로 세지 않는다. 글자 크기·간격은 그대로 본다.
 
-**React Native:** `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙으로 본다 — `fontSize`(tiny-text·종류 수), `padding*`·`margin*`·`gap`(spacing-off-scale), `border*Radius`(radius-variety), `color`·`backgroundColor`·`border*Color`(hue-count·tinted-surface), `shadowRadius` 16 이상(effect-overuse). 줄 번호는 RN 코드의 그 줄이다. 토큰 참조(`space.lg`·`colors.accent`)·스프레드·조건식은 값을 모르니 세지 않는다(`layout-principles/references/react-native.md`).
+**React Native:** `.ts·.tsx·.js·.jsx`의 `StyleSheet.create({…})` 안 숫자·문자열 값을 CSS로 옮겨 위 규칙으로 본다 — `fontSize`(tiny-text·종류 수), `padding*`·`margin*`·`gap`(spacing-off-scale), `border*Radius`(radius-variety), `color`·`backgroundColor`·`border*Color`(hue-count·tinted-surface, 스타일 이름의 뜻 단어로 짝을 지은 cvd-pair — `dotUp`·`dotDown`), `shadowRadius` 16 이상(effect-overuse). 줄 번호는 RN 코드의 그 줄이다. 토큰 참조(`space.lg`·`colors.accent`)·스프레드·조건식은 값을 모르니 세지 않는다(`layout-principles/references/react-native.md`).
 
 ## 의도적 예외
 

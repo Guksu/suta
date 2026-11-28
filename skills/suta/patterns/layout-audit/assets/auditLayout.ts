@@ -33,6 +33,7 @@
  *  numbered-markers    warn — 기능 목록의 01·02·03 번호 표식(01~09가 7개 이상이면 월·시 목록이라 뺀다)               랜딩
  *  stacked-icon-buttons error — display가 grid·flex·block인 아이콘 버튼 둘 이상을 flex·grid가 아닌 부모에 나란히(세로로 쌓인다)  렌더
  *  grid-blowout        error — 행을 fr로 나눈 grid 틀에 열이 없다(입력칸 기본 폭·줄임표 글자가 틀을 화면보다 넓게 민다)       렌더
+ *  cvd-pair            warn — 뜻이 반대인 색 짝(오류↔완료·상승↔하락·금·은·동, 이름으로만 짝짓는다, 이름에 ink가 든 잉크는 뺀다)이 정상 시각(정의)이나 색각 이상(한 요소의 두 상태를 면·선 색으로 가를 때)에서 가깝다   tone·접근성
  *  hidden-text-escape  error — 화면 높이(100dvh) 틀에서 숨김 글자(.sr-only, absolute)를 쓰는데 세로 스크롤 칸에 position이 없다(글자가 칸 밖으로 새어 페이지가 늘어난다)  렌더
  *
  * 콘텐츠 그림: `.art`·`.art--장면` 선택자(layout-principles/assets/content-art.css의 사진 대역)와 `--art-*` 변수는 사진처럼 내용이라
@@ -45,6 +46,7 @@
  * 파일 전체에서 한 규칙을 끄려면 `layout-audit-ignore-file: {규칙} — {이유}`. 예외에는 반드시 이유를 적는다.
  */
 
+import { cvdPairCheck, CVD_MIN_DISTANCE, CVD_MIN_LIGHTNESS, NORMAL_MIN_DISTANCE } from './cvd.ts'
 import { blank, blankComments, callsOf, codeWithoutComments, cssBlocks, declarationsOf, ignoredLines, lineOf, matchingClose, sortFindings, splitTopLevelCode, type CssBlock, type Finding, type Severity, type Source } from './auditCore.ts'
 import { isOnGrid, nearestSpace, toPx } from './layoutTokens.ts'
 
@@ -1292,6 +1294,170 @@ const auditColorRoles = ({ facts, text, markup, script, tally, push }: { facts: 
   }
 }
 
+/* ---------------- 색 짝 — 뜻이 반대인 색이 색각 이상에서 가까워지는가(tone.md 2절) ---------------- */
+
+/**
+ * 뜻 단어 — 짝은 이름으로만 짓는다. 이름으로 짝을 못 지으면 판단하지 않는다(임의의 두 색을 비교하면 오탐의 원천이다).
+ * 상태(오류 ↔ 완료)·등락(상승 ↔ 하락)·보상(금·은·동)은 서로 다른 묶음이다 — 상승 빨강과 오류 빨강은 짝이 아니다
+ */
+type PairSide = { group: 'status' | 'trend' | 'reward'; side: string }
+const PAIR_WORDS: Record<string, PairSide> = {
+  ...Object.fromEntries(['error', 'danger', 'negative', 'invalid', 'fail', 'failure'].map((w) => [w, { group: 'status', side: 'bad' }])),
+  ...Object.fromEntries(['success', 'positive', 'ok', 'valid'].map((w) => [w, { group: 'status', side: 'good' }])),
+  ...Object.fromEntries(['rise', 'up', 'gain', 'bull'].map((w) => [w, { group: 'trend', side: 'up' }])),
+  ...Object.fromEntries(['fall', 'down', 'loss', 'bear'].map((w) => [w, { group: 'trend', side: 'down' }])),
+  gold: { group: 'reward', side: 'gold' },
+  silver: { group: 'reward', side: 'silver' },
+  bronze: { group: 'reward', side: 'bronze' },
+}
+const MEDAL_WORD = /^(gold|silver|bronze)$/
+
+/** 이름·선택자 → 낱말(camelCase도 가른다) — `--color-reward-silver` → color·reward·silver, `.rn-dotUp` → rn·dot·up */
+const wordsOf = (text: string) => text.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+
+/**
+ * 잉크 — 보상 원판(채움) 위 아이콘·순위 숫자의 색(`--color-reward-ink`·`--color-reward-silver-ink` 등). 구별 신호가 아니라 채움 위 글자색이라
+ * 세 잉크가 서로 가까워도 1~3위는 원판 채움이 가른다 — 짝에서 뺀다(tone.md 2절)
+ */
+const isInkWord = (word: string) => word === 'ink'
+
+/**
+ * 이름의 뜻과 틀 — 뜻 단어를 @로 바꾼 나머지가 틀이다. 틀이 같은 두 이름만 짝이 된다(`--color-danger-soft`는 `--color-success-soft`와).
+ * 보상은 `--color-reward`(금)·`--color-reward-silver`·`--color-reward-bronze`가 한 틀(color-reward-@)이다
+ */
+const pairNameOf = (name: string): (PairSide & { template: string }) | null => {
+  const words = wordsOf(name)
+  if (words.some(isInkWord)) return null
+  const at = words.findIndex((w, i) => PAIR_WORDS[w] || (w === 'reward' && !MEDAL_WORD.test(words[i + 1] ?? '')))
+  if (at < 0) return null
+  const word = words[at]
+  if (word === 'reward') return { group: 'reward', side: 'gold', template: [...words.slice(0, at + 1), '@', ...words.slice(at + 1)].join('-') }
+  return { ...PAIR_WORDS[word], template: words.map((w, i) => (i === at ? '@' : w)).join('-') }
+}
+
+/** 글자를 담는 요소 — 버튼·배지·칩·토스트는 상태 글자("완료"·"실패")가 함께 바뀌어 색만으로 전하지 않는다(loading-button이 그렇다) */
+const LABEL_WORDS = /^(?:button|btn|badge|chip|tag|pill|label|toast|alert|banner|message|msg|notice|text|title|caption|helper|hint)$/
+
+/** 같은 요소의 상태인가 — 선택자에서 뜻 단어를 모두 @로 바꾼 열쇠가 같으면 한 요소의 두 상태다(`.dot.is-ok`·`.dot.is-error`) */
+const stateKeyOf = (selector: string) => {
+  const words = wordsOf(selector)
+  if (!words.some((w) => PAIR_WORDS[w]) || words.some((w) => LABEL_WORDS.test(w))) return null
+  return words.map((w) => (PAIR_WORDS[w] ? '@' : w)).join(' ')
+}
+
+/** 색으로 면·선·그림을 칠하는 속성. 글자 색(color)은 뺀다 — 글자·부호가 함께 있어 색만으로 전하지 않는다(정적 검사의 한계: 부호 없는 숫자는 못 잡는다) */
+const MARK_COLOR_PROP = /^(?:background(?:-color)?|fill|stroke|outline(?:-color)?|box-shadow|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?)$/
+const markFamilyOf = (prop: string) => (prop.startsWith('border') ? 'border' : prop.startsWith('outline') ? 'outline' : prop === 'background-color' ? 'background' : prop)
+
+/** 옅은 바탕 짝(OKLab 밝기 0.9 이상)은 뜻을 싣는 표시가 아니라 면이다 — 안에 글자가 있다 */
+const PALE_L = 0.9
+
+type PairColor = { hex: string; rgba: Rgba; line: number; label: string }
+const hexOfRgba = ({ r, g, b }: Rgba) => `#${[r, g, b].map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('')}`
+const opaqueColorOf = (value: string) => {
+  const colors = colorsIn(unwrapVar(value))
+  return colors.length === 1 && colors[0].a > 0.99 ? colors[0] : null
+}
+
+const VISION_NAMES = { normal: '정상 시각', protan: '적색 계열 색각 이상(protan)', deutan: '녹색 계열 색각 이상(deutan)', tritan: '청색 계열 색각 이상(tritan)' } as const
+const CVD_PAIR_FIX =
+  '색은 그대로 두고 색 말고 다른 신호를 함께 둔다 — 아이콘 모양(✓·!)·글자·부호(+·−·▲▼)·선 모양(실선·점선)·위치. 또는 두 색의 밝기 차를 OKLab 0.1 이상 벌린다(palette.ts의 cvdPairCheck로 잰다). 다른 신호가 이미 있으면 이 줄에 예외 주석(layout-audit-ignore: cvd-pair — 이유) (tone.md 2절)'
+
+/** 두 색을 재서 문턱 안이면 알린다 — verdict all은 누구에게나, cvd는 색각 이상에서 가깝다 */
+const pairFinding = ({ a, b, what }: { a: PairColor; b: PairColor; what: string }): Omit<Finding, 'file'> | null => {
+  if (oklchOf(a.rgba).L >= PALE_L && oklchOf(b.rgba).L >= PALE_L) return null
+  const check = cvdPairCheck({ a: a.hex, b: b.hex })
+  if (check.distinct) return null
+  const [first, last] = a.line <= b.line ? [a, b] : [b, a]
+  const pair = `${a.label}(${a.hex}) ↔ ${b.label}(${b.hex})`
+  const worst = check.worst === 'normal' ? check.normal : check[check.worst]
+  const message =
+    check.verdict === 'all'
+      ? `${what} ${pair}이 정상 시각에서도 가깝다 — OKLab 거리 ${check.normal.distance.toFixed(2)}(문턱 ${NORMAL_MIN_DISTANCE}). 누구에게나 비슷한 색으로 보인다`
+      : `${what} ${pair}이 ${VISION_NAMES[check.worst]}에서 가까워진다 — OKLab 거리 정상 ${check.normal.distance.toFixed(2)} → ${worst.distance.toFixed(2)}, 밝기 차 ${worst.lightness.toFixed(2)}(문턱 거리 ${CVD_MIN_DISTANCE}·밝기 ${CVD_MIN_LIGHTNESS}). 한국 남성 약 6%가 색각 이상이다 — 색만으로 가르면 두 상태가 같아 보인다(WCAG 1.4.1)`
+  return { line: last.line, lines: [...new Set([first.line, last.line])], rule: 'cvd-pair', severity: 'warn', message, fix: CVD_PAIR_FIX }
+}
+
+/** 검사 범위 전체의 색 변수 정의(처음 나온 불투명 단색) — 다른 파일의 토큰을 var()로 쓴 곳도 잰다 */
+const colorDefsOf = (allFacts: BlockFacts[]) => {
+  const defs = new Map<string, Rgba>()
+  for (const { decls } of allFacts) {
+    for (const { prop, value } of decls) {
+      if (!prop.startsWith('--') || defs.has(prop)) continue
+      const color = opaqueColorOf(value)
+      if (color) defs.set(prop, color)
+    }
+  }
+  return defs
+}
+
+const VAR_REF = /var\(\s*(--[\w-]+)/g
+
+/**
+ * 정의: 한 블록에 함께 정의된 같은 틀의 뜻 짝이 정상 시각에서도 가까우면 알린다(색각 이상에서만 가까운 것은 정의만으로 알리지 않는다 —
+ * suta 토큰의 오류 ↔ 완료처럼 "색만으로 쓰지 않는다"는 약속으로 쓰는 짝이 있다).
+ * 쓰임: 한 요소의 두 상태(선택자에서 뜻 단어만 다르다)를 면·선·그림 색으로 가르는데 그 두 색이 가까우면 알린다(색각 이상 포함)
+ */
+const auditCvdPairs = ({ facts, allFacts, push }: { facts: BlockFacts[]; allFacts: BlockFacts[]; push: Push }) => {
+  for (const { decls } of facts) {
+    const byTemplate = new Map<string, Map<string, PairColor>>()
+    for (const { prop, value, line } of decls) {
+      if (!prop.startsWith('--')) continue
+      const meaning = pairNameOf(prop)
+      const color = meaning ? opaqueColorOf(value) : null
+      if (!meaning || !color) continue
+      const key = `${meaning.group}|${meaning.template}`
+      const sides = byTemplate.get(key) ?? new Map<string, PairColor>()
+      if (!sides.has(meaning.side)) sides.set(meaning.side, { hex: hexOfRgba(color), rgba: color, line, label: prop })
+      byTemplate.set(key, sides)
+    }
+    for (const sides of byTemplate.values()) {
+      const list = [...sides.values()]
+      for (let i = 0; i < list.length; i += 1) {
+        for (let j = i + 1; j < list.length; j += 1) {
+          const finding = pairFinding({ a: list[i], b: list[j], what: '뜻이 반대인 색 변수' })
+          if (finding && finding.message.includes('정상 시각에서도')) push(finding)
+        }
+      }
+    }
+  }
+
+  const defs = colorDefsOf(allFacts)
+  const states = new Map<string, Map<string, PairColor>>()
+  for (const { block, decls } of facts) {
+    const selectors = splitTopLevel(block.fullSelector).map((sel) => sel.trim()).filter((sel) => sel && !isArtSelector(sel))
+    for (const { prop, value, line } of decls) {
+      if (!MARK_COLOR_PROP.test(prop)) continue
+      const refs = [...value.matchAll(VAR_REF)].map((m) => m[1])
+      // 잉크 변수로 칠한 아이콘·숫자는 원판 위 글자색이다 — 두 상태를 가르는 색이 아니다
+      if (refs.some((name) => wordsOf(name).some(isInkWord))) continue
+      const named = refs.map((name) => ({ name, meaning: pairNameOf(name) })).find((r) => r.meaning)
+      const ref = named?.name ?? refs[0]
+      const color = (ref && defs.get(ref)) || opaqueColorOf(value)
+      if (!color) continue
+      for (const selector of selectors) {
+        const key = stateKeyOf(selector)
+        if (!key) continue
+        const meaning = named?.meaning ?? wordsOf(selector).map((w) => PAIR_WORDS[w]).find(Boolean)
+        if (!meaning) continue
+        const groupKey = `${meaning.group}|${markFamilyOf(prop)}|${key}`
+        const sides = states.get(groupKey) ?? new Map<string, PairColor>()
+        if (!sides.has(meaning.side)) sides.set(meaning.side, { hex: hexOfRgba(color), rgba: color, line, label: ref ? `${selector} ${ref}` : selector })
+        states.set(groupKey, sides)
+      }
+    }
+  }
+  for (const sides of states.values()) {
+    const list = [...sides.values()]
+    for (let i = 0; i < list.length; i += 1) {
+      for (let j = i + 1; j < list.length; j += 1) {
+        const finding = pairFinding({ a: list[i], b: list[j], what: '한 요소의 두 상태를 가르는 색' })
+        if (finding) push(finding)
+      }
+    }
+  }
+}
+
 /* ---------------- 문구 — 개발용 문구와 말투 섞임(references/copy.md) ---------------- */
 
 const HANGUL = /[가-힣]/
@@ -1593,6 +1759,7 @@ export const auditLayout = (sources: Source[]): Finding[] => {
       collectEmoji({ markup: parts.markup, tally })
     }
     auditColorRoles({ facts, text: source.text, markup: parts.markup, script, tally, push })
+    auditCvdPairs({ facts, allFacts, push })
     if (copyTarget) {
       auditCopy({ text: source.text, push })
       auditNumberedMarkers({ text: source.text, push })

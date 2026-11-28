@@ -83,6 +83,12 @@ describe('hookCore — 훅 응답', () => {
     for (const rule of USABILITY_WARN_RULES) expect(sources, rule).toContain(`'${rule}'`)
   })
 
+  it('색각 이상에서 가까워지는 뜻 짝(cvd-pair)은 사용 문제다 — 색만으로 전하는 정보(WCAG 1.4.1)라 기존 체계에서도 고친다', () => {
+    const usability = { ...finding({ severity: 'warn', line: 3 }), rule: 'cvd-pair', message: '오류 ↔ 완료 0.11' }
+    const lines = JSON.parse(hookResponse({ findings: [finding({ severity: 'warn', line: 1 }), usability] }).stdout).hookSpecificOutput.additionalContext.split('\n').filter((line: string) => line.startsWith('- '))
+    expect(lines[0]).toBe('- [사용 문제] src/menu.css:3 cvd-pair — 오류 ↔ 완료 0.11')
+  })
+
   it('error와 함께 오는 warn도 같은 구분으로 알린다', () => {
     const usability = { ...finding({ severity: 'warn', line: 2 }), rule: 'accent-contrast', message: '대비 3.9:1' }
     const response = hookResponse({ findings: [finding({ severity: 'error' }), usability] })

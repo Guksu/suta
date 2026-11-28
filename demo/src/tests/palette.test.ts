@@ -1,5 +1,5 @@
 import { COLOR, contrastRatio } from '@skills/layout-principles/assets/layoutTokens'
-import { accentIssues, buildPalette, contrastExact, formatCss, hexOfOklch, oklchOf } from '@skills/layout-principles/assets/palette'
+import { accentIssues, buildPalette, contrastExact, CVD_MIN_DISTANCE, CVD_MIN_LIGHTNESS, cvdPairCheck, formatCss, hexOfOklch, NORMAL_MIN_DISTANCE, oklchOf, simulateCvd } from '@skills/layout-principles/assets/palette'
 
 // 색 조합 — 강조색 하나에서 한 벌(강조·강조 글자·선택 바탕·무채색)을 만든다. 기준은 레퍼런스 31곳 실측(tone.md 3·4절)
 describe('palette — OKLCH 변환', () => {
@@ -132,5 +132,71 @@ describe('palette — 한 벌 만들기', () => {
     const css = formatCss(buildPalette({ accent: '#3182f6' }).tokens)
     expect(css.startsWith(':root {')).toBe(true)
     for (const name of ['--color-accent:', '--color-on-accent:', '--color-accent-text:', '--color-accent-soft:', '--color-text:', '--color-canvas:']) expect(css).toContain(name)
+  })
+})
+
+// 색각 이상 시뮬레이션 — 적색·녹색 계열은 Viénot 1999, 청색 계열은 Brettel 1997(선형 sRGB, libDaltonLens 행렬).
+// 기대값은 docs/research/2026-11-26-color-science.md 6절의 계산표다(따로 계산해 같은 값을 확인했다)
+describe('palette — 색각 이상 시뮬레이션', () => {
+  it('회색은 세 유형 모두 그대로다(행렬의 행 합이 1)', () => {
+    for (const hex of ['#000000', '#ffffff', '#1c1c1c', '#686868', '#f3f3f3']) {
+      for (const type of ['protan', 'deutan', 'tritan'] as const) expect(simulateCvd({ hex, type })).toBe(hex)
+    }
+  })
+
+  it('순수 빨강·초록은 녹색 계열(deutan)에서 같은 색상각으로 모인다 — 남는 것은 밝기 차뿐이다', () => {
+    const [red, green] = ['#ff0000', '#00ff00'].map((hex) => oklchOf(simulateCvd({ hex, type: 'deutan' })))
+    expect(Math.abs(red.h - green.h)).toBeLessThan(5)
+    const normal = cvdPairCheck({ a: '#ff0000', b: '#00ff00' })
+    expect(normal.deutan.distance).toBeLessThan(normal.normal.distance / 2)
+  })
+
+  it('오류 빨강 ↔ 완료 초록은 정상 0.27 → 적록 색각 이상 0.11 — 색만으로는 약하다(cvd)', () => {
+    const check = cvdPairCheck({ a: '#c8341f', b: '#13795b' })
+    expect(check.normal.distance).toBeCloseTo(0.27, 2)
+    expect(check.protan.distance).toBeCloseTo(0.11, 2)
+    expect(check.deutan.distance).toBeCloseTo(0.11, 2)
+    expect(check.tritan.distance).toBeCloseTo(0.26, 2)
+    expect(check.verdict).toBe('cvd')
+    expect(check.distinct).toBe(false)
+    // 적색 계열은 거리 0.110이지만 밝기 차가 0.103이라 남는다 — 가장 나쁜 유형은 녹색 계열이다
+    expect(check.worst).toBe('deutan')
+  })
+
+  it('국내 등락 빨강 ↔ 파랑은 세 유형 모두 0.26 이상으로 남는다 — 파랑-노랑 축에 실린다', () => {
+    const check = cvdPairCheck({ a: '#d0262d', b: '#1b64da' })
+    expect(check.normal.distance).toBeCloseTo(0.35, 2)
+    expect(check.protan.distance).toBeCloseTo(0.27, 2)
+    expect(check.deutan.distance).toBeCloseTo(0.31, 2)
+    expect(check.tritan.distance).toBeCloseTo(0.30, 2)
+    expect(check.verdict).toBe('distinct')
+    expect(check.distinct).toBe(true)
+  })
+
+  it('옛 보상 금 #b07d00 ↔ 동 #a8662b는 정상 시각에서도 0.07 — 누구에게나 가깝다(all)', () => {
+    const check = cvdPairCheck({ a: '#b07d00', b: '#a8662b' })
+    expect(check.normal.distance).toBeCloseTo(0.07, 2)
+    expect(check.deutan.distance).toBeCloseTo(0.06, 2)
+    expect(check.verdict).toBe('all')
+    expect(check.worst).toBe('normal')
+  })
+
+  it('밝기 차가 문턱을 넘으면 색상이 겹쳐도 구별된다 — 밝기는 색각 이상에서도 남는 신호다', () => {
+    const check = cvdPairCheck({ a: '#ffffff', b: '#000000' })
+    expect(check.verdict).toBe('distinct')
+    expect(check.deutan.lightness).toBeGreaterThan(CVD_MIN_LIGHTNESS)
+  })
+
+  it('문턱은 이름 있는 상수다 — 색각 이상 0.12·밝기 0.1, 정상 0.1(판단값)', () => {
+    expect(CVD_MIN_DISTANCE).toBe(0.12)
+    expect(CVD_MIN_LIGHTNESS).toBe(0.1)
+    expect(NORMAL_MIN_DISTANCE).toBe(0.1)
+  })
+
+  it('보상 색 세 값(금·은·동)은 정상·세 유형 모두에서 서로 구별된다', () => {
+    const rewards = [COLOR.reward, COLOR.rewardSilver, COLOR.rewardBronze]
+    for (let i = 0; i < rewards.length; i += 1) {
+      for (let j = i + 1; j < rewards.length; j += 1) expect(cvdPairCheck({ a: rewards[i], b: rewards[j] }).verdict, `${rewards[i]} ↔ ${rewards[j]}`).toBe('distinct')
+    }
   })
 })

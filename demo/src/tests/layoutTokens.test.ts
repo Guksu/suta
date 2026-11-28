@@ -149,14 +149,23 @@ describe('layoutTokens — 색 역할 (P2 농도·P3 강조·P5 면)', () => {
     expect(COLOR.rise).not.toBe(COLOR.danger)
   })
 
-  it('보상 색(금·은·동)은 그림(메달·코인·1~3위 표시)이라 흰 면과 옅은 바탕에서 3:1 이상이고, 세 값과 강조색·오류 빨강이 모두 다르다', () => {
-    const rewards = [COLOR.reward, COLOR.rewardSilver, COLOR.rewardBronze]
-    for (const tone of rewards) {
-      for (const ground of [COLOR.surface, COLOR.canvas]) expect(contrastRatio(tone, ground)).toBeGreaterThanOrEqual(3)
+  it('보상 색(금·은·동)은 두 톤이다 — 원판 위 같은 계열 잉크가 4.5:1 이상이고, 원판 없는 선 아이콘에 쓰는 잉크는 흰 면·옅은 바탕에서 4.5:1 이상이다', () => {
+    const pairs = [
+      [COLOR.reward, COLOR.rewardInk],
+      [COLOR.rewardSilver, COLOR.rewardSilverInk],
+      [COLOR.rewardBronze, COLOR.rewardBronzeInk],
+    ] as const
+    for (const [fill, ink] of pairs) {
+      // 메달 안 순위 숫자·배지의 별은 작은 글자·가는 선이라 4.5:1을 기준으로 둔다
+      expect(contrastRatio(ink, fill), `${ink} on ${fill}`).toBeGreaterThanOrEqual(4.5)
+      for (const ground of [COLOR.surface, COLOR.canvas]) expect(contrastRatio(ink, ground), `${ink} on ${ground}`).toBeGreaterThanOrEqual(4.5)
+      // 채움은 밝은 원판이라 흰 면과 3:1이 안 된다 — 채움만으로 선·글자를 그리지 않는다는 문서의 전제
+      expect(contrastRatio(fill, COLOR.surface), `${fill} on white`).toBeLessThan(3)
     }
-    expect(new Set([...rewards, COLOR.accent, COLOR.danger]).size).toBe(5)
-    // 금색 면 위의 글자(메달 안 숫자)는 주 글자색으로 — 흰 글자는 3.6:1이라 작은 글자에 모자란다
-    expect(contrastRatio(COLOR.text, COLOR.reward)).toBeGreaterThanOrEqual(4.5)
+    const fills = pairs.map(([fill]) => fill)
+    expect(new Set([...fills, COLOR.accent, COLOR.danger]).size).toBe(5)
+    // 금 원판 위 흰 아이콘은 1.6:1이다 — 흰색이 아니라 잉크로 그린다
+    expect(contrastRatio(COLOR.surface, COLOR.reward)).toBeLessThan(3)
   })
 
   it('옅은 바탕은 흰 면과 구별되지만 선·글자보다 약하다 — 면은 톤 차이로 나눈다', () => {
