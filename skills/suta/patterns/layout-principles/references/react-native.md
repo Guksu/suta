@@ -68,7 +68,7 @@ export const pressedOpacity = 0.6 // 누른 행·칸 — 한 값으로
 
 `scripts/audit.mjs`는 `.ts·.tsx·.js·.jsx`에서 아래를 읽는다.
 
-- `StyleSheet.create` 안의 숫자·문자열 값: 글자 크기, 간격, 반경, 색, `shadowRadius`.
+- `StyleSheet.create` 안의 숫자·문자열 값: 글자 크기, 간격, 반경, 색, `shadowRadius`. 스타일 이름에 뜻 단어가 있는 면 색 짝(`dotUp`·`dotDown`의 `backgroundColor`)은 색각 이상에서 가까워지는지(`cvd-pair`)도 본다.
 - 토큰 객체의 `accent`·`primary`·`brand`·`text`·`canvas` 같은 색 값: 탁한 강조색(`muddy-accent`), 따뜻한 강조색 옆 푸른 회색(`neutral-temperature`). 강조색 짝의 대비(`accent-contrast`)는 CSS 변수만 읽으니, RN은 `palette.mjs`로 만든 값을 쓰거나 기기에서 확인한다.
 - 화면 문자열: 개발·데모 문구(`meta-copy`), 해요체·합쇼체 섞임(`mixed-tone`).
 - JSX 인라인 `style`.

@@ -361,19 +361,36 @@ describe('auditLayout — 유채색 계열 수 (hue-count)', () => {
       ':root {',
       '  --color-accent: #1f6b4f;',
       '  --color-danger: #c8341f;',
-      '  --color-reward: #b07d00;',
-      '  --color-reward-silver: #7b8088;',
-      '  --color-reward-bronze: #a8662b;',
-      '  --medal-gold: #b07d00;',
-      '  --coin: #b07d00;',
+      '  --color-reward: #ffc233;',
+      '  --color-reward-silver: #a9b4c5;',
+      '  --color-reward-bronze: #e07f42;',
+      '  --medal-gold: #ffc233;',
+      '  --coin: #ffc233;',
       '}',
       '.badge.earned .medal { fill: var(--color-reward); }',
     ].join('\n')
     expect(audit('a.css', css).filter((f) => f.rule === 'hue-count')).toEqual([])
   })
 
+  it('보상 잉크 변수(--color-reward-ink 등)도 보상 색으로 따로 센다 — 원판 위 아이콘·숫자의 색이다', () => {
+    const css = [
+      ':root {',
+      '  --color-accent: #1f6b4f;',
+      '  --color-danger: #c8341f;',
+      '  --color-reward: #ffc233;',
+      '  --color-reward-bronze: #e07f42;',
+      '  --color-reward-ink: #6b4100;',
+      '  --color-reward-silver-ink: #2f3948;',
+      '  --color-reward-bronze-ink: #4d1f00;',
+      '  --medal-gold-ink: #6b4100;',
+      '}',
+      '.medal { background: var(--color-reward); color: var(--color-reward-ink); }',
+    ].join('\n')
+    expect(audit('a.css', css).filter((f) => f.rule === 'hue-count')).toEqual([])
+  })
+
   it('보상 변수 밖에 직접 쓴 금색은 그대로 계열로 센다', () => {
-    const css = [':root {', '  --color-accent: #1f6b4f;', '  --color-danger: #c8341f;', '  --color-reward: #b07d00;', '}', '.badge { color: #b07d00; }'].join('\n')
+    const css = [':root {', '  --color-accent: #1f6b4f;', '  --color-danger: #c8341f;', '  --color-reward: #ffc233;', '}', '.badge { color: #ffc233; }'].join('\n')
     const findings = audit('a.css', css).filter((f) => f.rule === 'hue-count')
     expect(findings).toHaveLength(1)
     expect(findings[0].lines).toEqual([2, 3, 6])
@@ -1173,5 +1190,123 @@ describe('auditLayout — 좁은 화면 처리가 없는 표 (table-squeeze)', (
   it('머리 행이 없으면 첫 행의 칸 수로 센다', () => {
     const body = '<table class="stock"><tr><td>우유</td><td>9L</td><td>20L</td><td>부족</td><td>입고</td></tr></table>'
     expect(found([{ file: 'index.html', text: page({ css: BASE, body }) }])).toHaveLength(1)
+  })
+})
+
+describe('auditLayout — 색각 이상에서 가까워지는 뜻 짝 (cvd-pair)', () => {
+  const found = (file: string, text: string) => audit(file, text).filter((f) => f.rule === 'cvd-pair')
+  const DEFS = [':root {', '  --color-danger: #c8341f;', '  --color-success: #13795b;', '  --color-rise: #d0262d;', '  --color-fall: #1b64da;', '}']
+
+  it('정의만 있는 토큰 파일은 오류 ↔ 완료(적록 0.11)라도 조용하다 — 어디에 어떻게 쓰일지 모른다', () => {
+    expect(found('tokens.css', DEFS.join('\n'))).toEqual([])
+    const tokens = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/layout-tokens.css'), 'utf8')
+    expect(found('layout-tokens.css', tokens)).toEqual([])
+  })
+
+  it('정상 시각에서도 가까운 짝은 정의에서 알린다 — 옛 보상 금 #b07d00 ↔ 동 #a8662b(0.07)', () => {
+    const css = [':root {', '  --color-reward: #b07d00;', '  --color-reward-silver: #7b8088;', '  --color-reward-bronze: #a8662b;', '}'].join('\n')
+    const findings = found('tokens.css', css)
+    const all = findings.find((f) => f.message.includes('정상 시각'))
+    expect(all?.severity).toBe('warn')
+    expect(all?.line).toBe(4)
+    expect(all?.lines).toEqual([2, 4])
+    expect(all?.message).toContain('0.07')
+    expect(all?.fix).toMatch(/밝기/)
+  })
+
+  it('같은 요소의 두 상태를 색 면으로만 가르면 알린다 — 오류 ↔ 완료 점이 녹색 계열 색각 이상에서 0.11', () => {
+    const css = [...DEFS, '.status-dot { width: 8px; height: 8px; border-radius: 50%; }', '.status-dot.is-ok { background: var(--color-success); }', '.status-dot.is-error { background: var(--color-danger); }'].join('\n')
+    const findings = found('status.css', css)
+    expect(findings).toHaveLength(1)
+    expect(findings[0].line).toBe(9)
+    expect(findings[0].lines).toEqual([8, 9])
+    expect(findings[0].message).toMatch(/색각 이상/)
+    expect(findings[0].message).toContain('0.11')
+    expect(findings[0].fix).toMatch(/아이콘|글자|부호/)
+  })
+
+  it('다른 파일에 정의된 토큰도 이름으로 찾아 잰다 — 검사 범위 전체의 정의를 쓴다', () => {
+    const usage = '.field.is-valid { border-color: var(--color-success); }\n.field.is-invalid { border-color: var(--color-danger); }'
+    const findings = auditLayout([{ file: 'tokens.css', text: DEFS.join('\n') }, { file: 'field.css', text: usage }]).filter((f) => f.rule === 'cvd-pair')
+    expect(findings.map((f) => [f.file, f.line])).toEqual([['field.css', 2]])
+  })
+
+  it('정의가 없으면 var()의 대체값으로 잰다', () => {
+    const usage = '.dot--up { background: var(--color-success, #13795b); }\n.dot--down { background: var(--color-danger, #c8341f); }'
+    expect(found('dot.css', usage)).toHaveLength(1)
+  })
+
+  it('글자 색은 세지 않는다 — 글자·부호가 함께 있어 색만으로 전하지 않는다(▲ +1,200 / ▼ −800)', () => {
+    const css = [...DEFS, ".delta b[data-trend='up'] { color: var(--color-success); }", ".delta b[data-trend='down'] { color: var(--color-danger); }"].join('\n')
+    expect(found('delta.css', css)).toEqual([])
+  })
+
+  it('글자를 담는 요소(버튼·배지·칩·토스트)의 면 색은 세지 않는다 — 상태 글자("완료"·"실패")가 함께 바뀐다', () => {
+    const css = [".loading-button[data-status='success'] { background: var(--loading-button-success, #13795b); }", ".loading-button[data-status='error'] { background: var(--loading-button-error, #c8341f); }", '.badge--ok { background: #13795b; }', '.badge--error { background: #c8341f; }'].join('\n')
+    expect(found('button.css', css)).toEqual([])
+  })
+
+  it('국내 등락 빨강 ↔ 파랑은 세 유형 모두에서 멀어 조용하다', () => {
+    const css = [...DEFS, '.bar.is-rise { background: var(--color-rise); }', '.bar.is-fall { background: var(--color-fall); }'].join('\n')
+    expect(found('bar.css', css)).toEqual([])
+  })
+
+  it('뜻 단어를 뺀 선택자가 다르면 같은 요소의 두 상태가 아니라 비교하지 않는다', () => {
+    const css = [...DEFS, '.price-up { background: var(--color-success); }', '.loss-banner { background: var(--color-danger); }'].join('\n')
+    expect(found('a.css', css)).toEqual([])
+  })
+
+  it('이름으로 짝을 짓지 못하면 판단하지 않는다 — 임의의 두 색을 비교하지 않는다', () => {
+    expect(found('a.css', '.a { background: #c8341f; }\n.b { background: #13795b; }')).toEqual([])
+    // 등락 색과 오류 빨강은 뜻 짝이 아니다(둘 다 빨강이어도)
+    expect(found('b.css', ':root { --color-rise: #d0262d; --color-danger: #c8341f; }')).toEqual([])
+  })
+
+  it('옅은 바탕 짝(밝기 0.9 이상)은 뜻을 싣는 표시가 아니라 면이라 세지 않는다', () => {
+    expect(found('a.css', ':root {\n  --color-danger-soft: #fdecea;\n  --color-success-soft: #e8f5ee;\n}')).toEqual([])
+  })
+
+  it('React Native StyleSheet의 색 짝도 읽는다 — 이름(dotUp·dotDown)에서 뜻을 찾는다', () => {
+    const text = "import { StyleSheet } from 'react-native'\n\nexport const styles = StyleSheet.create({\n  dotUp: { backgroundColor: '#13795b' },\n  dotDown: { backgroundColor: '#d0262d' },\n})\n"
+    const findings = found('Trend.tsx', text)
+    expect(findings.map((f) => f.line)).toEqual([5])
+  })
+
+  it('다른 신호를 이미 두었으면 예외 주석으로 끈다', () => {
+    const css = [...DEFS, '.status-dot.is-ok { background: var(--color-success); }', '/* layout-audit-ignore: cvd-pair — 점 옆에 상태 글자가 있다 */', '.status-dot.is-error { background: var(--color-danger); }'].join('\n')
+    expect(found('status.css', css)).toEqual([])
+  })
+
+  it('새 보상 색 세 값을 그림 면에 나란히 써도 조용하다', () => {
+    const tokens = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/layout-tokens.css'), 'utf8')
+    const css = `${tokens}\n.medal--gold { background: var(--color-reward); }\n.medal--silver { background: var(--color-reward-silver); }\n.medal--bronze { background: var(--color-reward-bronze); }`
+    expect(found('medal.css', css)).toEqual([])
+  })
+
+  it('잉크(이름에 ink)는 채움 위 아이콘·숫자의 색이라 짝에서 뺀다 — 정의에서 서로 가까워도 조용하다', () => {
+    // 일부러 가까운 세 잉크 — 구별은 원판(채움)이 하고, 잉크는 그 위 글자색이다
+    const css = [':root {', '  --color-reward-ink: #4a3000;', '  --color-reward-silver-ink: #463000;', '  --color-reward-bronze-ink: #4a2c00;', '}'].join('\n')
+    expect(found('tokens.css', css)).toEqual([])
+  })
+
+  it('원판 위 아이콘을 같은 계열 잉크로 그려도(fill) 조용하다 — 1~3위는 원판 채움이 가른다', () => {
+    const tokens = readFileSync(resolve(process.cwd(), '../skills/suta/patterns/layout-principles/assets/layout-tokens.css'), 'utf8')
+    const css = [
+      tokens,
+      '.medal--gold { background: var(--color-reward); }',
+      '.medal--gold svg { fill: var(--color-reward-ink); }',
+      '.medal--silver { background: var(--color-reward-silver); }',
+      '.medal--silver svg { fill: var(--color-reward-silver-ink); }',
+      '.medal--bronze { background: var(--color-reward-bronze); }',
+      '.medal--bronze svg { fill: var(--color-reward-bronze-ink); }',
+    ].join('\n')
+    expect(found('medal.css', css)).toEqual([])
+  })
+
+  it('잉크를 빼도 채움 짝은 그대로 잰다 — 옛 금·동 채움은 여전히 알린다', () => {
+    const css = [':root {', '  --color-reward: #b07d00;', '  --color-reward-bronze: #a8662b;', '  --color-reward-ink: #6b4100;', '  --color-reward-bronze-ink: #4d1f00;', '}'].join('\n')
+    const findings = found('tokens.css', css)
+    expect(findings).toHaveLength(1)
+    expect(findings[0].lines).toEqual([2, 3])
   })
 })

@@ -11,6 +11,10 @@
  */
 import { COLOR } from './layoutTokens.ts'
 
+// 색각 이상 시뮬레이션과 색 짝 검사 — layout-audit의 cvd-pair 규칙과 같은 코드라 공유 코어(cvd.ts)에 두고 여기서 다시 내보낸다
+export { cvdPairCheck, CVD_MIN_DISTANCE, CVD_MIN_LIGHTNESS, NORMAL_MIN_DISTANCE, simulateCvd } from './cvd.ts'
+export type { CvdType, PairDistance, PairVerdict, Vision } from './cvd.ts'
+
 export type Oklch = { l: number; c: number; h: number }
 export type Tint = 'pure' | 'accent'
 export type AccentIssue = 'muddy' | 'neutral' | 'pastel'
